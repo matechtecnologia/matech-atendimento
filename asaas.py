@@ -28,9 +28,9 @@ def criar_cliente(nome, email, cpf_cnpj):
     }
     try:
         r = requests.post(url, json=payload, headers=_headers(), timeout=15)
+        print(f"ASAAS criar_cliente: status={r.status_code}, response={r.text}")
         if r.status_code == 200:
             return r.json().get("id")
-        print(f"ERRO criar_cliente: {r.status_code} - {r.text}")
         return None
     except Exception as e:
         print(f"ERRO criar_cliente: {e}")

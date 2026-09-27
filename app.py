@@ -503,19 +503,61 @@ def tela_planos(request: Request, usuario_id: str = Cookie(None), usuario_nome: 
         "dias_restantes": dias
     })
 
-@app.post("/assinar")
-def assinar(request: Request, plano: str = Form(...), valor: str = Form(...), usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):
+@app.get("/gerar_pix")
+def gerar_pix_get():
+    return RedirectResponse(url="/planos", status_code=303)
+
+@app.post("/gerar_pix")
+def gerar_pix(request: Request, plano: str = Form(...), valor: str = Form(...), cpf_cnpj: str = Form(...), usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):
     if not usuario_id:
         return RedirectResponse(url="/login")
     v = buscar_vendedor(usuario_id)
     if not v:
         return RedirectResponse(url="/onboarding")
-    return templates.TemplateResponse(request=request, name="assinar.html", context={
-        "usuario_nome": usuario_nome,
-        "plano": plano,
-        "valor": valor,
-        "erro": None
-    })
+
+    cpf_cnpj = "".join(filter(str.isdigit, cpf_cnpj))
+    print(f"DEBUG: CPF recebido: {cpf_cnpj} (tamanho: {len(cpf_cnpj)})")
+
+    if len(cpf_cnpj) not in [11, 14]:
+        return templates.TemplateResponse(request=request, name="assinar.html", context={
+            "usuario_nome": usuario_nome, "plano": plano, "valor": valor,
+            "erro": f"CPF/CNPJ invalido. Voce digitou {len(cpf_cnpj)} digitos. Precisa ter 11 ou 14."
+        })
+
+    conn = sqlite3.connect("dados.db")
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM usuarios WHERE id = ?", (usuario_id,))
+    u = c.fetchone()
+    conn.close()
+
+    print(f"DEBUG: Criando cliente no Asaas - nome={u['nome']}, email={u['email']}, cpf={cpf_cnpj}")
+
+    customer_id = criar_cliente(u["nome"], u["email"], cpf_cnpj)
+    if not customer_id:
+        return templates.TemplateResponse(request=request, name="assinar.html", context={
+            "usuario_nome": usuario_nome, "plano": plano, "valor": valor,
+            "erro": f"Erro ao criar cliente no Asaas. CPF usado: {cpf_cnpj}. Verifique se o CPF e valido ou tente outro."
+        })
+
+    vencimento = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    descricao = f"M.A Tech - Plano {plano.upper()}"
+
+    payment_id = criar_cobranca_pix(customer_id, float(valor), descricao, vencimento)
+    if not payment_id:
+        return templates.TemplateResponse(request=request, name="assinar.html", context={
+            "usuario_nome": usuario_nome, "plano": plano, "valor": valor,
+            "erro": "Erro ao criar cobranca. Verifique a chave PIX no Asaas."
+        })
+
+    conn = sqlite3.connect("dados.db")
+    c = conn.cursor()
+    c.execute("INSERT INTO pagamentos (vendedor_id, payment_id, plano, valor) VALUES (?, ?, ?, ?)",
+              (v["id"], payment_id, plano, float(valor)))
+    conn.commit()
+    conn.close()
+
+    return RedirectResponse(url=f"/pagamento/{payment_id}", status_code=303)
 
 @app.post("/gerar_pix")
 def gerar_pix(request: Request, plano: str = Form(...), valor: str = Form(...), cpf_cnpj: str = Form(...), usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):
