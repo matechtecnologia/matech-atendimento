@@ -222,6 +222,10 @@ def processar_atendimento(aid, linha_crm, mensagem, prompt, hist, whatsapp, uid,
 def raiz():
     return RedirectResponse(url="/login")
 
+@app.head("/")
+def raiz_head():
+    return HTMLResponse("")
+
 @app.get("/signup", response_class=HTMLResponse)
 def tela_signup(request: Request, erro: str = None):
     return templates.TemplateResponse(request=request, name="signup.html", context={"erro": erro})
