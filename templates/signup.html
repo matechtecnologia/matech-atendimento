@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>M.A Tech - Criar Conta</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container-login">
+        <h1>M.A Tech</h1>
+        <p class="subtitulo">Criar conta grátis</p>
+
+        {% if erro %}
+        <div class="erro">{{ erro }}</div>
+        {% endif %}
+
+        <form method="POST" action="/signup">
+            <label>Nome</label>
+            <input type="text" name="nome" required autofocus>
+
+            <label>Email</label>
+            <input type="email" name="email" required>
+
+            <label>Senha (mínimo 6 caracteres)</label>
+            <input type="password" name="senha" required minlength="6">
+
+            <button type="submit">CRIAR CONTA GRÁTIS</button>
+        </form>
+
+        <p style="color:#aaa; text-align:center; margin-top:20px; font-size:14px;">
+            Já tem conta? <a href="/login" style="color:#4a9eff;">Entrar</a>
+        </p>
+    </div>
+</body>
+</html>

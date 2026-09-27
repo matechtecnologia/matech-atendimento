@@ -11,8 +11,8 @@
             <h1>M.A Tech</h1>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
-                <a href="/atendimento">Atendimento</a>
                 <a href="/meus_nichos">Nichos</a>
+                {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
                 <a href="/logout">Sair</a>
             </div>
         </div>
