@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>M.A Tech - Resultado</title>
+    <link rel="stylesheet" href="/static/style.css">
+    {% if atendimento.status == 'processando' %}
+    <meta http-equiv="refresh" content="3">
+    {% endif %}
+</head>
+<body>
+    <div class="container-atendimento">
+        <div class="topo">
+            <h1>M.A Tech</h1>
+            <div class="usuario-info">
+                <span>{{ usuario_nome }}</span>
+                <a href="/logout">Sair</a>
+            </div>
+        </div>
+
+        <p><a href="/atendimento">Voltar</a></p>
+
+        {% if atendimento.status == 'processando' %}
+        <div class="bloco bloco-acao">
+            <h2>Processando...</h2>
+            <p>A IA esta gerando a resposta. A pagina atualiza a cada 3 segundos.</p>
+            <p>Aguarde...</p>
+        </div>
+        {% else %}
+        <div class="bloco bloco-fala">
+            <div class="bloco-topo">
+                <h2>O QUE FALAR (audio)</h2>
+                <button onclick="copiar('fala')" class="btn-copiar">COPIAR</button>
+            </div>
+            <pre id="fala">{{ atendimento.o_que_falar }}</pre>
+        </div>
+
+        <div class="bloco bloco-texto">
+            <div class="bloco-topo">
+                <h2>TEXTO PARA ENVIAR</h2>
+                <button onclick="copiar('texto')" class="btn-copiar">COPIAR</button>
+            </div>
+            <pre id="texto">{{ atendimento.texto_para_enviar }}</pre>
+        </div>
+
+        <div class="bloco bloco-acao">
+            <div class="bloco-topo">
+                <h2>ACAO CRM</h2>
+            </div>
+            <div class="acao-valor">{{ atendimento.acao_crm }}</div>
+        </div>
+
+        <div class="bloco bloco-crm">
+            <div class="bloco-topo">
+                <h2>LINHA CRM ATUALIZADA</h2>
+                <button onclick="copiar('crm')" class="btn-copiar">COPIAR</button>
+            </div>
+            <pre id="crm">{{ atendimento.linha_crm_gerada }}</pre>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+    function copiar(id) {
+        const texto = document.getElementById(id).innerText;
+        navigator.clipboard.writeText(texto).then(() => {
+            alert('Copiado!');
+        });
+    }
+    </script>
+</body>
+</html>

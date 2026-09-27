@@ -1,0 +1,42 @@
+import sqlite3
+from passlib.context import CryptContext
+
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+
+def criar_banco():
+    conn = sqlite3.connect("dados.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            senha TEXT NOT NULL,
+            tipo TEXT NOT NULL DEFAULT 'atendente',
+            ativo INTEGER NOT NULL DEFAULT 1,
+            criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS atendimentos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            atendente_id INTEGER NOT NULL,
+            linha_crm TEXT,
+            mensagem_cliente TEXT,
+            o_que_falar TEXT,
+            texto_para_enviar TEXT,
+            acao_crm TEXT,
+            linha_crm_gerada TEXT,
+            status TEXT DEFAULT 'processando',
+            criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.commit()
+    conn.close()
+    print("Banco criado: dados.db")
+
+if __name__ == "__main__":
+    criar_banco()

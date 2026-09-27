@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>M.A Tech - Atendimento</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container-atendimento">
+        <div class="topo">
+            <h1>M.A Tech</h1>
+            <div class="usuario-info">
+                <span>{{ usuario_nome }}</span>
+                <a href="/logout">Sair</a>
+            </div>
+        </div>
+
+        <form method="POST" action="/gerar_resposta">
+            <div class="campo">
+                <label>Linha CRM do cliente</label>
+                <textarea name="linha_crm" rows="3" placeholder="Cole aqui a linha da planilha ou os dados do cliente" required>{{ linha_crm or '' }}</textarea>
+            </div>
+
+            <div class="campo">
+                <label>O que o cliente falou agora</label>
+                <textarea name="mensagem_cliente" rows="3" placeholder="Digite o que o cliente disse" required>{{ mensagem_cliente or '' }}</textarea>
+            </div>
+
+            <button type="submit" class="btn-gerar">GERAR RESPOSTA</button>
+        </form>
+    </div>
+</body>
+</html>

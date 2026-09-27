@@ -1,0 +1,6 @@
+.env
+dados.db
+__pycache__/
+*.pyc
+backup_matech/
+erro.log
