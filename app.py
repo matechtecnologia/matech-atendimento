@@ -32,7 +32,9 @@ def inicializar_banco():
     cursor.execute("""CREATE TABLE IF NOT EXISTS nichos (id INTEGER PRIMARY KEY AUTOINCREMENT, vendedor_id INTEGER NOT NULL, nome TEXT NOT NULL, produto TEXT, publico TEXT, preco TEXT, dor TEXT, objecao TEXT, diferencial TEXT, tom TEXT, prompt_gerado TEXT, ativo INTEGER DEFAULT 1, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
     cursor.execute("""CREATE TABLE IF NOT EXISTS atendimentos (id INTEGER PRIMARY KEY AUTOINCREMENT, atendente_id INTEGER NOT NULL, nicho_id INTEGER, whatsapp TEXT, linha_crm TEXT, mensagem_cliente TEXT, o_que_falar TEXT, texto_para_enviar TEXT, acao_crm TEXT, linha_crm_gerada TEXT, status TEXT DEFAULT 'processando', criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
     cursor.execute("""CREATE TABLE IF NOT EXISTS historico (id INTEGER PRIMARY KEY AUTOINCREMENT, whatsapp TEXT NOT NULL, vendedor_id INTEGER NOT NULL, direcao TEXT NOT NULL, mensagem TEXT NOT NULL, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
+    cursor.execute("""CREATE TABLE IF NOT EXISTS clientes (id INTEGER PRIMARY KEY AUTOINCREMENT, vendedor_id INTEGER NOT NULL, whatsapp TEXT NOT NULL, nome TEXT, email TEXT, origem TEXT, status TEXT DEFAULT 'lead', observacoes TEXT, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP, atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP, UNIQUE(vendedor_id, whatsapp))""")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_hist_whatsapp ON historico(whatsapp, vendedor_id)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_clientes_vendedor ON clientes(vendedor_id)")
     cursor.execute("SELECT * FROM usuarios WHERE email = ?", ("matechtecnologia01@gmail.com",))
     if not cursor.fetchone():
         senha_hash = pwd_context.hash("M@techtechnologia12997291583")
@@ -338,18 +340,23 @@ def salvar_novo_nicho(nome_nicho: str = Form(...), produto: str = Form(...), pub
 
 @app.get("/clientes", response_class=HTMLResponse)
 def tela_clientes(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):
-    if not usuario_id:
-        return RedirectResponse(url="/login")
-    v = buscar_vendedor(usuario_id)
-    if not v:
-        return RedirectResponse(url="/onboarding")
+    try:
+        if not usuario_id:
+            return RedirectResponse(url="/login")
+        v = buscar_vendedor(usuario_id)
+        if not v:
+            return RedirectResponse(url="/onboarding")
 
-    clientes = listar_clientes(v["id"])
+        clientes = listar_clientes(v["id"])
 
-    return templates.TemplateResponse(request=request, name="clientes.html", context={
-        "usuario_nome": usuario_nome,
-        "clientes": [dict(c) for c in clientes]
-    })
+        return templates.TemplateResponse(request=request, name="clientes.html", context={
+            "usuario_nome": usuario_nome,
+            "clientes": [dict(c) for c in clientes]
+        })
+    except Exception as e:
+        import traceback
+        erro_completo = traceback.format_exc()
+        return HTMLResponse(f"<pre>ERRO: {e}\n\n{erro_completo}</pre>", status_code=500)
 
 @app.post("/salvar_cliente_manual")
 def salvar_cliente_manual(
