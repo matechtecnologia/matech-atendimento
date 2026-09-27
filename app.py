@@ -495,16 +495,49 @@ def gerar_pix(request: Request, plano: str = Form(...), valor: str = Form(...), 
 def tela_pagamento(request: Request, payment_id: str, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):
     if not usuario_id:
         return RedirectResponse(url="/login")
+
     conn = sqlite3.connect("dados.db")
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     c.execute("SELECT plano, valor, status FROM pagamentos WHERE payment_id = ?", (payment_id,))
     p = c.fetchone()
     conn.close()
-    qr = obter_qr_code(payment_id)
-    pago = p and p["status"] == "pago"
-    return templates.TemplateResponse(request=request, name="pagamento_pix.html", context={"usuario_nome": usuario_nome, "qr_code": qr, "plano": p["plano"] if p else "—", "valor": f"{p['valor']:.2f}".replace(".", ",") if p else "0,00", "payment_id": payment_id, "pago": pago})
 
+    if not p:
+        return RedirectResponse(url="/planos")
+
+    pago = p["status"] == "pago"
+
+    # Se ainda não está pago no banco, consulta o Asaas
+    if not pago:
+        info = consultar_pagamento(payment_id)
+        status_asaas = info.get("status") if info else None
+        if status_asaas in ["CONFIRMED", "RECEIVED"]:
+            conn = sqlite3.connect("dados.db")
+            c = conn.cursor()
+            c.execute("SELECT vendedor_id FROM pagamentos WHERE payment_id = ?", (payment_id,))
+            row = c.fetchone()
+            if row:
+                exp = (datetime.now() + timedelta(days=30)).isoformat()
+                c.execute("UPDATE vendedores SET plano=?, plano_expira_em=?, atualizado_em=CURRENT_TIMESTAMP WHERE id=?", (p["plano"], exp, row[0]))
+                c.execute("UPDATE pagamentos SET status='pago' WHERE payment_id=?", (payment_id,))
+                conn.commit()
+            conn.close()
+            pago = True
+
+    # Se já está pago, não busca QR Code
+    qr = None
+    if not pago:
+        qr = obter_qr_code(payment_id)
+
+    return templates.TemplateResponse(request=request, name="pagamento_pix.html", context={
+        "usuario_nome": usuario_nome,
+        "qr_code": qr,
+        "plano": p["plano"],
+        "valor": f"{p['valor']:.2f}".replace(".", ","),
+        "payment_id": payment_id,
+        "pago": pago
+    })
 @app.get("/verificar_pagamento/{payment_id}")
 def verificar_pagamento(payment_id: str, usuario_id: str = Cookie(None)):
     if not usuario_id:
