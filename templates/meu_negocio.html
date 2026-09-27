@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>M.A Tech - Meu Negócio</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container-atendimento">
+        <div class="topo">
+            <h1>M.A Tech</h1>
+            <div class="usuario-info">
+                <span>{{ usuario_nome }}</span>
+                <a href="/atendimento">Atendimento</a>
+                <a href="/logout">Sair</a>
+            </div>
+        </div>
+
+        <div class="bloco bloco-fala">
+            <h2>Meu Negócio</h2>
+            <p style="color:#aaa; margin-top:8px;">Edite as informações. A IA vai se atualizar automaticamente.</p>
+        </div>
+
+        <form method="POST" action="/salvar_meu_negocio">
+            <div class="campo">
+                <label>1. O que você vende?</label>
+                <textarea name="produto" rows="5" required>{{ vendedor.produto }}</textarea>
+            </div>
+
+            <div class="campo">
+                <label>2. Para quem você vende?</label>
+                <textarea name="publico" rows="5" required>{{ vendedor.publico }}</textarea>
+            </div>
+
+            <div class="campo">
+                <label>3. Qual o preço?</label>
+                <textarea name="preco" rows="3" required>{{ vendedor.preco }}</textarea>
+            </div>
+
+            <div class="campo">
+                <label>4. Qual a maior dor do seu cliente?</label>
+                <textarea name="dor" rows="5" required>{{ vendedor.dor }}</textarea>
+            </div>
+
+            <div class="campo">
+                <label>5. Qual a objeção mais comum?</label>
+                <textarea name="objecao" rows="5" required>{{ vendedor.objecao }}</textarea>
+            </div>
+
+            <div class="campo">
+                <label>6. Qual o seu diferencial?</label>
+                <textarea name="diferencial" rows="5" required>{{ vendedor.diferencial }}</textarea>
+            </div>
+
+            <div class="campo">
+                <label>7. Qual o tom de voz?</label>
+                <textarea name="tom" rows="3" required>{{ vendedor.tom }}</textarea>
+            </div>
+
+            <button type="submit" class="btn-gerar">SALVAR E ATUALIZAR IA</button>
+        </form>
+    </div>
+</body>
+</html>

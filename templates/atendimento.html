@@ -11,19 +11,29 @@
             <h1>M.A Tech</h1>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
+                <a href="/meus_nichos">Meus Nichos</a>
                 <a href="/logout">Sair</a>
             </div>
         </div>
 
         <form method="POST" action="/gerar_resposta">
             <div class="campo">
+                <label>Nicho</label>
+                <select name="nicho_id" required>
+                    {% for n in nichos %}
+                    <option value="{{ n.id }}">{{ n.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="campo">
                 <label>WhatsApp do cliente (só números)</label>
-                <input type="text" name="whatsapp" required placeholder="Ex: 11987654321" value="{{ whatsapp or '' }}">
+                <input type="text" name="whatsapp" required placeholder="Ex: 11987654321">
             </div>
 
             <div class="campo">
                 <label>Linha CRM (estado atual do cliente)</label>
-                <textarea name="linha_crm" rows="3" placeholder="Cole aqui a linha da planilha" required>{{ linha_crm or '' }}</textarea>
+                <textarea name="linha_crm" rows="3" placeholder="Cole a linha da planilha" required>{{ linha_crm or '' }}</textarea>
             </div>
 
             <div class="campo">

@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>M.A Tech - Configuração</title>
+    <title>M.A Tech - Novo Nicho</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -11,57 +11,57 @@
             <h1>M.A Tech</h1>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
+                <a href="/meus_nichos">Meus Nichos</a>
                 <a href="/logout">Sair</a>
             </div>
         </div>
 
         <div class="bloco bloco-fala">
-            <h2>Configuração Inicial</h2>
-            <p style="color:#aaa; margin-top:8px;">Você está criando o seu primeiro nicho. Plano Grátis: 1 nicho.</p>
+            <h2>Novo Nicho</h2>
         </div>
 
-        <form method="POST" action="/salvar_onboarding">
+        <form method="POST" action="/salvar_novo_nicho">
             <div class="campo">
-                <label>Nome do nicho (curto)</label>
-                <input type="text" name="nome_nicho" required placeholder="Ex: Consórcio Ademicon" value="Meu Negócio">
+                <label>Nome do nicho</label>
+                <input type="text" name="nome_nicho" required placeholder="Ex: Seguro de Vida">
             </div>
 
             <div class="campo">
                 <label>1. O que você vende?</label>
-                <textarea name="produto" rows="5" required placeholder="Descreva o produto/serviço..."></textarea>
+                <textarea name="produto" rows="5" required></textarea>
             </div>
 
             <div class="campo">
                 <label>2. Para quem você vende?</label>
-                <textarea name="publico" rows="5" required placeholder="Perfil do cliente..."></textarea>
+                <textarea name="publico" rows="5" required></textarea>
             </div>
 
             <div class="campo">
                 <label>3. Qual o preço?</label>
-                <textarea name="preco" rows="3" required placeholder="Como funciona o preço..."></textarea>
+                <textarea name="preco" rows="3" required></textarea>
             </div>
 
             <div class="campo">
                 <label>4. Qual a maior dor do seu cliente?</label>
-                <textarea name="dor" rows="5" required placeholder="Liste as dores..."></textarea>
+                <textarea name="dor" rows="5" required></textarea>
             </div>
 
             <div class="campo">
                 <label>5. Qual a objeção mais comum?</label>
-                <textarea name="objecao" rows="5" required placeholder="Liste as objeções..."></textarea>
+                <textarea name="objecao" rows="5" required></textarea>
             </div>
 
             <div class="campo">
                 <label>6. Qual o seu diferencial?</label>
-                <textarea name="diferencial" rows="5" required placeholder="Liste os diferenciais..."></textarea>
+                <textarea name="diferencial" rows="5" required></textarea>
             </div>
 
             <div class="campo">
                 <label>7. Qual o tom de voz?</label>
-                <textarea name="tom" rows="3" required placeholder="Ex: Profissional mas acessível"></textarea>
+                <textarea name="tom" rows="3" required></textarea>
             </div>
 
-            <button type="submit" class="btn-gerar">SALVAR E CONFIGURAR IA</button>
+            <button type="submit" class="btn-gerar">SALVAR NICHO</button>
         </form>
     </div>
 </body>

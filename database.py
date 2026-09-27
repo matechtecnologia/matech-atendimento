@@ -20,24 +20,21 @@ def criar_banco():
     """)
 
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS atendimentos (
+        CREATE TABLE IF NOT EXISTS vendedores (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            atendente_id INTEGER NOT NULL,
-            linha_crm TEXT,
-            mensagem_cliente TEXT,
-            o_que_falar TEXT,
-            texto_para_enviar TEXT,
-            acao_crm TEXT,
-            linha_crm_gerada TEXT,
-            status TEXT DEFAULT 'processando',
-            criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+            usuario_id INTEGER UNIQUE NOT NULL,
+            plano TEXT DEFAULT 'gratis',
+            onboarding_completo INTEGER DEFAULT 0,
+            criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
+            atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
 
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS vendedores (
+        CREATE TABLE IF NOT EXISTS nichos (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            usuario_id INTEGER UNIQUE NOT NULL,
+            vendedor_id INTEGER NOT NULL,
+            nome TEXT NOT NULL,
             produto TEXT,
             publico TEXT,
             preco TEXT,
@@ -46,9 +43,25 @@ def criar_banco():
             diferencial TEXT,
             tom TEXT,
             prompt_gerado TEXT,
-            onboarding_completo INTEGER DEFAULT 0,
-            criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
-            atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+            ativo INTEGER DEFAULT 1,
+            criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS atendimentos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            atendente_id INTEGER NOT NULL,
+            nicho_id INTEGER,
+            whatsapp TEXT,
+            linha_crm TEXT,
+            mensagem_cliente TEXT,
+            o_que_falar TEXT,
+            texto_para_enviar TEXT,
+            acao_crm TEXT,
+            linha_crm_gerada TEXT,
+            status TEXT DEFAULT 'processando',
+            criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     """)
 

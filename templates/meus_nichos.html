@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>M.A Tech - Meus Nichos</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container-atendimento">
+        <div class="topo">
+            <h1>M.A Tech</h1>
+            <div class="usuario-info">
+                <span>{{ usuario_nome }}</span>
+                <a href="/atendimento">Atendimento</a>
+                <a href="/logout">Sair</a>
+            </div>
+        </div>
+
+        {% if erro %}
+        <div class="erro">{{ erro }}</div>
+        {% endif %}
+
+        <div class="bloco bloco-fala">
+            <h2>Meus Nichos</h2>
+            <p style="color:#aaa; margin-top:8px;">Plano: <strong>{{ plano|upper }}</strong> — {{ total }} de {{ limite }} nichos usados</p>
+        </div>
+
+        {% for n in nichos %}
+        <div class="bloco bloco-texto">
+            <div class="bloco-topo">
+                <h2>{{ n.nome }}</h2>
+            </div>
+            <p style="color:#ccc; font-size:14px;">{{ n.produto[:200] }}{% if n.produto|length > 200 %}...{% endif %}</p>
+            <p style="color:#666; font-size:12px; margin-top:8px;">Criado em: {{ n.criado_em }}</p>
+        </div>
+        {% endfor %}
+
+        {% if total < limite %}
+        <a href="/novo_nicho" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-top:20px;">+ ADICIONAR NICHO</a>
+        {% else %}
+        <div class="bloco bloco-acao" style="margin-top:20px;">
+            <h2>Limite atingido</h2>
+            <p style="color:#aaa; margin-top:8px;">Você atingiu o limite de {{ limite }} nichos do plano {{ plano|upper }}.</p>
+            <p style="color:#aaa;">Faça upgrade para adicionar mais nichos.</p>
+        </div>
+        {% endif %}
+
+        <div class="bloco bloco-crm" style="margin-top:20px;">
+            <h2>Aviso</h2>
+            <p style="color:#aaa; margin-top:8px; font-size:14px;">
+                Os nichos não podem ser editados ou apagados depois de criados.
+                Se precisar de mais nichos, faça upgrade do plano.
+            </p>
+        </div>
+
+    </div>
+</body>
+</html>
