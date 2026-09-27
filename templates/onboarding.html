@@ -17,49 +17,43 @@
 
         <div class="bloco bloco-fala">
             <h2>Configuração Inicial</h2>
-            <p style="color:#aaa; margin-top:8px;">Responda as perguntas abaixo. A IA vai aprender sobre o seu negócio.</p>
+            <p style="color:#aaa; margin-top:8px;">Preencha com detalhes. Quanto mais informação, melhor a IA vai atender.</p>
         </div>
 
         <form method="POST" action="/salvar_onboarding">
             <div class="campo">
-                <label>O que você vende?</label>
-                <input type="text" name="produto" required placeholder="Ex: Consultoria financeira">
+                <label>1. O que você vende?</label>
+                <textarea name="produto" rows="5" required placeholder="Descreva o produto/serviço em detalhes..."></textarea>
             </div>
 
             <div class="campo">
-                <label>Para quem você vende?</label>
-                <input type="text" name="publico" required placeholder="Ex: Pequenas empresas">
+                <label>2. Para quem você vende?</label>
+                <textarea name="publico" rows="5" required placeholder="Descreva o perfil do seu cliente..."></textarea>
             </div>
 
             <div class="campo">
-                <label>Qual o preço?</label>
-                <input type="text" name="preco" required placeholder="Ex: R$ 1.500/mês">
+                <label>3. Qual o preço?</label>
+                <textarea name="preco" rows="3" required placeholder="Como funciona o preço?"></textarea>
             </div>
 
             <div class="campo">
-                <label>Qual a maior dor do seu cliente?</label>
-                <input type="text" name="dor" required placeholder="Ex: Falta de controle financeiro">
+                <label>4. Qual a maior dor do seu cliente?</label>
+                <textarea name="dor" rows="5" required placeholder="Liste as dores..."></textarea>
             </div>
 
             <div class="campo">
-                <label>Qual a objeção mais comum?</label>
-                <input type="text" name="objecao" required placeholder="Ex: É caro">
+                <label>5. Qual a objeção mais comum?</label>
+                <textarea name="objecao" rows="5" required placeholder="Liste as objeções..."></textarea>
             </div>
 
             <div class="campo">
-                <label>Qual o seu diferencial?</label>
-                <input type="text" name="diferencial" required placeholder="Ex: Atendimento personalizado">
+                <label>6. Qual o seu diferencial?</label>
+                <textarea name="diferencial" rows="5" required placeholder="Liste os diferenciais..."></textarea>
             </div>
 
             <div class="campo">
-                <label>Qual o tom de voz?</label>
-                <select name="tom">
-                    <option value="Profissional mas acessível">Profissional mas acessível</option>
-                    <option value="Formal">Formal</option>
-                    <option value="Descontraído">Descontraído</option>
-                    <option value="Técnico">Técnico</option>
-                    <option value="Amigável">Amigável</option>
-                </select>
+                <label>7. Qual o tom de voz?</label>
+                <textarea name="tom" rows="3" required placeholder="Ex: Profissional mas acessível"></textarea>
             </div>
 
             <button type="submit" class="btn-gerar">SALVAR E CONFIGURAR IA</button>

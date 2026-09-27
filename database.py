@@ -52,6 +52,19 @@ def criar_banco():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS historico (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            whatsapp TEXT NOT NULL,
+            vendedor_id INTEGER NOT NULL,
+            direcao TEXT NOT NULL,
+            mensagem TEXT NOT NULL,
+            criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_hist_whatsapp ON historico(whatsapp, vendedor_id)")
+
     conn.commit()
     conn.close()
     print("Banco criado: dados.db")

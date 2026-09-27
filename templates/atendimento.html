@@ -17,13 +17,25 @@
 
         <form method="POST" action="/gerar_resposta">
             <div class="campo">
-                <label>Linha CRM do cliente</label>
-                <textarea name="linha_crm" rows="3" placeholder="Cole aqui a linha da planilha ou os dados do cliente" required>{{ linha_crm or '' }}</textarea>
+                <label>WhatsApp do cliente (só números)</label>
+                <input type="text" name="whatsapp" required placeholder="Ex: 11987654321" value="{{ whatsapp or '' }}">
             </div>
 
             <div class="campo">
-                <label>O que o cliente falou agora</label>
-                <textarea name="mensagem_cliente" rows="3" placeholder="Digite o que o cliente disse" required>{{ mensagem_cliente or '' }}</textarea>
+                <label>Linha CRM (estado atual do cliente)</label>
+                <textarea name="linha_crm" rows="3" placeholder="Cole aqui a linha da planilha" required>{{ linha_crm or '' }}</textarea>
+            </div>
+
+            <div class="campo">
+                <label>O que o cliente falou agora (ou instrução)</label>
+                <textarea name="mensagem_cliente" rows="3" placeholder="Cole o que o cliente disse" required>{{ mensagem_cliente or '' }}</textarea>
+            </div>
+
+            <div class="campo">
+                <label>
+                    <input type="checkbox" name="modo_instrucao" value="1" style="width:auto; margin-right:8px;">
+                    Isso é uma INSTRUÇÃO (não é fala do cliente)
+                </label>
             </div>
 
             <button type="submit" class="btn-gerar">GERAR RESPOSTA</button>

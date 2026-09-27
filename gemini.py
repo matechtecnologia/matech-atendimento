@@ -10,12 +10,12 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-3.5-flash-lite")
 
 def separar_resposta(texto):
-    """Separa a resposta da IA em 4 blocos."""
     blocos = {
         "o_que_falar": "",
         "texto_para_enviar": "NENHUM",
         "acao_crm": "LEAD",
-        "linha_crm": ""
+        "linha_crm": "",
+        "resumo_conversa": ""
     }
 
     try:
@@ -35,34 +35,61 @@ def separar_resposta(texto):
                 blocos["acao_crm"] = partes.split("=== LINHA CRM ===")[0].strip()
 
         if "=== LINHA CRM ===" in texto:
-            blocos["linha_crm"] = texto.split("=== LINHA CRM ===")[1].strip()
+            partes = texto.split("=== LINHA CRM ===")[1]
+            if "=== RESUMO DA CONVERSA ===" in partes:
+                blocos["linha_crm"] = partes.split("=== RESUMO DA CONVERSA ===")[0].strip()
+            else:
+                blocos["linha_crm"] = partes.strip()
+
+        if "=== RESUMO DA CONVERSA ===" in texto:
+            blocos["resumo_conversa"] = texto.split("=== RESUMO DA CONVERSA ===")[1].strip()
 
     except Exception as e:
         blocos["o_que_falar"] = f"ERRO AO SEPARAR: {e}\n\nTexto original:\n{texto}"
 
     return blocos
 
-def gerar_resposta(linha_crm, mensagem_cliente):
-    """Chama a IA e devolve os 4 blocos."""
-    prompt_completo = f"""{PROMPT_MATECH}
+def gerar_resposta(linha_crm, mensagem_cliente, prompt_vendedor=None, historico=""):
+    if not prompt_vendedor:
+        prompt_vendedor = PROMPT_MATECH
+
+    prompt_completo = f"""{prompt_vendedor}
 
 ---
 
-# CONTEXTO DO CLIENTE (linha CRM atual)
+# CONTEXTO DO CLIENTE (estado atual — CRM)
 
 {linha_crm}
 
 ---
 
-# MENSAGEM DO CLIENTE AGORA
+# HISTÓRICO RECENTE DA CONVERSA (memória)
+
+{historico if historico else "Primeira interação com este cliente."}
+
+---
+
+# MENSAGEM ATUAL
 
 {mensagem_cliente}
 
 ---
 
+# INSTRUÇÕES SOBRE CRM E HISTÓRICO
+
+CRM = estado ATUAL do cliente (nicho, dor, status, próximo passo)
+HISTÓRICO = o que foi DITO na conversa (memória)
+
+REGRA:
+- Não duplique informação entre CRM e HISTÓRICO
+- O CRM tem o estado. O histórico tem o que foi falado.
+- Se algo já está no CRM, não precisa repetir no histórico.
+
+---
+
 # SUA TAREFA
 
-Analise o contexto acima + a mensagem do cliente e responda EXATAMENTE no formato obrigatório:
+Responda EXATAMENTE neste formato:
 
 === O QUE FALAR ===
 [áudio de 10-30 segundos]
@@ -74,7 +101,10 @@ Analise o contexto acima + a mensagem do cliente e responda EXATAMENTE no format
 [LEAD / FOLLOW-UP / FECHADO / ONBOARDING]
 
 === LINHA CRM ===
-[linha completa atualizada]
+[Nome: xxx; Nicho: xxx; Objetivo: xxx; Dor: xxx; Objeção: xxx; Estratégia: xxx; Interesse: xxx; Status: xxx; Próximo passo: xxx]
+
+=== RESUMO DA CONVERSA ===
+[resumo ABREVIADO de tudo que foi dito até agora — máximo 5 linhas — sem duplicar o CRM]
 """
 
     try:
@@ -86,40 +116,73 @@ Analise o contexto acima + a mensagem do cliente e responda EXATAMENTE no format
             "o_que_falar": f"ERRO NA API: {e}",
             "texto_para_enviar": "NENHUM",
             "acao_crm": "ERRO",
-            "linha_crm": ""
+            "linha_crm": "",
+            "resumo_conversa": ""
         }
+
 def gerar_prompt_vendedor(produto, publico, preco, dor, objecao, diferencial, tom):
     prompt_base = """Você é um closer estratégico especializado em vendas consultivas.
 
-SEU PRODUTO/SERVIÇO: {produto}
-SEU PÚBLICO-ALVO: {publico}
-PREÇO: {preco}
-DOR PRINCIPAL DO CLIENTE: {dor}
-OBJEÇÃO MAIS COMUM: {objecao}
-SEU DIFERENCIAL: {diferencial}
-TOM DE VOZ: {tom}
+---
 
-REGRAS CRÍTICAS:
+# SOBRE O PRODUTO/SERVIÇO
+
+{produto}
+
+---
+
+# PÚBLICO-ALVO
+
+{publico}
+
+---
+
+# PREÇO
+
+{preco}
+
+---
+
+# DOR PRINCIPAL DO CLIENTE
+
+{dor}
+
+---
+
+# OBJEÇÕES MAIS COMUNS
+
+{objecao}
+
+---
+
+# DIFERENCIAL
+
+{diferencial}
+
+---
+
+# TOM DE VOZ
+
+{tom}
+
+---
+
+# REGRAS CRÍTICAS
+
 1. NUNCA faça mais de uma pergunta por vez
 2. NUNCA pergunte o óbvio
-3. Use o contexto acumulado
+3. Use todo o contexto acumulado (CRM + histórico)
 4. Cada mensagem deve mover a venda para frente
 5. Áudios de 10-30 segundos
 6. Texto apenas quando for preço, link ou informação técnica
 
-FORMATO OBRIGATÓRIO DE RESPOSTA:
+---
 
-=== O QUE FALAR ===
-[áudio de 10-30 segundos]
+# REGRA ESPECIAL — INSTRUÇÃO DO VENDEDOR
 
-=== TEXTO PARA ENVIAR ===
-[texto curto ou NENHUM]
-
-=== AÇÃO CRM ===
-[LEAD / FOLLOW-UP / FECHADO / ONBOARDING]
-
-=== LINHA CRM ===
-[linha atualizada]
+Se a mensagem começar com "[INSTRUÇÃO DO VENDEDOR":
+- NÃO responda como se fosse o cliente
+- GERE a mensagem que o vendedor pediu
 """
     return prompt_base.format(
         produto=produto,
