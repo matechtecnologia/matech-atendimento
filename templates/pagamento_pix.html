@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>M.A Tech - Pagamento PIX</title>
+    <link rel="stylesheet" href="/static/style.css">
+    {% if qr_code and not pago %}
+    <meta http-equiv="refresh" content="10">
+    {% endif %}
+</head>
+<body>
+    <div class="container-atendimento">
+        <div class="topo">
+            <h1>M.A Tech</h1>
+            <div class="usuario-info">
+                <span>{{ usuario_nome }}</span>
+                <a href="/planos">← Planos</a>
+                <a href="/logout">Sair</a>
+            </div>
+        </div>
+
+        <div class="bloco bloco-fala">
+            <h2>Pagamento via PIX</h2>
+            <p style="color:#aaa; margin-top:8px;">Plano: <strong>{{ plano|upper }}</strong> — R$ {{ valor }}</p>
+        </div>
+
+        {% if pago %}
+        <div class="bloco bloco-texto">
+            <h2>✅ Pagamento confirmado!</h2>
+            <p style="color:#aaa; margin-top:8px;">Seu plano {{ plano|upper }} está ativo.</p>
+            <a href="/planos" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-top:16px;">VOLTAR AOS PLANOS</a>
+        </div>
+
+        {% elif qr_code %}
+        <div class="bloco bloco-texto">
+            <h2>1. Escaneie o QR Code</h2>
+            <p style="color:#aaa; margin-top:8px; font-size:14px;">Abra o app do banco → PIX → Ler QR Code</p>
+            <div style="text-align:center; margin-top:16px;">
+                <img src="data:image/png;base64,{{ qr_code.encodedImage }}" style="max-width:280px; border-radius:8px; background:#fff; padding:8px;">
+            </div>
+        </div>
+
+        <div class="bloco bloco-acao">
+            <h2>2. Ou copie o código PIX</h2>
+            <pre id="pix" style="white-space:pre-wrap; word-break:break-all; font-size:12px; margin-top:8px;">{{ qr_code.payload }}</pre>
+            <button onclick="copiar('pix')" class="btn-copiar" style="margin-top:12px;">COPIAR CÓDIGO</button>
+        </div>
+
+        <div class="bloco bloco-crm">
+            <h2>3. Após pagar</h2>
+            <p style="color:#aaa; margin-top:8px; font-size:14px;">A página atualiza automaticamente a cada 10 segundos. Quando o pagamento for confirmado, o plano é liberado.</p>
+            <a href="/verificar_pagamento/{{ payment_id }}" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-top:16px;">JÁ PAGUEI — VERIFICAR AGORA</a>
+        </div>
+
+        {% else %}
+        <div class="bloco bloco-acao">
+            <h2>Erro</h2>
+            <p style="color:#aaa;">Não foi possível gerar o QR Code.</p>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <script>
+    function copiar(id) {
+        const texto = document.getElementById(id).innerText;
+        navigator.clipboard.writeText(texto).then(() => { alert('Copiado!'); });
+    }
+    </script>
+</body>
+</html>

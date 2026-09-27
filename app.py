@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import threading
+from datetime import datetime, timedelta
 from fastapi import FastAPI, Request, Form, Cookie
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -8,6 +9,7 @@ from fastapi.templating import Jinja2Templates
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 from gemini import gerar_resposta, gerar_prompt_vendedor
+from asaas import criar_cliente, criar_cobranca_pix, obter_qr_code, consultar_pagamento
 
 load_dotenv()
 
@@ -20,18 +22,19 @@ LIMITES = {
     "gratis": 1,
     "basico": 3,
     "pro": 10,
-    "empresarial": 999
+    "empresarial": 25
 }
 
 def inicializar_banco():
     conn = sqlite3.connect("dados.db")
     cursor = conn.cursor()
     cursor.execute("""CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT NOT NULL, email TEXT UNIQUE NOT NULL, senha TEXT NOT NULL, tipo TEXT NOT NULL DEFAULT 'atendente', ativo INTEGER NOT NULL DEFAULT 1, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
-    cursor.execute("""CREATE TABLE IF NOT EXISTS vendedores (id INTEGER PRIMARY KEY AUTOINCREMENT, usuario_id INTEGER UNIQUE NOT NULL, plano TEXT DEFAULT 'gratis', onboarding_completo INTEGER DEFAULT 0, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP, atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
+    cursor.execute("""CREATE TABLE IF NOT EXISTS vendedores (id INTEGER PRIMARY KEY AUTOINCREMENT, usuario_id INTEGER UNIQUE NOT NULL, plano TEXT DEFAULT 'gratis', plano_expira_em DATETIME, onboarding_completo INTEGER DEFAULT 0, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP, atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
     cursor.execute("""CREATE TABLE IF NOT EXISTS nichos (id INTEGER PRIMARY KEY AUTOINCREMENT, vendedor_id INTEGER NOT NULL, nome TEXT NOT NULL, produto TEXT, publico TEXT, preco TEXT, dor TEXT, objecao TEXT, diferencial TEXT, tom TEXT, prompt_gerado TEXT, ativo INTEGER DEFAULT 1, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
     cursor.execute("""CREATE TABLE IF NOT EXISTS atendimentos (id INTEGER PRIMARY KEY AUTOINCREMENT, atendente_id INTEGER NOT NULL, nicho_id INTEGER, whatsapp TEXT, linha_crm TEXT, mensagem_cliente TEXT, o_que_falar TEXT, texto_para_enviar TEXT, acao_crm TEXT, linha_crm_gerada TEXT, status TEXT DEFAULT 'processando', criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
     cursor.execute("""CREATE TABLE IF NOT EXISTS historico (id INTEGER PRIMARY KEY AUTOINCREMENT, whatsapp TEXT NOT NULL, vendedor_id INTEGER NOT NULL, direcao TEXT NOT NULL, mensagem TEXT NOT NULL, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
     cursor.execute("""CREATE TABLE IF NOT EXISTS clientes (id INTEGER PRIMARY KEY AUTOINCREMENT, vendedor_id INTEGER NOT NULL, whatsapp TEXT NOT NULL, nome TEXT, email TEXT, origem TEXT, status TEXT DEFAULT 'lead', observacoes TEXT, linha_crm TEXT, nicho_id INTEGER, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP, atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP, UNIQUE(vendedor_id, whatsapp))""")
+    cursor.execute("""CREATE TABLE IF NOT EXISTS pagamentos (id INTEGER PRIMARY KEY AUTOINCREMENT, vendedor_id INTEGER, payment_id TEXT, plano TEXT, valor REAL, status TEXT DEFAULT 'pendente', criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_hist_whatsapp ON historico(whatsapp, vendedor_id)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_clientes_vendedor ON clientes(vendedor_id)")
     cursor.execute("SELECT * FROM usuarios WHERE email = ?", ("matechtecnologia01@gmail.com",))
@@ -88,6 +91,43 @@ def buscar_nicho(nicho_id):
     conn.close()
     return n
 
+def verificar_expiracao(vendedor_id):
+    conn = sqlite3.connect("dados.db")
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT plano, plano_expira_em FROM vendedores WHERE id = ?", (vendedor_id,))
+    v = c.fetchone()
+    conn.close()
+    if not v or v["plano"] == "gratis" or not v["plano_expira_em"]:
+        return
+    try:
+        expira = datetime.fromisoformat(v["plano_expira_em"])
+    except:
+        return
+    if datetime.now() > expira:
+        conn = sqlite3.connect("dados.db")
+        c = conn.cursor()
+        c.execute("UPDATE vendedores SET plano = 'gratis', plano_expira_em = NULL WHERE id = ?", (vendedor_id,))
+        conn.commit()
+        conn.close()
+        print(f"Plano do vendedor {vendedor_id} expirou.")
+
+def dias_restantes(vendedor_id):
+    conn = sqlite3.connect("dados.db")
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT plano_expira_em FROM vendedores WHERE id = ?", (vendedor_id,))
+    v = c.fetchone()
+    conn.close()
+    if not v or not v["plano_expira_em"]:
+        return None
+    try:
+        expira = datetime.fromisoformat(v["plano_expira_em"])
+    except:
+        return None
+    delta = expira - datetime.now()
+    return max(0, delta.days)
+
 def criar_vendedor(nome, email, senha):
     conn = sqlite3.connect("dados.db")
     c = conn.cursor()
@@ -129,15 +169,6 @@ def listar_clientes(vendedor_id):
     conn.close()
     return clientes
 
-def buscar_cliente_por_whatsapp(whatsapp, vendedor_id):
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM clientes WHERE whatsapp = ? AND vendedor_id = ?", (whatsapp, vendedor_id))
-    cli = c.fetchone()
-    conn.close()
-    return cli
-
 def salvar_cliente(vendedor_id, whatsapp, nome, email, origem, status, observacoes, linha_crm="", nicho_id=None):
     conn = sqlite3.connect("dados.db")
     c = conn.cursor()
@@ -152,13 +183,6 @@ def salvar_cliente(vendedor_id, whatsapp, nome, email, origem, status, observaco
     conn.commit()
     conn.close()
     return cliente_id
-
-def atualizar_linha_crm_cliente(cliente_id, nova_linha):
-    conn = sqlite3.connect("dados.db")
-    c = conn.cursor()
-    c.execute("UPDATE clientes SET linha_crm = ?, atualizado_em = CURRENT_TIMESTAMP WHERE id = ?", (nova_linha, cliente_id))
-    conn.commit()
-    conn.close()
 
 def buscar_historico(whatsapp, vendedor_id, limite=20):
     conn = sqlite3.connect("dados.db")
@@ -230,6 +254,10 @@ def fazer_login(email: str = Form(...), senha: str = Form(...)):
     if not pwd_context.verify(senha, u["senha"]):
         return RedirectResponse(url="/login?erro=Senha incorreta", status_code=303)
 
+    v = buscar_vendedor(u["id"])
+    if v:
+        verificar_expiracao(v["id"])
+
     if u["tipo"] == "admin":
         destino = "/admin"
     else:
@@ -288,14 +316,7 @@ def tela_atendimento(request: Request, usuario_id: str = Cookie(None)):
     return RedirectResponse(url="/clientes")
 
 @app.post("/gerar_resposta")
-def rota_gerar_resposta(
-    whatsapp: str = Form(...),
-    nicho_id: int = Form(...),
-    mensagem_cliente: str = Form(...),
-    cliente_id: int = Form(None),
-    modo_instrucao: str = Form(None),
-    usuario_id: str = Cookie(None)
-):
+def rota_gerar_resposta(whatsapp: str = Form(...), nicho_id: int = Form(...), mensagem_cliente: str = Form(...), cliente_id: int = Form(None), modo_instrucao: str = Form(None), usuario_id: str = Cookie(None)):
     if not usuario_id:
         return RedirectResponse(url="/login")
     if modo_instrucao:
@@ -370,7 +391,7 @@ def tela_novo_nicho(request: Request, usuario_id: str = Cookie(None), usuario_no
     total = contar_nichos(v["id"])
     limite = LIMITES.get(v["plano"], 1)
     if total >= limite:
-        return RedirectResponse(url="/meus_nichos?erro=Limite+atingido.+Faca+upgrade+para+adicionar+mais+nichos.", status_code=303)
+        return RedirectResponse(url="/meus_nichos?erro=Limite+atingido.", status_code=303)
     return templates.TemplateResponse(request=request, name="novo_nicho.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo})
 
 @app.post("/salvar_novo_nicho")
@@ -414,31 +435,6 @@ def salvar_cliente_manual(whatsapp: str = Form(...), nome: str = Form(...), emai
     if not v:
         return RedirectResponse(url="/onboarding")
     salvar_cliente(v["id"], whatsapp, nome, email, origem, status, observacoes)
-    return RedirectResponse(url="/clientes", status_code=303)
-
-@app.post("/salvar_atendimento_como_cliente/{atendimento_id}")
-def salvar_atendimento_como_cliente(atendimento_id: int, usuario_id: str = Cookie(None)):
-    if not usuario_id:
-        return RedirectResponse(url="/login")
-    v = buscar_vendedor(usuario_id)
-    if not v:
-        return RedirectResponse(url="/onboarding")
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM atendimentos WHERE id = ?", (atendimento_id,))
-    a = c.fetchone()
-    conn.close()
-    if not a:
-        return RedirectResponse(url="/clientes")
-    whatsapp = a["whatsapp"] or ""
-    linha_crm = a["linha_crm"] or ""
-    nome = ""
-    for parte in linha_crm.replace("\n", ";").split(";"):
-        if "nome:" in parte.lower():
-            nome = parte.split(":", 1)[1].strip()
-            break
-    salvar_cliente(v["id"], whatsapp, nome, "", "", "lead", linha_crm)
     return RedirectResponse(url="/clientes", status_code=303)
 
 @app.get("/cliente/{cliente_id}/atender", response_class=HTMLResponse)
@@ -489,6 +485,162 @@ def tela_cliente_detalhe(request: Request, cliente_id: int, usuario_id: str = Co
         "cliente": dict(cli),
         "historico": historico
     })
+
+@app.get("/planos", response_class=HTMLResponse)
+def tela_planos(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+    verificar_expiracao(v["id"])
+    v = buscar_vendedor(usuario_id)
+    dias = dias_restantes(v["id"])
+    return templates.TemplateResponse(request=request, name="planos.html", context={
+        "usuario_nome": usuario_nome,
+        "usuario_tipo": usuario_tipo,
+        "plano_atual": v["plano"],
+        "dias_restantes": dias
+    })
+
+@app.post("/assinar")
+def assinar(request: Request, plano: str = Form(...), valor: str = Form(...), usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+    return templates.TemplateResponse(request=request, name="assinar.html", context={
+        "usuario_nome": usuario_nome,
+        "plano": plano,
+        "valor": valor,
+        "erro": None
+    })
+
+@app.post("/gerar_pix")
+def gerar_pix(request: Request, plano: str = Form(...), valor: str = Form(...), cpf_cnpj: str = Form(...), usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+
+    cpf_cnpj = "".join(filter(str.isdigit, cpf_cnpj))
+    if len(cpf_cnpj) not in [11, 14]:
+        return templates.TemplateResponse(request=request, name="assinar.html", context={
+            "usuario_nome": usuario_nome, "plano": plano, "valor": valor,
+            "erro": "CPF/CNPJ invalido. Deve ter 11 ou 14 digitos."
+        })
+
+    conn = sqlite3.connect("dados.db")
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM usuarios WHERE id = ?", (usuario_id,))
+    u = c.fetchone()
+    conn.close()
+
+    customer_id = criar_cliente(u["nome"], u["email"], cpf_cnpj)
+    if not customer_id:
+        return templates.TemplateResponse(request=request, name="assinar.html", context={
+            "usuario_nome": usuario_nome, "plano": plano, "valor": valor,
+            "erro": "Erro ao criar cliente no Asaas. Verifique o CPF."
+        })
+
+    vencimento = (datetime.now() + timedelta(days=3)).strftime("%Y-%m-%d")
+    descricao = f"M.A Tech - Plano {plano.upper()}"
+
+    payment_id = criar_cobranca_pix(customer_id, float(valor), descricao, vencimento)
+    if not payment_id:
+        return templates.TemplateResponse(request=request, name="assinar.html", context={
+            "usuario_nome": usuario_nome, "plano": plano, "valor": valor,
+            "erro": "Erro ao criar cobranca. Tente novamente."
+        })
+
+    conn = sqlite3.connect("dados.db")
+    c = conn.cursor()
+    c.execute("INSERT INTO pagamentos (vendedor_id, payment_id, plano, valor) VALUES (?, ?, ?, ?)",
+              (v["id"], payment_id, plano, float(valor)))
+    conn.commit()
+    conn.close()
+
+    return RedirectResponse(url=f"/pagamento/{payment_id}", status_code=303)
+
+@app.get("/pagamento/{payment_id}", response_class=HTMLResponse)
+def tela_pagamento(request: Request, payment_id: str, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+
+    conn = sqlite3.connect("dados.db")
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT plano, valor, status FROM pagamentos WHERE payment_id = ?", (payment_id,))
+    p = c.fetchone()
+    conn.close()
+
+    qr = obter_qr_code(payment_id)
+    pago = p and p["status"] == "pago"
+
+    return templates.TemplateResponse(request=request, name="pagamento_pix.html", context={
+        "usuario_nome": usuario_nome,
+        "qr_code": qr,
+        "plano": p["plano"] if p else "—",
+        "valor": f"{p['valor']:.2f}".replace(".", ",") if p else "0,00",
+        "payment_id": payment_id,
+        "pago": pago
+    })
+
+@app.get("/verificar_pagamento/{payment_id}")
+def verificar_pagamento(payment_id: str, usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+
+    # Consulta o status direto no Asaas
+    info = consultar_pagamento(payment_id)
+    status_asaas = info.get("status") if info else None
+
+    if status_asaas in ["CONFIRMED", "RECEIVED"]:
+        # Faz o upgrade
+        conn = sqlite3.connect("dados.db")
+        c = conn.cursor()
+        c.execute("SELECT vendedor_id, plano FROM pagamentos WHERE payment_id = ?", (payment_id,))
+        row = c.fetchone()
+        if row:
+            vendedor_id = row[0]
+            plano = row[1]
+            expira_em = (datetime.now() + timedelta(days=30)).isoformat()
+            c.execute("UPDATE vendedores SET plano = ?, plano_expira_em = ?, atualizado_em = CURRENT_TIMESTAMP WHERE id = ?", (plano, expira_em, vendedor_id))
+            c.execute("UPDATE pagamentos SET status = 'pago' WHERE payment_id = ?", (payment_id,))
+            conn.commit()
+        conn.close()
+
+    return RedirectResponse(url=f"/pagamento/{payment_id}", status_code=303)
+
+@app.post("/webhook/asaas")
+async def webhook_asaas(request: Request):
+    try:
+        body = await request.json()
+        evento = body.get("event", "")
+        payment = body.get("payment", {})
+        payment_id = payment.get("id", "")
+        print(f"Webhook Asaas: {evento} - {payment_id}")
+        if evento in ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"]:
+            conn = sqlite3.connect("dados.db")
+            c = conn.cursor()
+            c.execute("SELECT vendedor_id, plano FROM pagamentos WHERE payment_id = ?", (payment_id,))
+            row = c.fetchone()
+            if row:
+                vendedor_id = row[0]
+                plano = row[1]
+                expira_em = (datetime.now() + timedelta(days=30)).isoformat()
+                c.execute("UPDATE vendedores SET plano = ?, plano_expira_em = ?, atualizado_em = CURRENT_TIMESTAMP WHERE id = ?", (plano, expira_em, vendedor_id))
+                c.execute("UPDATE pagamentos SET status = 'pago' WHERE payment_id = ?", (payment_id,))
+                conn.commit()
+                print(f"Plano {plano} ativado para vendedor {vendedor_id}")
+            conn.close()
+        return {"status": "ok"}
+    except Exception as e:
+        print(f"Erro webhook: {e}")
+        return {"status": "erro"}
 
 @app.get("/logout")
 def logout():
