@@ -8,6 +8,56 @@ from fastapi.templating import Jinja2Templates
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 from gemini import gerar_resposta
+# ========== INICIALIZAÇÃO AUTOMÁTICA ==========
+def inicializar_banco():
+    import sqlite3
+    from passlib.context import CryptContext
+    pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+    
+    conn = sqlite3.connect("dados.db")
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS usuarios (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nome TEXT NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            senha TEXT NOT NULL,
+            tipo TEXT NOT NULL DEFAULT 'atendente',
+            ativo INTEGER NOT NULL DEFAULT 1,
+            criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS atendimentos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            atendente_id INTEGER NOT NULL,
+            linha_crm TEXT,
+            mensagem_cliente TEXT,
+            o_que_falar TEXT,
+            texto_para_enviar TEXT,
+            acao_crm TEXT,
+            linha_crm_gerada TEXT,
+            status TEXT DEFAULT 'processando',
+            criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    
+    cursor.execute("SELECT * FROM usuarios WHERE email = ?", ("matechtecnologia01@gmail.com",))
+    if not cursor.fetchone():
+        senha_hash = pwd_context.hash("M@techtechnologia12997291583")
+        cursor.execute("""
+            INSERT INTO usuarios (nome, email, senha, tipo)
+            VALUES (?, ?, ?, ?)
+        """, ("Admin M.A Tech", "matechtecnologia01@gmail.com", senha_hash, "admin"))
+    
+    conn.commit()
+    conn.close()
+    print("Banco inicializado")
+
+inicializar_banco()
+# ========== FIM DA INICIALIZAÇÃO ==========
 
 load_dotenv()
 
