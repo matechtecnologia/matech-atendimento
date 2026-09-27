@@ -34,6 +34,24 @@ def criar_banco():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS vendedores (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario_id INTEGER UNIQUE NOT NULL,
+            produto TEXT,
+            publico TEXT,
+            preco TEXT,
+            dor TEXT,
+            objecao TEXT,
+            diferencial TEXT,
+            tom TEXT,
+            prompt_gerado TEXT,
+            onboarding_completo INTEGER DEFAULT 0,
+            criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
+            atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     conn.commit()
     conn.close()
     print("Banco criado: dados.db")

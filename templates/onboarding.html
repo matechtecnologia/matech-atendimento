@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>M.A Tech - Configuração</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container-atendimento">
+        <div class="topo">
+            <h1>M.A Tech</h1>
+            <div class="usuario-info">
+                <span>{{ usuario_nome }}</span>
+                <a href="/logout">Sair</a>
+            </div>
+        </div>
+
+        <div class="bloco bloco-fala">
+            <h2>Configuração Inicial</h2>
+            <p style="color:#aaa; margin-top:8px;">Responda as perguntas abaixo. A IA vai aprender sobre o seu negócio.</p>
+        </div>
+
+        <form method="POST" action="/salvar_onboarding">
+            <div class="campo">
+                <label>O que você vende?</label>
+                <input type="text" name="produto" required placeholder="Ex: Consultoria financeira">
+            </div>
+
+            <div class="campo">
+                <label>Para quem você vende?</label>
+                <input type="text" name="publico" required placeholder="Ex: Pequenas empresas">
+            </div>
+
+            <div class="campo">
+                <label>Qual o preço?</label>
+                <input type="text" name="preco" required placeholder="Ex: R$ 1.500/mês">
+            </div>
+
+            <div class="campo">
+                <label>Qual a maior dor do seu cliente?</label>
+                <input type="text" name="dor" required placeholder="Ex: Falta de controle financeiro">
+            </div>
+
+            <div class="campo">
+                <label>Qual a objeção mais comum?</label>
+                <input type="text" name="objecao" required placeholder="Ex: É caro">
+            </div>
+
+            <div class="campo">
+                <label>Qual o seu diferencial?</label>
+                <input type="text" name="diferencial" required placeholder="Ex: Atendimento personalizado">
+            </div>
+
+            <div class="campo">
+                <label>Qual o tom de voz?</label>
+                <select name="tom">
+                    <option value="Profissional mas acessível">Profissional mas acessível</option>
+                    <option value="Formal">Formal</option>
+                    <option value="Descontraído">Descontraído</option>
+                    <option value="Técnico">Técnico</option>
+                    <option value="Amigável">Amigável</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-gerar">SALVAR E CONFIGURAR IA</button>
+        </form>
+    </div>
+</body>
+</html>
