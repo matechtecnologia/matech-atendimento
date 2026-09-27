@@ -87,6 +87,49 @@ def buscar_nicho(nicho_id):
     conn.close()
     return n
 
+def listar_clientes(vendedor_id):
+    conn = sqlite3.connect("dados.db")
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM clientes WHERE vendedor_id = ? ORDER BY atualizado_em DESC", (vendedor_id,))
+    clientes = c.fetchall()
+    conn.close()
+    return clientes
+
+def buscar_cliente_por_whatsapp(whatsapp, vendedor_id):
+    conn = sqlite3.connect("dados.db")
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM clientes WHERE whatsapp = ? AND vendedor_id = ?", (whatsapp, vendedor_id))
+    cli = c.fetchone()
+    conn.close()
+    return cli
+
+def salvar_cliente(vendedor_id, whatsapp, nome, email, origem, status, observacoes):
+    """Cria ou atualiza um cliente pelo whatsapp."""
+    conn = sqlite3.connect("dados.db")
+    c = conn.cursor()
+    c.execute("SELECT id FROM clientes WHERE whatsapp = ? AND vendedor_id = ?", (whatsapp, vendedor_id))
+    existente = c.fetchone()
+
+    if existente:
+        c.execute("""
+            UPDATE clientes
+            SET nome=?, email=?, origem=?, status=?, observacoes=?, atualizado_em=CURRENT_TIMESTAMP
+            WHERE id=?
+        """, (nome, email, origem, status, observacoes, existente[0]))
+        cliente_id = existente[0]
+    else:
+        c.execute("""
+            INSERT INTO clientes (vendedor_id, whatsapp, nome, email, origem, status, observacoes)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (vendedor_id, whatsapp, nome, email, origem, status, observacoes))
+        cliente_id = c.lastrowid
+
+    conn.commit()
+    conn.close()
+    return cliente_id
+
 def buscar_historico(whatsapp, vendedor_id, limite=20):
     conn = sqlite3.connect("dados.db")
     conn.row_factory = sqlite3.Row
@@ -292,6 +335,101 @@ def salvar_novo_nicho(nome_nicho: str = Form(...), produto: str = Form(...), pub
     conn.commit()
     conn.close()
     return RedirectResponse(url="/meus_nichos", status_code=303)
+
+@app.get("/clientes", response_class=HTMLResponse)
+def tela_clientes(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+
+    clientes = listar_clientes(v["id"])
+
+    return templates.TemplateResponse(request=request, name="clientes.html", context={
+        "usuario_nome": usuario_nome,
+        "clientes": [dict(c) for c in clientes]
+    })
+
+@app.post("/salvar_cliente_manual")
+def salvar_cliente_manual(
+    whatsapp: str = Form(...),
+    nome: str = Form(...),
+    email: str = Form(""),
+    origem: str = Form(""),
+    status: str = Form("lead"),
+    observacoes: str = Form(""),
+    usuario_id: str = Cookie(None)
+):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+
+    salvar_cliente(v["id"], whatsapp, nome, email, origem, status, observacoes)
+    return RedirectResponse(url="/clientes", status_code=303)
+
+@app.post("/salvar_atendimento_como_cliente/{atendimento_id}")
+def salvar_atendimento_como_cliente(atendimento_id: int, usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+
+    conn = sqlite3.connect("dados.db")
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM atendimentos WHERE id = ?", (atendimento_id,))
+    a = c.fetchone()
+    conn.close()
+
+    if not a:
+        return RedirectResponse(url="/atendimento")
+
+    whatsapp = a["whatsapp"] or ""
+    linha_crm = a["linha_crm"] or ""
+
+    # Tenta extrair nome do campo "Nome:" da linha CRM
+    nome = ""
+    for parte in linha_crm.replace("\n", ";").split(";"):
+        if "nome:" in parte.lower():
+            nome = parte.split(":", 1)[1].strip()
+            break
+
+    salvar_cliente(v["id"], whatsapp, nome, "", "", "lead", linha_crm)
+    return RedirectResponse(url="/clientes", status_code=303)
+
+@app.get("/cliente/{cliente_id}", response_class=HTMLResponse)
+def tela_cliente_detalhe(request: Request, cliente_id: int, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+
+    conn = sqlite3.connect("dados.db")
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM clientes WHERE id = ? AND vendedor_id = ?", (cliente_id, v["id"]))
+    cli = c.fetchone()
+
+    historico = []
+    if cli:
+        c.execute("SELECT * FROM historico WHERE whatsapp = ? AND vendedor_id = ? ORDER BY id ASC", (cli["whatsapp"], v["id"]))
+        historico = [dict(h) for h in c.fetchall()]
+    conn.close()
+
+    if not cli:
+        return RedirectResponse(url="/clientes")
+
+    return templates.TemplateResponse(request=request, name="cliente_detalhe.html", context={
+        "usuario_nome": usuario_nome,
+        "cliente": dict(cli),
+        "historico": historico
+    })
+
 
 @app.get("/logout")
 def logout():

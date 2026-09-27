@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>M.A Tech - Clientes</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container-atendimento">
+        <div class="topo">
+            <h1>M.A Tech</h1>
+            <div class="usuario-info">
+                <span>{{ usuario_nome }}</span>
+                <a href="/atendimento">Atendimento</a>
+                <a href="/meus_nichos">Nichos</a>
+                <a href="/logout">Sair</a>
+            </div>
+        </div>
+
+        <div class="bloco bloco-fala">
+            <h2>Meus Clientes</h2>
+            <p style="color:#aaa; margin-top:8px;">{{ clientes|length }} cliente(s) cadastrado(s)</p>
+        </div>
+
+        <div class="bloco bloco-texto">
+            <h2>Adicionar Cliente</h2>
+            <form method="POST" action="/salvar_cliente_manual" style="margin-top:12px;">
+                <div class="campo">
+                    <label>WhatsApp (só números)</label>
+                    <input type="text" name="whatsapp" required placeholder="11987654321">
+                </div>
+                <div class="campo">
+                    <label>Nome</label>
+                    <input type="text" name="nome" required placeholder="Nome do cliente">
+                </div>
+                <div class="campo">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="opcional">
+                </div>
+                <div class="campo">
+                    <label>Origem</label>
+                    <input type="text" name="origem" placeholder="Instagram, indicação...">
+                </div>
+                <div class="campo">
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="lead">Lead</option>
+                        <option value="negociando">Negociando</option>
+                        <option value="cliente">Cliente</option>
+                        <option value="perdido">Perdido</option>
+                    </select>
+                </div>
+                <div class="campo">
+                    <label>Observações</label>
+                    <textarea name="observacoes" rows="3" placeholder="Anotações..."></textarea>
+                </div>
+                <button type="submit" class="btn-gerar">SALVAR CLIENTE</button>
+            </form>
+        </div>
+
+        <h2 style="margin-top:32px; margin-bottom:16px;">Lista</h2>
+
+        {% if not clientes %}
+        <div class="bloco bloco-acao">
+            <p style="color:#aaa;">Nenhum cliente cadastrado ainda.</p>
+        </div>
+        {% endif %}
+
+        {% for c in clientes %}
+        <div class="bloco bloco-crm">
+            <div class="bloco-topo">
+                <h2>{{ c.nome or "Sem nome" }}</h2>
+                <span style="color:#4a9eff; font-size:12px;">{{ c.status|upper }}</span>
+            </div>
+            <p style="color:#ccc; font-size:14px;">WhatsApp: {{ c.whatsapp }}</p>
+            {% if c.origem %}<p style="color:#888; font-size:13px;">Origem: {{ c.origem }}</p>{% endif %}
+            {% if c.observacoes %}<p style="color:#888; font-size:13px; margin-top:8px;">{{ c.observacoes[:200] }}{% if c.observacoes|length > 200 %}...{% endif %}</p>{% endif %}
+            <div style="margin-top:12px;">
+                <a href="/cliente/{{ c.id }}" style="color:#4a9eff; text-decoration:none; font-size:14px;">Ver detalhes →</a>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+</body>
+</html>

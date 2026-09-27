@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>M.A Tech - {{ cliente.nome }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container-atendimento">
+        <div class="topo">
+            <h1>M.A Tech</h1>
+            <div class="usuario-info">
+                <span>{{ usuario_nome }}</span>
+                <a href="/clientes">← Voltar</a>
+                <a href="/logout">Sair</a>
+            </div>
+        </div>
+
+        <div class="bloco bloco-fala">
+            <h2>{{ cliente.nome or "Sem nome" }}</h2>
+            <p style="color:#aaa; margin-top:8px;">WhatsApp: {{ cliente.whatsapp }}</p>
+            {% if cliente.email %}<p style="color:#aaa;">Email: {{ cliente.email }}</p>{% endif %}
+            {% if cliente.origem %}<p style="color:#aaa;">Origem: {{ cliente.origem }}</p>{% endif %}
+            <p style="color:#4a9eff; margin-top:8px;">Status: {{ cliente.status|upper }}</p>
+        </div>
+
+        {% if cliente.observacoes %}
+        <div class="bloco bloco-texto">
+            <h2>Observações</h2>
+            <pre style="white-space:pre-wrap; color:#ccc; margin-top:8px;">{{ cliente.observacoes }}</pre>
+        </div>
+        {% endif %}
+
+        <h2 style="margin-top:24px; margin-bottom:16px;">Histórico de Conversa</h2>
+
+        {% if not historico %}
+        <div class="bloco bloco-acao">
+            <p style="color:#aaa;">Nenhuma conversa registrada ainda.</p>
+        </div>
+        {% endif %}
+
+        {% for h in historico %}
+        <div class="bloco {% if h.direcao == 'cliente' %}bloco-texto{% else %}bloco-fala{% endif %}">
+            <div class="bloco-topo">
+                <h2>{% if h.direcao == 'cliente' %}👤 Cliente{% else %}🤖 Você{% endif %}</h2>
+                <span style="color:#666; font-size:12px;">{{ h.criado_em }}</span>
+            </div>
+            <pre style="white-space:pre-wrap; color:#fff; margin-top:8px;">{{ h.mensagem }}</pre>
+        </div>
+        {% endfor %}
+
+    </div>
+</body>
+</html>

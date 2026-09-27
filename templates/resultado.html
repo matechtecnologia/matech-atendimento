@@ -17,6 +17,11 @@
                 <a href="/logout">Sair</a>
             </div>
         </div>
+	{% if atendimento.status == 'pronto' %}
+	<form method="POST" action="/salvar_atendimento_como_cliente/{{ atendimento.id }}" style="margin-bottom:16px;">
+    <button type="submit" class="btn-gerar">💾 SALVAR COMO CLIENTE</button>
+</form>
+{% endif %}
 
         <p><a href="/atendimento">Voltar</a></p>
 
