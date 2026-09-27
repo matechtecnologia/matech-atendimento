@@ -17,6 +17,7 @@ templates = Jinja2Templates(directory="templates")
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 # LIMITES POR PLANO
+
 LIMITES = {
     "gratis": 1,
     "basico": 3,
@@ -32,7 +33,7 @@ def inicializar_banco():
     cursor.execute("""CREATE TABLE IF NOT EXISTS nichos (id INTEGER PRIMARY KEY AUTOINCREMENT, vendedor_id INTEGER NOT NULL, nome TEXT NOT NULL, produto TEXT, publico TEXT, preco TEXT, dor TEXT, objecao TEXT, diferencial TEXT, tom TEXT, prompt_gerado TEXT, ativo INTEGER DEFAULT 1, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
     cursor.execute("""CREATE TABLE IF NOT EXISTS atendimentos (id INTEGER PRIMARY KEY AUTOINCREMENT, atendente_id INTEGER NOT NULL, nicho_id INTEGER, whatsapp TEXT, linha_crm TEXT, mensagem_cliente TEXT, o_que_falar TEXT, texto_para_enviar TEXT, acao_crm TEXT, linha_crm_gerada TEXT, status TEXT DEFAULT 'processando', criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
     cursor.execute("""CREATE TABLE IF NOT EXISTS historico (id INTEGER PRIMARY KEY AUTOINCREMENT, whatsapp TEXT NOT NULL, vendedor_id INTEGER NOT NULL, direcao TEXT NOT NULL, mensagem TEXT NOT NULL, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
-    cursor.execute("""CREATE TABLE IF NOT EXISTS clientes (id INTEGER PRIMARY KEY AUTOINCREMENT, vendedor_id INTEGER NOT NULL, whatsapp TEXT NOT NULL, nome TEXT, email TEXT, origem TEXT, status TEXT DEFAULT 'lead', observacoes TEXT, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP, atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP, UNIQUE(vendedor_id, whatsapp))""")
+    cursor.execute("""CREATE TABLE IF NOT EXISTS clientes (id INTEGER PRIMARY KEY AUTOINCREMENT, vendedor_id INTEGER NOT NULL, whatsapp TEXT NOT NULL, nome TEXT, email TEXT, origem TEXT, status TEXT DEFAULT 'lead', observacoes TEXT, linha_crm TEXT, nicho_id INTEGER, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP, atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP, UNIQUE(vendedor_id, whatsapp))""")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_hist_whatsapp ON historico(whatsapp, vendedor_id)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_clientes_vendedor ON clientes(vendedor_id)")
     cursor.execute("SELECT * FROM usuarios WHERE email = ?", ("matechtecnologia01@gmail.com",))
@@ -107,8 +108,7 @@ def buscar_cliente_por_whatsapp(whatsapp, vendedor_id):
     conn.close()
     return cli
 
-def salvar_cliente(vendedor_id, whatsapp, nome, email, origem, status, observacoes):
-    """Cria ou atualiza um cliente pelo whatsapp."""
+def salvar_cliente(vendedor_id, whatsapp, nome, email, origem, status, observacoes, linha_crm="", nicho_id=None):
     conn = sqlite3.connect("dados.db")
     c = conn.cursor()
     c.execute("SELECT id FROM clientes WHERE whatsapp = ? AND vendedor_id = ?", (whatsapp, vendedor_id))
@@ -117,20 +117,27 @@ def salvar_cliente(vendedor_id, whatsapp, nome, email, origem, status, observaco
     if existente:
         c.execute("""
             UPDATE clientes
-            SET nome=?, email=?, origem=?, status=?, observacoes=?, atualizado_em=CURRENT_TIMESTAMP
+            SET nome=?, email=?, origem=?, status=?, observacoes=?, linha_crm=?, nicho_id=?, atualizado_em=CURRENT_TIMESTAMP
             WHERE id=?
-        """, (nome, email, origem, status, observacoes, existente[0]))
+        """, (nome, email, origem, status, observacoes, linha_crm, nicho_id, existente[0]))
         cliente_id = existente[0]
     else:
         c.execute("""
-            INSERT INTO clientes (vendedor_id, whatsapp, nome, email, origem, status, observacoes)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (vendedor_id, whatsapp, nome, email, origem, status, observacoes))
+            INSERT INTO clientes (vendedor_id, whatsapp, nome, email, origem, status, observacoes, linha_crm, nicho_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (vendedor_id, whatsapp, nome, email, origem, status, observacoes, linha_crm, nicho_id))
         cliente_id = c.lastrowid
 
     conn.commit()
     conn.close()
     return cliente_id
+
+def atualizar_linha_crm_cliente(cliente_id, nova_linha):
+    conn = sqlite3.connect("dados.db")
+    c = conn.cursor()
+    c.execute("UPDATE clientes SET linha_crm = ?, atualizado_em = CURRENT_TIMESTAMP WHERE id = ?", (nova_linha, cliente_id))
+    conn.commit()
+    conn.close()
 
 def buscar_historico(whatsapp, vendedor_id, limite=20):
     conn = sqlite3.connect("dados.db")
@@ -157,13 +164,19 @@ def salvar_historico(whatsapp, vendedor_id, direcao, mensagem):
     conn.commit()
     conn.close()
 
-def processar_atendimento(atendimento_id, linha_crm, mensagem, prompt_vendedor, historico, whatsapp, usuario_id):
+def processar_atendimento(atendimento_id, linha_crm, mensagem, prompt_vendedor, historico, whatsapp, usuario_id, cliente_id=None):
     try:
         resultado = gerar_resposta(linha_crm, mensagem, prompt_vendedor, historico)
         salvar_historico(whatsapp, usuario_id, "ia", resultado.get("o_que_falar", ""))
+
         conn = sqlite3.connect("dados.db")
         c = conn.cursor()
         c.execute("""UPDATE atendimentos SET o_que_falar = ?, texto_para_enviar = ?, acao_crm = ?, linha_crm_gerada = ?, status = 'pronto' WHERE id = ?""", (resultado["o_que_falar"], resultado["texto_para_enviar"], resultado["acao_crm"], resultado["linha_crm"], atendimento_id))
+
+        # Atualiza a linha CRM do cliente no banco automaticamente
+        if cliente_id and resultado.get("linha_crm"):
+            c.execute("UPDATE clientes SET linha_crm = ?, atualizado_em = CURRENT_TIMESTAMP WHERE id = ?", (resultado["linha_crm"], cliente_id))
+
         conn.commit()
         conn.close()
     except Exception as e:
@@ -242,7 +255,14 @@ def tela_atendimento(request: Request, usuario_id: str = Cookie(None), usuario_n
     return templates.TemplateResponse(request=request, name="atendimento.html", context={"usuario_nome": usuario_nome, "nichos": [dict(n) for n in nichos]})
 
 @app.post("/gerar_resposta")
-def rota_gerar_resposta(whatsapp: str = Form(...), nicho_id: int = Form(...), linha_crm: str = Form(...), mensagem_cliente: str = Form(...), modo_instrucao: str = Form(None), usuario_id: str = Cookie(None)):
+def rota_gerar_resposta(
+    whatsapp: str = Form(...),
+    nicho_id: int = Form(...),
+    mensagem_cliente: str = Form(...),
+    cliente_id: int = Form(None),
+    modo_instrucao: str = Form(None),
+    usuario_id: str = Cookie(None)
+):
     if not usuario_id:
         return RedirectResponse(url="/login")
 
@@ -254,6 +274,18 @@ def rota_gerar_resposta(whatsapp: str = Form(...), nicho_id: int = Form(...), li
         return RedirectResponse(url="/atendimento")
     prompt_vendedor = nicho["prompt_gerado"]
 
+    # Pega a linha CRM do cliente (se existir)
+    linha_crm = ""
+    if cliente_id:
+        conn = sqlite3.connect("dados.db")
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute("SELECT linha_crm FROM clientes WHERE id = ?", (cliente_id,))
+        cli = c.fetchone()
+        conn.close()
+        if cli:
+            linha_crm = cli["linha_crm"] or ""
+
     historico = buscar_historico(whatsapp, usuario_id)
     salvar_historico(whatsapp, usuario_id, "cliente", mensagem_cliente)
 
@@ -264,7 +296,7 @@ def rota_gerar_resposta(whatsapp: str = Form(...), nicho_id: int = Form(...), li
     conn.commit()
     conn.close()
 
-    t = threading.Thread(target=processar_atendimento, args=(atendimento_id, linha_crm, mensagem_cliente, prompt_vendedor, historico, whatsapp, usuario_id))
+    t = threading.Thread(target=processar_atendimento, args=(atendimento_id, linha_crm, mensagem_cliente, prompt_vendedor, historico, whatsapp, usuario_id, cliente_id))
     t.start()
     return RedirectResponse(url=f"/resultado/{atendimento_id}", status_code=303)
 
@@ -407,6 +439,32 @@ def salvar_atendimento_como_cliente(atendimento_id: int, usuario_id: str = Cooki
 
     salvar_cliente(v["id"], whatsapp, nome, "", "", "lead", linha_crm)
     return RedirectResponse(url="/clientes", status_code=303)
+
+@app.get("/cliente/{cliente_id}/atender", response_class=HTMLResponse)
+def atender_cliente(request: Request, cliente_id: int, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+
+    conn = sqlite3.connect("dados.db")
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    c.execute("SELECT * FROM clientes WHERE id = ? AND vendedor_id = ?", (cliente_id, v["id"]))
+    cli = c.fetchone()
+    conn.close()
+
+    if not cli:
+        return RedirectResponse(url="/clientes")
+
+    nichos = listar_nichos(v["id"])
+
+    return templates.TemplateResponse(request=request, name="atendimento_cliente.html", context={
+        "usuario_nome": usuario_nome,
+        "cliente": dict(cli),
+        "nichos": [dict(n) for n in nichos]
+    })
 
 @app.get("/cliente/{cliente_id}", response_class=HTMLResponse)
 def tela_cliente_detalhe(request: Request, cliente_id: int, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):

@@ -24,6 +24,8 @@
             <p style="color:#4a9eff; margin-top:8px;">Status: {{ cliente.status|upper }}</p>
         </div>
 
+        <a href="/cliente/{{ cliente.id }}/atender" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-bottom:16px;">💬 ATENDER ESTE CLIENTE</a>
+
         {% if cliente.observacoes %}
         <div class="bloco bloco-texto">
             <h2>Observações</h2>

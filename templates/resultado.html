@@ -14,14 +14,16 @@
             <h1>M.A Tech</h1>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
+                <a href="/clientes">Clientes</a>
                 <a href="/logout">Sair</a>
             </div>
         </div>
-	{% if atendimento.status == 'pronto' %}
-	<form method="POST" action="/salvar_atendimento_como_cliente/{{ atendimento.id }}" style="margin-bottom:16px;">
-    <button type="submit" class="btn-gerar">💾 SALVAR COMO CLIENTE</button>
-</form>
-{% endif %}
+
+        {% if atendimento.status == 'pronto' %}
+        <form method="POST" action="/salvar_atendimento_como_cliente/{{ atendimento.id }}" style="margin-bottom:16px;">
+            <button type="submit" class="btn-gerar">💾 SALVAR COMO CLIENTE</button>
+        </form>
+        {% endif %}
 
         <p><a href="/atendimento">Voltar</a></p>
 
@@ -53,14 +55,6 @@
                 <h2>ACAO CRM</h2>
             </div>
             <div class="acao-valor">{{ atendimento.acao_crm }}</div>
-        </div>
-
-        <div class="bloco bloco-crm">
-            <div class="bloco-topo">
-                <h2>LINHA CRM ATUALIZADA</h2>
-                <button onclick="copiar('crm')" class="btn-copiar">COPIAR</button>
-            </div>
-            <pre id="crm">{{ atendimento.linha_crm_gerada }}</pre>
         </div>
         {% endif %}
     </div>
