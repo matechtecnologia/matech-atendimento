@@ -4,16 +4,14 @@ from google import genai
 
 load_dotenv()
 
-# A nova biblioteca lê a chave automaticamente da variável GOOGLE_API_KEY ou GEMINI_API_KEY
-api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
+# Prioriza GEMINI_API_KEY (a chave correta)
+api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 
 if not api_key:
-    raise ValueError("Chave da API não encontrada! Configure GOOGLE_API_KEY ou GEMINI_API_KEY.")
+    raise ValueError("Chave da API nao encontrada! Configure GEMINI_API_KEY.")
 
-# Cria o cliente (nova forma)
 client = genai.Client(api_key=api_key)
 
-# Modelo atual — se este não funcionar, tentaremos o gemini-3.6-flash
 MODELO = "gemini-3.5-flash-lite"
 
 def separar_resposta(texto):
