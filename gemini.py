@@ -6,38 +6,54 @@ from groq import Groq
 load_dotenv()
 
 api_key = os.getenv("GROQ_API_KEY")
-
 if not api_key:
     raise ValueError("Chave da Groq nao encontrada! Configure GROQ_API_KEY.")
 
 client = Groq(api_key=api_key)
-
 MODELO = "openai/gpt-oss-120b"
+
+ESTAGIOS_VALIDOS = ["Novo Lead", "Em Atendimento", "Negociação", "Cliente", "Perdido"]
+
+
+def _normalizar_estagio(txt):
+    txt = txt.strip().lower()
+    if "novo" in txt or "lead" in txt:
+        return "Novo Lead"
+    if "negocia" in txt or "propos" in txt or "interessad" in txt:
+        return "Negociação"
+    if "fech" in txt or "cliente" in txt or "onboard" in txt or "vend" in txt or "compr" in txt:
+        return "Cliente"
+    if "perdid" in txt or "desist" in txt:
+        return "Perdido"
+    if "atend" in txt or "follow" in txt:
+        return "Em Atendimento"
+    return "Em Atendimento"
 
 
 def separar_resposta(texto):
     blocos = {
         "o_que_falar": "",
         "texto_para_enviar": "NENHUM",
-        "acao_crm": "LEAD",
+        "estagio": "Em Atendimento",
         "linha_crm": ""
     }
 
-    # Limpa espaços e normaliza
     texto = texto.strip()
 
-    # Padrões flexíveis (aceita com ou sem ===, maiúsculas/minúsculas)
     padrao_falar = r"={0,3}\s*O QUE FALAR\s*={0,3}"
     padrao_texto = r"={0,3}\s*TEXTO PARA ENVIAR\s*={0,3}"
-    padrao_acao = r"={0,3}\s*A[ÇC][ÃA]O CRM\s*={0,3}"
+    padrao_estagio = r"={0,3}\s*(?:EST[ÁA]GIO|A[ÇC][ÃA]O CRM|STAGE)\s*={0,3}"
     padrao_crm = r"={0,3}\s*LINHA CRM\s*={0,3}"
 
     try:
-        # Divide por qualquer um dos marcadores, mantendo a ordem
-        partes = re.split(f"({padrao_falar}|{padrao_texto}|{padrao_acao}|{padrao_crm})", texto, flags=re.IGNORECASE)
+        partes = re.split(
+            f"({padrao_falar}|{padrao_texto}|{padrao_estagio}|{padrao_crm})",
+            texto,
+            flags=re.IGNORECASE
+        )
 
         atual = None
-        for i, parte in enumerate(partes):
+        for parte in partes:
             parte_limpa = parte.strip()
             if not parte_limpa:
                 continue
@@ -46,25 +62,21 @@ def separar_resposta(texto):
                 atual = "o_que_falar"
             elif re.match(padrao_texto, parte_limpa, re.IGNORECASE):
                 atual = "texto_para_enviar"
-            elif re.match(padrao_acao, parte_limpa, re.IGNORECASE):
-                atual = "acao_crm"
+            elif re.match(padrao_estagio, parte_limpa, re.IGNORECASE):
+                atual = "estagio"
             elif re.match(padrao_crm, parte_limpa, re.IGNORECASE):
                 atual = "linha_crm"
             elif atual:
-                # É conteúdo, adiciona no bloco atual
                 if blocos[atual]:
                     blocos[atual] += "\n" + parte_limpa
                 else:
                     blocos[atual] = parte_limpa
 
-        # Limpa a ação CRM (só a primeira palavra)
-        if blocos["acao_crm"]:
-            match = re.search(r"(LEAD|FOLLOW-?UP|FECHADO|ONBOARDING)", blocos["acao_crm"], re.IGNORECASE)
-            if match:
-                blocos["acao_crm"] = match.group(1).upper()
+        # Normaliza estágio
+        blocos["estagio"] = _normalizar_estagio(blocos["estagio"])
 
-        # Limpa o texto para enviar
-        if not blocos["texto_para_enviar"] or blocos["texto_para_enviar"].upper() in ["", "NENHUM", "NENHUM."]:
+        # Limpa texto
+        if not blocos["texto_para_enviar"] or blocos["texto_para_enviar"].upper().strip(".") in ["", "NENHUM"]:
             blocos["texto_para_enviar"] = "NENHUM"
 
     except Exception as e:
@@ -81,7 +93,7 @@ def gerar_resposta(linha_crm, mensagem_cliente, prompt_vendedor=None, historico=
 
 ---
 
-# CONTEXTO DO CLIENTE (CRM)
+# CONTEXTO DO CLIENTE (CRM interno — nunca mostrar ao vendedor)
 
 {linha_crm}
 
@@ -101,27 +113,36 @@ def gerar_resposta(linha_crm, mensagem_cliente, prompt_vendedor=None, historico=
 
 # FORMATO DE RESPOSTA OBRIGATÓRIO
 
-Você DEVE responder EXATAMENTE com os 4 marcadores abaixo, cada um em uma linha sozinha.
-NÃO escreva nada fora desses 4 blocos.
+Responda EXATAMENTE com os 4 marcadores abaixo, cada um em uma linha sozinha.
+Nada fora dos blocos.
 
 === O QUE FALAR ===
-(escreva o roteiro do áudio de 10-30 segundos aqui, nada mais)
+(roteiro do áudio de 10-30 segundos, natural, sem jargão)
 
 === TEXTO PARA ENVIAR ===
-(escreva um texto curto OU a palavra NENHUM)
+(texto curto OU a palavra NENHUM)
 
-=== AÇÃO CRM ===
-(escreva APENAS uma destas palavras: LEAD ou FOLLOW-UP ou FECHADO ou ONBOARDING)
+=== ESTAGIO ===
+(Escolha APENAS UM destes: Novo Lead, Em Atendimento, Negociação, Cliente, Perdido)
 
 === LINHA CRM ===
 (Nome: xxx; Nicho: xxx; Objetivo: xxx; Dor: xxx; Objeção: xxx; Estratégia: xxx; Interesse: xxx; Status: xxx; Próximo passo: xxx)
+
+---
+
+# REGRAS DO ESTÁGIO
+- Novo Lead: primeiro contato, ainda sem contexto
+- Em Atendimento: já conversou, ainda descobrindo necessidades
+- Negociação: demonstrou interesse real, falando de proposta/preço
+- Cliente: fechou, comprou, aceitou participar
+- Perdido: disse não, desistiu, sem interesse
 """
 
     try:
         response = client.chat.completions.create(
             model=MODELO,
             messages=[
-                {"role": "system", "content": "Você SEMPRE responde no formato exato solicitado, com os 4 blocos separados. Nunca junta blocos."},
+                {"role": "system", "content": "Você responde SEMPRE no formato exato com 4 blocos. Nunca junta blocos."},
                 {"role": "user", "content": prompt_completo}
             ],
             timeout=60,
@@ -133,7 +154,7 @@ NÃO escreva nada fora desses 4 blocos.
         return {
             "o_que_falar": f"ERRO NA API: {e}",
             "texto_para_enviar": "NENHUM",
-            "acao_crm": "ERRO",
+            "estagio": "Em Atendimento",
             "linha_crm": ""
         }
 
@@ -185,34 +206,28 @@ def gerar_prompt_vendedor(produto, publico, preco, dor, objecao, diferencial, to
 
 ---
 
-# REGRAS CRÍTICAS DE ATENDIMENTO
+# REGRAS CRÍTICAS
 
 1. NUNCA faça mais de uma pergunta por vez
 2. NUNCA pergunte o óbvio
-3. Use todo o contexto acumulado (CRM + histórico)
+3. Use todo o contexto acumulado
 4. Cada mensagem deve mover a venda para frente
 5. Áudios de 10-30 segundos, linguagem natural
 6. Texto apenas quando for preço, link, endereço ou informação técnica
 
 ---
 
-# REGRA ESPECIAL — INSTRUÇÃO DO VENDEDOR
+# REGRA ESPECIAL
 
-O campo "MENSAGEM DO CLIENTE AGORA" pode conter duas coisas:
-
-A) A FALA DO CLIENTE (ex: "quanto custa?", "vou pensar")
-   → Responda normalmente ao cliente
-
-B) UMA INSTRUÇÃO DO VENDEDOR (ex: "fazer prospecção fria")
-   → NÃO responda como se fosse o cliente
-   → GERE a mensagem que o vendedor pediu
+O campo "MENSAGEM DO CLIENTE AGORA" pode conter:
+A) FALA DO CLIENTE → responda normalmente
+B) INSTRUÇÃO DO VENDEDOR (ex: "fazer prospecção fria") → NÃO responda como cliente, GERE a mensagem pedida
 
 ---
 
 # FORMATO DE RESPOSTA OBRIGATÓRIO
 
-Você DEVE responder EXATAMENTE com os 4 marcadores abaixo, cada um em uma linha sozinha.
-NÃO escreva nada fora desses 4 blocos.
+Responda EXATAMENTE com os 4 marcadores abaixo, cada um em uma linha sozinha.
 
 === O QUE FALAR ===
 (roteiro do áudio de 10-30 segundos)
@@ -220,8 +235,8 @@ NÃO escreva nada fora desses 4 blocos.
 === TEXTO PARA ENVIAR ===
 (texto curto OU NENHUM)
 
-=== AÇÃO CRM ===
-(APENAS UMA PALAVRA: LEAD ou FOLLOW-UP ou FECHADO ou ONBOARDING)
+=== ESTAGIO ===
+(Novo Lead, Em Atendimento, Negociação, Cliente ou Perdido)
 
 === LINHA CRM ===
 (Nome: xxx; Nicho: xxx; Objetivo: xxx; Dor: xxx; Objeção: xxx; Estratégia: xxx; Interesse: xxx; Status: xxx; Próximo passo: xxx)
