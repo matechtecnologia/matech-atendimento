@@ -20,12 +20,32 @@ templates = Jinja2Templates(directory="templates")
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 LIMITES = {"gratis": 1, "basico": 3, "pro": 10, "empresarial": 25}
+from psycopg2 import pool as pg_pool
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+_pool = None
 
 def get_conn():
-    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-    return conn
+    global _pool
+    if _pool is None:
+        _pool = pg_pool.ThreadedConnectionPool(1, 20, dsn=DATABASE_URL, sslmode='require')
+    return _pool.getconn()
+
+def close_conn(conn):
+    global _pool
+    if conn is None:
+        return
+    try:
+        if _pool:
+            _pool.putconn(conn)
+        else:
+            close_conn(conn)
+    except Exception:
+        try:
+            close_conn(conn)
+        except Exception:
+            pass
 
 
 def inicializar_banco():
@@ -129,7 +149,7 @@ def inicializar_banco():
 
     conn.commit()
     cur.close()
-    conn.close()
+    close_conn(conn)
     print("Banco inicializado")
 
 
@@ -150,7 +170,7 @@ def buscar_usuario(email):
     cur.execute("SELECT * FROM usuarios WHERE email = %s AND ativo = TRUE", (email,))
     u = cur.fetchone()
     cur.close()
-    conn.close()
+    close_conn(conn)
     return u
 
 
@@ -160,7 +180,7 @@ def buscar_vendedor(uid):
     cur.execute("SELECT * FROM vendedores WHERE usuario_id = %s", (uid,))
     v = cur.fetchone()
     cur.close()
-    conn.close()
+    close_conn(conn)
     return v
 
 
@@ -170,7 +190,7 @@ def listar_nichos(vid):
     cur.execute("SELECT * FROM nichos WHERE vendedor_id = %s AND ativo = TRUE ORDER BY id", (vid,))
     n = cur.fetchall()
     cur.close()
-    conn.close()
+    close_conn(conn)
     return n
 
 
@@ -180,7 +200,7 @@ def contar_nichos(vid):
     cur.execute("SELECT COUNT(*) FROM nichos WHERE vendedor_id = %s AND ativo = TRUE", (vid,))
     t = cur.fetchone()[0]
     cur.close()
-    conn.close()
+    close_conn(conn)
     return t
 
 
@@ -190,7 +210,7 @@ def buscar_nicho(nid):
     cur.execute("SELECT * FROM nichos WHERE id = %s", (nid,))
     n = cur.fetchone()
     cur.close()
-    conn.close()
+    close_conn(conn)
     return n
 
 
@@ -200,7 +220,7 @@ def verificar_expiracao(vid):
     cur.execute("SELECT plano, plano_expira_em FROM vendedores WHERE id = %s", (vid,))
     v = cur.fetchone()
     cur.close()
-    conn.close()
+    close_conn(conn)
     if not v or v["plano"] == "gratis" or not v["plano_expira_em"]:
         return
     if datetime.now(v["plano_expira_em"].tzinfo) > v["plano_expira_em"]:
@@ -209,7 +229,7 @@ def verificar_expiracao(vid):
         cur.execute("UPDATE vendedores SET plano = 'gratis', plano_expira_em = NULL WHERE id = %s", (vid,))
         conn.commit()
         cur.close()
-        conn.close()
+        close_conn(conn)
 
 
 def dias_restantes(vid):
@@ -218,7 +238,7 @@ def dias_restantes(vid):
     cur.execute("SELECT plano_expira_em FROM vendedores WHERE id = %s", (vid,))
     v = cur.fetchone()
     cur.close()
-    conn.close()
+    close_conn(conn)
     if not v or not v["plano_expira_em"]:
         return None
     delta = v["plano_expira_em"] - datetime.now(v["plano_expira_em"].tzinfo)
@@ -231,7 +251,7 @@ def criar_vendedor(nome, email, senha):
     cur.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
     if cur.fetchone():
         cur.close()
-        conn.close()
+        close_conn(conn)
         return False, "Email ja cadastrado"
     h = pwd_context.hash(senha)
     cur.execute("INSERT INTO usuarios (nome, email, senha, tipo) VALUES (%s, %s, %s, 'atendente') RETURNING id", (nome, email, h))
@@ -239,7 +259,7 @@ def criar_vendedor(nome, email, senha):
     cur.execute("INSERT INTO vendedores (usuario_id, plano, onboarding_completo) VALUES (%s, 'gratis', FALSE)", (uid,))
     conn.commit()
     cur.close()
-    conn.close()
+    close_conn(conn)
     return True, "OK"
 
 
@@ -255,7 +275,7 @@ def listar_todos_vendedores():
     """)
     v = cur.fetchall()
     cur.close()
-    conn.close()
+    close_conn(conn)
     return v
 
 
@@ -265,7 +285,7 @@ def listar_clientes(vid):
     cur.execute("SELECT * FROM clientes WHERE vendedor_id = %s ORDER BY atualizado_em DESC", (vid,))
     cli = cur.fetchall()
     cur.close()
-    conn.close()
+    close_conn(conn)
     return cli
 
 
@@ -282,7 +302,7 @@ def salvar_cliente(vid, whatsapp, nome, email, origem, status, obs, linha_crm=""
         cid = cur.fetchone()[0]
     conn.commit()
     cur.close()
-    conn.close()
+    close_conn(conn)
     return cid
 
 
@@ -292,7 +312,7 @@ def buscar_historico(whatsapp, vid, limite=20):
     cur.execute("SELECT direcao, mensagem FROM historico WHERE whatsapp = %s AND vendedor_id = %s ORDER BY id DESC LIMIT %s", (whatsapp, vid, limite))
     linhas = list(reversed(cur.fetchall()))
     cur.close()
-    conn.close()
+    close_conn(conn)
     if not linhas:
         return ""
     t = ""
@@ -309,7 +329,7 @@ def salvar_historico(whatsapp, vid, direcao, mensagem):
     cur.execute("""DELETE FROM historico WHERE whatsapp = %s AND vendedor_id = %s AND id NOT IN (SELECT id FROM historico WHERE whatsapp = %s AND vendedor_id = %s ORDER BY id DESC LIMIT 20)""", (whatsapp, vid, whatsapp, vid))
     conn.commit()
     cur.close()
-    conn.close()
+    close_conn(conn)
 
 
 def processar_atendimento(aid, linha_crm, mensagem, prompt, hist, whatsapp, uid, cid=None):
@@ -323,14 +343,14 @@ def processar_atendimento(aid, linha_crm, mensagem, prompt, hist, whatsapp, uid,
             cur.execute("UPDATE clientes SET linha_crm=%s, status=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s", (r["linha_crm"], r["estagio"].lower(), cid))
         conn.commit()
         cur.close()
-        conn.close()
+        close_conn(conn)
     except Exception as e:
         conn = get_conn()
         cur = conn.cursor()
         cur.execute("UPDATE atendimentos SET o_que_falar=%s, status='erro' WHERE id=%s", (f"ERRO: {e}", aid))
         conn.commit()
         cur.close()
-        conn.close()
+        close_conn(conn)
 
 
 # ============ ROTAS ============
@@ -413,7 +433,7 @@ def salvar_onboarding(nome_nicho: str = Form(...), produto: str = Form(...), pub
     cur.execute("INSERT INTO nichos (vendedor_id, nome, produto, publico, preco, dor, objecao, diferencial, tom, prompt_gerado) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (vid, nome_nicho, produto, publico, preco, dor, objecao, diferencial, tom, pg))
     conn.commit()
     cur.close()
-    conn.close()
+    close_conn(conn)
     return RedirectResponse(url="/clientes", status_code=303)
 
 
@@ -451,7 +471,7 @@ def atender_cliente(request: Request, cliente_id: int, usuario_id: str = Cookie(
     cur.execute("SELECT * FROM clientes WHERE id = %s AND vendedor_id = %s", (cliente_id, v["id"]))
     cli = cur.fetchone()
     cur.close()
-    conn.close()
+    close_conn(conn)
     if not cli:
         return RedirectResponse(url="/clientes")
     ns = listar_nichos(v["id"])
@@ -474,7 +494,7 @@ def tela_cliente_detalhe(request: Request, cliente_id: int, usuario_id: str = Co
         cur.execute("SELECT * FROM historico WHERE whatsapp = %s AND vendedor_id = %s ORDER BY id ASC", (cli["whatsapp"], v["id"]))
         hist = [dict(h) for h in cur.fetchall()]
     cur.close()
-    conn.close()
+    close_conn(conn)
     if not cli:
         return RedirectResponse(url="/clientes")
     return templates.TemplateResponse(request=request, name="cliente_detalhe.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "cliente": dict(cli), "historico": hist})
@@ -496,7 +516,7 @@ def rota_gerar_resposta(whatsapp: str = Form(...), nicho_id: int = Form(...), me
         cur.execute("SELECT linha_crm FROM clientes WHERE id = %s", (cliente_id,))
         cli = cur.fetchone()
         cur.close()
-        conn.close()
+        close_conn(conn)
         if cli:
             linha_crm = cli["linha_crm"] or ""
     hist = buscar_historico(whatsapp, usuario_id)
@@ -507,7 +527,7 @@ def rota_gerar_resposta(whatsapp: str = Form(...), nicho_id: int = Form(...), me
     aid = cur.fetchone()[0]
     conn.commit()
     cur.close()
-    conn.close()
+    close_conn(conn)
     threading.Thread(target=processar_atendimento, args=(aid, linha_crm, mensagem_cliente, n["prompt_gerado"], hist, whatsapp, usuario_id, cliente_id)).start()
     return RedirectResponse(url=f"/resultado/{aid}", status_code=303)
 
@@ -521,7 +541,7 @@ def tela_resultado(request: Request, atendimento_id: int, usuario_id: str = Cook
     cur.execute("SELECT * FROM atendimentos WHERE id = %s", (atendimento_id,))
     a = cur.fetchone()
     cur.close()
-    conn.close()
+    close_conn(conn)
     if not a:
         return RedirectResponse(url="/clientes")
     return templates.TemplateResponse(request=request, name="resultado.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "atendimento": dict(a)})
@@ -539,7 +559,7 @@ def salvar_atendimento_como_cliente(atendimento_id: int, usuario_id: str = Cooki
     cur.execute("SELECT * FROM atendimentos WHERE id = %s", (atendimento_id,))
     a = cur.fetchone()
     cur.close()
-    conn.close()
+    close_conn(conn)
     if not a:
         return RedirectResponse(url="/clientes")
     whatsapp = a["whatsapp"] or ""
@@ -555,7 +575,7 @@ def salvar_atendimento_como_cliente(atendimento_id: int, usuario_id: str = Cooki
     cur.execute("UPDATE atendimentos SET cliente_id = %s WHERE id = %s", (cid, atendimento_id))
     conn.commit()
     cur.close()
-    conn.close()
+    close_conn(conn)
     return RedirectResponse(url="/clientes", status_code=303)
 
 
@@ -597,7 +617,7 @@ def salvar_novo_nicho(nome_nicho: str = Form(...), produto: str = Form(...), pub
     cur.execute("INSERT INTO nichos (vendedor_id, nome, produto, publico, preco, dor, objecao, diferencial, tom, prompt_gerado) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (v["id"], nome_nicho, produto, publico, preco, dor, objecao, diferencial, tom, pg))
     conn.commit()
     cur.close()
-    conn.close()
+    close_conn(conn)
     return RedirectResponse(url="/meus_nichos", status_code=303)
 
 
@@ -639,7 +659,7 @@ def gerar_pix(request: Request, plano: str = Form(...), valor: str = Form(...), 
     cur.execute("SELECT * FROM usuarios WHERE id = %s", (usuario_id,))
     u = cur.fetchone()
     cur.close()
-    conn.close()
+    close_conn(conn)
     customer_id = criar_cliente(u["nome"], u["email"], cpf_limpo)
     if not customer_id:
         return templates.TemplateResponse(request=request, name="assinar.html", context={"usuario_nome": usuario_nome, "plano": plano, "valor": valor, "erro": f"Erro Asaas. CPF: {cpf_limpo}."})
@@ -652,7 +672,7 @@ def gerar_pix(request: Request, plano: str = Form(...), valor: str = Form(...), 
     cur.execute("INSERT INTO pagamentos (vendedor_id, payment_id, plano, valor) VALUES (%s, %s, %s, %s)", (v["id"], pid, plano, float(valor)))
     conn.commit()
     cur.close()
-    conn.close()
+    close_conn(conn)
     return RedirectResponse(url=f"/pagamento/{pid}", status_code=303)
 
 
@@ -665,7 +685,7 @@ def tela_pagamento(request: Request, payment_id: str, usuario_id: str = Cookie(N
     cur.execute("SELECT plano, valor, status FROM pagamentos WHERE payment_id = %s", (payment_id,))
     p = cur.fetchone()
     cur.close()
-    conn.close()
+    close_conn(conn)
     if not p:
         return RedirectResponse(url="/planos")
     pago = p["status"] == "pago"
@@ -683,7 +703,7 @@ def tela_pagamento(request: Request, payment_id: str, usuario_id: str = Cookie(N
                 cur.execute("UPDATE pagamentos SET status='pago' WHERE payment_id=%s", (payment_id,))
                 conn.commit()
             cur.close()
-            conn.close()
+            close_conn(conn)
             pago = True
     qr = None
     if not pago:
@@ -708,7 +728,7 @@ def verificar_pagamento(payment_id: str, usuario_id: str = Cookie(None)):
             cur.execute("UPDATE pagamentos SET status='pago' WHERE payment_id=%s", (payment_id,))
             conn.commit()
         cur.close()
-        conn.close()
+        close_conn(conn)
     return RedirectResponse(url=f"/pagamento/{payment_id}", status_code=303)
 
 
@@ -731,7 +751,7 @@ async def webhook_asaas(request: Request):
                 cur.execute("UPDATE pagamentos SET status='pago' WHERE payment_id=%s", (pid,))
                 conn.commit()
             cur.close()
-            conn.close()
+            close_conn(conn)
         return {"status": "ok"}
     except Exception as e:
         print(f"Erro webhook: {e}")
