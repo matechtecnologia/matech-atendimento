@@ -1,4 +1,5 @@
 import os
+import re
 from dotenv import load_dotenv
 from groq import Groq
 
@@ -13,6 +14,7 @@ client = Groq(api_key=api_key)
 
 MODELO = "openai/gpt-oss-120b"
 
+
 def separar_resposta(texto):
     blocos = {
         "o_que_falar": "",
@@ -21,24 +23,49 @@ def separar_resposta(texto):
         "linha_crm": ""
     }
 
+    # Limpa espaços e normaliza
+    texto = texto.strip()
+
+    # Padrões flexíveis (aceita com ou sem ===, maiúsculas/minúsculas)
+    padrao_falar = r"={0,3}\s*O QUE FALAR\s*={0,3}"
+    padrao_texto = r"={0,3}\s*TEXTO PARA ENVIAR\s*={0,3}"
+    padrao_acao = r"={0,3}\s*A[ÇC][ÃA]O CRM\s*={0,3}"
+    padrao_crm = r"={0,3}\s*LINHA CRM\s*={0,3}"
+
     try:
-        if "=== O QUE FALAR ===" in texto:
-            partes = texto.split("=== O QUE FALAR ===")[1]
-            if "=== TEXTO PARA ENVIAR ===" in partes:
-                blocos["o_que_falar"] = partes.split("=== TEXTO PARA ENVIAR ===")[0].strip()
+        # Divide por qualquer um dos marcadores, mantendo a ordem
+        partes = re.split(f"({padrao_falar}|{padrao_texto}|{padrao_acao}|{padrao_crm})", texto, flags=re.IGNORECASE)
 
-        if "=== TEXTO PARA ENVIAR ===" in texto:
-            partes = texto.split("=== TEXTO PARA ENVIAR ===")[1]
-            if "=== AÇÃO CRM ===" in partes:
-                blocos["texto_para_enviar"] = partes.split("=== AÇÃO CRM ===")[0].strip()
+        atual = None
+        for i, parte in enumerate(partes):
+            parte_limpa = parte.strip()
+            if not parte_limpa:
+                continue
 
-        if "=== AÇÃO CRM ===" in texto:
-            partes = texto.split("=== AÇÃO CRM ===")[1]
-            if "=== LINHA CRM ===" in partes:
-                blocos["acao_crm"] = partes.split("=== AÇÃO CRM ===")[0].strip()
+            if re.match(padrao_falar, parte_limpa, re.IGNORECASE):
+                atual = "o_que_falar"
+            elif re.match(padrao_texto, parte_limpa, re.IGNORECASE):
+                atual = "texto_para_enviar"
+            elif re.match(padrao_acao, parte_limpa, re.IGNORECASE):
+                atual = "acao_crm"
+            elif re.match(padrao_crm, parte_limpa, re.IGNORECASE):
+                atual = "linha_crm"
+            elif atual:
+                # É conteúdo, adiciona no bloco atual
+                if blocos[atual]:
+                    blocos[atual] += "\n" + parte_limpa
+                else:
+                    blocos[atual] = parte_limpa
 
-        if "=== LINHA CRM ===" in texto:
-            blocos["linha_crm"] = texto.split("=== LINHA CRM ===")[1].strip()
+        # Limpa a ação CRM (só a primeira palavra)
+        if blocos["acao_crm"]:
+            match = re.search(r"(LEAD|FOLLOW-?UP|FECHADO|ONBOARDING)", blocos["acao_crm"], re.IGNORECASE)
+            if match:
+                blocos["acao_crm"] = match.group(1).upper()
+
+        # Limpa o texto para enviar
+        if not blocos["texto_para_enviar"] or blocos["texto_para_enviar"].upper() in ["", "NENHUM", "NENHUM."]:
+            blocos["texto_para_enviar"] = "NENHUM"
 
     except Exception as e:
         blocos["o_que_falar"] = f"ERRO AO SEPARAR: {e}\n\nTexto original:\n{texto}"
@@ -72,30 +99,33 @@ def gerar_resposta(linha_crm, mensagem_cliente, prompt_vendedor=None, historico=
 
 ---
 
-# SUA TAREFA
+# FORMATO DE RESPOSTA OBRIGATÓRIO
 
-Responda EXATAMENTE neste formato:
+Você DEVE responder EXATAMENTE com os 4 marcadores abaixo, cada um em uma linha sozinha.
+NÃO escreva nada fora desses 4 blocos.
 
 === O QUE FALAR ===
-[áudio de 10-30 segundos]
+(escreva o roteiro do áudio de 10-30 segundos aqui, nada mais)
 
 === TEXTO PARA ENVIAR ===
-[texto curto ou NENHUM]
+(escreva um texto curto OU a palavra NENHUM)
 
 === AÇÃO CRM ===
-[LEAD / FOLLOW-UP / FECHADO / ONBOARDING]
+(escreva APENAS uma destas palavras: LEAD ou FOLLOW-UP ou FECHADO ou ONBOARDING)
 
 === LINHA CRM ===
-[Nome: xxx; Nicho: xxx; Objetivo: xxx; Dor: xxx; Objeção: xxx; Estratégia: xxx; Interesse: xxx; Status: xxx; Próximo passo: xxx]
+(Nome: xxx; Nicho: xxx; Objetivo: xxx; Dor: xxx; Objeção: xxx; Estratégia: xxx; Interesse: xxx; Status: xxx; Próximo passo: xxx)
 """
 
     try:
         response = client.chat.completions.create(
             model=MODELO,
             messages=[
+                {"role": "system", "content": "Você SEMPRE responde no formato exato solicitado, com os 4 blocos separados. Nunca junta blocos."},
                 {"role": "user", "content": prompt_completo}
             ],
-            timeout=60
+            timeout=60,
+            temperature=0.7
         )
         texto = response.choices[0].message.content
         return separar_resposta(texto)
@@ -179,21 +209,22 @@ B) UMA INSTRUÇÃO DO VENDEDOR (ex: "fazer prospecção fria")
 
 ---
 
-# FORMATO OBRIGATÓRIO DE RESPOSTA
+# FORMATO DE RESPOSTA OBRIGATÓRIO
 
-Sempre responda EXATAMENTE neste formato:
+Você DEVE responder EXATAMENTE com os 4 marcadores abaixo, cada um em uma linha sozinha.
+NÃO escreva nada fora desses 4 blocos.
 
 === O QUE FALAR ===
-[áudio de 10-30 segundos]
+(roteiro do áudio de 10-30 segundos)
 
 === TEXTO PARA ENVIAR ===
-[texto curto ou NENHUM]
+(texto curto OU NENHUM)
 
 === AÇÃO CRM ===
-[LEAD / FOLLOW-UP / FECHADO / ONBOARDING]
+(APENAS UMA PALAVRA: LEAD ou FOLLOW-UP ou FECHADO ou ONBOARDING)
 
 === LINHA CRM ===
-[Nome: xxx; Nicho: xxx; Objetivo: xxx; Dor: xxx; Objeção: xxx; Estratégia: xxx; Interesse: xxx; Status: xxx; Próximo passo: xxx]
+(Nome: xxx; Nicho: xxx; Objetivo: xxx; Dor: xxx; Objeção: xxx; Estratégia: xxx; Interesse: xxx; Status: xxx; Próximo passo: xxx)
 """
     return prompt_base.format(
         produto=produto,
