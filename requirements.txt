@@ -6,3 +6,4 @@ passlib[bcrypt]
 python-dotenv
 groq
 requests
+psycopg2-binary

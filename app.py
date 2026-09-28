@@ -1,7 +1,8 @@
 import os
-import sqlite3
 import threading
 from datetime import datetime, timedelta
+import psycopg2
+from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI, Request, Form, Cookie
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -19,30 +20,123 @@ templates = Jinja2Templates(directory="templates")
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 LIMITES = {"gratis": 1, "basico": 3, "pro": 10, "empresarial": 25}
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+
+def get_conn():
+    conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+    return conn
 
 
 def inicializar_banco():
-    conn = sqlite3.connect("dados.db")
+    conn = get_conn()
     cur = conn.cursor()
-    cur.execute("""CREATE TABLE IF NOT EXISTS usuarios (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT NOT NULL, email TEXT UNIQUE NOT NULL, senha TEXT NOT NULL, tipo TEXT NOT NULL DEFAULT 'atendente', ativo INTEGER NOT NULL DEFAULT 1, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
-    cur.execute("""CREATE TABLE IF NOT EXISTS vendedores (id INTEGER PRIMARY KEY AUTOINCREMENT, usuario_id INTEGER UNIQUE NOT NULL, plano TEXT DEFAULT 'gratis', plano_expira_em DATETIME, onboarding_completo INTEGER DEFAULT 0, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP, atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
-    cur.execute("""CREATE TABLE IF NOT EXISTS nichos (id INTEGER PRIMARY KEY AUTOINCREMENT, vendedor_id INTEGER NOT NULL, nome TEXT NOT NULL, produto TEXT, publico TEXT, preco TEXT, dor TEXT, objecao TEXT, diferencial TEXT, tom TEXT, prompt_gerado TEXT, ativo INTEGER DEFAULT 1, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
-    cur.execute("""CREATE TABLE IF NOT EXISTS atendimentos (id INTEGER PRIMARY KEY AUTOINCREMENT, atendente_id INTEGER NOT NULL, nicho_id INTEGER, whatsapp TEXT, linha_crm TEXT, mensagem_cliente TEXT, o_que_falar TEXT, texto_para_enviar TEXT, acao_crm TEXT, linha_crm_gerada TEXT, cliente_id INTEGER, status TEXT DEFAULT 'processando', criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
-    cur.execute("""CREATE TABLE IF NOT EXISTS historico (id INTEGER PRIMARY KEY AUTOINCREMENT, whatsapp TEXT NOT NULL, vendedor_id INTEGER NOT NULL, direcao TEXT NOT NULL, mensagem TEXT NOT NULL, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
-    cur.execute("""CREATE TABLE IF NOT EXISTS clientes (id INTEGER PRIMARY KEY AUTOINCREMENT, vendedor_id INTEGER NOT NULL, whatsapp TEXT NOT NULL, nome TEXT, email TEXT, origem TEXT, status TEXT DEFAULT 'novo lead', observacoes TEXT, linha_crm TEXT, nicho_id INTEGER, criado_em DATETIME DEFAULT CURRENT_TIMESTAMP, atualizado_em DATETIME DEFAULT CURRENT_TIMESTAMP, UNIQUE(vendedor_id, whatsapp))""")
-    cur.execute("""CREATE TABLE IF NOT EXISTS pagamentos (id INTEGER PRIMARY KEY AUTOINCREMENT, vendedor_id INTEGER, payment_id TEXT, plano TEXT, valor REAL, status TEXT DEFAULT 'pendente', criado_em DATETIME DEFAULT CURRENT_TIMESTAMP)""")
+
+    cur.execute("""CREATE TABLE IF NOT EXISTS usuarios (
+        id SERIAL PRIMARY KEY,
+        nome TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        senha TEXT NOT NULL,
+        tipo TEXT NOT NULL DEFAULT 'atendente',
+        ativo BOOLEAN NOT NULL DEFAULT TRUE,
+        criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )""")
+
+    cur.execute("""CREATE TABLE IF NOT EXISTS vendedores (
+        id SERIAL PRIMARY KEY,
+        usuario_id INTEGER UNIQUE NOT NULL,
+        plano TEXT DEFAULT 'gratis',
+        plano_expira_em TIMESTAMP WITH TIME ZONE,
+        onboarding_completo BOOLEAN DEFAULT FALSE,
+        criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        atualizado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )""")
+
+    cur.execute("""CREATE TABLE IF NOT EXISTS nichos (
+        id SERIAL PRIMARY KEY,
+        vendedor_id INTEGER NOT NULL,
+        nome TEXT NOT NULL,
+        produto TEXT,
+        publico TEXT,
+        preco TEXT,
+        dor TEXT,
+        objecao TEXT,
+        diferencial TEXT,
+        tom TEXT,
+        prompt_gerado TEXT,
+        ativo BOOLEAN DEFAULT TRUE,
+        criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )""")
+
+    cur.execute("""CREATE TABLE IF NOT EXISTS atendimentos (
+        id SERIAL PRIMARY KEY,
+        atendente_id INTEGER NOT NULL,
+        nicho_id INTEGER,
+        whatsapp TEXT,
+        linha_crm TEXT,
+        mensagem_cliente TEXT,
+        o_que_falar TEXT,
+        texto_para_enviar TEXT,
+        acao_crm TEXT,
+        linha_crm_gerada TEXT,
+        cliente_id INTEGER,
+        status TEXT DEFAULT 'processando',
+        criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )""")
+
+    cur.execute("""CREATE TABLE IF NOT EXISTS historico (
+        id SERIAL PRIMARY KEY,
+        whatsapp TEXT NOT NULL,
+        vendedor_id INTEGER NOT NULL,
+        direcao TEXT NOT NULL,
+        mensagem TEXT NOT NULL,
+        criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )""")
+
+    cur.execute("""CREATE TABLE IF NOT EXISTS clientes (
+        id SERIAL PRIMARY KEY,
+        vendedor_id INTEGER NOT NULL,
+        whatsapp TEXT NOT NULL,
+        nome TEXT,
+        email TEXT,
+        origem TEXT,
+        status TEXT DEFAULT 'novo lead',
+        observacoes TEXT,
+        linha_crm TEXT,
+        nicho_id INTEGER,
+        criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        atualizado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(vendedor_id, whatsapp)
+    )""")
+
+    cur.execute("""CREATE TABLE IF NOT EXISTS pagamentos (
+        id SERIAL PRIMARY KEY,
+        vendedor_id INTEGER,
+        payment_id TEXT,
+        plano TEXT,
+        valor REAL,
+        status TEXT DEFAULT 'pendente',
+        criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )""")
+
     cur.execute("CREATE INDEX IF NOT EXISTS idx_hist_whatsapp ON historico(whatsapp, vendedor_id)")
     cur.execute("CREATE INDEX IF NOT EXISTS idx_clientes_vendedor ON clientes(vendedor_id)")
-    cur.execute("SELECT * FROM usuarios WHERE email = ?", ("matechtecnologia01@gmail.com",))
+
+    cur.execute("SELECT * FROM usuarios WHERE email = %s", ("matechtecnologia01@gmail.com",))
     if not cur.fetchone():
         h = pwd_context.hash("M@techtechnologia12997291583")
-        cur.execute("INSERT INTO usuarios (nome, email, senha, tipo) VALUES (?, ?, ?, 'admin')", ("Admin M.A Tech", "matechtecnologia01@gmail.com", h))
+        cur.execute("INSERT INTO usuarios (nome, email, senha, tipo) VALUES (%s, %s, %s, 'admin')", ("Admin M.A Tech", "matechtecnologia01@gmail.com", h))
+
     conn.commit()
+    cur.close()
     conn.close()
     print("Banco inicializado")
 
 
-inicializar_banco()
+try:
+    inicializar_banco()
+except Exception as e:
+    print(f"Erro ao inicializar banco: {e}")
 
 
 @app.head("/")
@@ -51,155 +145,153 @@ def raiz_head():
 
 
 def buscar_usuario(email):
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM usuarios WHERE email = ? AND ativo = 1", (email,))
-    u = c.fetchone()
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM usuarios WHERE email = %s AND ativo = TRUE", (email,))
+    u = cur.fetchone()
+    cur.close()
     conn.close()
     return u
 
 
 def buscar_vendedor(uid):
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM vendedores WHERE usuario_id = ?", (uid,))
-    v = c.fetchone()
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM vendedores WHERE usuario_id = %s", (uid,))
+    v = cur.fetchone()
+    cur.close()
     conn.close()
     return v
 
 
 def listar_nichos(vid):
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM nichos WHERE vendedor_id = ? AND ativo = 1 ORDER BY id", (vid,))
-    n = c.fetchall()
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM nichos WHERE vendedor_id = %s AND ativo = TRUE ORDER BY id", (vid,))
+    n = cur.fetchall()
+    cur.close()
     conn.close()
     return n
 
 
 def contar_nichos(vid):
-    conn = sqlite3.connect("dados.db")
-    c = conn.cursor()
-    c.execute("SELECT COUNT(*) FROM nichos WHERE vendedor_id = ? AND ativo = 1", (vid,))
-    t = c.fetchone()[0]
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT COUNT(*) FROM nichos WHERE vendedor_id = %s AND ativo = TRUE", (vid,))
+    t = cur.fetchone()[0]
+    cur.close()
     conn.close()
     return t
 
 
 def buscar_nicho(nid):
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM nichos WHERE id = ?", (nid,))
-    n = c.fetchone()
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM nichos WHERE id = %s", (nid,))
+    n = cur.fetchone()
+    cur.close()
     conn.close()
     return n
 
 
 def verificar_expiracao(vid):
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT plano, plano_expira_em FROM vendedores WHERE id = ?", (vid,))
-    v = c.fetchone()
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT plano, plano_expira_em FROM vendedores WHERE id = %s", (vid,))
+    v = cur.fetchone()
+    cur.close()
     conn.close()
     if not v or v["plano"] == "gratis" or not v["plano_expira_em"]:
         return
-    try:
-        expira = datetime.fromisoformat(v["plano_expira_em"])
-    except:
-        return
-    if datetime.now() > expira:
-        conn = sqlite3.connect("dados.db")
-        c = conn.cursor()
-        c.execute("UPDATE vendedores SET plano = 'gratis', plano_expira_em = NULL WHERE id = ?", (vid,))
+    if datetime.now(v["plano_expira_em"].tzinfo) > v["plano_expira_em"]:
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("UPDATE vendedores SET plano = 'gratis', plano_expira_em = NULL WHERE id = %s", (vid,))
         conn.commit()
+        cur.close()
         conn.close()
 
 
 def dias_restantes(vid):
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT plano_expira_em FROM vendedores WHERE id = ?", (vid,))
-    v = c.fetchone()
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT plano_expira_em FROM vendedores WHERE id = %s", (vid,))
+    v = cur.fetchone()
+    cur.close()
     conn.close()
     if not v or not v["plano_expira_em"]:
         return None
-    try:
-        expira = datetime.fromisoformat(v["plano_expira_em"])
-    except:
-        return None
-    return max(0, (expira - datetime.now()).days)
+    delta = v["plano_expira_em"] - datetime.now(v["plano_expira_em"].tzinfo)
+    return max(0, delta.days)
 
 
 def criar_vendedor(nome, email, senha):
-    conn = sqlite3.connect("dados.db")
-    c = conn.cursor()
-    c.execute("SELECT id FROM usuarios WHERE email = ?", (email,))
-    if c.fetchone():
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
+    if cur.fetchone():
+        cur.close()
         conn.close()
         return False, "Email ja cadastrado"
     h = pwd_context.hash(senha)
-    c.execute("INSERT INTO usuarios (nome, email, senha, tipo) VALUES (?, ?, ?, 'atendente')", (nome, email, h))
-    uid = c.lastrowid
-    c.execute("INSERT INTO vendedores (usuario_id, plano, onboarding_completo) VALUES (?, 'gratis', 0)", (uid,))
+    cur.execute("INSERT INTO usuarios (nome, email, senha, tipo) VALUES (%s, %s, %s, 'atendente') RETURNING id", (nome, email, h))
+    uid = cur.fetchone()[0]
+    cur.execute("INSERT INTO vendedores (usuario_id, plano, onboarding_completo) VALUES (%s, 'gratis', FALSE)", (uid,))
     conn.commit()
+    cur.close()
     conn.close()
     return True, "OK"
 
 
 def listar_todos_vendedores():
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("""
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("""
         SELECT u.id, u.nome, u.email, u.criado_em, v.plano, v.id as vendedor_id,
-        (SELECT COUNT(*) FROM nichos WHERE vendedor_id = v.id AND ativo=1) as total_nichos,
+        (SELECT COUNT(*) FROM nichos WHERE vendedor_id = v.id AND ativo=TRUE) as total_nichos,
         (SELECT COUNT(*) FROM clientes WHERE vendedor_id = v.id) as total_clientes
         FROM usuarios u LEFT JOIN vendedores v ON v.usuario_id = u.id
         WHERE u.tipo != 'admin' OR u.tipo IS NULL ORDER BY u.id DESC
     """)
-    v = c.fetchall()
+    v = cur.fetchall()
+    cur.close()
     conn.close()
     return v
 
 
 def listar_clientes(vid):
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM clientes WHERE vendedor_id = ? ORDER BY atualizado_em DESC", (vid,))
-    cli = c.fetchall()
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM clientes WHERE vendedor_id = %s ORDER BY atualizado_em DESC", (vid,))
+    cli = cur.fetchall()
+    cur.close()
     conn.close()
     return cli
 
 
 def salvar_cliente(vid, whatsapp, nome, email, origem, status, obs, linha_crm="", nicho_id=None):
-    conn = sqlite3.connect("dados.db")
-    c = conn.cursor()
-    c.execute("SELECT id FROM clientes WHERE whatsapp = ? AND vendedor_id = ?", (whatsapp, vid))
-    ex = c.fetchone()
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM clientes WHERE whatsapp = %s AND vendedor_id = %s", (whatsapp, vid))
+    ex = cur.fetchone()
     if ex:
-        c.execute("UPDATE clientes SET nome=?, email=?, origem=?, status=?, observacoes=?, linha_crm=?, nicho_id=?, atualizado_em=CURRENT_TIMESTAMP WHERE id=?", (nome, email, origem, status, obs, linha_crm, nicho_id, ex[0]))
+        cur.execute("UPDATE clientes SET nome=%s, email=%s, origem=%s, status=%s, observacoes=%s, linha_crm=%s, nicho_id=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s", (nome, email, origem, status, obs, linha_crm, nicho_id, ex[0]))
         cid = ex[0]
     else:
-        c.execute("INSERT INTO clientes (vendedor_id, whatsapp, nome, email, origem, status, observacoes, linha_crm, nicho_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", (vid, whatsapp, nome, email, origem, status, obs, linha_crm, nicho_id))
-        cid = c.lastrowid
+        cur.execute("INSERT INTO clientes (vendedor_id, whatsapp, nome, email, origem, status, observacoes, linha_crm, nicho_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING id", (vid, whatsapp, nome, email, origem, status, obs, linha_crm, nicho_id))
+        cid = cur.fetchone()[0]
     conn.commit()
+    cur.close()
     conn.close()
     return cid
 
 
 def buscar_historico(whatsapp, vid, limite=20):
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT direcao, mensagem FROM historico WHERE whatsapp = ? AND vendedor_id = ? ORDER BY id DESC LIMIT ?", (whatsapp, vid, limite))
-    linhas = list(reversed(c.fetchall()))
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT direcao, mensagem FROM historico WHERE whatsapp = %s AND vendedor_id = %s ORDER BY id DESC LIMIT %s", (whatsapp, vid, limite))
+    linhas = list(reversed(cur.fetchall()))
+    cur.close()
     conn.close()
     if not linhas:
         return ""
@@ -211,11 +303,12 @@ def buscar_historico(whatsapp, vid, limite=20):
 
 
 def salvar_historico(whatsapp, vid, direcao, mensagem):
-    conn = sqlite3.connect("dados.db")
-    c = conn.cursor()
-    c.execute("INSERT INTO historico (whatsapp, vendedor_id, direcao, mensagem) VALUES (?, ?, ?, ?)", (whatsapp, vid, direcao, mensagem))
-    c.execute("DELETE FROM historico WHERE whatsapp = ? AND vendedor_id = ? AND id NOT IN (SELECT id FROM historico WHERE whatsapp = ? AND vendedor_id = ? ORDER BY id DESC LIMIT 20)", (whatsapp, vid, whatsapp, vid))
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO historico (whatsapp, vendedor_id, direcao, mensagem) VALUES (%s, %s, %s, %s)", (whatsapp, vid, direcao, mensagem))
+    cur.execute("""DELETE FROM historico WHERE whatsapp = %s AND vendedor_id = %s AND id NOT IN (SELECT id FROM historico WHERE whatsapp = %s AND vendedor_id = %s ORDER BY id DESC LIMIT 20)""", (whatsapp, vid, whatsapp, vid))
     conn.commit()
+    cur.close()
     conn.close()
 
 
@@ -223,18 +316,20 @@ def processar_atendimento(aid, linha_crm, mensagem, prompt, hist, whatsapp, uid,
     try:
         r = gerar_resposta(linha_crm, mensagem, prompt, hist)
         salvar_historico(whatsapp, uid, "ia", r.get("o_que_falar", ""))
-        conn = sqlite3.connect("dados.db")
-        c = conn.cursor()
-        c.execute("UPDATE atendimentos SET o_que_falar=?, texto_para_enviar=?, acao_crm=?, linha_crm_gerada=?, status='pronto' WHERE id=?", (r["o_que_falar"], r["texto_para_enviar"], r["estagio"], r["linha_crm"], aid))
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("UPDATE atendimentos SET o_que_falar=%s, texto_para_enviar=%s, acao_crm=%s, linha_crm_gerada=%s, status='pronto' WHERE id=%s", (r["o_que_falar"], r["texto_para_enviar"], r["estagio"], r["linha_crm"], aid))
         if cid and r.get("linha_crm"):
-            c.execute("UPDATE clientes SET linha_crm=?, status=?, atualizado_em=CURRENT_TIMESTAMP WHERE id=?", (r["linha_crm"], r["estagio"].lower(), cid))
+            cur.execute("UPDATE clientes SET linha_crm=%s, status=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s", (r["linha_crm"], r["estagio"].lower(), cid))
         conn.commit()
+        cur.close()
         conn.close()
     except Exception as e:
-        conn = sqlite3.connect("dados.db")
-        c = conn.cursor()
-        c.execute("UPDATE atendimentos SET o_que_falar=?, status='erro' WHERE id=?", (f"ERRO: {e}", aid))
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("UPDATE atendimentos SET o_que_falar=%s, status='erro' WHERE id=%s", (f"ERRO: {e}", aid))
         conn.commit()
+        cur.close()
         conn.close()
 
 
@@ -305,18 +400,19 @@ def salvar_onboarding(nome_nicho: str = Form(...), produto: str = Form(...), pub
     if not usuario_id:
         return RedirectResponse(url="/login")
     pg = gerar_prompt_vendedor(produto, publico, preco, dor, objecao, diferencial, tom)
-    conn = sqlite3.connect("dados.db")
-    c = conn.cursor()
-    c.execute("SELECT id FROM vendedores WHERE usuario_id = ?", (usuario_id,))
-    v = c.fetchone()
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM vendedores WHERE usuario_id = %s", (usuario_id,))
+    v = cur.fetchone()
     if not v:
-        c.execute("INSERT INTO vendedores (usuario_id, plano, onboarding_completo) VALUES (?, 'gratis', 1)", (usuario_id,))
-        vid = c.lastrowid
+        cur.execute("INSERT INTO vendedores (usuario_id, plano, onboarding_completo) VALUES (%s, 'gratis', TRUE) RETURNING id", (usuario_id,))
+        vid = cur.fetchone()[0]
     else:
         vid = v[0]
-        c.execute("UPDATE vendedores SET onboarding_completo=1, atualizado_em=CURRENT_TIMESTAMP WHERE id=?", (vid,))
-    c.execute("INSERT INTO nichos (vendedor_id, nome, produto, publico, preco, dor, objecao, diferencial, tom, prompt_gerado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (vid, nome_nicho, produto, publico, preco, dor, objecao, diferencial, tom, pg))
+        cur.execute("UPDATE vendedores SET onboarding_completo=TRUE, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s", (vid,))
+    cur.execute("INSERT INTO nichos (vendedor_id, nome, produto, publico, preco, dor, objecao, diferencial, tom, prompt_gerado) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (vid, nome_nicho, produto, publico, preco, dor, objecao, diferencial, tom, pg))
     conn.commit()
+    cur.close()
     conn.close()
     return RedirectResponse(url="/clientes", status_code=303)
 
@@ -350,11 +446,11 @@ def atender_cliente(request: Request, cliente_id: int, usuario_id: str = Cookie(
     v = buscar_vendedor(usuario_id)
     if not v:
         return RedirectResponse(url="/onboarding")
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM clientes WHERE id = ? AND vendedor_id = ?", (cliente_id, v["id"]))
-    cli = c.fetchone()
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM clientes WHERE id = %s AND vendedor_id = %s", (cliente_id, v["id"]))
+    cli = cur.fetchone()
+    cur.close()
     conn.close()
     if not cli:
         return RedirectResponse(url="/clientes")
@@ -369,15 +465,15 @@ def tela_cliente_detalhe(request: Request, cliente_id: int, usuario_id: str = Co
     v = buscar_vendedor(usuario_id)
     if not v:
         return RedirectResponse(url="/onboarding")
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM clientes WHERE id = ? AND vendedor_id = ?", (cliente_id, v["id"]))
-    cli = c.fetchone()
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM clientes WHERE id = %s AND vendedor_id = %s", (cliente_id, v["id"]))
+    cli = cur.fetchone()
     hist = []
     if cli:
-        c.execute("SELECT * FROM historico WHERE whatsapp = ? AND vendedor_id = ? ORDER BY id ASC", (cli["whatsapp"], v["id"]))
-        hist = [dict(h) for h in c.fetchall()]
+        cur.execute("SELECT * FROM historico WHERE whatsapp = %s AND vendedor_id = %s ORDER BY id ASC", (cli["whatsapp"], v["id"]))
+        hist = [dict(h) for h in cur.fetchall()]
+    cur.close()
     conn.close()
     if not cli:
         return RedirectResponse(url="/clientes")
@@ -395,21 +491,22 @@ def rota_gerar_resposta(whatsapp: str = Form(...), nicho_id: int = Form(...), me
         return RedirectResponse(url="/clientes")
     linha_crm = ""
     if cliente_id:
-        conn = sqlite3.connect("dados.db")
-        conn.row_factory = sqlite3.Row
-        c = conn.cursor()
-        c.execute("SELECT linha_crm FROM clientes WHERE id = ?", (cliente_id,))
-        cli = c.fetchone()
+        conn = get_conn()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute("SELECT linha_crm FROM clientes WHERE id = %s", (cliente_id,))
+        cli = cur.fetchone()
+        cur.close()
         conn.close()
         if cli:
             linha_crm = cli["linha_crm"] or ""
     hist = buscar_historico(whatsapp, usuario_id)
     salvar_historico(whatsapp, usuario_id, "cliente", mensagem_cliente)
-    conn = sqlite3.connect("dados.db")
-    c = conn.cursor()
-    c.execute("INSERT INTO atendimentos (atendente_id, nicho_id, whatsapp, linha_crm, mensagem_cliente, cliente_id, status) VALUES (?, ?, ?, ?, ?, ?, 'processando')", (usuario_id, nicho_id, whatsapp, linha_crm, mensagem_cliente, cliente_id))
-    aid = c.lastrowid
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO atendimentos (atendente_id, nicho_id, whatsapp, linha_crm, mensagem_cliente, cliente_id, status) VALUES (%s, %s, %s, %s, %s, %s, 'processando') RETURNING id", (usuario_id, nicho_id, whatsapp, linha_crm, mensagem_cliente, cliente_id))
+    aid = cur.fetchone()[0]
     conn.commit()
+    cur.close()
     conn.close()
     threading.Thread(target=processar_atendimento, args=(aid, linha_crm, mensagem_cliente, n["prompt_gerado"], hist, whatsapp, usuario_id, cliente_id)).start()
     return RedirectResponse(url=f"/resultado/{aid}", status_code=303)
@@ -419,11 +516,11 @@ def rota_gerar_resposta(whatsapp: str = Form(...), nicho_id: int = Form(...), me
 def tela_resultado(request: Request, atendimento_id: int, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
     if not usuario_id:
         return RedirectResponse(url="/login")
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM atendimentos WHERE id = ?", (atendimento_id,))
-    a = c.fetchone()
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM atendimentos WHERE id = %s", (atendimento_id,))
+    a = cur.fetchone()
+    cur.close()
     conn.close()
     if not a:
         return RedirectResponse(url="/clientes")
@@ -437,11 +534,11 @@ def salvar_atendimento_como_cliente(atendimento_id: int, usuario_id: str = Cooki
     v = buscar_vendedor(usuario_id)
     if not v:
         return RedirectResponse(url="/onboarding")
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM atendimentos WHERE id = ?", (atendimento_id,))
-    a = c.fetchone()
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM atendimentos WHERE id = %s", (atendimento_id,))
+    a = cur.fetchone()
+    cur.close()
     conn.close()
     if not a:
         return RedirectResponse(url="/clientes")
@@ -453,10 +550,11 @@ def salvar_atendimento_como_cliente(atendimento_id: int, usuario_id: str = Cooki
             nome = parte.split(":", 1)[1].strip()
             break
     cid = salvar_cliente(v["id"], whatsapp, nome, "", "", "novo lead", linha_crm)
-    conn = sqlite3.connect("dados.db")
-    c = conn.cursor()
-    c.execute("UPDATE atendimentos SET cliente_id = ? WHERE id = ?", (cid, atendimento_id))
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("UPDATE atendimentos SET cliente_id = %s WHERE id = %s", (cid, atendimento_id))
     conn.commit()
+    cur.close()
     conn.close()
     return RedirectResponse(url="/clientes", status_code=303)
 
@@ -494,10 +592,11 @@ def salvar_novo_nicho(nome_nicho: str = Form(...), produto: str = Form(...), pub
     if contar_nichos(v["id"]) >= LIMITES.get(v["plano"], 1):
         return RedirectResponse(url="/meus_nichos?erro=Limite+atingido", status_code=303)
     pg = gerar_prompt_vendedor(produto, publico, preco, dor, objecao, diferencial, tom)
-    conn = sqlite3.connect("dados.db")
-    c = conn.cursor()
-    c.execute("INSERT INTO nichos (vendedor_id, nome, produto, publico, preco, dor, objecao, diferencial, tom, prompt_gerado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (v["id"], nome_nicho, produto, publico, preco, dor, objecao, diferencial, tom, pg))
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO nichos (vendedor_id, nome, produto, publico, preco, dor, objecao, diferencial, tom, prompt_gerado) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (v["id"], nome_nicho, produto, publico, preco, dor, objecao, diferencial, tom, pg))
     conn.commit()
+    cur.close()
     conn.close()
     return RedirectResponse(url="/meus_nichos", status_code=303)
 
@@ -535,11 +634,11 @@ def gerar_pix(request: Request, plano: str = Form(...), valor: str = Form(...), 
     cpf_limpo = "".join(filter(str.isdigit, cpf_cnpj))
     if len(cpf_limpo) not in [11, 14]:
         return templates.TemplateResponse(request=request, name="assinar.html", context={"usuario_nome": usuario_nome, "plano": plano, "valor": valor, "erro": f"CPF invalido: {len(cpf_limpo)} digitos"})
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT * FROM usuarios WHERE id = ?", (usuario_id,))
-    u = c.fetchone()
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM usuarios WHERE id = %s", (usuario_id,))
+    u = cur.fetchone()
+    cur.close()
     conn.close()
     customer_id = criar_cliente(u["nome"], u["email"], cpf_limpo)
     if not customer_id:
@@ -548,10 +647,11 @@ def gerar_pix(request: Request, plano: str = Form(...), valor: str = Form(...), 
     pid = criar_cobranca_pix(customer_id, float(valor), f"M.A Tech - {plano.upper()}", venc)
     if not pid:
         return templates.TemplateResponse(request=request, name="assinar.html", context={"usuario_nome": usuario_nome, "plano": plano, "valor": valor, "erro": "Erro ao criar cobranca PIX."})
-    conn = sqlite3.connect("dados.db")
-    c = conn.cursor()
-    c.execute("INSERT INTO pagamentos (vendedor_id, payment_id, plano, valor) VALUES (?, ?, ?, ?)", (v["id"], pid, plano, float(valor)))
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO pagamentos (vendedor_id, payment_id, plano, valor) VALUES (%s, %s, %s, %s)", (v["id"], pid, plano, float(valor)))
     conn.commit()
+    cur.close()
     conn.close()
     return RedirectResponse(url=f"/pagamento/{pid}", status_code=303)
 
@@ -560,11 +660,11 @@ def gerar_pix(request: Request, plano: str = Form(...), valor: str = Form(...), 
 def tela_pagamento(request: Request, payment_id: str, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):
     if not usuario_id:
         return RedirectResponse(url="/login")
-    conn = sqlite3.connect("dados.db")
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute("SELECT plano, valor, status FROM pagamentos WHERE payment_id = ?", (payment_id,))
-    p = c.fetchone()
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT plano, valor, status FROM pagamentos WHERE payment_id = %s", (payment_id,))
+    p = cur.fetchone()
+    cur.close()
     conn.close()
     if not p:
         return RedirectResponse(url="/planos")
@@ -573,15 +673,16 @@ def tela_pagamento(request: Request, payment_id: str, usuario_id: str = Cookie(N
         info = consultar_pagamento(payment_id)
         st = info.get("status") if info else None
         if st in ["CONFIRMED", "RECEIVED"]:
-            conn = sqlite3.connect("dados.db")
-            c = conn.cursor()
-            c.execute("SELECT vendedor_id FROM pagamentos WHERE payment_id = ?", (payment_id,))
-            row = c.fetchone()
+            conn = get_conn()
+            cur = conn.cursor()
+            cur.execute("SELECT vendedor_id FROM pagamentos WHERE payment_id = %s", (payment_id,))
+            row = cur.fetchone()
             if row:
-                exp = (datetime.now() + timedelta(days=30)).isoformat()
-                c.execute("UPDATE vendedores SET plano=?, plano_expira_em=?, atualizado_em=CURRENT_TIMESTAMP WHERE id=?", (p["plano"], exp, row[0]))
-                c.execute("UPDATE pagamentos SET status='pago' WHERE payment_id=?", (payment_id,))
+                exp = datetime.now() + timedelta(days=30)
+                cur.execute("UPDATE vendedores SET plano=%s, plano_expira_em=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s", (p["plano"], exp, row[0]))
+                cur.execute("UPDATE pagamentos SET status='pago' WHERE payment_id=%s", (payment_id,))
                 conn.commit()
+            cur.close()
             conn.close()
             pago = True
     qr = None
@@ -597,15 +698,16 @@ def verificar_pagamento(payment_id: str, usuario_id: str = Cookie(None)):
     info = consultar_pagamento(payment_id)
     st = info.get("status") if info else None
     if st in ["CONFIRMED", "RECEIVED"]:
-        conn = sqlite3.connect("dados.db")
-        c = conn.cursor()
-        c.execute("SELECT vendedor_id, plano FROM pagamentos WHERE payment_id = ?", (payment_id,))
-        row = c.fetchone()
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT vendedor_id, plano FROM pagamentos WHERE payment_id = %s", (payment_id,))
+        row = cur.fetchone()
         if row:
-            exp = (datetime.now() + timedelta(days=30)).isoformat()
-            c.execute("UPDATE vendedores SET plano=?, plano_expira_em=?, atualizado_em=CURRENT_TIMESTAMP WHERE id=?", (row[1], exp, row[0]))
-            c.execute("UPDATE pagamentos SET status='pago' WHERE payment_id=?", (payment_id,))
+            exp = datetime.now() + timedelta(days=30)
+            cur.execute("UPDATE vendedores SET plano=%s, plano_expira_em=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s", (row[1], exp, row[0]))
+            cur.execute("UPDATE pagamentos SET status='pago' WHERE payment_id=%s", (payment_id,))
             conn.commit()
+        cur.close()
         conn.close()
     return RedirectResponse(url=f"/pagamento/{payment_id}", status_code=303)
 
@@ -619,15 +721,16 @@ async def webhook_asaas(request: Request):
         pid = pay.get("id", "")
         print(f"Webhook: {ev} - {pid}")
         if ev in ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"]:
-            conn = sqlite3.connect("dados.db")
-            c = conn.cursor()
-            c.execute("SELECT vendedor_id, plano FROM pagamentos WHERE payment_id = ?", (pid,))
-            row = c.fetchone()
+            conn = get_conn()
+            cur = conn.cursor()
+            cur.execute("SELECT vendedor_id, plano FROM pagamentos WHERE payment_id = %s", (pid,))
+            row = cur.fetchone()
             if row:
-                exp = (datetime.now() + timedelta(days=30)).isoformat()
-                c.execute("UPDATE vendedores SET plano=?, plano_expira_em=?, atualizado_em=CURRENT_TIMESTAMP WHERE id=?", (row[1], exp, row[0]))
-                c.execute("UPDATE pagamentos SET status='pago' WHERE payment_id=?", (pid,))
+                exp = datetime.now() + timedelta(days=30)
+                cur.execute("UPDATE vendedores SET plano=%s, plano_expira_em=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s", (row[1], exp, row[0]))
+                cur.execute("UPDATE pagamentos SET status='pago' WHERE payment_id=%s", (pid,))
                 conn.commit()
+            cur.close()
             conn.close()
         return {"status": "ok"}
     except Exception as e:
