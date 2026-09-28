@@ -1,10 +1,16 @@
 import os
+
+# Remove GOOGLE_API_KEY do ambiente (evita conflito com a chave correta)
+os.environ.pop("GOOGLE_API_KEY", None)
+
 from dotenv import load_dotenv
 from google import genai
 
 load_dotenv()
 
-# Prioriza GEMINI_API_KEY (a chave correta)
+# Força remover de novo, caso o dotenv tenha carregado
+os.environ.pop("GOOGLE_API_KEY", None)
+
 api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 
 if not api_key:
