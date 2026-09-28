@@ -40,10 +40,10 @@ def close_conn(conn):
         if _pool:
             _pool.putconn(conn)
         else:
-            close_conn(conn)
+            conn.close()
     except Exception:
         try:
-            close_conn(conn)
+            conn.close()
         except Exception:
             pass
 
@@ -159,10 +159,11 @@ except Exception as e:
     print(f"Erro ao inicializar banco: {e}")
 
 
-@app.head("/")
-def raiz_head():
-    return HTMLResponse("")
-
+@app.get("/", response_class=HTMLResponse)
+def raiz(request: Request, usuario_id: str = Cookie(None)):
+    if usuario_id:
+        return RedirectResponse(url="/clientes")
+    return templates.TemplateResponse(request=request, name="landing.html", context={})
 
 def buscar_usuario(email):
     conn = get_conn()
