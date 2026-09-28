@@ -8,66 +8,71 @@
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0e1a;color:#e6ebf5;line-height:1.6;overflow-x:hidden}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a0a;color:#e8e8e8;line-height:1.6;overflow-x:hidden}
   .container{max-width:1140px;margin:0 auto;padding:0 24px}
-  nav{position:sticky;top:0;background:rgba(10,14,26,.85);backdrop-filter:blur(12px);border-bottom:1px solid #1a2138;z-index:100}
+  nav{position:sticky;top:0;background:rgba(10,10,10,.85);backdrop-filter:blur(12px);border-bottom:1px solid #222222;z-index:100}
   nav .container{display:flex;justify-content:space-between;align-items:center;padding:16px 24px}
-  .logo{font-size:22px;font-weight:800;color:#fff;text-decoration:none}
-  .logo span{color:#4f8cff}
-  nav a.btn-sm{padding:10px 20px;background:#4f8cff;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;transition:.2s}
-  nav a.btn-sm:hover{background:#3a75e8}
+  .logo{font-size:22px;font-weight:800;color:#fff;text-decoration:none;letter-spacing:-.02em}
+  .logo span{color:#00d97e}
+  nav a.btn-sm{padding:10px 20px;background:#00d97e;color:#0a0a0a;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;transition:.2s}
+  nav a.btn-sm:hover{background:#00b368;transform:translateY(-1px)}
   .hero{padding:80px 0 60px;text-align:center;position:relative;overflow:hidden}
-  .hero:before{content:"";position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(79,140,255,.15),transparent 70%);pointer-events:none}
-  .badge{display:inline-block;padding:6px 14px;background:rgba(79,140,255,.12);color:#4f8cff;border:1px solid rgba(79,140,255,.3);border-radius:100px;font-size:13px;font-weight:600;margin-bottom:24px}
-  h1{font-size:clamp(32px,5vw,56px);font-weight:800;line-height:1.15;margin-bottom:24px;letter-spacing:-.02em}
-  h1 em{font-style:normal;background:linear-gradient(135deg,#4f8cff,#7a5cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-  .hero p{font-size:clamp(16px,2vw,19px);color:#8a94ab;max-width:620px;margin:0 auto 36px}
+  .hero:before{content:"";position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(0,217,126,.12),transparent 70%);pointer-events:none}
+  .badge{display:inline-block;padding:6px 14px;background:rgba(0,217,126,.08);color:#00d97e;border:1px solid rgba(0,217,126,.25);border-radius:100px;font-size:13px;font-weight:600;margin-bottom:24px;font-family:'SF Mono',Consolas,monospace}
+  h1{font-size:clamp(32px,5vw,56px);font-weight:800;line-height:1.15;margin-bottom:24px;letter-spacing:-.03em}
+  h1 em{font-style:normal;color:#00d97e;text-shadow:0 0 40px rgba(0,217,126,.4)}
+  .hero p{font-size:clamp(16px,2vw,19px);color:#8a8a8a;max-width:620px;margin:0 auto 36px}
   .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
-  .btn{padding:16px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;transition:.2s;display:inline-flex;align-items:center;gap:8px}
-  .btn-primary{background:#4f8cff;color:#fff;box-shadow:0 8px 30px rgba(79,140,255,.35)}
-  .btn-primary:hover{background:#3a75e8;transform:translateY(-2px);box-shadow:0 12px 40px rgba(79,140,255,.45)}
-  .btn-ghost{background:transparent;color:#e6ebf5;border:1px solid #1f2842}
-  .btn-ghost:hover{border-color:#4f8cff;color:#4f8cff}
-  .micro{color:#5a6580;font-size:13px}
+  .btn{padding:16px 32px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;transition:.2s;display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer}
+  .btn-primary{background:#00d97e;color:#0a0a0a;box-shadow:0 8px 30px rgba(0,217,126,.25)}
+  .btn-primary:hover{background:#00b368;transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,217,126,.4)}
+  .btn-ghost{background:transparent;color:#e8e8e8;border:1px solid #222222}
+  .btn-ghost:hover{border-color:#00d97e;color:#00d97e}
+  .micro{color:#5a5a5a;font-size:13px;font-family:'SF Mono',Consolas,monospace}
   section{padding:80px 0}
-  h2{font-size:clamp(26px,3.5vw,38px);font-weight:800;text-align:center;margin-bottom:16px;letter-spacing:-.01em}
-  .sub{text-align:center;color:#8a94ab;max-width:560px;margin:0 auto 56px;font-size:16px}
+  h2{font-size:clamp(26px,3.5vw,38px);font-weight:800;text-align:center;margin-bottom:16px;letter-spacing:-.02em}
+  .sub{text-align:center;color:#8a8a8a;max-width:560px;margin:0 auto 56px;font-size:16px}
   .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-  .step{background:#111725;border:1px solid #1a2138;border-radius:14px;padding:32px 24px;position:relative}
-  .step-num{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#4f8cff,#7a5cff);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;margin-bottom:20px}
+  .step{background:#141414;border:1px solid #222222;border-radius:14px;padding:32px 24px;position:relative;transition:.25s}
+  .step:hover{border-color:#00d97e;transform:translateY(-4px)}
+  .step-num{width:44px;height:44px;border-radius:10px;background:#00d97e;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#0a0a0a;margin-bottom:20px;font-family:'SF Mono',Consolas,monospace;box-shadow:0 0 30px rgba(0,217,126,.4)}
   .step h3{font-size:18px;margin-bottom:10px;font-weight:700}
-  .step p{color:#8a94ab;font-size:15px}
+  .step p{color:#8a8a8a;font-size:15px}
   .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-  .card{background:#111725;border:1px solid #1a2138;border-radius:14px;padding:28px 22px;transition:.25s}
-  .card:hover{border-color:#4f8cff;transform:translateY(-4px)}
+  .card{background:#141414;border:1px solid #222222;border-radius:14px;padding:28px 22px;transition:.25s}
+  .card:hover{border-color:#00d97e;transform:translateY(-4px)}
   .icon{font-size:28px;margin-bottom:16px}
   .card h3{font-size:16px;margin-bottom:10px;font-weight:700}
-  .card p{color:#8a94ab;font-size:14px;line-height:1.55}
+  .card p{color:#8a8a8a;font-size:14px;line-height:1.55}
   .plans{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-  .plan{background:#111725;border:1px solid #1a2138;border-radius:14px;padding:32px 24px;display:flex;flex-direction:column;position:relative}
-  .plan.featured{border-color:#4f8cff;box-shadow:0 0 0 1px #4f8cff,0 20px 60px rgba(79,140,255,.2)}
-  .plan .tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#4f8cff,#7a5cff);color:#fff;padding:5px 14px;border-radius:100px;font-size:12px;font-weight:700}
+  .plan{background:#141414;border:1px solid #222222;border-radius:14px;padding:32px 24px;display:flex;flex-direction:column;position:relative}
+  .plan.featured{border-color:#00d97e;box-shadow:0 0 0 1px #00d97e,0 20px 60px rgba(0,217,126,.15)}
+  .plan .tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#00d97e;color:#0a0a0a;padding:5px 14px;border-radius:100px;font-size:11px;font-weight:800;letter-spacing:.05em;font-family:'SF Mono',Consolas,monospace}
   .plan h3{font-size:18px;margin-bottom:12px;font-weight:700}
-  .plan .price{font-size:32px;font-weight:800;margin-bottom:4px}
-  .plan .price small{font-size:14px;color:#8a94ab;font-weight:500}
-  .plan .nichos{color:#4f8cff;font-size:13px;font-weight:600;margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid #1a2138}
+  .plan .price{font-size:32px;font-weight:800;margin-bottom:4px;color:#fff}
+  .plan .price small{font-size:14px;color:#8a8a8a;font-weight:500}
+  .plan .nichos{color:#00d97e;font-size:13px;font-weight:700;margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid #222222;font-family:'SF Mono',Consolas,monospace}
   .plan ul{list-style:none;margin-bottom:24px;flex:1}
-  .plan ul li{padding:7px 0;color:#a8b2c8;font-size:14px;display:flex;gap:10px;align-items:flex-start}
-  .plan ul li:before{content:"✓";color:#4f8cff;font-weight:800;flex-shrink:0}
+  .plan ul li{padding:7px 0;color:#a8a8a8;font-size:14px;display:flex;gap:10px;align-items:flex-start}
+  .plan ul li:before{content:"✓";color:#00d97e;font-weight:800;flex-shrink:0}
   .plan .btn{width:100%;justify-content:center;padding:14px}
   .faq{max-width:760px;margin:0 auto}
-  details{background:#111725;border:1px solid #1a2138;border-radius:12px;padding:20px 24px;margin-bottom:12px;cursor:pointer}
-  details[open]{border-color:#4f8cff}
+  details{background:#141414;border:1px solid #222222;border-radius:12px;padding:20px 24px;margin-bottom:12px;cursor:pointer;transition:.2s}
+  details[open]{border-color:#00d97e}
   summary{font-weight:600;font-size:16px;list-style:none;display:flex;justify-content:space-between;align-items:center}
   summary::-webkit-details-marker{display:none}
-  summary:after{content:"+";font-size:22px;color:#4f8cff;font-weight:400;transition:.2s}
+  summary:after{content:"+";font-size:22px;color:#00d97e;font-weight:400;transition:.2s}
   details[open] summary:after{content:"−"}
-  details p{color:#8a94ab;margin-top:14px;font-size:15px;padding-top:14px;border-top:1px solid #1a2138}
-  .cta-final{background:linear-gradient(135deg,#111725,#0d1526);border:1px solid #1a2138;border-radius:20px;padding:64px 40px;text-align:center}
-  .cta-final h2{margin-bottom:14px}
-  footer{border-top:1px solid #1a2138;padding:40px 0;text-align:center;color:#5a6580;font-size:14px}
-  footer a{color:#8a94ab;text-decoration:none;margin:0 12px}
-  footer a:hover{color:#4f8cff}
+  details p{color:#8a8a8a;margin-top:14px;font-size:15px;padding-top:14px;border-top:1px solid #222222}
+  .cta-final{background:linear-gradient(135deg,#141414,#0f0f0f);border:1px solid #222222;border-radius:20px;padding:64px 40px;text-align:center;position:relative;overflow:hidden}
+  .cta-final:before{content:"";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(0,217,126,.08),transparent 70%);pointer-events:none}
+  .cta-final h2{margin-bottom:14px;position:relative}
+  .cta-final .sub{position:relative}
+  .cta-final .btn{position:relative}
+  footer{border-top:1px solid #222222;padding:40px 0;text-align:center;color:#5a5a5a;font-size:14px}
+  footer a{color:#8a8a8a;text-decoration:none;margin:0 12px;transition:.2s}
+  footer a:hover{color:#00d97e}
+  .destaque-erro{color:#ff3b3b}
   @media(max-width:900px){
     .steps,.grid-4,.plans{grid-template-columns:1fr 1fr}
   }
@@ -126,7 +131,7 @@
   </div>
 </section>
 
-<section style="background:#0d1320">
+<section style="background:#0f0f0f">
   <div class="container">
     <h2>Por que vendedores usam a M.A Tech</h2>
     <p class="sub">Não é chatbot genérico. É uma IA treinada no seu negócio.</p>
@@ -147,7 +152,7 @@
       <div class="plan">
         <h3>Grátis</h3>
         <div class="price">R$ 0<small>/mês</small></div>
-        <div class="nichos">1 nicho</div>
+        <div class="nichos">1 NICHO</div>
         <ul>
           <li>IA ilimitada no 1º nicho</li>
           <li>Clientes ilimitados</li>
@@ -159,7 +164,7 @@
       <div class="plan">
         <h3>Básico</h3>
         <div class="price">R$ 97<small>/mês</small></div>
-        <div class="nichos">3 nichos</div>
+        <div class="nichos">3 NICHOS</div>
         <ul>
           <li>Tudo do Grátis</li>
           <li>Até 3 produtos/serviços</li>
@@ -171,7 +176,7 @@
         <div class="tag">MAIS POPULAR</div>
         <h3>Pro</h3>
         <div class="price">R$ 297<small>/mês</small></div>
-        <div class="nichos">10 nichos</div>
+        <div class="nichos">10 NICHOS</div>
         <ul>
           <li>Tudo do Básico</li>
           <li>Até 10 produtos/serviços</li>
@@ -182,7 +187,7 @@
       <div class="plan">
         <h3>Empresarial</h3>
         <div class="price">R$ 597<small>/mês</small></div>
-        <div class="nichos">25 nichos</div>
+        <div class="nichos">25 NICHOS</div>
         <ul>
           <li>Tudo do Pro</li>
           <li>Até 25 produtos/serviços</li>
@@ -194,7 +199,7 @@
   </div>
 </section>
 
-<section id="faq" style="background:#0d1320">
+<section id="faq" style="background:#0f0f0f">
   <div class="container">
     <h2>Perguntas frequentes</h2>
     <p class="sub">O que todo mundo pergunta antes de criar conta.</p>
@@ -221,7 +226,7 @@
 
 <footer>
   <div class="container">
-    <p style="margin-bottom:12px"><strong style="color:#e6ebf5">M.A Tech</strong> — Atendimento comercial com IA</p>
+    <p style="margin-bottom:12px"><strong style="color:#e8e8e8">M.A Tech</strong> — Atendimento comercial com IA</p>
     <div>
       <a href="/login">Entrar</a>
       <a href="/signup">Criar conta</a>

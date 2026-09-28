@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,7 @@
     <title>M.A Tech - Resultado</title>
     <link rel="stylesheet" href="/static/style.css">
     {% if atendimento.status == 'processando' %}
-    <meta http-equiv="refresh" content="3">
+    <meta http-equiv="refresh" content="2">
     {% endif %}
 </head>
 <body>
@@ -22,10 +22,39 @@
         </div>
 
         {% if atendimento.status == 'processando' %}
-        <div class="bloco bloco-acao">
-            <h2>Processando...</h2>
-            <p style="color:#aaa; margin-top:8px;">A IA esta gerando a resposta. A pagina atualiza sozinha.</p>
+
+        <div class="loading">
+            <div class="spinner"></div>
+            <h3>🤖 IA analisando a conversa...</h3>
+            <p>Isso leva de 2 a 4 segundos. A página atualiza sozinha.</p>
         </div>
+
+        <div class="skeleton-bloco">
+            <div class="skeleton-titulo"></div>
+            <div class="skeleton-linha longa"></div>
+            <div class="skeleton-linha media"></div>
+            <div class="skeleton-linha curta"></div>
+        </div>
+
+        <div class="skeleton-bloco">
+            <div class="skeleton-titulo"></div>
+            <div class="skeleton-linha longa"></div>
+            <div class="skeleton-linha media"></div>
+        </div>
+
+        <div class="skeleton-bloco">
+            <div class="skeleton-titulo"></div>
+            <div class="skeleton-linha curta"></div>
+        </div>
+
+        {% elif atendimento.status == 'erro' %}
+
+        <div class="erro">
+            ⚠️ Ocorreu um erro ao gerar a resposta. Tente novamente.
+        </div>
+
+        <p style="margin-top:24px;"><a href="/clientes" style="color:#00d97e;">← Voltar para clientes</a></p>
+
         {% else %}
 
         {% if not atendimento.cliente_id %}
@@ -37,7 +66,7 @@
         <div class="bloco bloco-fala">
             <div class="bloco-topo">
                 <h2>🎤 O QUE FALAR (áudio)</h2>
-                <button onclick="copiar('fala')" class="btn-copiar">COPIAR</button>
+                <button onclick="copiar('fala', this)" class="btn-copiar">📋 COPIAR</button>
             </div>
             <pre id="fala">{{ atendimento.o_que_falar }}</pre>
         </div>
@@ -45,7 +74,7 @@
         <div class="bloco bloco-texto">
             <div class="bloco-topo">
                 <h2>📝 TEXTO PARA ENVIAR</h2>
-                <button onclick="copiar('texto')" class="btn-copiar">COPIAR</button>
+                <button onclick="copiar('texto', this)" class="btn-copiar">📋 COPIAR</button>
             </div>
             <pre id="texto">{{ atendimento.texto_para_enviar }}</pre>
         </div>
@@ -54,19 +83,29 @@
             <div class="bloco-topo">
                 <h2>📊 ESTÁGIO DO CLIENTE</h2>
             </div>
-            <div class="acao-valor">{{ atendimento.acao_crm }}</div>
+            {% set estagio = (atendimento.acao_crm or '')|lower %}
+            {% if 'novo' in estagio or 'lead' in estagio %}
+                {% set badge = 'status-novo-lead' %}
+            {% elif 'negocia' in estagio %}
+                {% set badge = 'status-negociacao' %}
+            {% elif 'atendimento' in estagio %}
+                {% set badge = 'status-em-atendimento' %}
+            {% elif 'cliente' in estagio %}
+                {% set badge = 'status-cliente' %}
+            {% elif 'perdido' in estagio %}
+                {% set badge = 'status-perdido' %}
+            {% else %}
+                {% set badge = 'status-em-atendimento' %}
+            {% endif %}
+            <div style="text-align:center; padding:16px 0;">
+                <span class="badge-status {{ badge }}" style="font-size:14px; padding:8px 20px;">{{ atendimento.acao_crm }}</span>
+            </div>
         </div>
 
-        <p style="margin-top:24px;"><a href="/clientes" style="color:#4a9eff;">← Voltar para clientes</a></p>
+        <p style="margin-top:24px;"><a href="/clientes" style="color:#00d97e;">← Voltar para clientes</a></p>
 
         {% endif %}
     </div>
-
-    <script>
-    function copiar(id) {
-        const texto = document.getElementById(id).innerText;
-        navigator.clipboard.writeText(texto).then(() => { alert('Copiado!'); });
-    }
-    </script>
+    <script src="/static/app.js"></script>
 </body>
 </html>

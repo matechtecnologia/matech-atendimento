@@ -20,53 +20,97 @@
             </div>
         </div>
 
-        <div class="bloco bloco-fala">
-            <h2>Pagamento via PIX</h2>
-            <p style="color:#aaa; margin-top:8px;">Plano: <strong>{{ plano|upper }}</strong> — R$ {{ valor }}</p>
-        </div>
-
-        {% if pago %}
-        <div class="bloco bloco-texto">
-            <h2>✅ Pagamento confirmado!</h2>
-            <p style="color:#aaa; margin-top:8px;">Seu plano {{ plano|upper }} está ativo.</p>
-            <a href="/planos" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-top:16px;">VOLTAR AOS PLANOS</a>
-        </div>
-
-        {% elif qr_code %}
-        <div class="bloco bloco-texto">
-            <h2>1. Escaneie o QR Code</h2>
-            <p style="color:#aaa; margin-top:8px; font-size:14px;">Abra o app do banco → PIX → Ler QR Code</p>
-            <div style="text-align:center; margin-top:16px;">
-                <img src="data:image/png;base64,{{ qr_code.encodedImage }}" style="max-width:280px; border-radius:8px; background:#fff; padding:8px;">
+        <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
+            <div class="bloco-topo">
+                <h2>💳 PAGAMENTO PIX</h2>
+                <span class="badge-status status-em-atendimento">{{ plano|upper }}</span>
+            </div>
+            <div style="display:flex; align-items:baseline; gap:8px; margin-top:14px;">
+                <span style="font-size:36px; font-weight:800; color:#00d97e; font-family:monospace;">R$ {{ valor }}</span>
             </div>
         </div>
 
-        <div class="bloco bloco-acao">
-            <h2>2. Ou copie o código PIX</h2>
-            <pre id="pix" style="white-space:pre-wrap; word-break:break-all; font-size:12px; margin-top:8px;">{{ qr_code.payload }}</pre>
-            <button onclick="copiar('pix')" class="btn-copiar" style="margin-top:12px;">COPIAR CÓDIGO</button>
+        {% if pago %}
+
+        <div class="bloco bloco-texto" style="background:linear-gradient(135deg,#0f1a15 0%,#141414 100%); border-left:4px solid #00d97e; text-align:center; padding:40px 24px;">
+            <div style="font-size:64px; margin-bottom:16px;">✅</div>
+            <h2 style="font-size:24px; color:#00d97e; letter-spacing:-0.02em;">Pagamento confirmado!</h2>
+            <p style="color:#e8e8e8; font-size:15px; margin-top:12px; line-height:1.6;">
+                Seu plano <strong style="color:#00d97e;">{{ plano|upper }}</strong> já está ativo.
+            </p>
+            <p style="color:#8a8a8a; font-size:13px; margin-top:8px;">
+                Os nichos extras já estão liberados. Bora vender mais.
+            </p>
+            <a href="/planos" class="btn-gerar" style="display:inline-block; width:auto; padding:14px 32px; text-decoration:none; margin-top:24px;">
+                VER MEUS PLANOS →
+            </a>
         </div>
 
-        <div class="bloco bloco-crm">
-            <h2>3. Após pagar</h2>
-            <p style="color:#aaa; margin-top:8px; font-size:14px;">A página atualiza automaticamente a cada 10 segundos. Quando o pagamento for confirmado, o plano é liberado.</p>
-            <a href="/verificar_pagamento/{{ payment_id }}" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-top:16px;">JÁ PAGUEI — VERIFICAR AGORA</a>
+        {% elif qr_code %}
+
+        <div class="bloco bloco-texto" style="background:#0f1a1f; border-left:4px solid #00d97e; margin-bottom:16px;">
+            <div style="text-align:center; padding:8px 0;">
+                <span style="display:inline-block; width:32px; height:32px; line-height:32px; border-radius:50%; background:#00d97e; color:#0a0a0a; font-weight:800; font-family:monospace; font-size:16px;">1</span>
+                <h2 style="margin-top:12px; font-size:16px; color:#e8e8e8;">Escaneie o QR Code</h2>
+                <p style="color:#8a8a8a; font-size:13px; margin-top:6px;">
+                    Abra o app do banco → PIX → Ler QR Code
+                </p>
+            </div>
+            <div style="text-align:center; margin-top:20px; padding:16px; background:#fff; border-radius:12px; display:inline-block; width:100%; max-width:320px; margin-left:auto; margin-right:auto; display:block;">
+                <img src="data:image/png;base64,{{ qr_code.encodedImage }}" style="max-width:100%; display:block; margin:0 auto;">
+            </div>
         </div>
+
+        <div class="bloco bloco-crm" style="background:#111725; border-left:4px solid #a855f7; margin-bottom:16px;">
+            <div style="text-align:center; padding:8px 0;">
+                <span style="display:inline-block; width:32px; height:32px; line-height:32px; border-radius:50%; background:#a855f7; color:#fff; font-weight:800; font-family:monospace; font-size:16px;">2</span>
+                <h2 style="margin-top:12px; font-size:16px; color:#e8e8e8;">Ou copie o código PIX</h2>
+                <p style="color:#8a8a8a; font-size:13px; margin-top:6px;">
+                    Cole no seu banco na opção "PIX Copia e Cola"
+                </p>
+            </div>
+            <pre id="pix" style="white-space:pre-wrap; word-break:break-all; font-size:11px; margin-top:16px; padding:14px; background:#0a0a0a; border:1px solid #2a2a2a; border-radius:8px; color:#8a8a8a; max-height:120px; overflow-y:auto; font-family:monospace; line-height:1.5;">{{ qr_code.payload }}</pre>
+            <button onclick="copiar('pix', this)" class="btn-gerar" style="margin-top:12px;">📋 COPIAR CÓDIGO PIX</button>
+        </div>
+
+        <div class="bloco bloco-acao" style="background:#1f1a0a; border-left:4px solid #f59e0b; margin-bottom:16px;">
+            <div style="text-align:center; padding:8px 0;">
+                <span style="display:inline-block; width:32px; height:32px; line-height:32px; border-radius:50%; background:#f59e0b; color:#0a0a0a; font-weight:800; font-family:monospace; font-size:16px;">3</span>
+                <h2 style="margin-top:12px; font-size:16px; color:#e8e8e8;">Após pagar</h2>
+                <p style="color:#8a8a8a; font-size:13px; margin-top:6px; line-height:1.6;">
+                    Esta página atualiza sozinha a cada 10 segundos. Assim que o pagamento for confirmado, o plano é liberado na hora.
+                </p>
+            </div>
+        </div>
+
+        <div style="text-align:center; margin-top:8px;">
+            <div class="loading" style="padding:20px;">
+                <div class="spinner" style="width:28px; height:28px; margin-bottom:12px;"></div>
+                <p style="color:#8a8a8a; font-size:13px;">Aguardando confirmação do PIX...</p>
+            </div>
+        </div>
+
+        <a href="/verificar_pagamento/{{ payment_id }}" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-top:16px; background:transparent; color:#00d97e; border:1px solid #00d97e; box-shadow:none;">
+            JÁ PAGUEI — VERIFICAR AGORA
+        </a>
 
         {% else %}
-        <div class="bloco bloco-acao">
-            <h2>Erro</h2>
-            <p style="color:#aaa;">Não foi possível gerar o QR Code.</p>
+
+        <div class="bloco bloco-acao" style="background:#1f0a0a; border-left:4px solid #ff3b3b;">
+            <div class="bloco-topo">
+                <h2>⚠️ ERRO</h2>
+            </div>
+            <p style="color:#ff3b3b; margin-top:8px; font-size:14px;">
+                Não foi possível gerar o QR Code. Tente novamente ou fale com o suporte.
+            </p>
+            <a href="/planos" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-top:16px;">
+                ← Voltar aos planos
+            </a>
         </div>
+
         {% endif %}
 
     </div>
-
-    <script>
-    function copiar(id) {
-        const texto = document.getElementById(id).innerText;
-        navigator.clipboard.writeText(texto).then(() => { alert('Copiado!'); });
-    }
-    </script>
+    <script src="/static/app.js"></script>
 </body>
 </html>

@@ -17,26 +17,67 @@
             </div>
         </div>
 
-        <div class="bloco bloco-fala">
-            <h2>Assinar Plano {{ plano|upper }}</h2>
-            <p style="color:#aaa; margin-top:8px;">Valor: R$ {{ valor }}</p>
+        <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
+            <div class="bloco-topo">
+                <h2>💳 ASSINAR PLANO</h2>
+                <span class="badge-status status-em-atendimento">{{ plano|upper }}</span>
+            </div>
+            <div style="display:flex; align-items:baseline; gap:8px; margin-top:14px;">
+                <span style="font-size:36px; font-weight:800; color:#00d97e; font-family:monospace;">R$ {{ valor }}</span>
+                <span style="color:#8a8a8a; font-size:14px;">/mês</span>
+            </div>
+            <p style="color:#8a8a8a; font-size:13px; margin-top:10px; line-height:1.5;">
+                Renovação mensal · Cancele quando quiser · Ativa em segundos após o PIX
+            </p>
+        </div>
+
+        <div class="bloco bloco-crm" style="background:#0f1a1f; border-left:4px solid #00d97e; margin-bottom:20px;">
+            <div class="bloco-topo">
+                <h2>🔒 SEUS DADOS</h2>
+            </div>
+            <p style="color:#8a8a8a; font-size:13px; line-height:1.6; margin-top:8px;">
+                O CPF/CNPJ é usado apenas pra emitir a cobrança no Asaas. <strong style="color:#e8e8e8;">Não fica salvo no nosso sistema</strong> — só o ID do pagamento.
+            </p>
         </div>
 
         {% if erro %}
-        <div class="erro">{{ erro }}</div>
+        <div class="erro">⚠️ {{ erro }}</div>
         {% endif %}
 
         <form method="POST" action="/gerar_pix">
             <input type="hidden" name="plano" value="{{ plano }}">
             <input type="hidden" name="valor" value="{{ valor }}">
 
-            <div class="campo">
-                <label>CPF ou CNPJ (só números)</label>
-                <input type="text" name="cpf_cnpj" required placeholder="Digite seu CPF ou CNPJ (só números)" maxlength="14" autofocus>
+            <div class="bloco bloco-texto" style="margin-bottom:20px;">
+                <div class="bloco-topo">
+                    <h2>📄 CPF OU CNPJ</h2>
+                </div>
+                <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
+                    Digite só os números, sem pontos nem traços.
+                </p>
+                <input type="text" name="cpf_cnpj" required placeholder="00000000000" maxlength="14" autofocus inputmode="numeric" pattern="[0-9]+" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:14px; border-radius:6px; font-size:18px; font-family:monospace; letter-spacing:0.1em; text-align:center;">
+                <p style="color:#5a5a5a; font-size:12px; margin-top:8px; text-align:center;">
+                    CPF (11 dígitos) ou CNPJ (14 dígitos)
+                </p>
             </div>
 
-            <button type="submit" class="btn-gerar">GERAR PIX</button>
+            <button type="submit" class="btn-gerar">⚡ GERAR PIX</button>
+
+            <p style="color:#5a5a5a; font-size:12px; text-align:center; margin-top:12px; line-height:1.5;">
+                ⚡ Você vai receber um QR Code pra pagar em qualquer banco.
+            </p>
         </form>
+
+        <div class="bloco bloco-acao" style="background:#1f1a0a; border-left:4px solid #f59e0b; margin-top:24px;">
+            <div class="bloco-topo">
+                <h2>💡 NÃO SABE SEU CPF?</h2>
+            </div>
+            <p style="color:#f59e0b; font-size:13px; line-height:1.6; margin-top:8px;">
+                CPF tem 11 dígitos e vem no seu RG ou na carteira de trabalho. CNPJ tem 14 dígitos e é pra empresas (vem no cartão CNPJ).
+            </p>
+        </div>
+
     </div>
+    <script src="/static/app.js"></script>
 </body>
 </html>

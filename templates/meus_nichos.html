@@ -12,49 +12,99 @@
             <h1>M.A Tech</h1>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
-                <a href="/atendimento">Atendimento</a>
                 <a href="/clientes">Clientes</a>
+                <a href="/planos">Planos</a>
+                {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
                 <a href="/logout">Sair</a>
             </div>
         </div>
 
         {% if erro %}
-        <div class="erro">{{ erro }}</div>
+        <div class="erro">⚠️ {{ erro }}</div>
         {% endif %}
 
-        <div class="bloco bloco-fala">
-            <h2>Meus Nichos</h2>
-            <p style="color:#aaa; margin-top:8px;">Plano: <strong>{{ plano|upper }}</strong> — {{ total }} de {{ limite }} nichos usados</p>
+        {% set pct = (total / limite * 100) if limite > 0 else 0 %}
+        {% if pct >= 100 %}{% set bar_color = '#ff3b3b' %}
+        {% elif pct >= 70 %}{% set bar_color = '#f59e0b' %}
+        {% else %}{% set bar_color = '#00d97e' %}{% endif %}
+
+        <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%);">
+            <div class="bloco-topo">
+                <h2>🎯 MEUS NICHOS</h2>
+                <span class="badge-status status-em-atendimento">{{ plano|upper }}</span>
+            </div>
+            <p style="color:#8a8a8a; margin-top:8px; font-size:14px;">
+                <strong style="color:#e8e8e8; font-size:18px;" class="mono">{{ total }}</strong>
+                <span style="color:#5a5a5a;"> / </span>
+                <span class="mono">{{ limite }}</span> nichos em uso
+            </p>
+            <div style="margin-top:14px; height:6px; background:#0a0a0a; border-radius:100px; overflow:hidden;">
+                <div style="height:100%; width:{{ pct }}%; background:{{ bar_color }}; border-radius:100px; box-shadow:0 0 12px {{ bar_color }}80; transition:width 0.4s ease;"></div>
+            </div>
         </div>
 
+        {% if not nichos %}
+        <div class="empty-state">
+            <span class="emoji">🎯</span>
+            <h3>Nenhum nicho cadastrado</h3>
+            <p>Cadastre seu primeiro nicho pra IA começar a atender com o contexto certo.</p>
+            <a href="/novo_nicho" class="btn-gerar">➕ CRIAR PRIMEIRO NICHO</a>
+        </div>
+        {% else %}
+
         {% for n in nichos %}
-        <div class="bloco bloco-texto">
+        <div class="bloco bloco-texto card-hover">
             <div class="bloco-topo">
-                <h2>{{ n.nome }}</h2>
+                <h2>📦 {{ n.nome }}</h2>
+                <span class="badge-status status-cliente">Ativo</span>
             </div>
-            <p style="color:#ccc; font-size:14px;">{{ n.produto[:200] }}{% if n.produto|length > 200 %}...{% endif %}</p>
-            <p style="color:#666; font-size:12px; margin-top:8px;">Criado em: {{ n.criado_em }}</p>
+            <p style="color:#e8e8e8; font-size:14px; line-height:1.6;">
+                {{ n.produto[:200] }}{% if n.produto|length > 200 %}...{% endif %}
+            </p>
+            {% if n.publico %}
+            <p style="color:#8a8a8a; font-size:13px; margin-top:10px;">
+                <strong style="color:#a8a8a8;">Público:</strong> {{ n.publico[:120] }}{% if n.publico|length > 120 %}...{% endif %}
+            </p>
+            {% endif %}
+            <p style="color:#5a5a5a; font-size:12px; margin-top:12px;" class="mono">
+                Criado em {{ n.criado_em.strftime('%d/%m/%Y') if n.criado_em else '—' }}
+            </p>
         </div>
         {% endfor %}
 
         {% if total < limite %}
-        <a href="/novo_nicho" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-top:20px;">+ ADICIONAR NICHO</a>
+        <a href="/novo_nicho" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-top:20px;">
+            ➕ ADICIONAR NICHO
+        </a>
         {% else %}
-        <div class="bloco bloco-acao" style="margin-top:20px;">
-            <h2>Limite atingido</h2>
-            <p style="color:#aaa; margin-top:8px;">Você atingiu o limite de {{ limite }} nichos do plano {{ plano|upper }}.</p>
-            <p style="color:#aaa;">Faça upgrade para adicionar mais nichos.</p>
+        <div class="bloco bloco-acao" style="margin-top:20px; border-left:4px solid #f59e0b;">
+            <div class="bloco-topo">
+                <h2>⚠️ LIMITE ATINGIDO</h2>
+            </div>
+            <p style="color:#e8e8e8; margin-top:8px; font-size:14px;">
+                Você usou todos os <strong class="mono">{{ limite }}</strong> nichos do plano <strong>{{ plano|upper }}</strong>.
+            </p>
+            <p style="color:#8a8a8a; font-size:13px; margin-top:6px;">
+                Faça upgrade pra adicionar mais nichos.
+            </p>
+            <a href="/planos" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-top:16px;">
+                ⚡ FAZER UPGRADE
+            </a>
         </div>
         {% endif %}
 
-        <div class="bloco bloco-crm" style="margin-top:20px;">
-            <h2>Aviso</h2>
-            <p style="color:#aaa; margin-top:8px; font-size:14px;">
-                Os nichos não podem ser editados ou apagados depois de criados.
-                Se precisar de mais nichos, faça upgrade do plano.
+        {% endif %}
+
+        <div class="bloco bloco-crm" style="margin-top:20px; background:#111725; border-left:4px solid #a855f7;">
+            <div class="bloco-topo">
+                <h2>💡 SOBRE NICHOS</h2>
+            </div>
+            <p style="color:#8a8a8a; margin-top:8px; font-size:13px; line-height:1.6;">
+                Cada nicho é um produto ou serviço diferente que você vende. Os nichos não podem ser editados nem apagados depois de criados — se precisar de mais, faça upgrade do plano.
             </p>
         </div>
 
     </div>
+    <script src="/static/app.js"></script>
 </body>
 </html>

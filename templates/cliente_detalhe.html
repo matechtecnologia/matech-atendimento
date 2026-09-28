@@ -17,41 +17,81 @@
             </div>
         </div>
 
-        <div class="bloco bloco-fala">
-            <h2>{{ cliente.nome or "Sem nome" }}</h2>
-            <p style="color:#aaa; margin-top:8px;">WhatsApp: {{ cliente.whatsapp }}</p>
-            {% if cliente.email %}<p style="color:#aaa;">Email: {{ cliente.email }}</p>{% endif %}
-            {% if cliente.origem %}<p style="color:#aaa;">Origem: {{ cliente.origem }}</p>{% endif %}
-            <p style="color:#4a9eff; margin-top:8px;">Status: {{ cliente.status|upper }}</p>
+        {% set s = (cliente.status or 'novo lead')|lower %}
+        {% if s in ['novo lead', 'lead'] %}
+            {% set badge_class = 'status-novo-lead' %}
+            {% set badge_text = 'Novo Lead' %}
+        {% elif s in ['em atendimento', 'negociando'] %}
+            {% set badge_class = 'status-em-atendimento' %}
+            {% set badge_text = 'Em Atendimento' %}
+        {% elif s in ['negociação', 'negociacao'] %}
+            {% set badge_class = 'status-negociacao' %}
+            {% set badge_text = 'Negociação' %}
+        {% elif s == 'cliente' %}
+            {% set badge_class = 'status-cliente' %}
+            {% set badge_text = 'Cliente' %}
+        {% elif s == 'perdido' %}
+            {% set badge_class = 'status-perdido' %}
+            {% set badge_text = 'Perdido' %}
+        {% else %}
+            {% set badge_class = 'status-novo-lead' %}
+            {% set badge_text = cliente.status|upper %}
+        {% endif %}
+
+        <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%);">
+            <div class="bloco-topo">
+                <h2>👤 {{ cliente.nome or "Sem nome" }}</h2>
+                <span class="badge-status {{ badge_class }}">{{ badge_text }}</span>
+            </div>
+            <p style="color:#e8e8e8; font-size:14px; margin-top:10px;" class="mono">📱 {{ cliente.whatsapp }}</p>
+            {% if cliente.email %}<p style="color:#8a8a8a; font-size:13px; margin-top:6px;">✉️ {{ cliente.email }}</p>{% endif %}
+            {% if cliente.origem %}<p style="color:#8a8a8a; font-size:13px; margin-top:6px;">🔗 Origem: {{ cliente.origem }}</p>{% endif %}
+            {% if cliente.criado_em %}
+            <p style="color:#5a5a5a; font-size:12px; margin-top:12px;" class="mono">
+                Cliente desde {{ cliente.criado_em.strftime('%d/%m/%Y') }}
+            </p>
+            {% endif %}
         </div>
 
-        <a href="/cliente/{{ cliente.id }}/atender" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-bottom:16px;">💬 ATENDER ESTE CLIENTE</a>
+        <a href="/cliente/{{ cliente.id }}/atender" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-bottom:20px;">
+            ⚡ ATENDER ESTE CLIENTE
+        </a>
 
         {% if cliente.observacoes %}
         <div class="bloco bloco-texto">
-            <h2>Observações</h2>
-            <pre style="white-space:pre-wrap; color:#ccc; margin-top:8px;">{{ cliente.observacoes }}</pre>
+            <div class="bloco-topo">
+                <h2>📝 OBSERVAÇÕES</h2>
+            </div>
+            <pre style="white-space:pre-wrap; color:#e8e8e8; margin-top:8px; font-family:inherit; font-size:14px; line-height:1.6;">{{ cliente.observacoes }}</pre>
         </div>
         {% endif %}
 
-        <h2 style="margin-top:24px; margin-bottom:16px;">Histórico de Conversa</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; margin-bottom:16px;">
+            <h2 style="font-size:18px; letter-spacing:-0.01em;">💬 Histórico de Conversa</h2>
+            <span style="color:#5a5a5a; font-size:12px;" class="mono">{{ historico|length }} msg(s)</span>
+        </div>
 
         {% if not historico %}
-        <div class="bloco bloco-acao">
-            <p style="color:#aaa;">Nenhuma conversa registrada ainda.</p>
+        <div class="empty-state">
+            <span class="emoji">💬</span>
+            <h3>Nenhuma conversa registrada</h3>
+            <p>Clique em "Atender este cliente" pra IA gerar a primeira resposta. Todo o histórico fica salvo aqui.</p>
         </div>
         {% endif %}
 
         {% for h in historico %}
-        <div class="bloco {% if h.direcao == 'cliente' %}bloco-texto{% else %}bloco-fala{% endif %}">
+        <div class="bloco {% if h.direcao == 'cliente' %}bloco-texto{% else %}bloco-fala{% endif %}" style="margin-bottom:12px;">
             <div class="bloco-topo">
-                <h2>{% if h.direcao == 'cliente' %}👤 Cliente{% else %}🤖 Você{% endif %}</h2>
-                <span style="color:#666; font-size:12px;">{{ h.criado_em }}</span>
+                <h2>{% if h.direcao == 'cliente' %}👤 CLIENTE{% else %}🤖 VOCÊ (IA){% endif %}</h2>
+                <span style="color:#5a5a5a; font-size:11px;" class="mono">
+                    {% if h.criado_em %}{{ h.criado_em.strftime('%d/%m %H:%M') }}{% endif %}
+                </span>
             </div>
-            <pre style="white-space:pre-wrap; color:#fff; margin-top:8px;">{{ h.mensagem }}</pre>
+            <pre style="white-space:pre-wrap; color:#e8e8e8; margin-top:8px;">{{ h.mensagem }}</pre>
         </div>
         {% endfor %}
 
     </div>
+    <script src="/static/app.js"></script>
 </body>
 </html>

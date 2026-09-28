@@ -20,65 +20,169 @@
             </div>
         </div>
 
-        <div class="bloco bloco-fala">
-            <h2>Planos</h2>
-            <p style="color:#aaa; margin-top:8px;">Plano atual: <strong>{{ plano_atual|upper }}</strong></p>
+        <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
+            <div class="bloco-topo">
+                <h2>💳 SEU PLANO</h2>
+                <span class="badge-status status-em-atendimento">{{ plano_atual|upper }}</span>
+            </div>
+
             {% if plano_atual != 'gratis' and dias_restantes is not none %}
-            <p style="color:#f59e0b; margin-top:8px;">⏳ {{ dias_restantes }} dias restantes</p>
-            {% if dias_restantes <= 5 %}
-            <p style="color:#ff6b6b; margin-top:8px;">⚠️ Renove agora para não perder o acesso</p>
-            {% endif %}
-            {% endif %}
-        </div>
-
-        <div class="bloco bloco-texto">
-            <h2>Grátis — R$ 0</h2>
-            <p style="color:#aaa; margin-top:8px;">1 nicho</p>
-            {% if plano_atual == 'gratis' %}<p style="color:#4a9eff; margin-top:12px;">✓ Plano atual</p>{% endif %}
-        </div>
-
-        <div class="bloco bloco-fala">
-            <h2>Básico — R$ 97/mês</h2>
-            <p style="color:#aaa; margin-top:8px;">3 nichos</p>
-            {% if plano_atual == 'basico' %}
-            <p style="color:#4a9eff; margin-top:12px;">✓ Plano atual</p>
-            {% else %}
-            <form method="POST" action="/assinar" style="margin-top:12px;">
-                <input type="hidden" name="plano" value="basico">
-                <input type="hidden" name="valor" value="97.00">
-                <button type="submit" class="btn-gerar">ASSINAR — PIX R$ 97</button>
-            </form>
+                {% if dias_restantes <= 5 %}
+                    <div style="margin-top:14px; padding:12px 16px; background:#1f0a0a; border:1px solid #ff3b3b; border-radius:8px;">
+                        <p style="color:#ff3b3b; font-size:14px; font-weight:700;">
+                            ⚠️ Apenas {{ dias_restantes }} dias restantes
+                        </p>
+                        <p style="color:#ff3b3b; font-size:13px; margin-top:4px; opacity:0.85;">
+                            Renove agora pra não perder o acesso.
+                        </p>
+                    </div>
+                {% else %}
+                    <p style="color:#f59e0b; margin-top:14px; font-size:14px;">
+                        ⏳ {{ dias_restantes }} dias restantes no plano
+                    </p>
+                {% endif %}
+            {% elif plano_atual == 'gratis' %}
+                <p style="color:#8a8a8a; margin-top:14px; font-size:14px;">
+                    Você está no plano Grátis. Faça upgrade pra adicionar mais nichos.
+                </p>
             {% endif %}
         </div>
 
-        <div class="bloco bloco-acao">
-            <h2>Pro — R$ 297/mês</h2>
-            <p style="color:#aaa; margin-top:8px;">10 nichos</p>
-            {% if plano_atual == 'pro' %}
-            <p style="color:#4a9eff; margin-top:12px;">✓ Plano atual</p>
-            {% else %}
-            <form method="POST" action="/assinar" style="margin-top:12px;">
-                <input type="hidden" name="plano" value="pro">
-                <input type="hidden" name="valor" value="297.00">
-                <button type="submit" class="btn-gerar">ASSINAR — PIX R$ 297</button>
-            </form>
-            {% endif %}
+        <h2 style="margin-top:28px; margin-bottom:16px; font-size:20px; letter-spacing:-0.01em;">📊 Comparar planos</h2>
+
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:8px;">
+
+            <div class="bloco card-hover" style="border-left:4px solid #5a5a5a; margin-bottom:0;">
+                <div class="bloco-topo">
+                    <h2>GRÁTIS</h2>
+                    {% if plano_atual == 'gratis' %}<span class="badge-status status-cliente">ATUAL</span>{% endif %}
+                </div>
+                <div style="margin-top:12px;">
+                    <span style="font-size:32px; font-weight:800; color:#e8e8e8; font-family:monospace;">R$ 0</span>
+                    <span style="color:#8a8a8a; font-size:14px;">/mês</span>
+                </div>
+                <p style="color:#00d97e; font-size:13px; font-weight:700; margin-top:8px; font-family:monospace;">1 NICHO</p>
+                <ul style="list-style:none; margin-top:16px; padding:0;">
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ IA ilimitada</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Clientes ilimitados</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ CRM automático</li>
+                </ul>
+                {% if plano_atual != 'gratis' %}
+                <p style="color:#5a5a5a; font-size:12px; margin-top:16px; text-align:center;">
+                    Você já passou desse plano
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="bloco card-hover" style="border-left:4px solid #00d97e; margin-bottom:0;">
+                <div class="bloco-topo">
+                    <h2>BÁSICO</h2>
+                    {% if plano_atual == 'basico' %}<span class="badge-status status-cliente">ATUAL</span>{% endif %}
+                </div>
+                <div style="margin-top:12px;">
+                    <span style="font-size:32px; font-weight:800; color:#e8e8e8; font-family:monospace;">R$ 97</span>
+                    <span style="color:#8a8a8a; font-size:14px;">/mês</span>
+                </div>
+                <p style="color:#00d97e; font-size:13px; font-weight:700; margin-top:8px; font-family:monospace;">3 NICHOS</p>
+                <ul style="list-style:none; margin-top:16px; padding:0;">
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Tudo do Grátis</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Até 3 produtos/serviços</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Suporte por email</li>
+                </ul>
+                {% if plano_atual == 'basico' %}
+                <p style="color:#00d97e; font-size:13px; margin-top:16px; text-align:center; font-weight:600;">
+                    ✓ Plano ativo
+                </p>
+                {% elif plano_atual == 'gratis' %}
+                <form method="POST" action="/assinar" style="margin-top:16px;">
+                    <input type="hidden" name="plano" value="basico">
+                    <input type="hidden" name="valor" value="97.00">
+                    <button type="submit" class="btn-gerar" style="margin-top:0;">ASSINAR</button>
+                </form>
+                {% else %}
+                <p style="color:#5a5a5a; font-size:12px; margin-top:16px; text-align:center;">
+                    Plano inferior ao atual
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="bloco card-hover" style="border-left:4px solid #f59e0b; margin-bottom:0; position:relative;">
+                <div style="position:absolute; top:-10px; right:12px; background:#f59e0b; color:#0a0a0a; padding:3px 10px; border-radius:100px; font-size:10px; font-weight:800; letter-spacing:0.05em; font-family:monospace;">POPULAR</div>
+                <div class="bloco-topo">
+                    <h2>PRO</h2>
+                    {% if plano_atual == 'pro' %}<span class="badge-status status-cliente">ATUAL</span>{% endif %}
+                </div>
+                <div style="margin-top:12px;">
+                    <span style="font-size:32px; font-weight:800; color:#e8e8e8; font-family:monospace;">R$ 297</span>
+                    <span style="color:#8a8a8a; font-size:14px;">/mês</span>
+                </div>
+                <p style="color:#00d97e; font-size:13px; font-weight:700; margin-top:8px; font-family:monospace;">10 NICHOS</p>
+                <ul style="list-style:none; margin-top:16px; padding:0;">
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Tudo do Básico</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Até 10 produtos/serviços</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Suporte prioritário</li>
+                </ul>
+                {% if plano_atual == 'pro' %}
+                <p style="color:#00d97e; font-size:13px; margin-top:16px; text-align:center; font-weight:600;">
+                    ✓ Plano ativo
+                </p>
+                {% elif plano_atual in ['gratis', 'basico'] %}
+                <form method="POST" action="/assinar" style="margin-top:16px;">
+                    <input type="hidden" name="plano" value="pro">
+                    <input type="hidden" name="valor" value="297.00">
+                    <button type="submit" class="btn-gerar" style="margin-top:0; background:#f59e0b; color:#0a0a0a; box-shadow:0 4px 20px rgba(245,158,11,0.3);">ASSINAR PRO</button>
+                </form>
+                {% else %}
+                <p style="color:#5a5a5a; font-size:12px; margin-top:16px; text-align:center;">
+                    Plano inferior ao atual
+                </p>
+                {% endif %}
+            </div>
+
+            <div class="bloco card-hover" style="border-left:4px solid #a855f7; margin-bottom:0;">
+                <div class="bloco-topo">
+                    <h2>EMPRESARIAL</h2>
+                    {% if plano_atual == 'empresarial' %}<span class="badge-status status-cliente">ATUAL</span>{% endif %}
+                </div>
+                <div style="margin-top:12px;">
+                    <span style="font-size:32px; font-weight:800; color:#e8e8e8; font-family:monospace;">R$ 597</span>
+                    <span style="color:#8a8a8a; font-size:14px;">/mês</span>
+                </div>
+                <p style="color:#00d97e; font-size:13px; font-weight:700; margin-top:8px; font-family:monospace;">25 NICHOS</p>
+                <ul style="list-style:none; margin-top:16px; padding:0;">
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Tudo do Pro</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Até 25 produtos/serviços</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Suporte dedicado</li>
+                </ul>
+                {% if plano_atual == 'empresarial' %}
+                <p style="color:#00d97e; font-size:13px; margin-top:16px; text-align:center; font-weight:600;">
+                    ✓ Plano ativo
+                </p>
+                {% else %}
+                <form method="POST" action="/assinar" style="margin-top:16px;">
+                    <input type="hidden" name="plano" value="empresarial">
+                    <input type="hidden" name="valor" value="597.00">
+                    <button type="submit" class="btn-gerar" style="margin-top:0; background:#a855f7; color:#fff; box-shadow:0 4px 20px rgba(168,85,247,0.3);">ASSINAR</button>
+                </form>
+                {% endif %}
+            </div>
+
         </div>
 
-        <div class="bloco bloco-crm">
-            <h2>Empresarial — R$ 597/mês</h2>
-            <p style="color:#aaa; margin-top:8px;">25 nichos</p>
-            {% if plano_atual == 'empresarial' %}
-            <p style="color:#4a9eff; margin-top:12px;">✓ Plano atual</p>
-            {% else %}
-            <form method="POST" action="/assinar" style="margin-top:12px;">
-                <input type="hidden" name="plano" value="empresarial">
-                <input type="hidden" name="valor" value="597.00">
-                <button type="submit" class="btn-gerar">ASSINAR — PIX R$ 597</button>
-            </form>
-            {% endif %}
+        <div class="bloco bloco-crm" style="background:#111725; border-left:4px solid #a855f7; margin-top:24px;">
+            <div class="bloco-topo">
+                <h2>💡 COMO FUNCIONA O PAGAMENTO</h2>
+            </div>
+            <p style="color:#8a8a8a; font-size:13px; line-height:1.6; margin-top:8px;">
+                1. Clique em <strong style="color:#00d97e;">ASSINAR</strong> no plano escolhido<br>
+                2. Informe seu CPF (só pra emitir a cobrança)<br>
+                3. Pague o PIX pelo QR Code<br>
+                4. Plano ativa em segundos após a confirmação<br>
+                5. Renovação mensal — cancele quando quiser
+            </p>
         </div>
 
     </div>
+    <script src="/static/app.js"></script>
 </body>
 </html>

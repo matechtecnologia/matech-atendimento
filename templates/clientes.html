@@ -19,13 +19,45 @@
             </div>
         </div>
 
-        <div class="bloco bloco-fala">
-            <h2>Meus Clientes</h2>
-            <p style="color:#aaa; margin-top:8px;">{{ clientes|length }} cliente(s) cadastrado(s)</p>
+        {% set ns = namespace(novos=0, em_atend=0, ganhos=0, perdidos=0) %}
+        {% for c in clientes %}
+            {% set s = (c.status or 'novo lead')|lower %}
+            {% if s in ['novo lead', 'lead'] %}
+                {% set ns.novos = ns.novos + 1 %}
+            {% elif s in ['em atendimento', 'negociando'] %}
+                {% set ns.em_atend = ns.em_atend + 1 %}
+            {% elif s in ['negociação', 'negociacao'] %}
+                {% set ns.em_atend = ns.em_atend + 1 %}
+            {% elif s == 'cliente' %}
+                {% set ns.ganhos = ns.ganhos + 1 %}
+            {% elif s == 'perdido' %}
+                {% set ns.perdidos = ns.perdidos + 1 %}
+            {% endif %}
+        {% endfor %}
+
+        <div class="stats-grid">
+            <div class="stat-card neutro">
+                <div class="stat-label">Total</div>
+                <div class="stat-valor">{{ clientes|length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Novos leads</div>
+                <div class="stat-valor">{{ ns.novos }}</div>
+            </div>
+            <div class="stat-card alerta">
+                <div class="stat-label">Em negociação</div>
+                <div class="stat-valor">{{ ns.em_atend }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Clientes ganhos</div>
+                <div class="stat-valor">{{ ns.ganhos }}</div>
+            </div>
         </div>
 
         <div class="bloco bloco-texto">
-            <h2>Adicionar Cliente</h2>
+            <div class="bloco-topo">
+                <h2>➕ ADICIONAR CLIENTE</h2>
+            </div>
             <form method="POST" action="/salvar_cliente_manual" style="margin-top:12px;">
                 <div class="campo">
                     <label>WhatsApp (só números)</label>
@@ -46,8 +78,9 @@
                 <div class="campo">
                     <label>Status</label>
                     <select name="status">
-                        <option value="lead">Lead</option>
-                        <option value="negociando">Negociando</option>
+                        <option value="novo lead">Novo Lead</option>
+                        <option value="em atendimento">Em Atendimento</option>
+                        <option value="negociação">Negociação</option>
                         <option value="cliente">Cliente</option>
                         <option value="perdido">Perdido</option>
                     </select>
@@ -60,29 +93,54 @@
             </form>
         </div>
 
-        <h2 style="margin-top:32px; margin-bottom:16px;">Lista</h2>
+        <h2 style="margin-top:32px; margin-bottom:16px;">Lista de clientes</h2>
 
         {% if not clientes %}
-        <div class="bloco bloco-acao">
-            <p style="color:#aaa;">Nenhum cliente cadastrado ainda.</p>
+        <div class="empty-state">
+            <span class="emoji">👥</span>
+            <h3>Nenhum cliente cadastrado ainda</h3>
+            <p>Cadastre seu primeiro cliente no formulário acima pra começar a atender com IA.</p>
         </div>
         {% endif %}
 
         {% for c in clientes %}
-        <div class="bloco bloco-crm">
-            <div class="bloco-topo">
-                <h2>{{ c.nome or "Sem nome" }}</h2>
-                <span style="color:#4a9eff; font-size:12px;">{{ c.status|upper }}</span>
+            {% set s = (c.status or 'novo lead')|lower %}
+            {% if s in ['novo lead', 'lead'] %}
+                {% set badge_class = 'status-novo-lead' %}
+                {% set badge_text = 'Novo Lead' %}
+            {% elif s in ['em atendimento', 'negociando'] %}
+                {% set badge_class = 'status-em-atendimento' %}
+                {% set badge_text = 'Em Atendimento' %}
+            {% elif s in ['negociação', 'negociacao'] %}
+                {% set badge_class = 'status-negociacao' %}
+                {% set badge_text = 'Negociação' %}
+            {% elif s == 'cliente' %}
+                {% set badge_class = 'status-cliente' %}
+                {% set badge_text = 'Cliente' %}
+            {% elif s == 'perdido' %}
+                {% set badge_class = 'status-perdido' %}
+                {% set badge_text = 'Perdido' %}
+            {% else %}
+                {% set badge_class = 'status-novo-lead' %}
+                {% set badge_text = c.status|upper %}
+            {% endif %}
+
+            <div class="bloco bloco-crm card-hover">
+                <div class="bloco-topo">
+                    <h2>{{ c.nome or "Sem nome" }}</h2>
+                    <span class="badge-status {{ badge_class }}">{{ badge_text }}</span>
+                </div>
+                <p style="color:#e8e8e8; font-size:14px;" class="mono">📱 {{ c.whatsapp }}</p>
+                {% if c.origem %}<p style="color:#8a8a8a; font-size:13px; margin-top:6px;">Origem: {{ c.origem }}</p>{% endif %}
+                {% if c.observacoes %}<p style="color:#8a8a8a; font-size:13px; margin-top:8px;">{{ c.observacoes[:200] }}{% if c.observacoes|length > 200 %}...{% endif %}</p>{% endif %}
+                <div style="margin-top:16px; display:flex; gap:12px; flex-wrap:wrap;">
+                    <a href="/cliente/{{ c.id }}/atender" style="color:#0a0a0a; background:#00d97e; padding:8px 16px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:700;">⚡ Atender</a>
+                    <a href="/cliente/{{ c.id }}" style="color:#00d97e; padding:8px 16px; border:1px solid #2a2a2a; border-radius:6px; text-decoration:none; font-size:13px;">Ver detalhes →</a>
+                </div>
             </div>
-            <p style="color:#ccc; font-size:14px;">WhatsApp: {{ c.whatsapp }}</p>
-            {% if c.origem %}<p style="color:#888; font-size:13px;">Origem: {{ c.origem }}</p>{% endif %}
-            {% if c.observacoes %}<p style="color:#888; font-size:13px; margin-top:8px;">{{ c.observacoes[:200] }}{% if c.observacoes|length > 200 %}...{% endif %}</p>{% endif %}
-            <div style="margin-top:12px;">
-                <a href="/cliente/{{ c.id }}" style="color:#4a9eff; text-decoration:none; font-size:14px;">Ver detalhes →</a>
-            </div>
-        </div>
         {% endfor %}
 
     </div>
+    <script src="/static/app.js"></script>
 </body>
 </html>

@@ -16,54 +16,114 @@
             </div>
         </div>
 
-        <div class="bloco bloco-fala">
-            <h2>Configuração Inicial</h2>
-            <p style="color:#aaa; margin-top:8px;">Você está criando o seu primeiro nicho. Plano Grátis: 1 nicho.</p>
+        <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
+            <div class="bloco-topo">
+                <h2>🎯 CONFIGURAÇÃO INICIAL</h2>
+                <span class="badge-status status-em-atendimento">7 PERGUNTAS</span>
+            </div>
+            <p style="color:#e8e8e8; font-size:15px; margin-top:10px; line-height:1.6;">
+                Responda as 7 perguntas abaixo. A IA vai usar suas respostas pra <strong style="color:#00d97e;">falar do seu produto, do seu jeito</strong> em cada atendimento.
+            </p>
+            <p style="color:#8a8a8a; font-size:13px; margin-top:10px;">
+                ⏱️ Leva uns 5 minutos. Você só faz isso uma vez.
+            </p>
+        </div>
+
+        <div class="bloco bloco-acao" style="background:#1f1a0a; border-left:4px solid #f59e0b; margin-bottom:24px;">
+            <p style="color:#f59e0b; font-size:14px; line-height:1.6;">
+                ⚠️ <strong>Atenção:</strong> esse nicho <strong>não pode ser editado nem apagado</strong> depois de criado. Capriche nas respostas. Se precisar de mais nichos depois, faça upgrade do plano.
+            </p>
         </div>
 
         <form method="POST" action="/salvar_onboarding">
-            <div class="campo">
-                <label>Nome do nicho (curto)</label>
-                <input type="text" name="nome_nicho" required placeholder="Ex: Consórcio Ademicon" value="Meu Negócio">
+
+            <div class="bloco bloco-crm" style="border-left:4px solid #a855f7; margin-bottom:16px;">
+                <div class="bloco-topo">
+                    <h2>🏷️ NOME DO NICHO</h2>
+                </div>
+                <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
+                    Um nome curto só pra você identificar. Ex: "Consórcio Ademicon", "Curso de Inglês".
+                </p>
+                <input type="text" name="nome_nicho" required placeholder="Ex: Consórcio Ademicon" value="Meu Negócio" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:15px;">
             </div>
 
-            <div class="campo">
-                <label>1. O que você vende?</label>
-                <textarea name="produto" rows="5" required placeholder="Descreva o produto/serviço..."></textarea>
+            <div class="bloco bloco-texto" style="margin-bottom:16px;">
+                <div class="bloco-topo">
+                    <h2><span style="color:#00d97e; font-family:monospace;">01</span> &nbsp;O QUE VOCÊ VENDE?</h2>
+                </div>
+                <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
+                    Descreva o produto ou serviço. Fale como se estivesse explicando pra alguém que nunca ouviu falar.
+                </p>
+                <textarea name="produto" rows="5" required placeholder="Ex: Vendo consórcio de carro e imóvel pela Ademicon. O cliente paga parcelas mensais sem juros e recebe o valor da carta de crédito pra comprar o bem..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:100px;"></textarea>
             </div>
 
-            <div class="campo">
-                <label>2. Para quem você vende?</label>
-                <textarea name="publico" rows="5" required placeholder="Perfil do cliente..."></textarea>
+            <div class="bloco bloco-texto" style="margin-bottom:16px;">
+                <div class="bloco-topo">
+                    <h2><span style="color:#00d97e; font-family:monospace;">02</span> &nbsp;PRA QUEM VOCÊ VENDE?</h2>
+                </div>
+                <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
+                    Perfil do seu cliente ideal. Idade, profissão, situação, o que ele busca.
+                </p>
+                <textarea name="publico" rows="5" required placeholder="Ex: Homens e mulheres de 25 a 45 anos, classe média, que querem comprar carro ou casa mas não têm o valor à vista nem querem pagar juros de financiamento..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:100px;"></textarea>
             </div>
 
-            <div class="campo">
-                <label>3. Qual o preço?</label>
-                <textarea name="preco" rows="3" required placeholder="Como funciona o preço..."></textarea>
+            <div class="bloco bloco-texto" style="margin-bottom:16px;">
+                <div class="bloco-topo">
+                    <h2><span style="color:#00d97e; font-family:monospace;">03</span> &nbsp;QUAL O PREÇO?</h2>
+                </div>
+                <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
+                    Como funciona o preço, formas de pagamento, parcelamento.
+                </p>
+                <textarea name="preco" rows="3" required placeholder="Ex: Parcelas a partir de R$ 350/mês, sem juros. Não tem entrada. O valor da carta varia de R$ 30 mil a R$ 200 mil..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:80px;"></textarea>
             </div>
 
-            <div class="campo">
-                <label>4. Qual a maior dor do seu cliente?</label>
-                <textarea name="dor" rows="5" required placeholder="Liste as dores..."></textarea>
+            <div class="bloco bloco-texto" style="margin-bottom:16px;">
+                <div class="bloco-topo">
+                    <h2><span style="color:#00d97e; font-family:monospace;">04</span> &nbsp;QUAL A MAIOR DOR DO CLIENTE?</h2>
+                </div>
+                <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
+                    O que tira o sono dele. Aquilo que faz ele procurar você.
+                </p>
+                <textarea name="dor" rows="5" required placeholder="Ex: Não consegue juntar dinheiro pra comprar à vista. Tem medo de financiamento com juros altos. Acha que nunca vai conseguir realizar o sonho..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:100px;"></textarea>
             </div>
 
-            <div class="campo">
-                <label>5. Qual a objeção mais comum?</label>
-                <textarea name="objecao" rows="5" required placeholder="Liste as objeções..."></textarea>
+            <div class="bloco bloco-texto" style="margin-bottom:16px;">
+                <div class="bloco-topo">
+                    <h2><span style="color:#00d97e; font-family:monospace;">05</span> &nbsp;QUAL A OBJEÇÃO MAIS COMUM?</h2>
+                </div>
+                <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
+                    O que o cliente fala pra dizer "não". A IA vai aprender a contornar isso.
+                </p>
+                <textarea name="objecao" rows="5" required placeholder="Ex: 'Tá caro', 'vou pensar', 'preciso falar com minha esposa', 'tenho medo de não ser contemplado', 'não confio em consórcio'..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:100px;"></textarea>
             </div>
 
-            <div class="campo">
-                <label>6. Qual o seu diferencial?</label>
-                <textarea name="diferencial" rows="5" required placeholder="Liste os diferenciais..."></textarea>
+            <div class="bloco bloco-texto" style="margin-bottom:16px;">
+                <div class="bloco-topo">
+                    <h2><span style="color:#00d97e; font-family:monospace;">06</span> &nbsp;QUAL O SEU DIFERENCIAL?</h2>
+                </div>
+                <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
+                    Por que o cliente deve escolher você e não o concorrente.
+                </p>
+                <textarea name="diferencial" rows="5" required placeholder="Ex: Atendimento personalizado, mais de 10 anos de mercado, administradora com nota alta no Banco Central, acompanhamento pós-venda, 24h pra tirar dúvidas..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:100px;"></textarea>
             </div>
 
-            <div class="campo">
-                <label>7. Qual o tom de voz?</label>
-                <textarea name="tom" rows="3" required placeholder="Ex: Profissional mas acessível"></textarea>
+            <div class="bloco bloco-texto" style="margin-bottom:24px;">
+                <div class="bloco-topo">
+                    <h2><span style="color:#00d97e; font-family:monospace;">07</span> &nbsp;QUAL O TOM DE VOZ?</h2>
+                </div>
+                <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
+                    Como você quer que a IA fale com o cliente.
+                </p>
+                <textarea name="tom" rows="3" required placeholder="Ex: Profissional mas acessível. Fala direto, sem gírias, mas com jeito humano. Trata por 'você'." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:80px;"></textarea>
             </div>
 
-            <button type="submit" class="btn-gerar">SALVAR E CONFIGURAR IA</button>
+            <button type="submit" class="btn-gerar">🚀 SALVAR E CONFIGURAR IA</button>
+
+            <p style="color:#5a5a5a; font-size:12px; text-align:center; margin-top:12px; line-height:1.5;">
+                ⚡ A IA vai processar suas respostas e criar um prompt único pra você.
+            </p>
         </form>
     </div>
+    <script src="/static/app.js"></script>
 </body>
 </html>

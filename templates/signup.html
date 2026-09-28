@@ -8,29 +8,37 @@
 </head>
 <body>
     <div class="container-login">
-        <h1>M.A Tech</h1>
-        <p class="subtitulo">Criar conta grátis</p>
+        <div style="text-align:center; margin-bottom:8px;">
+            <span class="badge-status status-em-atendimento" style="font-size:11px;">🎁 1 NICHO GRÁTIS</span>
+        </div>
+        <h1 style="text-align:center;">M.A Tech</h1>
+        <p class="subtitulo" style="text-align:center;">Criar conta grátis — sem cartão</p>
 
         {% if erro %}
-        <div class="erro">{{ erro }}</div>
+        <div class="erro">⚠️ {{ erro }}</div>
         {% endif %}
 
         <form method="POST" action="/signup">
-            <label>Nome</label>
-            <input type="text" name="nome" required autofocus>
+            <label>Nome completo</label>
+            <input type="text" name="nome" required autofocus placeholder="Seu nome">
 
             <label>Email</label>
-            <input type="email" name="email" required>
+            <input type="email" name="email" required placeholder="voce@email.com">
 
             <label>Senha (mínimo 6 caracteres)</label>
-            <input type="password" name="senha" required minlength="6">
+            <input type="password" name="senha" required minlength="6" placeholder="••••••">
 
-            <button type="submit">CRIAR CONTA GRÁTIS</button>
+            <button type="submit">CRIAR CONTA GRÁTIS →</button>
         </form>
 
-        <p style="color:#aaa; text-align:center; margin-top:20px; font-size:14px;">
-            Já tem conta? <a href="/login" style="color:#4a9eff;">Entrar</a>
+        <p style="color:#8a8a8a; text-align:center; margin-top:24px; font-size:14px;">
+            Já tem conta? <a href="/login" style="color:#00d97e; text-decoration:none; font-weight:600;">Entrar</a>
+        </p>
+
+        <p style="color:#5a5a5a; text-align:center; margin-top:20px; font-size:12px; line-height:1.5;">
+            Ao criar conta você concorda em usar a plataforma com responsabilidade.
         </p>
     </div>
+    <script src="/static/app.js"></script>
 </body>
 </html>
