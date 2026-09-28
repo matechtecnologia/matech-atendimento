@@ -1,24 +1,17 @@
 import os
-
-# Remove GOOGLE_API_KEY do ambiente (evita conflito com a chave correta)
-os.environ.pop("GOOGLE_API_KEY", None)
-
 from dotenv import load_dotenv
-from google import genai
+from groq import Groq
 
 load_dotenv()
 
-# Força remover de novo, caso o dotenv tenha carregado
-os.environ.pop("GOOGLE_API_KEY", None)
-
-api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+api_key = os.getenv("GROQ_API_KEY")
 
 if not api_key:
-    raise ValueError("Chave da API nao encontrada! Configure GEMINI_API_KEY.")
+    raise ValueError("Chave da Groq nao encontrada! Configure GROQ_API_KEY.")
 
-client = genai.Client(api_key=api_key)
+client = Groq(api_key=api_key)
 
-MODELO = "gemini-3.5-flash-lite"
+MODELO = "openai/gpt-oss-120b"
 
 def separar_resposta(texto):
     blocos = {
@@ -42,7 +35,7 @@ def separar_resposta(texto):
         if "=== AÇÃO CRM ===" in texto:
             partes = texto.split("=== AÇÃO CRM ===")[1]
             if "=== LINHA CRM ===" in partes:
-                blocos["acao_crm"] = partes.split("=== LINHA CRM ===")[0].strip()
+                blocos["acao_crm"] = partes.split("=== AÇÃO CRM ===")[0].strip()
 
         if "=== LINHA CRM ===" in texto:
             blocos["linha_crm"] = texto.split("=== LINHA CRM ===")[1].strip()
@@ -97,11 +90,14 @@ Responda EXATAMENTE neste formato:
 """
 
     try:
-        response = client.models.generate_content(
+        response = client.chat.completions.create(
             model=MODELO,
-            contents=prompt_completo
+            messages=[
+                {"role": "user", "content": prompt_completo}
+            ],
+            timeout=60
         )
-        texto = response.text
+        texto = response.choices[0].message.content
         return separar_resposta(texto)
     except Exception as e:
         return {
