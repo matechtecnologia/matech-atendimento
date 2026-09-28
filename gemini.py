@@ -1,21 +1,27 @@
 import os
-import google.generativeai as genai
 from dotenv import load_dotenv
-from prompts import PROMPT_MATECH
+from google import genai
 
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# A nova biblioteca lê a chave automaticamente da variável GOOGLE_API_KEY ou GEMINI_API_KEY
+api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("GEMINI_API_KEY")
 
-model = genai.GenerativeModel("gemini-3.5-flash-lite")
+if not api_key:
+    raise ValueError("Chave da API não encontrada! Configure GOOGLE_API_KEY ou GEMINI_API_KEY.")
+
+# Cria o cliente (nova forma)
+client = genai.Client(api_key=api_key)
+
+# Modelo atual — se este não funcionar, tentaremos o gemini-3.6-flash
+MODELO = "gemini-3.5-flash-lite"
 
 def separar_resposta(texto):
     blocos = {
         "o_que_falar": "",
         "texto_para_enviar": "NENHUM",
         "acao_crm": "LEAD",
-        "linha_crm": "",
-        "resumo_conversa": ""
+        "linha_crm": ""
     }
 
     try:
@@ -35,35 +41,29 @@ def separar_resposta(texto):
                 blocos["acao_crm"] = partes.split("=== LINHA CRM ===")[0].strip()
 
         if "=== LINHA CRM ===" in texto:
-            partes = texto.split("=== LINHA CRM ===")[1]
-            if "=== RESUMO DA CONVERSA ===" in partes:
-                blocos["linha_crm"] = partes.split("=== RESUMO DA CONVERSA ===")[0].strip()
-            else:
-                blocos["linha_crm"] = partes.strip()
-
-        if "=== RESUMO DA CONVERSA ===" in texto:
-            blocos["resumo_conversa"] = texto.split("=== RESUMO DA CONVERSA ===")[1].strip()
+            blocos["linha_crm"] = texto.split("=== LINHA CRM ===")[1].strip()
 
     except Exception as e:
         blocos["o_que_falar"] = f"ERRO AO SEPARAR: {e}\n\nTexto original:\n{texto}"
 
     return blocos
 
+
 def gerar_resposta(linha_crm, mensagem_cliente, prompt_vendedor=None, historico=""):
     if not prompt_vendedor:
-        prompt_vendedor = PROMPT_MATECH
+        prompt_vendedor = "Você é um closer estratégico."
 
     prompt_completo = f"""{prompt_vendedor}
 
 ---
 
-# CONTEXTO DO CLIENTE (estado atual — CRM)
+# CONTEXTO DO CLIENTE (CRM)
 
 {linha_crm}
 
 ---
 
-# HISTÓRICO RECENTE DA CONVERSA (memória)
+# HISTÓRICO RECENTE DA CONVERSA
 
 {historico if historico else "Primeira interação com este cliente."}
 
@@ -72,18 +72,6 @@ def gerar_resposta(linha_crm, mensagem_cliente, prompt_vendedor=None, historico=
 # MENSAGEM ATUAL
 
 {mensagem_cliente}
-
----
-
-# INSTRUÇÕES SOBRE CRM E HISTÓRICO
-
-CRM = estado ATUAL do cliente (nicho, dor, status, próximo passo)
-HISTÓRICO = o que foi DITO na conversa (memória)
-
-REGRA:
-- Não duplique informação entre CRM e HISTÓRICO
-- O CRM tem o estado. O histórico tem o que foi falado.
-- Se algo já está no CRM, não precisa repetir no histórico.
 
 ---
 
@@ -102,23 +90,23 @@ Responda EXATAMENTE neste formato:
 
 === LINHA CRM ===
 [Nome: xxx; Nicho: xxx; Objetivo: xxx; Dor: xxx; Objeção: xxx; Estratégia: xxx; Interesse: xxx; Status: xxx; Próximo passo: xxx]
-
-=== RESUMO DA CONVERSA ===
-[resumo ABREVIADO de tudo que foi dito até agora — máximo 5 linhas — sem duplicar o CRM]
 """
 
     try:
-        resposta = model.generate_content(prompt_completo)
-        texto = resposta.text
+        response = client.models.generate_content(
+            model=MODELO,
+            contents=prompt_completo
+        )
+        texto = response.text
         return separar_resposta(texto)
     except Exception as e:
         return {
             "o_que_falar": f"ERRO NA API: {e}",
             "texto_para_enviar": "NENHUM",
             "acao_crm": "ERRO",
-            "linha_crm": "",
-            "resumo_conversa": ""
+            "linha_crm": ""
         }
+
 
 def gerar_prompt_vendedor(produto, publico, preco, dor, objecao, diferencial, tom):
     prompt_base = """Você é um closer estratégico especializado em vendas consultivas.
@@ -167,22 +155,45 @@ def gerar_prompt_vendedor(produto, publico, preco, dor, objecao, diferencial, to
 
 ---
 
-# REGRAS CRÍTICAS
+# REGRAS CRÍTICAS DE ATENDIMENTO
 
 1. NUNCA faça mais de uma pergunta por vez
 2. NUNCA pergunte o óbvio
 3. Use todo o contexto acumulado (CRM + histórico)
 4. Cada mensagem deve mover a venda para frente
-5. Áudios de 10-30 segundos
-6. Texto apenas quando for preço, link ou informação técnica
+5. Áudios de 10-30 segundos, linguagem natural
+6. Texto apenas quando for preço, link, endereço ou informação técnica
 
 ---
 
 # REGRA ESPECIAL — INSTRUÇÃO DO VENDEDOR
 
-Se a mensagem começar com "[INSTRUÇÃO DO VENDEDOR":
-- NÃO responda como se fosse o cliente
-- GERE a mensagem que o vendedor pediu
+O campo "MENSAGEM DO CLIENTE AGORA" pode conter duas coisas:
+
+A) A FALA DO CLIENTE (ex: "quanto custa?", "vou pensar")
+   → Responda normalmente ao cliente
+
+B) UMA INSTRUÇÃO DO VENDEDOR (ex: "fazer prospecção fria")
+   → NÃO responda como se fosse o cliente
+   → GERE a mensagem que o vendedor pediu
+
+---
+
+# FORMATO OBRIGATÓRIO DE RESPOSTA
+
+Sempre responda EXATAMENTE neste formato:
+
+=== O QUE FALAR ===
+[áudio de 10-30 segundos]
+
+=== TEXTO PARA ENVIAR ===
+[texto curto ou NENHUM]
+
+=== AÇÃO CRM ===
+[LEAD / FOLLOW-UP / FECHADO / ONBOARDING]
+
+=== LINHA CRM ===
+[Nome: xxx; Nicho: xxx; Objetivo: xxx; Dor: xxx; Objeção: xxx; Estratégia: xxx; Interesse: xxx; Status: xxx; Próximo passo: xxx]
 """
     return prompt_base.format(
         produto=produto,
