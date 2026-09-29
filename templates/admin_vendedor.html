@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - {{ v.nome }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container-atendimento">
+        <div class="topo">
+            <h1>M.A Tech — Admin</h1>
+            <div class="usuario-info">
+                <span>{{ usuario_nome }}</span>
+                <a href="/admin">← Admin</a>
+                <a href="/logout">Sair</a>
+            </div>
+        </div>
+
+        {% if ok %}
+        <div style="background:#0a1f15; border:1px solid #00d97e; color:#00d97e; padding:12px; border-radius:6px; font-size:14px; margin-bottom:16px; border-left:3px solid #00d97e;">
+            ✓ Alteração salva
+        </div>
+        {% endif %}
+        {% if erro %}
+        <div class="erro">⚠️ {{ erro }}</div>
+        {% endif %}
+
+        {% if not v.ativo %}
+        <div class="bloco bloco-acao" style="background:#1f0a0a; border-left:4px solid #ff3b3b; margin-bottom:16px;">
+            <p style="color:#ff3b3b; font-size:14px; font-weight:700;">🚫 ESTE VENDEDOR ESTÁ BLOQUEADO</p>
+            <p style="color:#ff3b3b; font-size:13px; margin-top:4px; opacity:0.85;">Ele não consegue fazer login.</p>
+        </div>
+        {% endif %}
+
+        {% if v.plano == 'empresarial' %}{% set plano_badge = 'status-cliente' %}
+        {% elif v.plano == 'pro' %}{% set plano_badge = 'status-negociacao' %}
+        {% elif v.plano == 'basico' %}{% set plano_badge = 'status-em-atendimento' %}
+        {% else %}{% set plano_badge = 'status-novo-lead' %}
+        {% endif %}
+
+        <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:16px;">
+            <div class="bloco-topo">
+                <h2>👤 {{ v.nome }}</h2>
+                <span class="badge-status {{ plano_badge }}">{{ v.plano|upper }}</span>
+            </div>
+            <p style="color:#e8e8e8; font-size:14px; margin-top:10px;" class="mono">✉️ {{ v.email }}</p>
+            {% if v.plano_expira_em %}
+            <p style="color:#f59e0b; font-size:13px; margin-top:6px;" class="mono">
+                ⏳ Expira em {{ v.plano_expira_em.strftime('%d/%m/%Y') }}
+            </p>
+            {% endif %}
+            {% if v.u_criado_em %}
+            <p style="color:#5a5a5a; font-size:12px; margin-top:12px;" class="mono">
+                Conta criada em {{ v.u_criado_em.strftime('%d/%m/%Y') }}
+            </p>
+            {% endif %}
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card neutro">
+                <div class="stat-label">Nichos</div>
+                <div class="stat-valor">{{ nichos|length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Clientes</div>
+                <div class="stat-valor">{{ clientes|length }}</div>
+            </div>
+            <div class="stat-card alerta">
+                <div class="stat-label">Atendimentos</div>
+                <div class="stat-valor">{{ total_atend }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Status</div>
+                <div class="stat-valor" style="font-size:18px; color:{% if v.ativo %}#00d97e{% else %}#ff3b3b{% endif %};">
+                    {% if v.ativo %}ATIVO{% else %}BLOQ.{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <h2 style="margin-top:24px; margin-bottom:12px; font-size:16px;">⚙️ AÇÕES</h2>
+
+        <div style="display:grid; grid-template-columns:1fr; gap:12px; margin-bottom:20px;">
+            <div class="bloco bloco-texto" style="margin-bottom:0;">
+                <h3 style="font-size:14px; color:#a8a8a8; letter-spacing:0.5px; margin-bottom:12px;">✏️ EDITAR DADOS</h3>
+                <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/editar">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <div>
+                            <label style="color:#a8a8a8; font-size:12px; display:block; margin-bottom:6px;">Nome</label>
+                            <input type="text" name="nome" required value="{{ v.nome }}" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:10px; border-radius:6px; font-size:14px;">
+                        </div>
+                        <div>
+                            <label style="color:#a8a8a8; font-size:12px; display:block; margin-bottom:6px;">Email</label>
+                            <input type="email" name="email" required value="{{ v.email }}" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:10px; border-radius:6px; font-size:14px;">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-gerar" style="margin-top:12px;">💾 SALVAR DADOS</button>
+                </form>
+            </div>
+
+            <div class="bloco bloco-acao" style="background:#1f1a0a; border-left:4px solid #f59e0b; margin-bottom:0;">
+                <h3 style="font-size:14px; color:#a8a8a8; letter-spacing:0.5px; margin-bottom:12px;">📊 MUDAR PLANO</h3>
+                <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/plano" style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <select name="plano" style="flex:1; min-width:180px; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:10px; border-radius:6px; font-size:14px;">
+                        <option value="gratis" {% if v.plano == 'gratis' %}selected{% endif %}>Grátis (1 nicho)</option>
+                        <option value="basico" {% if v.plano == 'basico' %}selected{% endif %}>Básico — R$ 97 (3 nichos)</option>
+                        <option value="pro" {% if v.plano == 'pro' %}selected{% endif %}>Pro — R$ 297 (10 nichos)</option>
+                        <option value="empresarial" {% if v.plano == 'empresarial' %}selected{% endif %}>Empresarial — R$ 597 (25 nichos)</option>
+                    </select>
+                    <button type="submit" class="btn-gerar" style="width:auto; margin-top:0; padding:12px 24px; background:#f59e0b; color:#0a0a0a; box-shadow:none;">APLICAR</button>
+                </form>
+                <p style="color:#8a8a8a; font-size:12px; margin-top:8px;">Ao escolher um plano pago, expira em 30 dias a partir de hoje.</p>
+            </div>
+
+            <div class="bloco bloco-crm" style="background:#111725; border-left:4px solid {% if v.ativo %}#ff3b3b{% else %}#00d97e{% endif %}; margin-bottom:0;">
+                <h3 style="font-size:14px; color:#a8a8a8; letter-spacing:0.5px; margin-bottom:12px;">{% if v.ativo %}🚫 BLOQUEAR ACESSO{% else %}✅ DESBLOQUEAR ACESSO{% endif %}</h3>
+                <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/bloquear" onsubmit="return confirm('{% if v.ativo %}Bloquear {{ v.nome }}? Ele não vai conseguir mais logar.{% else %}Desbloquear {{ v.nome }}?{% endif %}');">
+                    <button type="submit" class="btn-gerar" style="width:auto; margin-top:0; padding:12px 24px; background:{% if v.ativo %}#1f0a0a{% else %}#0a1f15{% endif %}; color:{% if v.ativo %}#ff3b3b{% else %}#00d97e{% endif %}; border:1px solid {% if v.ativo %}#ff3b3b{% else %}#00d97e{% endif %}; box-shadow:none;">
+                        {% if v.ativo %}BLOQUEAR{% else %}DESBLOQUEAR{% endif %}
+                    </button>
+                </form>
+            </div>
+
+            <div class="bloco bloco-crm" style="background:#1f0a0a; border-left:4px solid #ff3b3b; margin-bottom:0;">
+                <h3 style="font-size:14px; color:#ff3b3b; letter-spacing:0.5px; margin-bottom:12px;">⚠️ ZONA DE PERIGO</h3>
+                <p style="color:#8a8a8a; font-size:13px; margin-bottom:12px; line-height:1.5;">
+                    Excluir apaga <strong style="color:#ff3b3b;">TUDO</strong>: usuário, vendedor, nichos, clientes, histórico e pagamentos. Não tem como desfazer.
+                </p>
+                <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/excluir" onsubmit="return confirm('TEM CERTEZA?\n\nIsso apaga {{ v.nome }} e TODOS os dados dele (clientes, nichos, histórico).\n\nNão tem como desfazer.');">
+                    <button type="submit" class="btn-gerar" style="width:auto; margin-top:0; padding:12px 24px; background:#ff3b3b; color:#fff; box-shadow:none;">
+                        🗑️ EXCLUIR VENDEDOR COMPLETO
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <h2 style="margin-top:24px; margin-bottom:12px; font-size:16px;">🎯 NICHOS ({{ nichos|length }})</h2>
+        {% if not nichos %}
+        <div class="empty-state"><span class="emoji">🎯</span><h3>Nenhum nicho</h3><p>Este vendedor não completou onboarding.</p></div>
+        {% endif %}
+        {% for n in nichos %}
+        <div class="bloco bloco-texto" style="margin-bottom:10px;">
+            <div class="bloco-topo"><h2>📦 {{ n.nome }}</h2></div>
+            <p style="color:#e8e8e8; font-size:13px; margin-top:8px;">{{ (n.produto or '')[:200] }}{% if n.produto and n.produto|length > 200 %}...{% endif %}</p>
+        </div>
+        {% endfor %}
+
+        <h2 style="margin-top:24px; margin-bottom:12px; font-size:16px;">👥 CLIENTES ({{ clientes|length }})</h2>
+        {% if not clientes %}
+        <div class="empty-state"><span class="emoji">👥</span><h3>Nenhum cliente</h3><p>Este vendedor ainda não cadastrou clientes.</p></div>
+        {% endif %}
+        {% for c in clientes %}
+        <div class="bloco bloco-crm" style="margin-bottom:10px;">
+            <div class="bloco-topo">
+                <h2>👤 {{ c.nome or "Sem nome" }}</h2>
+                <span style="color:#8a8a8a; font-size:11px;" class="mono">{{ c.status|upper }}</span>
+            </div>
+            <p style="color:#e8e8e8; font-size:13px; margin-top:8px;" class="mono">📱 {{ c.whatsapp }}</p>
+            {% if c.email %}<p style="color:#8a8a8a; font-size:12px; margin-top:4px;">✉️ {{ c.email }}</p>{% endif %}
+            {% if c.origem %}<p style="color:#8a8a8a; font-size:12px; margin-top:4px;">🔗 {{ c.origem }}</p>{% endif %}
+        </div>
+        {% endfor %}
+
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>

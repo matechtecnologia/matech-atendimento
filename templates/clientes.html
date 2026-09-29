@@ -5,6 +5,203 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M.A Tech - Clientes</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .toolbar-clientes {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        .toolbar-clientes input[type="text"],
+        .toolbar-clientes select {
+            background: #141414;
+            border: 1px solid #2a2a2a;
+            color: #fff;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+        }
+        .toolbar-clientes input[type="text"]:focus,
+        .toolbar-clientes select:focus {
+            outline: none;
+            border-color: #00d97e;
+            box-shadow: 0 0 0 3px rgba(0,217,126,0.12);
+        }
+        .toolbar-clientes .btn-novo {
+            background: #00d97e;
+            color: #0a0a0a;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s ease, transform 0.15s ease;
+            box-shadow: 0 4px 20px rgba(0,217,126,0.25);
+        }
+        .toolbar-clientes .btn-novo:hover {
+            background: #00b368;
+            transform: translateY(-1px);
+        }
+        .cliente-card {
+            background: #141414;
+            border: 1px solid #222222;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            transition: border-color 0.2s ease, transform 0.15s ease;
+        }
+        .cliente-card:hover {
+            border-color: #00d97e;
+            transform: translateY(-1px);
+        }
+        .cliente-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .cliente-head h3 {
+            font-size: 16px;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            margin: 0;
+        }
+        .cliente-meta {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            color: #8a8a8a;
+            font-size: 13px;
+        }
+        .cliente-meta .wpp {
+            color: #e8e8e8;
+            font-family: 'SF Mono', Consolas, monospace;
+        }
+        .cliente-obs {
+            color: #8a8a8a;
+            font-size: 13px;
+            margin-top: 10px;
+            line-height: 1.5;
+        }
+        .cliente-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+        .btn-mini {
+            background: #222222;
+            color: #e8e8e8;
+            border: 1px solid #2a2a2a;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .btn-mini:hover {
+            background: #2a2a2a;
+            border-color: #00d97e;
+            color: #00d97e;
+        }
+        .btn-mini.atender {
+            background: #00d97e;
+            color: #0a0a0a;
+            border-color: #00d97e;
+        }
+        .btn-mini.atender:hover {
+            background: #00b368;
+            color: #0a0a0a;
+        }
+        .btn-mini.editar {
+            background: rgba(245,158,11,0.12);
+            color: #f59e0b;
+            border-color: rgba(245,158,11,0.3);
+        }
+        .btn-mini.editar:hover {
+            background: rgba(245,158,11,0.2);
+            border-color: #f59e0b;
+            color: #f59e0b;
+        }
+        .btn-mini.excluir {
+            background: rgba(255,59,59,0.1);
+            color: #ff3b3b;
+            border-color: rgba(255,59,59,0.25);
+        }
+        .btn-mini.excluir:hover {
+            background: rgba(255,59,59,0.2);
+            border-color: #ff3b3b;
+            color: #ff3b3b;
+        }
+        .cliente-edit {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #222222;
+        }
+        .cliente-edit .linha {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .cliente-edit label {
+            display: block;
+            color: #a8a8a8;
+            font-size: 12px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .cliente-edit input,
+        .cliente-edit select,
+        .cliente-edit textarea {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #2a2a2a;
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            resize: vertical;
+        }
+        .cliente-edit input:focus,
+        .cliente-edit select:focus,
+        .cliente-edit textarea:focus {
+            outline: none;
+            border-color: #00d97e;
+            box-shadow: 0 0 0 3px rgba(0,217,126,0.12);
+        }
+        .form-add-cliente {
+            background: #141414;
+            border: 1px solid #222222;
+            border-left: 4px solid #00d97e;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 700px) {
+            .toolbar-clientes {
+                grid-template-columns: 1fr;
+            }
+            .cliente-edit .linha {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container-atendimento">
@@ -22,16 +219,10 @@
         {% set ns = namespace(novos=0, em_atend=0, ganhos=0, perdidos=0) %}
         {% for c in clientes %}
             {% set s = (c.status or 'novo lead')|lower %}
-            {% if s in ['novo lead', 'lead'] %}
-                {% set ns.novos = ns.novos + 1 %}
-            {% elif s in ['em atendimento', 'negociando'] %}
-                {% set ns.em_atend = ns.em_atend + 1 %}
-            {% elif s in ['negociação', 'negociacao'] %}
-                {% set ns.em_atend = ns.em_atend + 1 %}
-            {% elif s == 'cliente' %}
-                {% set ns.ganhos = ns.ganhos + 1 %}
-            {% elif s == 'perdido' %}
-                {% set ns.perdidos = ns.perdidos + 1 %}
+            {% if s in ['novo lead', 'lead'] %}{% set ns.novos = ns.novos + 1 %}
+            {% elif s in ['em atendimento', 'negociando', 'negociação', 'negociacao'] %}{% set ns.em_atend = ns.em_atend + 1 %}
+            {% elif s == 'cliente' %}{% set ns.ganhos = ns.ganhos + 1 %}
+            {% elif s == 'perdido' %}{% set ns.perdidos = ns.perdidos + 1 %}
             {% endif %}
         {% endfor %}
 
@@ -54,55 +245,97 @@
             </div>
         </div>
 
-        <div class="bloco bloco-texto">
-            <div class="bloco-topo">
-                <h2>➕ ADICIONAR CLIENTE</h2>
+        <div class="toolbar-clientes">
+            <input type="text" id="busca" placeholder="🔍 Buscar por nome, WhatsApp ou origem..." oninput="aplicarFiltros()">
+            <select id="filtro-status" onchange="aplicarFiltros()">
+                <option value="">Todos os status</option>
+                <option value="novo lead">Novo Lead</option>
+                <option value="em atendimento">Em Atendimento</option>
+                <option value="negociação">Negociação</option>
+                <option value="cliente">Cliente</option>
+                <option value="perdido">Perdido</option>
+            </select>
+            <select id="ordenar" onchange="aplicarFiltros()">
+                <option value="recente">Mais recentes</option>
+                <option value="nome">Nome (A-Z)</option>
+                <option value="antigo">Mais antigos</option>
+            </select>
+            <button type="button" class="btn-novo" onclick="toggleFormAdd()">➕ Novo Cliente</button>
+        </div>
+
+        <div class="form-add-cliente" id="form-add-wrapper" style="display:none;">
+            <div style="margin-bottom:14px;">
+                <h3 style="font-size:14px; color:#a8a8a8; letter-spacing:0.5px; margin:0;">➕ ADICIONAR NOVO CLIENTE</h3>
             </div>
-            <form method="POST" action="/salvar_cliente_manual" style="margin-top:12px;">
-                <div class="campo">
-                    <label>WhatsApp (só números)</label>
-                    <input type="text" name="whatsapp" required placeholder="11987654321">
+            <form method="POST" action="/salvar_cliente_manual">
+                <div class="cliente-edit" style="margin-top:0; padding-top:0; border-top:none;">
+                    <div class="linha">
+                        <div>
+                            <label>WhatsApp (só números)</label>
+                            <input type="text" name="whatsapp" required placeholder="11987654321" inputmode="numeric" pattern="[0-9]+" style="font-family:monospace;">
+                        </div>
+                        <div>
+                            <label>Nome</label>
+                            <input type="text" name="nome" required placeholder="Nome do cliente">
+                        </div>
+                    </div>
+                    <div class="linha">
+                        <div>
+                            <label>Email</label>
+                            <input type="email" name="email" placeholder="opcional">
+                        </div>
+                        <div>
+                            <label>Origem</label>
+                            <input type="text" name="origem" placeholder="Instagram, indicação...">
+                        </div>
+                    </div>
+                    <div class="linha">
+                        <div>
+                            <label>Status</label>
+                            <select name="status">
+                                <option value="novo lead">Novo Lead</option>
+                                <option value="em atendimento">Em Atendimento</option>
+                                <option value="negociação">Negociação</option>
+                                <option value="cliente">Cliente</option>
+                                <option value="perdido">Perdido</option>
+                            </select>
+                        </div>
+                        <div></div>
+                    </div>
+                    <div style="margin-bottom:12px;">
+                        <label>Observações</label>
+                        <textarea name="observacoes" rows="2" placeholder="Anotações..."></textarea>
+                    </div>
                 </div>
-                <div class="campo">
-                    <label>Nome</label>
-                    <input type="text" name="nome" required placeholder="Nome do cliente">
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button type="submit" class="btn-gerar" style="flex:1; min-width:180px;">💾 SALVAR CLIENTE</button>
+                    <button type="button" onclick="toggleFormAdd()" class="btn-mini" style="padding:14px 20px;">Cancelar</button>
                 </div>
-                <div class="campo">
-                    <label>Email</label>
-                    <input type="email" name="email" placeholder="opcional">
-                </div>
-                <div class="campo">
-                    <label>Origem</label>
-                    <input type="text" name="origem" placeholder="Instagram, indicação...">
-                </div>
-                <div class="campo">
-                    <label>Status</label>
-                    <select name="status">
-                        <option value="novo lead">Novo Lead</option>
-                        <option value="em atendimento">Em Atendimento</option>
-                        <option value="negociação">Negociação</option>
-                        <option value="cliente">Cliente</option>
-                        <option value="perdido">Perdido</option>
-                    </select>
-                </div>
-                <div class="campo">
-                    <label>Observações</label>
-                    <textarea name="observacoes" rows="3" placeholder="Anotações..."></textarea>
-                </div>
-                <button type="submit" class="btn-gerar">SALVAR CLIENTE</button>
             </form>
         </div>
 
-        <h2 style="margin-top:32px; margin-bottom:16px;">Lista de clientes</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:24px; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+            <h2 style="font-size:16px; letter-spacing:-0.01em; margin:0; color:#a8a8a8;">
+                📋 CLIENTES <span id="contador" style="color:#00d97e; font-family:monospace;">{{ clientes|length }}</span>
+            </h2>
+            <button type="button" class="btn-mini" onclick="expandirTodos()" id="btn-expandir">Expandir tudo</button>
+        </div>
+
+        <div id="vazio-busca" style="display:none;" class="empty-state">
+            <span class="emoji">🔍</span>
+            <h3>Nenhum cliente encontrado</h3>
+            <p>Tenta outro termo ou limpa os filtros.</p>
+        </div>
 
         {% if not clientes %}
         <div class="empty-state">
             <span class="emoji">👥</span>
             <h3>Nenhum cliente cadastrado ainda</h3>
-            <p>Cadastre seu primeiro cliente no formulário acima pra começar a atender com IA.</p>
+            <p>Clique em "➕ Novo Cliente" pra cadastrar o primeiro.</p>
         </div>
         {% endif %}
 
+        <div id="lista-clientes">
         {% for c in clientes %}
             {% set s = (c.status or 'novo lead')|lower %}
             {% if s in ['novo lead', 'lead'] %}
@@ -125,22 +358,176 @@
                 {% set badge_text = c.status|upper %}
             {% endif %}
 
-            <div class="bloco bloco-crm card-hover">
-                <div class="bloco-topo">
-                    <h2>{{ c.nome or "Sem nome" }}</h2>
+            <div class="cliente-card"
+                 data-id="{{ c.id }}"
+                 data-nome="{{ (c.nome or '')|lower }}"
+                 data-wpp="{{ c.whatsapp or '' }}"
+                 data-origem="{{ (c.origem or '')|lower }}"
+                 data-status="{{ (c.status or 'novo lead')|lower }}"
+                 data-criado="{{ c.criado_em.strftime('%Y%m%d%H%M%S') if c.criado_em else '0' }}">
+
+                <div class="cliente-head">
+                    <h3>👤 {{ c.nome or "Sem nome" }}</h3>
                     <span class="badge-status {{ badge_class }}">{{ badge_text }}</span>
                 </div>
-                <p style="color:#e8e8e8; font-size:14px;" class="mono">📱 {{ c.whatsapp }}</p>
-                {% if c.origem %}<p style="color:#8a8a8a; font-size:13px; margin-top:6px;">Origem: {{ c.origem }}</p>{% endif %}
-                {% if c.observacoes %}<p style="color:#8a8a8a; font-size:13px; margin-top:8px;">{{ c.observacoes[:200] }}{% if c.observacoes|length > 200 %}...{% endif %}</p>{% endif %}
-                <div style="margin-top:16px; display:flex; gap:12px; flex-wrap:wrap;">
-                    <a href="/cliente/{{ c.id }}/atender" style="color:#0a0a0a; background:#00d97e; padding:8px 16px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:700;">⚡ Atender</a>
-                    <a href="/cliente/{{ c.id }}" style="color:#00d97e; padding:8px 16px; border:1px solid #2a2a2a; border-radius:6px; text-decoration:none; font-size:13px;">Ver detalhes →</a>
+
+                <div class="cliente-meta">
+                    <span class="wpp">📱 {{ c.whatsapp }}</span>
+                    {% if c.email %}<span>✉️ {{ c.email }}</span>{% endif %}
+                    {% if c.origem %}<span>🔗 {{ c.origem }}</span>{% endif %}
+                </div>
+
+                {% if c.observacoes %}
+                <div class="cliente-obs">{{ c.observacoes[:180] }}{% if c.observacoes|length > 180 %}...{% endif %}</div>
+                {% endif %}
+
+                <div class="cliente-actions">
+                    <a href="/cliente/{{ c.id }}/atender" class="btn-mini atender">⚡ Atender</a>
+                    <button type="button" class="btn-mini editar" onclick="toggleEdit({{ c.id }})" id="btn-edit-{{ c.id }}">✏️ Editar</button>
+                    <a href="/cliente/{{ c.id }}" class="btn-mini">📋 Ver histórico</a>
+                    <form method="POST" action="/cliente/{{ c.id }}/excluir" onsubmit="return confirm('Excluir {{ (c.nome or 'este cliente')|replace("'", "\\'") }}?\n\nApaga o histórico e atendimentos. Não tem como desfazer.');" style="display:inline;">
+                        <button type="submit" class="btn-mini excluir">🗑️ Excluir</button>
+                    </form>
+                </div>
+
+                <div class="cliente-edit" id="edit-{{ c.id }}" style="display:none;">
+                    <form method="POST" action="/cliente/{{ c.id }}/editar">
+                        <div class="linha">
+                            <div>
+                                <label>WhatsApp (só números)</label>
+                                <input type="text" name="whatsapp" required value="{{ c.whatsapp or '' }}" inputmode="numeric" pattern="[0-9]+" style="font-family:monospace;">
+                            </div>
+                            <div>
+                                <label>Nome</label>
+                                <input type="text" name="nome" required value="{{ c.nome or '' }}">
+                            </div>
+                        </div>
+                        <div class="linha">
+                            <div>
+                                <label>Email</label>
+                                <input type="email" name="email" value="{{ c.email or '' }}">
+                            </div>
+                            <div>
+                                <label>Origem</label>
+                                <input type="text" name="origem" value="{{ c.origem or '' }}">
+                            </div>
+                        </div>
+                        <div class="linha">
+                            <div>
+                                <label>Status</label>
+                                <select name="status">
+                                    <option value="novo lead" {% if s in ['novo lead', 'lead'] %}selected{% endif %}>Novo Lead</option>
+                                    <option value="em atendimento" {% if s in ['em atendimento', 'negociando'] %}selected{% endif %}>Em Atendimento</option>
+                                    <option value="negociação" {% if s in ['negociação', 'negociacao'] %}selected{% endif %}>Negociação</option>
+                                    <option value="cliente" {% if s == 'cliente' %}selected{% endif %}>Cliente</option>
+                                    <option value="perdido" {% if s == 'perdido' %}selected{% endif %}>Perdido</option>
+                                </select>
+                            </div>
+                            <div></div>
+                        </div>
+                        <div style="margin-bottom:12px;">
+                            <label>Observações</label>
+                            <textarea name="observacoes" rows="2">{{ c.observacoes or '' }}</textarea>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <button type="submit" class="btn-gerar" style="flex:1; min-width:160px;">💾 SALVAR</button>
+                            <button type="button" class="btn-mini" onclick="toggleEdit({{ c.id }})" style="padding:14px 20px;">Cancelar</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         {% endfor %}
+        </div>
 
     </div>
     <script src="/static/app.js"></script>
+    <script>
+    let todosExpandidos = false;
+
+    function toggleFormAdd() {
+        const f = document.getElementById('form-add-wrapper');
+        const abrir = f.style.display === 'none';
+        f.style.display = abrir ? 'block' : 'none';
+        if (abrir) f.scrollIntoView({behavior: 'smooth', block: 'start'});
+    }
+
+    function toggleEdit(id) {
+        const el = document.getElementById('edit-' + id);
+        const btn = document.getElementById('btn-edit-' + id);
+        const abrir = el.style.display === 'none';
+
+        // Fecha todos os outros
+        document.querySelectorAll('.cliente-edit').forEach(e => { e.style.display = 'none'; });
+        document.querySelectorAll('[id^="btn-edit-"]').forEach(b => { b.innerText = '✏️ Editar'; });
+
+        if (abrir) {
+            el.style.display = 'block';
+            btn.innerText = '▲ Fechar';
+            el.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
+    }
+
+    function expandirTodos() {
+        todosExpandidos = !todosExpandidos;
+        const btn = document.getElementById('btn-expandir');
+        document.querySelectorAll('.cliente-edit').forEach(e => {
+            e.style.display = todosExpandidos ? 'block' : 'none';
+        });
+        document.querySelectorAll('[id^="btn-edit-"]').forEach(b => {
+            b.innerText = todosExpandidos ? '▲ Fechar' : '✏️ Editar';
+        });
+        btn.innerText = todosExpandidos ? 'Recolher tudo' : 'Expandir tudo';
+    }
+
+    function aplicarFiltros() {
+        const q = document.getElementById('busca').value.toLowerCase().trim();
+        const statusFiltro = document.getElementById('filtro-status').value.toLowerCase().trim();
+        const ordem = document.getElementById('ordenar').value;
+
+        const container = document.getElementById('lista-clientes');
+        const cards = Array.from(container.querySelectorAll('.cliente-card'));
+
+        // Normaliza status antigos
+        function normaliza(s) {
+            s = (s || '').toLowerCase();
+            if (s === 'lead') return 'novo lead';
+            if (s === 'negociando') return 'em atendimento';
+            if (s === 'negociacao') return 'negociação';
+            return s;
+        }
+
+        let visiveis = 0;
+        cards.forEach(c => {
+            const nome = c.dataset.nome || '';
+            const wpp = c.dataset.wpp || '';
+            const origem = c.dataset.origem || '';
+            const status = normaliza(c.dataset.status);
+
+            const matchBusca = !q || nome.includes(q) || wpp.includes(q) || origem.includes(q);
+            const matchStatus = !statusFiltro || status === statusFiltro;
+
+            const ok = matchBusca && matchStatus;
+            c.style.display = ok ? '' : 'none';
+            if (ok) visiveis++;
+        });
+
+        document.getElementById('vazio-busca').style.display = (visiveis === 0 && (q || statusFiltro)) ? 'block' : 'none';
+        document.getElementById('contador').innerText = visiveis;
+
+        // Ordenar
+        const visiveisCards = cards.filter(c => c.style.display !== 'none');
+        visiveisCards.sort((a, b) => {
+            if (ordem === 'nome') {
+                return (a.dataset.nome || '').localeCompare(b.dataset.nome || '');
+            } else if (ordem === 'antigo') {
+                return (a.dataset.criado || '').localeCompare(b.dataset.criado || '');
+            } else {
+                return (b.dataset.criado || '').localeCompare(a.dataset.criado || '');
+            }
+        });
+        visiveisCards.forEach(c => container.appendChild(c));
+        cards.filter(c => c.style.display === 'none').forEach(c => container.appendChild(c));
+    }
+    </script>
 </body>
 </html>

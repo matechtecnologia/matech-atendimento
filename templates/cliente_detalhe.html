@@ -17,6 +17,15 @@
             </div>
         </div>
 
+        {% if request.query_params.get('ok') %}
+        <div style="background:#0a1f15; border:1px solid #00d97e; color:#00d97e; padding:12px; border-radius:6px; font-size:14px; margin-bottom:16px; border-left:3px solid #00d97e;">
+            ✓ Alterações salvas
+        </div>
+        {% endif %}
+        {% if request.query_params.get('erro') %}
+        <div class="erro">⚠️ {{ request.query_params.get('erro') }}</div>
+        {% endif %}
+
         {% set s = (cliente.status or 'novo lead')|lower %}
         {% if s in ['novo lead', 'lead'] %}
             {% set badge_class = 'status-novo-lead' %}
@@ -53,9 +62,63 @@
             {% endif %}
         </div>
 
-        <a href="/cliente/{{ cliente.id }}/atender" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-bottom:20px;">
-            ⚡ ATENDER ESTE CLIENTE
-        </a>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
+            <a href="/cliente/{{ cliente.id }}/atender" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; flex:1; min-width:200px; margin-top:0;">
+                ⚡ ATENDER ESTE CLIENTE
+            </a>
+            <button type="button" onclick="toggleEditar()" id="btn-editar" class="btn-gerar" style="background:#f59e0b; color:#0a0a0a; box-shadow:0 4px 20px rgba(245,158,11,0.3); flex:1; min-width:160px; margin-top:0;">
+                ✏️ EDITAR
+            </button>
+            <form method="POST" action="/cliente/{{ cliente.id }}/excluir" style="flex:0;" onsubmit="return confirm('Tem certeza que quer excluir {{ cliente.nome or 'este cliente' }}?\n\nIsso apaga o histórico de conversa e os atendimentos. Não tem como desfazer.');">
+                <button type="submit" class="btn-gerar" style="background:#1f0a0a; color:#ff3b3b; border:1px solid #ff3b3b; box-shadow:none; margin-top:0; padding:16px 24px;">
+                    🗑️ EXCLUIR
+                </button>
+            </form>
+        </div>
+
+        <div id="form-editar" style="display:none;">
+            <div class="bloco bloco-acao" style="background:#1f1a0a; border-left:4px solid #f59e0b; margin-bottom:16px;">
+                <div class="bloco-topo">
+                    <h2>✏️ EDITAR CLIENTE</h2>
+                </div>
+                <form method="POST" action="/cliente/{{ cliente.id }}/editar" style="margin-top:12px;">
+                    <div class="campo">
+                        <label>WhatsApp (só números)</label>
+                        <input type="text" name="whatsapp" required value="{{ cliente.whatsapp or '' }}" inputmode="numeric" pattern="[0-9]+" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:15px; font-family:monospace;">
+                    </div>
+                    <div class="campo">
+                        <label>Nome</label>
+                        <input type="text" name="nome" required value="{{ cliente.nome or '' }}" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:15px;">
+                    </div>
+                    <div class="campo">
+                        <label>Email</label>
+                        <input type="email" name="email" value="{{ cliente.email or '' }}" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:15px;">
+                    </div>
+                    <div class="campo">
+                        <label>Origem</label>
+                        <input type="text" name="origem" value="{{ cliente.origem or '' }}" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:15px;">
+                    </div>
+                    <div class="campo">
+                        <label>Status</label>
+                        <select name="status" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:15px;">
+                            <option value="novo lead" {% if s in ['novo lead', 'lead'] %}selected{% endif %}>Novo Lead</option>
+                            <option value="em atendimento" {% if s in ['em atendimento', 'negociando'] %}selected{% endif %}>Em Atendimento</option>
+                            <option value="negociação" {% if s in ['negociação', 'negociacao'] %}selected{% endif %}>Negociação</option>
+                            <option value="cliente" {% if s == 'cliente' %}selected{% endif %}>Cliente</option>
+                            <option value="perdido" {% if s == 'perdido' %}selected{% endif %}>Perdido</option>
+                        </select>
+                    </div>
+                    <div class="campo">
+                        <label>Observações</label>
+                        <textarea name="observacoes" rows="3" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical;">{{ cliente.observacoes or '' }}</textarea>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <button type="submit" class="btn-gerar" style="flex:1; min-width:160px;">💾 SALVAR ALTERAÇÕES</button>
+                        <button type="button" onclick="toggleEditar()" class="btn-gerar" style="background:transparent; color:#8a8a8a; border:1px solid #2a2a2a; box-shadow:none; flex:0; padding:16px 24px;">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         {% if cliente.observacoes %}
         <div class="bloco bloco-texto">
@@ -67,7 +130,7 @@
         {% endif %}
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; margin-bottom:16px;">
-            <h2 style="font-size:18px; letter-spacing:-0.01em;">💬 Histórico de Conversa</h2>
+            <h2 style="font-size:18px; letter-spacing:-0.01em; margin:0;">💬 Histórico de Conversa</h2>
             <span style="color:#5a5a5a; font-size:12px;" class="mono">{{ historico|length }} msg(s)</span>
         </div>
 
@@ -93,5 +156,15 @@
 
     </div>
     <script src="/static/app.js"></script>
+    <script>
+    function toggleEditar() {
+        const f = document.getElementById('form-editar');
+        const b = document.getElementById('btn-editar');
+        const abrir = f.style.display === 'none';
+        f.style.display = abrir ? 'block' : 'none';
+        b.innerText = abrir ? '▲ FECHAR' : '✏️ EDITAR';
+        if (abrir) f.scrollIntoView({behavior: 'smooth', block: 'start'});
+    }
+    </script>
 </body>
 </html>

@@ -766,3 +766,227 @@ def logout():
     r.delete_cookie("usuario_nome")
     r.delete_cookie("usuario_tipo")
     return r
+
+
+
+# ============ CRM — CLIENTES (editar/excluir) ============
+
+def buscar_cliente(cid, vid):
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM clientes WHERE id = %s AND vendedor_id = %s", (cid, vid))
+    c = cur.fetchone()
+    cur.close()
+    close_conn(conn)
+    return c
+
+
+def atualizar_cliente(cid, vid, whatsapp, nome, email, origem, status, obs):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT whatsapp FROM clientes WHERE id = %s AND vendedor_id = %s", (cid, vid))
+    row = cur.fetchone()
+    if not row:
+        cur.close()
+        close_conn(conn)
+        return False, "Cliente nao encontrado"
+    old_wpp = row[0]
+    cur.execute("SELECT id FROM clientes WHERE whatsapp = %s AND vendedor_id = %s AND id != %s", (whatsapp, vid, cid))
+    if cur.fetchone():
+        cur.close()
+        close_conn(conn)
+        return False, "Ja existe outro cliente com esse WhatsApp"
+    cur.execute("UPDATE clientes SET whatsapp=%s, nome=%s, email=%s, origem=%s, status=%s, observacoes=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s AND vendedor_id=%s", (whatsapp, nome, email, origem, status, obs, cid, vid))
+    if old_wpp != whatsapp:
+        cur.execute("UPDATE historico SET whatsapp=%s WHERE whatsapp=%s AND vendedor_id=%s", (whatsapp, old_wpp, vid))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return True, "OK"
+
+
+def excluir_cliente(cid, vid):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT whatsapp FROM clientes WHERE id = %s AND vendedor_id = %s", (cid, vid))
+    row = cur.fetchone()
+    if not row:
+        cur.close()
+        close_conn(conn)
+        return False
+    wpp = row[0]
+    cur.execute("DELETE FROM clientes WHERE id = %s AND vendedor_id = %s", (cid, vid))
+    cur.execute("DELETE FROM historico WHERE whatsapp = %s AND vendedor_id = %s", (wpp, vid))
+    cur.execute("DELETE FROM atendimentos WHERE cliente_id = %s", (cid,))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return True
+
+
+@app.post("/cliente/{cliente_id}/editar")
+def rota_editar_cliente(cliente_id: int, whatsapp: str = Form(...), nome: str = Form(...), email: str = Form(""), origem: str = Form(""), status: str = Form("novo lead"), observacoes: str = Form(""), usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+    ok, msg = atualizar_cliente(cliente_id, v["id"], whatsapp, nome, email, origem, status, observacoes)
+    if not ok:
+        return RedirectResponse(url=f"/cliente/{cliente_id}?erro={msg}", status_code=303)
+    return RedirectResponse(url=f"/cliente/{cliente_id}?ok=1", status_code=303)
+
+
+@app.post("/cliente/{cliente_id}/excluir")
+def rota_excluir_cliente(cliente_id: int, usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+    excluir_cliente(cliente_id, v["id"])
+    return RedirectResponse(url="/clientes?excluido=1", status_code=303)
+
+
+# ============ ADMIN — GESTÃO DE VENDEDORES ============
+
+def buscar_vendedor_admin(vid):
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("""
+        SELECT v.id as vendedor_id, v.plano, v.plano_expira_em, v.onboarding_completo, v.criado_em as v_criado_em,
+               u.id as usuario_id, u.nome, u.email, u.tipo, u.ativo, u.criado_em as u_criado_em
+        FROM vendedores v JOIN usuarios u ON u.id = v.usuario_id
+        WHERE v.id = %s
+    """, (vid,))
+    r = cur.fetchone()
+    cur.close()
+    close_conn(conn)
+    return r
+
+
+@app.get("/admin/vendedor/{vendedor_id}", response_class=HTMLResponse)
+def admin_detalhe_vendedor(request: Request, vendedor_id: int, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None), erro: str = None, ok: str = None):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor_admin(vendedor_id)
+    if not v:
+        return RedirectResponse(url="/admin")
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM clientes WHERE vendedor_id = %s ORDER BY atualizado_em DESC", (vendedor_id,))
+    clientes = [dict(c) for c in cur.fetchall()]
+    cur.execute("SELECT * FROM nichos WHERE vendedor_id = %s ORDER BY id", (vendedor_id,))
+    nichos = [dict(n) for n in cur.fetchall()]
+    cur.execute("SELECT COUNT(*) as t FROM atendimentos WHERE atendente_id = %s", (v["usuario_id"],))
+    total_atend = cur.fetchone()["t"]
+    cur.close()
+    close_conn(conn)
+    return templates.TemplateResponse(request=request, name="admin_vendedor.html", context={
+        "usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo,
+        "v": dict(v), "clientes": clientes, "nichos": nichos, "total_atend": total_atend,
+        "erro": erro, "ok": ok
+    })
+
+
+@app.post("/admin/vendedor/{vendedor_id}/editar")
+def admin_editar_vendedor(vendedor_id: int, nome: str = Form(...), email: str = Form(...), usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor_admin(vendedor_id)
+    if not v:
+        return RedirectResponse(url="/admin")
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM usuarios WHERE email = %s AND id != %s", (email, v["usuario_id"]))
+    if cur.fetchone():
+        cur.close()
+        close_conn(conn)
+        return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?erro=Email+ja+em+uso", status_code=303)
+    cur.execute("UPDATE usuarios SET nome=%s, email=%s WHERE id=%s", (nome, email, v["usuario_id"]))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?ok=1", status_code=303)
+
+
+@app.post("/admin/vendedor/{vendedor_id}/bloquear")
+def admin_bloquear_vendedor(vendedor_id: int, usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor_admin(vendedor_id)
+    if not v:
+        return RedirectResponse(url="/admin")
+    conn = get_conn()
+    cur = conn.cursor()
+    novo = not v["ativo"]
+    cur.execute("UPDATE usuarios SET ativo=%s WHERE id=%s", (novo, v["usuario_id"]))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?ok=1", status_code=303)
+
+
+@app.post("/admin/vendedor/{vendedor_id}/plano")
+def admin_mudar_plano_vendedor(vendedor_id: int, plano: str = Form(...), usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    conn = get_conn()
+    cur = conn.cursor()
+    if plano == "gratis":
+        cur.execute("UPDATE vendedores SET plano=%s, plano_expira_em=NULL, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s", (plano, vendedor_id))
+    else:
+        exp = datetime.now() + timedelta(days=30)
+        cur.execute("UPDATE vendedores SET plano=%s, plano_expira_em=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s", (plano, exp, vendedor_id))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?ok=1", status_code=303)
+
+
+@app.post("/admin/vendedor/{vendedor_id}/excluir")
+def admin_excluir_vendedor(vendedor_id: int, usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor_admin(vendedor_id)
+    if not v:
+        return RedirectResponse(url="/admin")
+    conn = get_conn()
+    cur = conn.cursor()
+    uid = v["usuario_id"]
+    cur.execute("DELETE FROM historico WHERE vendedor_id=%s", (vendedor_id,))
+    cur.execute("DELETE FROM atendimentos WHERE atendente_id=%s", (uid,))
+    cur.execute("DELETE FROM clientes WHERE vendedor_id=%s", (vendedor_id,))
+    cur.execute("DELETE FROM nichos WHERE vendedor_id=%s", (vendedor_id,))
+    cur.execute("DELETE FROM pagamentos WHERE vendedor_id=%s", (vendedor_id,))
+    cur.execute("DELETE FROM vendedores WHERE id=%s", (vendedor_id,))
+    cur.execute("DELETE FROM usuarios WHERE id=%s", (uid,))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url="/admin?excluido=1", status_code=303)
+
+
+@app.get("/admin/criar", response_class=HTMLResponse)
+def admin_criar_form(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None), erro: str = None):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    return templates.TemplateResponse(request=request, name="admin_criar.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "erro": erro})
+
+
+@app.post("/admin/criar")
+def admin_criar_vendedor(nome: str = Form(...), email: str = Form(...), senha: str = Form(...), plano: str = Form("gratis"), usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    ok, msg = criar_vendedor(nome, email, senha)
+    if not ok:
+        return RedirectResponse(url=f"/admin/criar?erro={msg}", status_code=303)
+    if plano != "gratis":
+        conn = get_conn()
+        cur = conn.cursor()
+        exp = datetime.now() + timedelta(days=30)
+        cur.execute("UPDATE vendedores SET plano=%s, plano_expira_em=%s WHERE usuario_id = (SELECT id FROM usuarios WHERE email=%s)", (plano, exp, email))
+        conn.commit()
+        cur.close()
+        close_conn(conn)
+    return RedirectResponse(url="/admin", status_code=303)
