@@ -10,6 +10,7 @@
             display: grid;
             grid-template-columns: 1fr auto auto auto;
             gap: 10px;
+            margin-top: 24px;
             margin-bottom: 20px;
             align-items: center;
         }
@@ -52,8 +53,8 @@
             background: #141414;
             border: 1px solid #222222;
             border-radius: 10px;
-            padding: 16px 20px;
-            margin-bottom: 10px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
             transition: border-color 0.2s ease, transform 0.15s ease;
         }
         .cliente-card:hover {
@@ -92,18 +93,24 @@
             margin-top: 10px;
             line-height: 1.5;
         }
+
+        /* ===== GRADE 2x2 DOS BOTÕES ===== */
         .cliente-actions {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 8px;
-            margin-top: 14px;
-            flex-wrap: wrap;
+            margin-top: 16px;
         }
+        .cliente-actions > form {
+            display: contents;
+        }
+
         .btn-mini {
-            background: #222222;
-            color: #e8e8e8;
+            background: #1a1a1a;
+            color: #c8c8c8;
             border: 1px solid #2a2a2a;
-            padding: 8px 14px;
-            border-radius: 6px;
+            padding: 12px 10px;
+            border-radius: 8px;
             font-size: 13px;
             font-weight: 600;
             text-decoration: none;
@@ -111,21 +118,41 @@
             transition: all 0.2s ease;
             font-family: inherit;
             white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            line-height: 1.2;
+            width: 100%;
+            box-sizing: border-box;
         }
         .btn-mini:hover {
-            background: #2a2a2a;
-            border-color: #00d97e;
-            color: #00d97e;
+            transform: translateY(-1px);
         }
+        /* Atender — verde */
         .btn-mini.atender {
             background: #00d97e;
             color: #0a0a0a;
             border-color: #00d97e;
+            box-shadow: 0 4px 16px rgba(0,217,126,0.25);
         }
         .btn-mini.atender:hover {
             background: #00b368;
-            color: #0a0a0a;
+            box-shadow: 0 6px 24px rgba(0,217,126,0.4);
         }
+        /* Ver histórico — roxo */
+        .btn-mini.historico {
+            background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.08));
+            color: #c084fc;
+            border-color: rgba(168,85,247,0.35);
+        }
+        .btn-mini.historico:hover {
+            background: linear-gradient(135deg, rgba(168,85,247,0.25), rgba(168,85,247,0.15));
+            border-color: #a855f7;
+            color: #d8b4fe;
+            box-shadow: 0 6px 24px rgba(168,85,247,0.3);
+        }
+        /* Editar — âmbar */
         .btn-mini.editar {
             background: rgba(245,158,11,0.12);
             color: #f59e0b;
@@ -134,18 +161,21 @@
         .btn-mini.editar:hover {
             background: rgba(245,158,11,0.2);
             border-color: #f59e0b;
-            color: #f59e0b;
+            color: #fbbf24;
+            box-shadow: 0 6px 20px rgba(245,158,11,0.2);
         }
+        /* Excluir — vermelho outline */
         .btn-mini.excluir {
-            background: rgba(255,59,59,0.1);
+            background: transparent;
             color: #ff3b3b;
-            border-color: rgba(255,59,59,0.25);
+            border-color: rgba(255,59,59,0.3);
         }
         .btn-mini.excluir:hover {
-            background: rgba(255,59,59,0.2);
+            background: rgba(255,59,59,0.1);
             border-color: #ff3b3b;
-            color: #ff3b3b;
+            box-shadow: 0 6px 20px rgba(255,59,59,0.2);
         }
+
         .cliente-edit {
             margin-top: 16px;
             padding-top: 16px;
@@ -177,6 +207,7 @@
             font-family: inherit;
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
             resize: vertical;
+            box-sizing: border-box;
         }
         .cliente-edit input:focus,
         .cliente-edit select:focus,
@@ -193,12 +224,16 @@
             padding: 20px;
             margin-bottom: 20px;
         }
-        @media (max-width: 700px) {
+        @media (max-width: 500px) {
             .toolbar-clientes {
                 grid-template-columns: 1fr;
             }
             .cliente-edit .linha {
                 grid-template-columns: 1fr;
+            }
+            .btn-mini {
+                font-size: 12px;
+                padding: 11px 8px;
             }
         }
     </style>
@@ -209,39 +244,11 @@
             <h1>M.A Tech</h1>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
+                <a href="/relatorios">Relatórios</a>
                 <a href="/meus_nichos">Nichos</a>
                 <a href="/planos">Planos</a>
                 {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
                 <a href="/logout">Sair</a>
-            </div>
-        </div>
-
-        {% set ns = namespace(novos=0, em_atend=0, ganhos=0, perdidos=0) %}
-        {% for c in clientes %}
-            {% set s = (c.status or 'novo lead')|lower %}
-            {% if s in ['novo lead', 'lead'] %}{% set ns.novos = ns.novos + 1 %}
-            {% elif s in ['em atendimento', 'negociando', 'negociação', 'negociacao'] %}{% set ns.em_atend = ns.em_atend + 1 %}
-            {% elif s == 'cliente' %}{% set ns.ganhos = ns.ganhos + 1 %}
-            {% elif s == 'perdido' %}{% set ns.perdidos = ns.perdidos + 1 %}
-            {% endif %}
-        {% endfor %}
-
-        <div class="stats-grid">
-            <div class="stat-card neutro">
-                <div class="stat-label">Total</div>
-                <div class="stat-valor">{{ clientes|length }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Novos leads</div>
-                <div class="stat-valor">{{ ns.novos }}</div>
-            </div>
-            <div class="stat-card alerta">
-                <div class="stat-label">Em negociação</div>
-                <div class="stat-valor">{{ ns.em_atend }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Clientes ganhos</div>
-                <div class="stat-valor">{{ ns.ganhos }}</div>
             </div>
         </div>
 
@@ -309,16 +316,16 @@
                 </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
                     <button type="submit" class="btn-gerar" style="flex:1; min-width:180px;">💾 SALVAR CLIENTE</button>
-                    <button type="button" onclick="toggleFormAdd()" class="btn-mini" style="padding:14px 20px;">Cancelar</button>
+                    <button type="button" onclick="toggleFormAdd()" class="btn-mini" style="width:auto; padding:14px 20px;">Cancelar</button>
                 </div>
             </form>
         </div>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:24px; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
             <h2 style="font-size:16px; letter-spacing:-0.01em; margin:0; color:#a8a8a8;">
                 📋 CLIENTES <span id="contador" style="color:#00d97e; font-family:monospace;">{{ clientes|length }}</span>
             </h2>
-            <button type="button" class="btn-mini" onclick="expandirTodos()" id="btn-expandir">Expandir tudo</button>
+            <button type="button" class="btn-mini" onclick="expandirTodos()" id="btn-expandir" style="width:auto; padding:9px 16px;">Expandir tudo</button>
         </div>
 
         <div id="vazio-busca" style="display:none;" class="empty-state">
@@ -383,9 +390,9 @@
 
                 <div class="cliente-actions">
                     <a href="/cliente/{{ c.id }}/atender" class="btn-mini atender">⚡ Atender</a>
+                    <a href="/cliente/{{ c.id }}" class="btn-mini historico">💬 Ver histórico</a>
                     <button type="button" class="btn-mini editar" onclick="toggleEdit({{ c.id }})" id="btn-edit-{{ c.id }}">✏️ Editar</button>
-                    <a href="/cliente/{{ c.id }}" class="btn-mini">📋 Ver histórico</a>
-                    <form method="POST" action="/cliente/{{ c.id }}/excluir" onsubmit="return confirm('Excluir {{ (c.nome or 'este cliente')|replace("'", "\\'") }}?\n\nApaga o histórico e atendimentos. Não tem como desfazer.');" style="display:inline;">
+                    <form method="POST" action="/cliente/{{ c.id }}/excluir" onsubmit="return confirm('Excluir {{ (c.nome or 'este cliente')|replace("'", "\\'") }}?\n\nApaga o histórico e atendimentos. Não tem como desfazer.');">
                         <button type="submit" class="btn-mini excluir">🗑️ Excluir</button>
                     </form>
                 </div>
@@ -431,7 +438,7 @@
                         </div>
                         <div style="display:flex; gap:10px; flex-wrap:wrap;">
                             <button type="submit" class="btn-gerar" style="flex:1; min-width:160px;">💾 SALVAR</button>
-                            <button type="button" class="btn-mini" onclick="toggleEdit({{ c.id }})" style="padding:14px 20px;">Cancelar</button>
+                            <button type="button" class="btn-mini" onclick="toggleEdit({{ c.id }})" style="width:auto; padding:14px 20px;">Cancelar</button>
                         </div>
                     </form>
                 </div>
@@ -456,7 +463,6 @@
         const btn = document.getElementById('btn-edit-' + id);
         const abrir = el.style.display === 'none';
 
-        // Fecha todos os outros
         document.querySelectorAll('.cliente-edit').forEach(e => { e.style.display = 'none'; });
         document.querySelectorAll('[id^="btn-edit-"]').forEach(b => { b.innerText = '✏️ Editar'; });
 
@@ -487,7 +493,6 @@
         const container = document.getElementById('lista-clientes');
         const cards = Array.from(container.querySelectorAll('.cliente-card'));
 
-        // Normaliza status antigos
         function normaliza(s) {
             s = (s || '').toLowerCase();
             if (s === 'lead') return 'novo lead';
@@ -514,7 +519,6 @@
         document.getElementById('vazio-busca').style.display = (visiveis === 0 && (q || statusFiltro)) ? 'block' : 'none';
         document.getElementById('contador').innerText = visiveis;
 
-        // Ordenar
         const visiveisCards = cards.filter(c => c.style.display !== 'none');
         visiveisCards.sort((a, b) => {
             if (ordem === 'nome') {

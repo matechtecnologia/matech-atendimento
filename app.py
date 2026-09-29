@@ -990,3 +990,118 @@ def admin_criar_vendedor(nome: str = Form(...), email: str = Form(...), senha: s
         cur.close()
         close_conn(conn)
     return RedirectResponse(url="/admin", status_code=303)
+
+
+
+# ============ FAVICON ============
+
+from fastapi.responses import FileResponse
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return FileResponse("static/favicon.svg", media_type="image/svg+xml")
+
+
+
+# ============ RELATÓRIOS ============
+
+@app.get("/relatorios", response_class=HTMLResponse)
+def tela_relatorios(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+    vid = v["id"]
+
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Total clientes por status
+    cur.execute("SELECT status, COUNT(*) as qtd FROM clientes WHERE vendedor_id = %s GROUP BY status", (vid,))
+    por_status_raw = cur.fetchall()
+    por_status = {}
+    for r in por_status_raw:
+        s = (r["status"] or "novo lead").lower()
+        por_status[s] = r["qtd"]
+
+    total_clientes = sum(por_status.values())
+    ganhos = por_status.get("cliente", 0)
+    perdidos = por_status.get("perdido", 0)
+    em_neg = por_status.get("negociação", 0) + por_status.get("negociacao", 0) + por_status.get("negociando", 0) + por_status.get("em atendimento", 0)
+    novos = por_status.get("novo lead", 0) + por_status.get("lead", 0)
+
+    # Total atendimentos
+    cur.execute("SELECT COUNT(*) as t FROM atendimentos WHERE atendente_id = %s", (usuario_id,))
+    total_atend = cur.fetchone()["t"]
+
+    # Atendimentos últimos 7 dias
+    cur.execute("""
+        SELECT DATE(criado_em) as dia, COUNT(*) as qtd
+        FROM atendimentos
+        WHERE atendente_id = %s AND criado_em >= CURRENT_DATE - INTERVAL '6 days'
+        GROUP BY DATE(criado_em)
+        ORDER BY dia
+    """, (usuario_id,))
+    atividade_raw = {str(r["dia"]): r["qtd"] for r in cur.fetchall()}
+
+    # Monta os últimos 7 dias (mesmo os zerados)
+    from datetime import date, timedelta
+    atividade = []
+    hoje = date.today()
+    for i in range(6, -1, -1):
+        d = hoje - timedelta(days=i)
+        atividade.append({
+            "dia": d.strftime("%d/%m"),
+            "curto": ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"][d.weekday()],
+            "qtd": atividade_raw.get(str(d), 0)
+        })
+    max_atividade = max([a["qtd"] for a in atividade] + [1])
+
+    # Top nichos (por quantidade de atendimentos)
+    cur.execute("""
+        SELECT n.nome, COUNT(a.id) as qtd
+        FROM nichos n
+        LEFT JOIN atendimentos a ON a.nicho_id = n.id
+        WHERE n.vendedor_id = %s
+        GROUP BY n.id, n.nome
+        ORDER BY qtd DESC
+        LIMIT 5
+    """, (vid,))
+    top_nichos = [dict(r) for r in cur.fetchall()]
+
+    # Top clientes (mais atendidos)
+    cur.execute("""
+        SELECT c.nome, c.whatsapp, c.status, COUNT(a.id) as qtd
+        FROM clientes c
+        LEFT JOIN atendimentos a ON a.cliente_id = c.id
+        WHERE c.vendedor_id = %s
+        GROUP BY c.id, c.nome, c.whatsapp, c.status
+        ORDER BY qtd DESC
+        LIMIT 5
+    """, (vid,))
+    top_clientes = [dict(r) for r in cur.fetchall()]
+
+    cur.close()
+    close_conn(conn)
+
+    # Taxas
+    taxa_conversao = round((ganhos / total_clientes * 100), 1) if total_clientes > 0 else 0
+    media_atend_cliente = round(total_atend / total_clientes, 1) if total_clientes > 0 else 0
+
+    return templates.TemplateResponse(request=request, name="relatorios.html", context={
+        "usuario_nome": usuario_nome,
+        "usuario_tipo": usuario_tipo,
+        "total_clientes": total_clientes,
+        "novos": novos,
+        "em_neg": em_neg,
+        "ganhos": ganhos,
+        "perdidos": perdidos,
+        "total_atend": total_atend,
+        "taxa_conversao": taxa_conversao,
+        "media_atend_cliente": media_atend_cliente,
+        "atividade": atividade,
+        "max_atividade": max_atividade,
+        "top_nichos": top_nichos,
+        "top_clientes": top_clientes,
+    })
