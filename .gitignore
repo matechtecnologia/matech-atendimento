@@ -1,6 +1,12 @@
 .env
+*.db
 dados.db
 __pycache__/
 *.pyc
-backup_matech/
-erro.log
+testar_*.py
+criar_*.py
+checar_*.py
+reescrever_*.py
+consertar_*.py
+adicionar_*.py
+aplicar_*.py

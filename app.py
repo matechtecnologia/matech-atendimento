@@ -1028,58 +1028,49 @@ def tela_relatorios(request: Request, usuario_id: str = Cookie(None), usuario_no
     conn = get_conn()
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    # Total clientes por status
+    # Clientes por status
     cur.execute("SELECT status, COUNT(*) as qtd FROM clientes WHERE vendedor_id = %s GROUP BY status", (vid,))
-    por_status_raw = cur.fetchall()
     por_status = {}
-    for r in por_status_raw:
+    for r in cur.fetchall():
         s = (r["status"] or "novo lead").lower()
         por_status[s] = r["qtd"]
 
-    total_clientes = sum(por_status.values())
+    total = sum(por_status.values())
+    novos = por_status.get("novo lead", 0) + por_status.get("lead", 0)
+    em_neg = por_status.get("negociação", 0) + por_status.get("negociacao", 0) + por_status.get("negociando", 0)
+    em_atend = por_status.get("em atendimento", 0)
     ganhos = por_status.get("cliente", 0)
     perdidos = por_status.get("perdido", 0)
-    em_neg = por_status.get("negociação", 0) + por_status.get("negociacao", 0) + por_status.get("negociando", 0) + por_status.get("em atendimento", 0)
-    novos = por_status.get("novo lead", 0) + por_status.get("lead", 0)
 
-    # Total atendimentos
-    cur.execute("SELECT COUNT(*) as t FROM atendimentos WHERE atendente_id = %s", (usuario_id,))
-    total_atend = cur.fetchone()["t"]
+    # Clientes por origem (top 5)
+    cur.execute("""
+        SELECT COALESCE(NULLIF(TRIM(origem), ''), 'Não informada') as origem, COUNT(*) as qtd
+        FROM clientes WHERE vendedor_id = %s
+        GROUP BY origem ORDER BY qtd DESC LIMIT 5
+    """, (vid,))
+    top_origens = [dict(r) for r in cur.fetchall()]
 
-    # Atendimentos últimos 7 dias
+    # Atividade últimos 7 dias (atendimentos por dia)
     cur.execute("""
         SELECT DATE(criado_em) as dia, COUNT(*) as qtd
         FROM atendimentos
         WHERE atendente_id = %s AND criado_em >= CURRENT_DATE - INTERVAL '6 days'
-        GROUP BY DATE(criado_em)
-        ORDER BY dia
+        GROUP BY DATE(criado_em) ORDER BY dia
     """, (usuario_id,))
     atividade_raw = {str(r["dia"]): r["qtd"] for r in cur.fetchall()}
 
-    # Monta os últimos 7 dias (mesmo os zerados)
     from datetime import date, timedelta
     atividade = []
     hoje = date.today()
     for i in range(6, -1, -1):
         d = hoje - timedelta(days=i)
         atividade.append({
-            "dia": d.strftime("%d/%m"),
             "curto": ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"][d.weekday()],
+            "data": d.strftime("%d/%m"),
             "qtd": atividade_raw.get(str(d), 0)
         })
     max_atividade = max([a["qtd"] for a in atividade] + [1])
-
-    # Top nichos (por quantidade de atendimentos)
-    cur.execute("""
-        SELECT n.nome, COUNT(a.id) as qtd
-        FROM nichos n
-        LEFT JOIN atendimentos a ON a.nicho_id = n.id
-        WHERE n.vendedor_id = %s
-        GROUP BY n.id, n.nome
-        ORDER BY qtd DESC
-        LIMIT 5
-    """, (vid,))
-    top_nichos = [dict(r) for r in cur.fetchall()]
+    total_atividade = sum(a["qtd"] for a in atividade)
 
     # Top clientes (mais atendidos)
     cur.execute("""
@@ -1088,24 +1079,45 @@ def tela_relatorios(request: Request, usuario_id: str = Cookie(None), usuario_no
         LEFT JOIN atendimentos a ON a.cliente_id = c.id
         WHERE c.vendedor_id = %s
         GROUP BY c.id, c.nome, c.whatsapp, c.status
-        ORDER BY qtd DESC
-        LIMIT 5
+        ORDER BY qtd DESC LIMIT 5
     """, (vid,))
-    top_clientes = [dict(r) for r in cur.fetchall()]
+    top_clientes = [dict(r) for r in cur.fetchall() if r["qtd"] > 0]
+
+    # Top nichos
+    cur.execute("""
+        SELECT n.nome, COUNT(a.id) as qtd
+        FROM nichos n
+        LEFT JOIN atendimentos a ON a.nicho_id = n.id
+        WHERE n.vendedor_id = %s
+        GROUP BY n.id, n.nome ORDER BY qtd DESC LIMIT 5
+    """, (vid,))
+    top_nichos = [dict(r) for r in cur.fetchall() if r["qtd"] > 0]
+
+    # Atendimentos totais (só pra contexto)
+    cur.execute("SELECT COUNT(*) as t FROM atendimentos WHERE atendente_id = %s", (usuario_id,))
+    total_atend = cur.fetchone()["t"]
 
     cur.close()
     close_conn(conn)
 
-    # Taxas
-    taxa_conversao = round((ganhos / total_clientes * 100), 1) if total_clientes > 0 else 0
-    media_atend_cliente = round(total_atend / total_clientes, 1) if total_clientes > 0 else 0
+    # Métricas calculadas
+    clientes_ativos = novos + em_neg + em_atend
+    taxa_conversao = round((ganhos / total * 100), 1) if total > 0 else 0
+    media_atend_cliente = round(total_atend / total, 1) if total > 0 else 0
+
+    # Percentuais do funil
+    pct_novos = round((novos / total * 100), 0) if total > 0 else 0
+    pct_neg = round(((em_neg + em_atend) / total * 100), 0) if total > 0 else 0
+    pct_ganhos = round((ganhos / total * 100), 0) if total > 0 else 0
+    pct_perdidos = round((perdidos / total * 100), 0) if total > 0 else 0
 
     return templates.TemplateResponse(request=request, name="relatorios.html", context={
         "usuario_nome": usuario_nome,
         "usuario_tipo": usuario_tipo,
-        "total_clientes": total_clientes,
+        "total": total,
         "novos": novos,
         "em_neg": em_neg,
+        "em_atend": em_atend,
         "ganhos": ganhos,
         "perdidos": perdidos,
         "total_atend": total_atend,
@@ -1113,10 +1125,15 @@ def tela_relatorios(request: Request, usuario_id: str = Cookie(None), usuario_no
         "media_atend_cliente": media_atend_cliente,
         "atividade": atividade,
         "max_atividade": max_atividade,
-        "top_nichos": top_nichos,
+        "total_atividade": total_atividade,
+        "top_origens": top_origens,
         "top_clientes": top_clientes,
+        "top_nichos": top_nichos,
+        "pct_novos": pct_novos,
+        "pct_neg": pct_neg,
+        "pct_ganhos": pct_ganhos,
+        "pct_perdidos": pct_perdidos,
     })
-
 
 
 # ============ ADMIN — EDITAR NICHOS E CLIENTES DO VENDEDOR ============
