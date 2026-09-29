@@ -460,7 +460,7 @@ def salvar_onboarding(nome_nicho: str = Form(...), produto: str = Form(...), pub
     conn.commit()
     cur.close()
     close_conn(conn)
-    return RedirectResponse(url="/clientes", status_code=303)
+    return RedirectResponse(url="/bem-vindo", status_code=303)
 
 
 @app.get("/clientes", response_class=HTMLResponse)
@@ -1686,5 +1686,26 @@ def _total_followups_para_template(usuario_id):
     except Exception as e:
         print(f"Erro contador followups: {e}")
         return 0
+
+
+
+
+
+# ============ BEM-VINDO ============
+
+@app.get("/bem-vindo", response_class=HTMLResponse)
+def tela_bemvindo(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+    ns = listar_nichos(v["id"])
+    return templates.TemplateResponse(request=request, name="bem_vindo.html", context={
+        "usuario_nome": usuario_nome,
+        "usuario_tipo": usuario_tipo,
+        "total_followups": _total_followups_para_template(usuario_id),
+        "primeiro_nicho": dict(ns[0]) if ns else None
+    })
 
 

@@ -664,3 +664,470 @@ select.input-erro {
 .pagina-entrada {
     animation: fade-in-up 0.4s ease both;
 }
+
+
+/* ===== AJUDA CONTEXTUAL ===== */
+.ajuda-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00d97e, #00b368);
+    color: #0a0a0a;
+    border: none;
+    font-size: 24px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 8px 30px rgba(0,217,126,0.4);
+    transition: all 0.2s ease;
+    z-index: 9998;
+    font-family: inherit;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ajuda-btn:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 12px 40px rgba(0,217,126,0.6);
+}
+
+#ajuda-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+#ajuda-overlay.aberta {
+    opacity: 1;
+}
+
+.ajuda-modal {
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-top: 3px solid #00d97e;
+    border-radius: 14px;
+    padding: 32px;
+    max-width: 560px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    transform: scale(0.95);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#ajuda-overlay.aberta .ajuda-modal {
+    transform: scale(1);
+}
+
+.ajuda-fechar {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: #1a1a1a;
+    color: #8a8a8a;
+    border: 1px solid #2a2a2a;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: inherit;
+    padding: 0;
+    margin: 0;
+    transition: all 0.2s ease;
+}
+
+.ajuda-fechar:hover {
+    background: #2a2a2a;
+    color: #ff3b3b;
+    border-color: #ff3b3b;
+}
+
+.ajuda-modal h2 {
+    font-size: 22px;
+    color: #fff;
+    margin: 0 0 10px 0;
+    letter-spacing: -0.02em;
+}
+
+.ajuda-desc {
+    color: #8a8a8a;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #222222;
+}
+
+.ajuda-dicas-titulo {
+    color: #00d97e;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.ajuda-dicas ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ajuda-dicas li {
+    padding: 10px 0 10px 26px;
+    color: #e8e8e8;
+    font-size: 14px;
+    line-height: 1.6;
+    position: relative;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.ajuda-dicas li:last-child {
+    border-bottom: none;
+}
+
+.ajuda-dicas li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #00d97e;
+    font-weight: 800;
+}
+
+.ajuda-dicas li b {
+    color: #00d97e;
+}
+
+@media (max-width: 600px) {
+    .ajuda-btn {
+        bottom: 16px;
+        right: 16px;
+        width: 48px;
+        height: 48px;
+        font-size: 22px;
+    }
+    .ajuda-modal {
+        padding: 24px 20px;
+    }
+    .ajuda-modal h2 {
+        font-size: 18px;
+    }
+}
+
+
+/* ===== AJUDA NO CABEÇALHO ===== */
+.ajuda-header-btn {
+    color: #00d97e !important;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(0,217,126,0.3);
+    background: rgba(0,217,126,0.08);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.ajuda-header-btn:hover {
+    background: rgba(0,217,126,0.18);
+    border-color: #00d97e;
+    box-shadow: 0 0 12px rgba(0,217,126,0.3);
+    color: #00d97e !important;
+    text-shadow: none;
+}
+
+.ajuda-header-btn .ajuda-icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #00d97e;
+    color: #0a0a0a;
+    font-weight: 800;
+    font-size: 12px;
+    font-family: 'SF Mono', Consolas, monospace;
+    flex-shrink: 0;
+}
+
+/* ===== MODAL DE AJUDA ===== */
+#ajuda-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+#ajuda-overlay.aberta {
+    opacity: 1;
+}
+
+.ajuda-modal {
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-top: 3px solid #00d97e;
+    border-radius: 14px;
+    padding: 32px;
+    max-width: 560px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+    transform: scale(0.95) translateY(8px);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#ajuda-overlay.aberta .ajuda-modal {
+    transform: scale(1) translateY(0);
+}
+
+.ajuda-fechar {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: #1a1a1a;
+    color: #8a8a8a;
+    border: 1px solid #2a2a2a;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
+    padding: 0;
+    margin: 0;
+    transition: all 0.2s ease;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ajuda-fechar:hover {
+    background: #2a2a2a;
+    color: #ff3b3b;
+    border-color: #ff3b3b;
+}
+
+.ajuda-modal h2 {
+    font-size: 22px;
+    color: #fff;
+    margin: 0 0 10px 0;
+    letter-spacing: -0.02em;
+    padding-right: 40px;
+}
+
+.ajuda-desc {
+    color: #8a8a8a;
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #222222;
+}
+
+.ajuda-dicas-titulo {
+    color: #00d97e;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.ajuda-dicas ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ajuda-dicas li {
+    padding: 10px 0 10px 26px;
+    color: #e8e8e8;
+    font-size: 14px;
+    line-height: 1.6;
+    position: relative;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.ajuda-dicas li:last-child {
+    border-bottom: none;
+}
+
+.ajuda-dicas li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #00d97e;
+    font-weight: 800;
+}
+
+.ajuda-dicas li b {
+    color: #00d97e;
+}
+
+@media (max-width: 600px) {
+    .ajuda-header-btn {
+        font-size: 13px;
+        padding: 4px 8px;
+    }
+    .ajuda-header-btn .ajuda-icone {
+        width: 16px;
+        height: 16px;
+        font-size: 11px;
+    }
+    .ajuda-modal {
+        padding: 24px 20px;
+    }
+    .ajuda-modal h2 {
+        font-size: 18px;
+    }
+}
+
+notepad static\style.css
+
+
+/* ===== PAINEL DE AJUDA (abaixo do cabeçalho) ===== */
+#ajuda-painel {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, margin 0.3s ease, visibility 0s linear 0.35s;
+    margin: 0;
+    border: none;
+    border-radius: 12px;
+}
+
+#ajuda-painel.aberto {
+    visibility: visible;
+    margin: 0 0 32px 0;
+    border: 1px solid #222222;
+    border-left: 4px solid #00d97e;
+    background: linear-gradient(135deg, #0f1a15 0%, #141414 100%);
+    box-shadow: 0 12px 40px rgba(0,217,126,0.08);
+    transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease, margin 0.3s ease, visibility 0s;
+}
+
+.ajuda-painel-inner {
+    padding: 22px 24px;
+}
+
+.ajuda-painel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.ajuda-painel-head h3 {
+    margin: 0;
+    font-size: 17px;
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+.ajuda-painel-fechar {
+    background: #1a1a1a;
+    color: #8a8a8a;
+    border: 1px solid #2a2a2a;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: inherit;
+    padding: 0;
+    margin: 0;
+    transition: all 0.2s ease;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.ajuda-painel-fechar:hover {
+    background: #2a2a2a;
+    color: #ff3b3b;
+    border-color: #ff3b3b;
+}
+
+.ajuda-painel-desc {
+    color: #8a8a8a;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 16px 0;
+    padding-bottom: 14px;
+    border-bottom: 1px solid #222222;
+}
+
+.ajuda-painel-dicas {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ajuda-painel-dica {
+    padding: 8px 8px 8px 26px;
+    color: #e8e8e8;
+    font-size: 13.5px;
+    line-height: 1.6;
+    position: relative;
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+}
+
+.ajuda-painel-dica:before {
+    content: "✓";
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    color: #00d97e;
+    font-weight: 800;
+}
+
+.ajuda-painel-dica b {
+    color: #00d97e;
+}
+
+@media (max-width: 600px) {
+    .ajuda-painel-inner {
+        padding: 18px 16px;
+    }
+    .ajuda-painel-head h3 {
+        font-size: 15px;
+    }
+}

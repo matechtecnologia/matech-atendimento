@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo à M.A Tech</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .welcome-wrap {
+            max-width: 640px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 40px 0;
+        }
+        .check-anim {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d97e, #00b368);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 28px;
+            font-size: 52px;
+            color: #0a0a0a;
+            box-shadow: 0 0 60px rgba(0,217,126,0.5);
+            animation: pop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes pop {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.15); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .welcome-wrap h1 {
+            font-size: 36px;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+            animation: fade-up 0.5s ease 0.2s both;
+        }
+        .welcome-wrap h1 em {
+            font-style: normal;
+            color: #00d97e;
+            text-shadow: 0 0 30px rgba(0,217,126,0.4);
+        }
+        .welcome-wrap .sub {
+            color: #8a8a8a;
+            font-size: 16px;
+            margin-bottom: 40px;
+            animation: fade-up 0.5s ease 0.3s both;
+            line-height: 1.6;
+        }
+        .passos {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 32px;
+            text-align: left;
+            animation: fade-up 0.5s ease 0.4s both;
+        }
+        .passo {
+            background: #141414;
+            border: 1px solid #222222;
+            border-radius: 10px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border-left: 4px solid #00d97e;
+        }
+        .passo .num {
+            width: 32px;
+            height: 32px;
+            background: #00d97e;
+            color: #0a0a0a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-family: monospace;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .passo .texto {
+            flex: 1;
+        }
+        .passo .titulo {
+            color: #e8e8e8;
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        .passo .desc {
+            color: #8a8a8a;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .cta-principal {
+            display: inline-block;
+            background: #00d97e;
+            color: #0a0a0a;
+            padding: 18px 40px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 8px 30px rgba(0,217,126,0.35);
+            transition: all 0.2s ease;
+            animation: fade-up 0.5s ease 0.5s both;
+        }
+        .cta-principal:hover {
+            background: #00b368;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,217,126,0.5);
+        }
+        .dica-box {
+            background: #0f1a15;
+            border-left: 3px solid #a855f7;
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-top: 32px;
+            text-align: left;
+            color: #c084fc;
+            font-size: 13px;
+            line-height: 1.6;
+            animation: fade-up 0.5s ease 0.6s both;
+        }
+        .dica-box strong { color: #d8b4fe; }
+    </style>
+</head>
+<body>
+    <div class="container-atendimento">
+        <div class="welcome-wrap">
+            <div class="check-anim">✓</div>
+            <h1>Sua IA está <em>pronta</em>!</h1>
+            <p class="sub">
+                {% if primeiro_nicho %}
+                    O nicho <strong style="color:#e8e8e8;">"{{ primeiro_nicho.nome }}"</strong> foi criado com sucesso. A IA já sabe tudo sobre o seu negócio.
+                {% else %}
+                    Seu primeiro nicho foi criado. A IA já sabe tudo sobre o seu negócio.
+                {% endif %}
+            </p>
+
+            <div class="passos">
+                <div class="passo">
+                    <div class="num">1</div>
+                    <div class="texto">
+                        <div class="titulo">👥 Cadastre seu primeiro cliente</div>
+                        <div class="desc">Nome e WhatsApp. Leva menos de 30 segundos.</div>
+                    </div>
+                </div>
+                <div class="passo">
+                    <div class="num">2</div>
+                    <div class="texto">
+                        <div class="titulo">💬 Cole a mensagem dele</div>
+                        <div class="desc">Exatamente como chegou no seu WhatsApp.</div>
+                    </div>
+                </div>
+                <div class="passo">
+                    <div class="num">3</div>
+                    <div class="texto">
+                        <div class="titulo">🤖 Receba a resposta pronta</div>
+                        <div class="desc">O que falar, o que enviar e como está o lead.</div>
+                    </div>
+                </div>
+            </div>
+
+            <a href="/clientes" class="cta-principal">COMEÇAR AGORA →</a>
+
+            <div class="dica-box">
+                💡 <strong>Dica:</strong> a IA aprende com o histórico. Quanto mais você usar com o mesmo cliente, melhor ela fica.
+            </div>
+        </div>
+    </div>
+    <script src="/static/app.js"></script>
+    <script src="/static/help.js"></script>
+</body>
+</html>
