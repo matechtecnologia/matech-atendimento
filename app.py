@@ -140,6 +140,20 @@ def inicializar_banco():
     )""")
 
     cur.execute("CREATE INDEX IF NOT EXISTS idx_hist_whatsapp ON historico(whatsapp, vendedor_id)")
+    cur.execute("""CREATE TABLE IF NOT EXISTS followups (
+        id SERIAL PRIMARY KEY,
+        vendedor_id INTEGER NOT NULL,
+        cliente_id INTEGER NOT NULL,
+        tipo TEXT NOT NULL,
+        data_agendada DATE NOT NULL,
+        feito BOOLEAN DEFAULT FALSE,
+        feito_em TIMESTAMP WITH TIME ZONE,
+        observacao TEXT,
+        criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )""")
+
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_followups_vendedor ON followups(vendedor_id, data_agendada, feito)")
+
     cur.execute("CREATE INDEX IF NOT EXISTS idx_clientes_vendedor ON clientes(vendedor_id)")
 
     cur.execute("SELECT * FROM usuarios WHERE email = %s", ("matechtecnologia01@gmail.com",))
@@ -457,7 +471,7 @@ def tela_clientes(request: Request, usuario_id: str = Cookie(None), usuario_nome
     if not v:
         return RedirectResponse(url="/onboarding")
     cli = listar_clientes(v["id"])
-    return templates.TemplateResponse(request=request, name="clientes.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "clientes": [dict(c) for c in cli]})
+    return templates.TemplateResponse(request=request, name="clientes.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id), "clientes": [dict(c) for c in cli]})
 
 
 @app.post("/salvar_cliente_manual")
@@ -487,7 +501,7 @@ def atender_cliente(request: Request, cliente_id: int, usuario_id: str = Cookie(
     if not cli:
         return RedirectResponse(url="/clientes")
     ns = listar_nichos(v["id"])
-    return templates.TemplateResponse(request=request, name="atendimento_cliente.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "cliente": dict(cli), "nichos": [dict(n) for n in ns]})
+    return templates.TemplateResponse(request=request, name="atendimento_cliente.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id), "cliente": dict(cli), "nichos": [dict(n) for n in ns]})
 
 
 @app.get("/cliente/{cliente_id}", response_class=HTMLResponse)
@@ -509,7 +523,7 @@ def tela_cliente_detalhe(request: Request, cliente_id: int, usuario_id: str = Co
     close_conn(conn)
     if not cli:
         return RedirectResponse(url="/clientes")
-    return templates.TemplateResponse(request=request, name="cliente_detalhe.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "cliente": dict(cli), "historico": hist})
+    return templates.TemplateResponse(request=request, name="cliente_detalhe.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id), "cliente": dict(cli), "historico": hist})
 
 
 @app.post("/gerar_resposta")
@@ -556,7 +570,7 @@ def tela_resultado(request: Request, atendimento_id: int, usuario_id: str = Cook
     close_conn(conn)
     if not a:
         return RedirectResponse(url="/clientes")
-    return templates.TemplateResponse(request=request, name="resultado.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "atendimento": dict(a)})
+    return templates.TemplateResponse(request=request, name="resultado.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id), "atendimento": dict(a)})
 
 
 @app.post("/salvar_atendimento_como_cliente/{atendimento_id}")
@@ -599,7 +613,7 @@ def tela_meus_nichos(request: Request, usuario_id: str = Cookie(None), usuario_n
     if not v:
         return RedirectResponse(url="/onboarding")
     ns = listar_nichos(v["id"])
-    return templates.TemplateResponse(request=request, name="meus_nichos.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "nichos": [dict(n) for n in ns], "total": len(ns), "limite": LIMITES.get(v["plano"], 1), "plano": v["plano"], "erro": erro})
+    return templates.TemplateResponse(request=request, name="meus_nichos.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id), "nichos": [dict(n) for n in ns], "total": len(ns), "limite": LIMITES.get(v["plano"], 1), "plano": v["plano"], "erro": erro})
 
 
 @app.get("/novo_nicho", response_class=HTMLResponse)
@@ -643,7 +657,7 @@ def tela_planos(request: Request, usuario_id: str = Cookie(None), usuario_nome: 
     verificar_expiracao(v["id"])
     v = buscar_vendedor(usuario_id)
     d = dias_restantes(v["id"])
-    return templates.TemplateResponse(request=request, name="planos.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "plano_atual": v["plano"], "dias_restantes": d})
+    return templates.TemplateResponse(request=request, name="planos.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id), "plano_atual": v["plano"], "dias_restantes": d})
 
 
 @app.post("/assinar")
@@ -894,7 +908,7 @@ def admin_detalhe_vendedor(request: Request, vendedor_id: int, usuario_id: str =
     cur.close()
     close_conn(conn)
     return templates.TemplateResponse(request=request, name="admin_vendedor.html", context={
-        "usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo,
+        "usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id),
         "v": dict(v), "clientes": clientes, "nichos": nichos, "total_atend": total_atend,
         "erro": erro, "ok": ok
     })
@@ -982,7 +996,7 @@ def admin_excluir_vendedor(vendedor_id: int, usuario_id: str = Cookie(None), usu
 def admin_criar_form(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None), erro: str = None):
     if not usuario_id or usuario_tipo != "admin":
         return RedirectResponse(url="/login")
-    return templates.TemplateResponse(request=request, name="admin_criar.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "erro": erro})
+    return templates.TemplateResponse(request=request, name="admin_criar.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id), "erro": erro})
 
 
 @app.post("/admin/criar")
@@ -1113,7 +1127,7 @@ def tela_relatorios(request: Request, usuario_id: str = Cookie(None), usuario_no
 
     return templates.TemplateResponse(request=request, name="relatorios.html", context={
         "usuario_nome": usuario_nome,
-        "usuario_tipo": usuario_tipo,
+        "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id),
         "total": total,
         "novos": novos,
         "em_neg": em_neg,
@@ -1276,7 +1290,7 @@ def admin_ver_historico(request: Request, vendedor_id: int, cliente_id: int, usu
     cur.close()
     close_conn(conn)
     return templates.TemplateResponse(request=request, name="admin_historico.html", context={
-        "usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo,
+        "usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id),
         "v": dict(v), "cliente": dict(cli), "historico": hist, "atendimentos": atends
     })
 
@@ -1461,3 +1475,216 @@ def admin_editar_whatsapp_vendedor(vendedor_id: int, whatsapp: str = Form(...), 
     cur.close()
     close_conn(conn)
     return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?ok=1", status_code=303)
+
+
+
+
+
+
+# ============ FOLLOW-UPS AUTOMÁTICOS ============
+
+def calcular_followups_auto(vendedor_id):
+    """
+    Analisa todos os clientes do vendedor e calcula quem precisa de atenção.
+    Retorna dict com listas: urgente, atencao, agenda.
+    """
+    from datetime import date, timedelta, datetime as dt
+
+    # Regras: quanto tempo sem contato antes de sugerir follow-up (em dias)
+    REGRAS = {
+        "novo lead": 1,
+        "lead": 1,
+        "em atendimento": 2,
+        "negociando": 2,
+        "negociação": 1,
+        "negociacao": 1,
+        "cliente": 15,
+        "perdido": None,  # nunca
+    }
+
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("""
+        SELECT c.id, c.nome, c.whatsapp, c.status, c.origem,
+               c.criado_em, c.atualizado_em,
+               MAX(h.criado_em) as ultima_msg,
+               COUNT(h.id) as total_msgs
+        FROM clientes c
+        LEFT JOIN historico h ON h.whatsapp = c.whatsapp AND h.vendedor_id = c.vendedor_id
+        WHERE c.vendedor_id = %s
+        GROUP BY c.id, c.nome, c.whatsapp, c.status, c.origem, c.criado_em, c.atualizado_em
+    """, (vendedor_id,))
+    clientes = [dict(r) for r in cur.fetchall()]
+    cur.close()
+    close_conn(conn)
+
+    hoje = date.today()
+    urgente = []
+    atencao = []
+    agenda = []
+
+    for c in clientes:
+        s = (c["status"] or "novo lead").lower().strip()
+        dias = REGRAS.get(s)
+        if dias is None:
+            continue  # perdido - nao mostra
+
+        # Referencia: ultima mensagem; se nunca teve, usa criado_em
+        ref = c["ultima_msg"]
+        if ref is None:
+            ref = c["criado_em"]
+        if ref is None:
+            continue
+
+        # Se for datetime, converte pra date
+        if isinstance(ref, dt):
+            ref_data = ref.date()
+        else:
+            ref_data = ref
+
+        proxima = ref_data + timedelta(days=dias)
+        dias_diff = (proxima - hoje).days
+
+        item = {
+            "id": c["id"],
+            "nome": c["nome"],
+            "whatsapp": c["whatsapp"],
+            "status": s,
+            "origem": c["origem"],
+            "total_msgs": c["total_msgs"],
+            "ultima_msg": ref_data,
+            "proxima": proxima,
+            "dias_diff": dias_diff,
+            "dias_sem_contato": (hoje - ref_data).days,
+        }
+
+        if dias_diff < 0:
+            # Atrasado
+            item["urgencia"] = "urgente"
+            urgente.append(item)
+        elif dias_diff == 0:
+            item["urgencia"] = "hoje"
+            urgente.append(item)
+        elif dias_diff <= 2:
+            item["urgencia"] = "atencao"
+            atencao.append(item)
+        else:
+            item["urgencia"] = "agenda"
+            agenda.append(item)
+
+    # Ordena por mais tempo sem contato
+    urgente.sort(key=lambda x: x["dias_sem_contato"], reverse=True)
+    atencao.sort(key=lambda x: x["dias_sem_contato"], reverse=True)
+    agenda.sort(key=lambda x: x["dias_diff"])
+
+    return {
+        "urgente": urgente,
+        "atencao": atencao,
+        "agenda": agenda[:20],
+        "total": len(urgente) + len(atencao) + len(agenda),
+        "total_urgente": len(urgente),
+    }
+
+
+def texto_sugestao(f):
+    """Gera uma sugestão curta de ação baseada no estado."""
+    s = f["status"]
+    d = f["dias_sem_contato"]
+    if s in ["negociação", "negociacao", "negociando"]:
+        if d >= 2:
+            return f"Cliente em negociação há {d} dias sem contato. Cobrar proposta!"
+        return "Cliente em negociação. Vale confirmar interesse hoje."
+    if s in ["novo lead", "lead"]:
+        if d >= 2:
+            return f"Lead novo há {d} dias sem resposta. Reengajar agora."
+        return "Lead novo. Fazer primeiro contato hoje."
+    if s in ["em atendimento"]:
+        if d >= 3:
+            return f"Em atendimento há {d} dias parado. Retomar conversa."
+        return "Acompanhar atendimento. Ver se tem novidade."
+    if s == "cliente":
+        if d >= 20:
+            return f"Cliente há {d} dias sem contato. Pós-venda pra fortalecer relação."
+        return "Cliente ativo. Vale um follow-up de relacionamento."
+    return "Entrar em contato."
+
+
+@app.get("/followups", response_class=HTMLResponse)
+def tela_followups(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+
+    dados = calcular_followups_auto(v["id"])
+
+    # Adiciona sugestão de texto em cada item
+    for lista in [dados["urgente"], dados["atencao"], dados["agenda"]]:
+        for f in lista:
+            f["sugestao"] = texto_sugestao(f)
+
+    return templates.TemplateResponse(request=request, name="followups.html", context={
+        "usuario_nome": usuario_nome,
+        "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id),
+        "urgente": dados["urgente"],
+        "atencao": dados["atencao"],
+        "agenda": dados["agenda"],
+        "total": dados["total"],
+        "total_urgente": dados["total_urgente"],
+    })
+
+
+
+
+
+# ============ CONTADOR DE FOLLOWUPS (para o menu) ============
+
+def _total_followups_para_template(usuario_id):
+    """Conta quantos follow-ups pendentes o vendedor tem (pra badge no menu)."""
+    if not usuario_id:
+        return 0
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM vendedores WHERE usuario_id = %s", (usuario_id,))
+        row = cur.fetchone()
+        if not row:
+            cur.close()
+            close_conn(conn)
+            return 0
+        vid = row[0]
+        cur.execute("""
+            SELECT COUNT(*) FROM clientes c
+            WHERE c.vendedor_id = %s
+            AND LOWER(COALESCE(c.status, 'novo lead')) NOT IN ('perdido')
+        """, (vid,))
+        # Conta rapido: usa a mesma logica simplificada (clientes que precisam atencao)
+        # Aqui so retorna clientes ativos - o calculo real fica na tela /followups
+        cur.execute("""
+            SELECT COUNT(*) FROM clientes c
+            WHERE c.vendedor_id = %s
+            AND LOWER(COALESCE(c.status, 'novo lead')) NOT IN ('perdido')
+            AND (
+                (LOWER(COALESCE(c.status, '')) IN ('novo lead','lead') AND
+                 COALESCE((SELECT MAX(h.criado_em) FROM historico h WHERE h.whatsapp=c.whatsapp AND h.vendedor_id=c.vendedor_id), c.criado_em) < NOW() - INTERVAL '1 day')
+                OR
+                (LOWER(COALESCE(c.status, '')) IN ('em atendimento','negociando') AND
+                 COALESCE((SELECT MAX(h.criado_em) FROM historico h WHERE h.whatsapp=c.whatsapp AND h.vendedor_id=c.vendedor_id), c.criado_em) < NOW() - INTERVAL '2 days')
+                OR
+                (LOWER(COALESCE(c.status, '')) IN ('negociação','negociacao') AND
+                 COALESCE((SELECT MAX(h.criado_em) FROM historico h WHERE h.whatsapp=c.whatsapp AND h.vendedor_id=c.vendedor_id), c.criado_em) < NOW() - INTERVAL '1 day')
+                OR
+                (LOWER(COALESCE(c.status, '')) = 'cliente' AND
+                 COALESCE((SELECT MAX(h.criado_em) FROM historico h WHERE h.whatsapp=c.whatsapp AND h.vendedor_id=c.vendedor_id), c.criado_em) < NOW() - INTERVAL '15 days')
+            )
+        """, (vid,))
+        total = cur.fetchone()[0]
+        cur.close()
+        close_conn(conn)
+        return total
+    except Exception as e:
+        print(f"Erro contador followups: {e}")
+        return 0
+
+

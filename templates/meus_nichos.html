@@ -13,6 +13,7 @@
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
                 <a href="/clientes">Clientes</a>
+                <a href="/followups" style="position:relative;">🎯 Follow-ups{% if total_followups and total_followups > 0 %}<span style="position:absolute; top:-6px; right:-10px; background:#ff3b3b; color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:100px; font-family:monospace; line-height:1; box-shadow:0 0 0 2px #0a0a0a; min-width:16px; text-align:center;">{{ total_followups }}</span>{% endif %}</a>
                 <a href="/planos">Planos</a>
                 {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
                 <a href="/logout">Sair</a>

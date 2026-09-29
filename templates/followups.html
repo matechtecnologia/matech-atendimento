@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M.A Tech - Follow-ups</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .secao { margin-bottom: 28px; }
+        .secao-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .secao-head h3 {
+            font-size: 14px;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .contador {
+            background: #1a1a1a;
+            color: #8a8a8a;
+            padding: 3px 10px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-family: monospace;
+            font-weight: 700;
+        }
+        .follow-card {
+            background: #141414;
+            border: 1px solid #222222;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+            transition: border-color 0.2s ease, transform 0.15s ease;
+        }
+        .follow-card:hover { transform: translateY(-1px); border-color: #2a2a2a; }
+        .follow-card.urgente { border-left-color: #ff3b3b; }
+        .follow-card.atencao { border-left-color: #f59e0b; }
+        .follow-card.agenda { border-left-color: #00d97e; }
+
+        .follow-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .follow-head h4 {
+            font-size: 16px;
+            color: #e8e8e8;
+            margin: 0;
+            font-weight: 700;
+        }
+        .follow-head .badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .tipo-badge {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-family: monospace;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .tipo-badge.status-novo-lead { background: rgba(138,138,138,0.15); color: #a8a8a8; }
+        .tipo-badge.status-em-atendimento { background: rgba(0,217,126,0.12); color: #00d97e; }
+        .tipo-badge.status-negociacao { background: rgba(245,158,11,0.15); color: #f59e0b; }
+        .tipo-badge.status-cliente { background: rgba(34,197,94,0.15); color: #22c55e; }
+        .tipo-badge.dias { background: rgba(255,59,59,0.15); color: #ff3b3b; }
+        .tipo-badge.dias.ok { background: rgba(138,138,138,0.15); color: #8a8a8a; }
+
+        .follow-meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            color: #8a8a8a;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        .follow-meta .wpp {
+            color: #e8e8e8;
+            font-family: monospace;
+        }
+        .follow-sugestao {
+            background: #0f0f0f;
+            border-left: 3px solid #a855f7;
+            border-radius: 6px;
+            padding: 10px 14px;
+            font-size: 13px;
+            color: #c084fc;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+        .follow-sugestao .icone { font-size: 14px; }
+
+        .follow-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .btn-mini {
+            padding: 9px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            border: 1px solid;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .btn-mini.atender {
+            background: #00d97e;
+            color: #0a0a0a;
+            border-color: #00d97e;
+        }
+        .btn-mini.atender:hover {
+            background: #00b368;
+            transform: translateY(-1px);
+        }
+        .btn-mini.ver {
+            background: rgba(168,85,247,0.15);
+            color: #c084fc;
+            border-color: rgba(168,85,247,0.35);
+        }
+        .btn-mini.ver:hover {
+            background: rgba(168,85,247,0.25);
+            border-color: #a855f7;
+        }
+        .mini-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .mini-stat {
+            background: #141414;
+            border: 1px solid #222222;
+            border-radius: 10px;
+            padding: 16px 18px;
+            border-left: 3px solid;
+        }
+        .mini-stat .label {
+            font-size: 11px; color: #8a8a8a; text-transform: uppercase;
+            letter-spacing: 0.08em; font-weight: 700; margin-bottom: 6px;
+        }
+        .mini-stat .valor {
+            font-size: 26px; font-weight: 800; font-family: monospace;
+            letter-spacing: -0.03em; line-height: 1;
+        }
+        .mini-stat .sub { font-size: 12px; color: #5a5a5a; margin-top: 4px; }
+
+        @media (max-width: 700px) {
+            .mini-stats { grid-template-columns: 1fr; }
+            .follow-actions .btn-mini { flex: 1; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-atendimento">
+        <div class="topo">
+            <h1>M.A Tech</h1>
+            <div class="usuario-info">
+                <span>{{ usuario_nome }}</span>
+                <a href="/clientes">Clientes</a>
+                <a href="/relatorios">Relatórios</a>
+                <a href="/meus_nichos">Nichos</a>
+                {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
+                <a href="/logout">Sair</a>
+            </div>
+        </div>
+
+        <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
+            <div class="bloco-topo">
+                <h2>🎯 QUEM FALAR HOJE</h2>
+                <span class="badge-status status-em-atendimento">{{ total }} pra acompanhar</span>
+            </div>
+            <p style="color:#8a8a8a; font-size:14px; margin-top:10px; line-height:1.5;">
+                A IA analisa <strong style="color:#e8e8e8;">todos os seus clientes</strong> e mostra quem precisa de atenção agora — baseado no tempo sem contato e no estágio do funil.
+            </p>
+        </div>
+
+        {% if total == 0 %}
+        <div class="empty-state">
+            <span class="emoji">✅</span>
+            <h3>Tudo em dia!</h3>
+            <p>Nenhum cliente precisa de follow-up agora. A IA vai avisar quando for a hora.</p>
+            <a href="/clientes" class="btn-gerar" style="display:inline-block; width:auto; padding:14px 28px; text-decoration:none; margin-top:16px;">IR PARA CLIENTES →</a>
+        </div>
+        {% else %}
+
+        <div class="mini-stats">
+            <div class="mini-stat" style="border-left-color: #ff3b3b;">
+                <div class="label">🔴 Urgente</div>
+                <div class="valor" style="color:#ff3b3b;">{{ urgente|length }}</div>
+                <div class="sub">falar hoje ou já passou</div>
+            </div>
+            <div class="mini-stat" style="border-left-color: #f59e0b;">
+                <div class="label">🟠 Atenção</div>
+                <div class="valor" style="color:#f59e0b;">{{ atencao|length }}</div>
+                <div class="sub">próximos 2 dias</div>
+            </div>
+            <div class="mini-stat" style="border-left-color: #00d97e;">
+                <div class="label">🟢 Agenda</div>
+                <div class="valor" style="color:#00d97e;">{{ agenda|length }}</div>
+                <div class="sub">programados</div>
+            </div>
+        </div>
+
+        {% if urgente %}
+        <div class="secao">
+            <div class="secao-head">
+                <h3 style="color:#ff3b3b;">🔴 URGENTE — FALAR HOJE</h3>
+                <span class="contador">{{ urgente|length }}</span>
+            </div>
+            {% for f in urgente %}
+            <div class="follow-card urgente">
+                <div class="follow-head">
+                    <h4>👤 {{ f.nome or "Sem nome" }}</h4>
+                    <div class="badges">
+                        <span class="tipo-badge status-{% if f.status == 'negociação' %}negociacao{% elif f.status == 'em atendimento' %}em-atendimento{% elif f.status == 'cliente' %}cliente{% else %}novo-lead{% endif %}">{{ f.status|upper }}</span>
+                        <span class="tipo-badge dias">{{ f.dias_sem_contato }} dias sem contato</span>
+                    </div>
+                </div>
+                <div class="follow-meta">
+                    <span class="wpp">📱 {{ f.whatsapp }}</span>
+                    {% if f.total_msgs > 0 %}<span>💬 {{ f.total_msgs }} mensagem(ns)</span>{% endif %}
+                    {% if f.origem %}<span>🔗 {{ f.origem }}</span>{% endif %}
+                </div>
+                <div class="follow-sugestao">
+                    <span class="icone">🤖</span>
+                    <span>{{ f.sugestao }}</span>
+                </div>
+                <div class="follow-actions">
+                    <a href="/cliente/{{ f.id }}/atender" class="btn-mini atender">⚡ ATENDER AGORA</a>
+                    <a href="/cliente/{{ f.id }}" class="btn-mini ver">💬 VER HISTÓRICO</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if atencao %}
+        <div class="secao">
+            <div class="secao-head">
+                <h3 style="color:#f59e0b;">🟠 ATENÇÃO — PRÓXIMOS 2 DIAS</h3>
+                <span class="contador">{{ atencao|length }}</span>
+            </div>
+            {% for f in atencao %}
+            <div class="follow-card atencao">
+                <div class="follow-head">
+                    <h4>👤 {{ f.nome or "Sem nome" }}</h4>
+                    <div class="badges">
+                        <span class="tipo-badge status-{% if f.status == 'negociação' %}negociacao{% elif f.status == 'em atendimento' %}em-atendimento{% elif f.status == 'cliente' %}cliente{% else %}novo-lead{% endif %}">{{ f.status|upper }}</span>
+                        <span class="tipo-badge dias ok">{{ f.dias_sem_contato }} dias</span>
+                    </div>
+                </div>
+                <div class="follow-meta">
+                    <span class="wpp">📱 {{ f.whatsapp }}</span>
+                    {% if f.total_msgs > 0 %}<span>💬 {{ f.total_msgs }} mensagem(ns)</span>{% endif %}
+                </div>
+                <div class="follow-sugestao">
+                    <span class="icone">🤖</span>
+                    <span>{{ f.sugestao }}</span>
+                </div>
+                <div class="follow-actions">
+                    <a href="/cliente/{{ f.id }}/atender" class="btn-mini atender">⚡ ATENDER</a>
+                    <a href="/cliente/{{ f.id }}" class="btn-mini ver">💬 VER HISTÓRICO</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if agenda %}
+        <div class="secao">
+            <div class="secao-head">
+                <h3 style="color:#00d97e;">🟢 AGENDA</h3>
+                <span class="contador">{{ agenda|length }}</span>
+            </div>
+            {% for f in agenda %}
+            <div class="follow-card agenda">
+                <div class="follow-head">
+                    <h4>👤 {{ f.nome or "Sem nome" }}</h4>
+                    <div class="badges">
+                        <span class="tipo-badge status-{% if f.status == 'negociação' %}negociacao{% elif f.status == 'em atendimento' %}em-atendimento{% elif f.status == 'cliente' %}cliente{% else %}novo-lead{% endif %}">{{ f.status|upper }}</span>
+                        <span class="tipo-badge dias ok">em {{ f.dias_diff }} dia(s)</span>
+                    </div>
+                </div>
+                <div class="follow-meta">
+                    <span class="wpp">📱 {{ f.whatsapp }}</span>
+                    <span>📅 {{ f.proxima.strftime('%d/%m/%Y') }}</span>
+                </div>
+                <div class="follow-actions">
+                    <a href="/cliente/{{ f.id }}/atender" class="btn-mini atender">⚡ ADIANTAR</a>
+                    <a href="/cliente/{{ f.id }}" class="btn-mini ver">💬 VER HISTÓRICO</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% endif %}
+
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
