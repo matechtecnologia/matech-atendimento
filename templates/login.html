@@ -3,31 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M.A Tech - Login</title>
+    <title>M.A Tech - Entrar</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="container-login">
-        <h1>M.A Tech</h1>
-        <p class="subtitulo">Sistema de Atendimento</p>
+        <h1 style="text-align:center;">M.A Tech</h1>
+        <p class="subtitulo" style="text-align:center;">Entrar na sua conta</p>
 
         {% if erro %}
-        <div class="erro">{{ erro }}</div>
+        <div class="erro">⚠️ {{ erro }}</div>
+        {% endif %}
+
+        {% if request.query_params.get('criado') %}
+        <div style="background:#0a1f15; border:1px solid #00d97e; color:#00d97e; padding:12px; border-radius:6px; font-size:14px; margin-bottom:16px; border-left:3px solid #00d97e;">
+            ✓ Conta criada com sucesso! Faça login pra continuar.
+        </div>
         {% endif %}
 
         <form method="POST" action="/login">
             <label>Email</label>
-            <input type="email" name="email" required autofocus>
+            <input type="email" name="email" required autofocus placeholder="voce@email.com">
 
             <label>Senha</label>
-            <input type="password" name="senha" required>
+            <input type="password" name="senha" required placeholder="••••••">
 
-            <button type="submit">Entrar</button>
+            <button type="submit">ENTRAR →</button>
         </form>
 
-        <p style="color:#aaa; text-align:center; margin-top:20px; font-size:14px;">
-            Não tem conta? <a href="/signup" style="color:#4a9eff;">Criar grátis</a>
+        <p style="color:#8a8a8a; text-align:center; margin-top:24px; font-size:14px;">
+            Não tem conta? <a href="/signup" style="color:#00d97e; text-decoration:none; font-weight:600;">Criar grátis</a>
+        </p>
+
+        <p style="color:#5a5a5a; text-align:center; margin-top:20px; font-size:12px;">
+            <a href="/" style="color:#5a5a5a; text-decoration:none;">← Voltar pro site</a>
         </p>
     </div>
+    <script src="/static/app.js"></script>
 </body>
 </html>

@@ -25,6 +25,10 @@
             <label>Email</label>
             <input type="email" name="email" required placeholder="voce@email.com">
 
+            <label>WhatsApp (só números, com DDD)</label>
+            <input type="text" name="whatsapp" required placeholder="11987654321" inputmode="numeric" pattern="[0-9]+" style="font-family:monospace;">
+            <p style="color:#5a5a5a; font-size:12px; margin-top:6px;">Aceita com ou sem o 9 na frente. Ex: 1187654321 ou 11987654321</p>
+
             <label>Senha (mínimo 6 caracteres)</label>
             <input type="password" name="senha" required minlength="6" placeholder="••••••">
 

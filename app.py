@@ -268,7 +268,7 @@ def listar_todos_vendedores():
     conn = get_conn()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("""
-        SELECT u.id, u.nome, u.email, u.criado_em, v.plano, v.id as vendedor_id,
+                SELECT u.id, u.nome, u.email, u.whatsapp, u.criado_em, v.plano, v.id as vendedor_id,
         (SELECT COUNT(*) FROM nichos WHERE vendedor_id = v.id AND ativo=TRUE) as total_nichos,
         (SELECT COUNT(*) FROM clientes WHERE vendedor_id = v.id) as total_clientes
         FROM usuarios u LEFT JOIN vendedores v ON v.usuario_id = u.id
@@ -367,11 +367,22 @@ def tela_signup(request: Request, erro: str = None):
 
 
 @app.post("/signup")
-def fazer_signup(nome: str = Form(...), email: str = Form(...), senha: str = Form(...)):
-    ok, msg = criar_vendedor(nome, email, senha)
+def fazer_signup(request: Request, nome: str = Form(...), email: str = Form(...), senha: str = Form(...), whatsapp: str = Form(...)):
+    ip = obter_ip(request)
+
+    if contar_signups_ip(ip, 1) >= 3:
+        return RedirectResponse(url="/signup?erro=Muitas+contas+criadas+nesse+IP.+Tente+em+1+hora", status_code=303)
+
+    wpp_limpo, erro_wpp = validar_whatsapp(whatsapp)
+    if erro_wpp:
+        return RedirectResponse(url=f"/signup?erro={erro_wpp}", status_code=303)
+
+    registrar_tentativa_ip(ip)
+
+    ok, msg, uid = criar_vendedor_v2(nome, email, senha, wpp_limpo)
     if not ok:
         return RedirectResponse(url=f"/signup?erro={msg}", status_code=303)
-    return RedirectResponse(url="/login", status_code=303)
+    return RedirectResponse(url="/login?criado=1", status_code=303)
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -855,7 +866,7 @@ def buscar_vendedor_admin(vid):
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("""
         SELECT v.id as vendedor_id, v.plano, v.plano_expira_em, v.onboarding_completo, v.criado_em as v_criado_em,
-               u.id as usuario_id, u.nome, u.email, u.tipo, u.ativo, u.criado_em as u_criado_em
+               u.id as usuario_id, u.nome, u.email, u.whatsapp, u.tipo, u.ativo, u.criado_em as u_criado_em
         FROM vendedores v JOIN usuarios u ON u.id = v.usuario_id
         WHERE v.id = %s
     """, (vid,))
@@ -1105,3 +1116,331 @@ def tela_relatorios(request: Request, usuario_id: str = Cookie(None), usuario_no
         "top_nichos": top_nichos,
         "top_clientes": top_clientes,
     })
+
+
+
+# ============ ADMIN — EDITAR NICHOS E CLIENTES DO VENDEDOR ============
+
+@app.post("/admin/vendedor/{vendedor_id}/nicho/{nicho_id}/editar")
+def admin_editar_nicho(vendedor_id: int, nicho_id: int, nome: str = Form(...), produto: str = Form(""), publico: str = Form(""), preco: str = Form(""), dor: str = Form(""), objecao: str = Form(""), diferencial: str = Form(""), tom: str = Form(""), usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT vendedor_id FROM nichos WHERE id = %s", (nicho_id,))
+    row = cur.fetchone()
+    if not row or row[0] != vendedor_id:
+        cur.close()
+        close_conn(conn)
+        return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}")
+    pg = gerar_prompt_vendedor(produto, publico, preco, dor, objecao, diferencial, tom)
+    cur.execute("UPDATE nichos SET nome=%s, produto=%s, publico=%s, preco=%s, dor=%s, objecao=%s, diferencial=%s, tom=%s, prompt_gerado=%s WHERE id=%s",
+                (nome, produto, publico, preco, dor, objecao, diferencial, tom, pg, nicho_id))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?ok=1", status_code=303)
+
+
+@app.post("/admin/vendedor/{vendedor_id}/nicho/{nicho_id}/excluir")
+def admin_excluir_nicho(vendedor_id: int, nicho_id: int, usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM nichos WHERE id = %s AND vendedor_id = %s", (nicho_id, vendedor_id))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?ok=1", status_code=303)
+
+
+@app.post("/admin/vendedor/{vendedor_id}/cliente/{cliente_id}/editar")
+def admin_editar_cliente(vendedor_id: int, cliente_id: int, whatsapp: str = Form(...), nome: str = Form(...), email: str = Form(""), origem: str = Form(""), status: str = Form("novo lead"), observacoes: str = Form(""), usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT whatsapp FROM clientes WHERE id = %s AND vendedor_id = %s", (cliente_id, vendedor_id))
+    row = cur.fetchone()
+    if not row:
+        cur.close()
+        close_conn(conn)
+        return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}")
+    old_wpp = row[0]
+    cur.execute("SELECT id FROM clientes WHERE whatsapp = %s AND vendedor_id = %s AND id != %s", (whatsapp, vendedor_id, cliente_id))
+    if cur.fetchone():
+        cur.close()
+        close_conn(conn)
+        return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?erro=WhatsApp+ja+existe", status_code=303)
+    cur.execute("UPDATE clientes SET whatsapp=%s, nome=%s, email=%s, origem=%s, status=%s, observacoes=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s AND vendedor_id=%s",
+                (whatsapp, nome, email, origem, status, observacoes, cliente_id, vendedor_id))
+    if old_wpp != whatsapp:
+        cur.execute("UPDATE historico SET whatsapp=%s WHERE whatsapp=%s AND vendedor_id=%s", (whatsapp, old_wpp, vendedor_id))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?ok=1", status_code=303)
+
+
+@app.post("/admin/vendedor/{vendedor_id}/cliente/{cliente_id}/excluir")
+def admin_excluir_cliente(vendedor_id: int, cliente_id: int, usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT whatsapp FROM clientes WHERE id = %s AND vendedor_id = %s", (cliente_id, vendedor_id))
+    row = cur.fetchone()
+    if row:
+        wpp = row[0]
+        cur.execute("DELETE FROM clientes WHERE id = %s AND vendedor_id = %s", (cliente_id, vendedor_id))
+        cur.execute("DELETE FROM historico WHERE whatsapp = %s AND vendedor_id = %s", (wpp, vendedor_id))
+        cur.execute("DELETE FROM atendimentos WHERE cliente_id = %s", (cliente_id,))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?ok=1", status_code=303)
+
+
+@app.post("/admin/vendedor/{vendedor_id}/reset-onboarding")
+def admin_reset_onboarding(vendedor_id: int, usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("UPDATE vendedores SET onboarding_completo = FALSE WHERE id = %s", (vendedor_id,))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?ok=1", status_code=303)
+
+
+@app.post("/admin/vendedor/{vendedor_id}/reset-senha")
+def admin_reset_senha(vendedor_id: int, nova_senha: str = Form(...), usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    if len(nova_senha) < 6:
+        return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?erro=Senha+curta", status_code=303)
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT usuario_id FROM vendedores WHERE id = %s", (vendedor_id,))
+    row = cur.fetchone()
+    if row:
+        h = pwd_context.hash(nova_senha)
+        cur.execute("UPDATE usuarios SET senha=%s WHERE id=%s", (h, row[0]))
+        conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?ok=1", status_code=303)
+
+
+
+# ============ ADMIN — HISTÓRICO E ATENDIMENTOS ============
+
+@app.get("/admin/vendedor/{vendedor_id}/cliente/{cliente_id}/historico", response_class=HTMLResponse)
+def admin_ver_historico(request: Request, vendedor_id: int, cliente_id: int, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor_admin(vendedor_id)
+    if not v:
+        return RedirectResponse(url="/admin")
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM clientes WHERE id = %s AND vendedor_id = %s", (cliente_id, vendedor_id))
+    cli = cur.fetchone()
+    if not cli:
+        cur.close()
+        close_conn(conn)
+        return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}")
+    cur.execute("SELECT * FROM historico WHERE whatsapp = %s AND vendedor_id = %s ORDER BY id ASC", (cli["whatsapp"], vendedor_id))
+    hist = [dict(h) for h in cur.fetchall()]
+    cur.execute("SELECT * FROM atendimentos WHERE cliente_id = %s ORDER BY id DESC", (cliente_id,))
+    atends = [dict(a) for a in cur.fetchall()]
+    cur.close()
+    close_conn(conn)
+    return templates.TemplateResponse(request=request, name="admin_historico.html", context={
+        "usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo,
+        "v": dict(v), "cliente": dict(cli), "historico": hist, "atendimentos": atends
+    })
+
+
+@app.post("/admin/vendedor/{vendedor_id}/historico/{hist_id}/excluir")
+def admin_excluir_historico(vendedor_id: int, hist_id: int, usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM historico WHERE id = %s AND vendedor_id = %s", (hist_id, vendedor_id))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return {"status": "ok"}
+
+
+@app.post("/admin/vendedor/{vendedor_id}/historico/limpar/{cliente_id}")
+def admin_limpar_historico(vendedor_id: int, cliente_id: int, usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT whatsapp FROM clientes WHERE id = %s AND vendedor_id = %s", (cliente_id, vendedor_id))
+    row = cur.fetchone()
+    if row:
+        cur.execute("DELETE FROM historico WHERE whatsapp = %s AND vendedor_id = %s", (row[0], vendedor_id))
+        conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}/cliente/{cliente_id}/historico", status_code=303)
+
+
+@app.post("/admin/vendedor/{vendedor_id}/atendimento/{atend_id}/excluir")
+def admin_excluir_atendimento(vendedor_id: int, atend_id: int, usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM atendimentos WHERE id = %s", (atend_id,))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return {"status": "ok"}
+
+
+
+# ============ PROTEÇÃO IP + WHATSAPP OBRIGATÓRIO ============
+
+from fastapi import HTTPException
+
+def obter_ip(request: Request):
+    # Render fica atrás de proxy: pega o IP real do X-Forwarded-For
+    xff = request.headers.get("x-forwarded-for")
+    if xff:
+        return xff.split(",")[0].strip()
+    return request.client.host if request.client else "desconhecido"
+
+
+def contar_signups_ip(ip, horas=1):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        SELECT COUNT(*) FROM tentativas_signup
+        WHERE ip = %s AND criado_em >= NOW() - INTERVAL '%s hours'
+    """, (ip, horas))
+    total = cur.fetchone()[0]
+    cur.close()
+    close_conn(conn)
+    return total
+
+
+def registrar_tentativa_ip(ip):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO tentativas_signup (ip) VALUES (%s)", (ip,))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+
+
+def validar_whatsapp(wpp):
+    # Remove tudo que não for dígito
+    limpo = "".join(filter(str.isdigit, wpp or ""))
+    # Aceita 10 ou 11 dígitos (com ou sem o 9 na frente)
+    if len(limpo) not in (10, 11):
+        return None, "WhatsApp inválido. Digite DDD + número (10 ou 11 dígitos)."
+    # Se tiver 13 dígitos (com 55 do Brasil), remove o 55
+    if len(limpo) == 13 and limpo.startswith("55"):
+        limpo = limpo[2:]
+    if len(limpo) == 12 and limpo.startswith("55"):
+        limpo = limpo[2:]
+    if len(limpo) not in (10, 11):
+        return None, "WhatsApp inválido. Digite DDD + número (10 ou 11 dígitos)."
+    return limpo, None
+
+
+def criar_vendedor_v2(nome, email, senha, whatsapp):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
+    if cur.fetchone():
+        cur.close()
+        close_conn(conn)
+        return False, "Email ja cadastrado", None
+    cur.execute("SELECT id FROM usuarios WHERE whatsapp = %s", (whatsapp,))
+    if cur.fetchone():
+        cur.close()
+        close_conn(conn)
+        return False, "WhatsApp ja cadastrado", None
+    h = pwd_context.hash(senha)
+    cur.execute(
+        "INSERT INTO usuarios (nome, email, senha, tipo, whatsapp) VALUES (%s, %s, %s, 'atendente', %s) RETURNING id",
+        (nome, email, h, whatsapp)
+    )
+    uid = cur.fetchone()[0]
+    cur.execute("INSERT INTO vendedores (usuario_id, plano, onboarding_completo) VALUES (%s, 'gratis', FALSE)", (uid,))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return True, "OK", uid
+
+
+# ============ ADMIN — CRIAR DADOS PELO VENDEDOR ============
+
+@app.post("/admin/vendedor/{vendedor_id}/nicho/criar")
+def admin_criar_nicho(vendedor_id: int, nome: str = Form(...), produto: str = Form(""), publico: str = Form(""), preco: str = Form(""), dor: str = Form(""), objecao: str = Form(""), diferencial: str = Form(""), tom: str = Form(""), usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    pg = gerar_prompt_vendedor(produto, publico, preco, dor, objecao, diferencial, tom)
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO nichos (vendedor_id, nome, produto, publico, preco, dor, objecao, diferencial, tom, prompt_gerado) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (vendedor_id, nome, produto, publico, preco, dor, objecao, diferencial, tom, pg))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?ok=1", status_code=303)
+
+
+@app.post("/admin/vendedor/{vendedor_id}/cliente/criar")
+def admin_criar_cliente(vendedor_id: int, whatsapp: str = Form(...), nome: str = Form(...), email: str = Form(""), origem: str = Form(""), status: str = Form("novo lead"), observacoes: str = Form(""), usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    wpp_limpo, erro_wpp = validar_whatsapp(whatsapp)
+    if erro_wpp:
+        return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?erro=WhatsApp+invalido", status_code=303)
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM clientes WHERE whatsapp = %s AND vendedor_id = %s", (wpp_limpo, vendedor_id))
+    if cur.fetchone():
+        cur.close()
+        close_conn(conn)
+        return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?erro=Cliente+ja+existe", status_code=303)
+    cur.execute("INSERT INTO clientes (vendedor_id, whatsapp, nome, email, origem, status, observacoes) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                (vendedor_id, wpp_limpo, nome, email, origem, status, observacoes))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?ok=1", status_code=303)
+
+
+@app.post("/admin/vendedor/{vendedor_id}/editar-whatsapp")
+def admin_editar_whatsapp_vendedor(vendedor_id: int, whatsapp: str = Form(...), usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    wpp_limpo, erro_wpp = validar_whatsapp(whatsapp)
+    if erro_wpp:
+        return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?erro=WhatsApp+invalido", status_code=303)
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT usuario_id FROM vendedores WHERE id = %s", (vendedor_id,))
+    row = cur.fetchone()
+    if row:
+        cur.execute("SELECT id FROM usuarios WHERE whatsapp = %s AND id != %s", (wpp_limpo, row[0]))
+        if cur.fetchone():
+            cur.close()
+            close_conn(conn)
+            return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?erro=WhatsApp+ja+em+uso", status_code=303)
+        cur.execute("UPDATE usuarios SET whatsapp = %s WHERE id = %s", (wpp_limpo, row[0]))
+        conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}?ok=1", status_code=303)

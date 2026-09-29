@@ -8,9 +8,9 @@
     <style>
         .toolbar-clientes {
             display: grid;
-            grid-template-columns: 1fr auto auto auto;
+            grid-template-columns: 1fr auto auto;
             gap: 10px;
-            margin-top: 24px;
+            margin-top: 12px;
             margin-bottom: 20px;
             align-items: center;
         }
@@ -252,6 +252,10 @@
             </div>
         </div>
 
+                <div style="margin-top:24px; margin-bottom:12px;">
+            <button type="button" class="btn-novo" onclick="toggleFormAdd()" style="width:100%; padding:14px 20px; font-size:15px;">➕ Novo Cliente</button>
+        </div>
+
         <div class="toolbar-clientes">
             <input type="text" id="busca" placeholder="🔍 Buscar por nome, WhatsApp ou origem..." oninput="aplicarFiltros()">
             <select id="filtro-status" onchange="aplicarFiltros()">
@@ -267,7 +271,6 @@
                 <option value="nome">Nome (A-Z)</option>
                 <option value="antigo">Mais antigos</option>
             </select>
-            <button type="button" class="btn-novo" onclick="toggleFormAdd()">➕ Novo Cliente</button>
         </div>
 
         <div class="form-add-cliente" id="form-add-wrapper" style="display:none;">
@@ -319,13 +322,6 @@
                     <button type="button" onclick="toggleFormAdd()" class="btn-mini" style="width:auto; padding:14px 20px;">Cancelar</button>
                 </div>
             </form>
-        </div>
-
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
-            <h2 style="font-size:16px; letter-spacing:-0.01em; margin:0; color:#a8a8a8;">
-                📋 CLIENTES <span id="contador" style="color:#00d97e; font-family:monospace;">{{ clientes|length }}</span>
-            </h2>
-            <button type="button" class="btn-mini" onclick="expandirTodos()" id="btn-expandir" style="width:auto; padding:9px 16px;">Expandir tudo</button>
         </div>
 
         <div id="vazio-busca" style="display:none;" class="empty-state">
