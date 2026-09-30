@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M.A Tech - Criar Conta</title>
     <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/tema.css">
+    <script>
+    (function() {
+        var t = localStorage.getItem('matech_tema') || 'escuro';
+        document.documentElement.setAttribute('data-tema', t);
+    })();
+    </script>
 </head>
 <body>
     <div class="container-login">
@@ -14,11 +21,21 @@
         <h1 style="text-align:center;">M.A Tech</h1>
         <p class="subtitulo" style="text-align:center;">Criar conta grátis — sem cartão</p>
 
+        {% if request.query_params.get('ref') %}
+        <div style="background:#0f1a15; border:1px solid #00d97e; border-left:3px solid #00d97e; color:#00d97e; padding:14px; border-radius:8px; font-size:13px; margin-bottom:16px; text-align:center;">
+            🎁 Você foi <strong>indicado por um amigo</strong>! Ganhe acesso completo desde o início.
+        </div>
+        {% endif %}
+
         {% if erro %}
         <div class="erro">⚠️ {{ erro }}</div>
         {% endif %}
 
         <form method="POST" action="/signup">
+            {% if request.query_params.get('ref') %}
+            <input type="hidden" name="ref" value="{{ request.query_params.get('ref') }}">
+            {% endif %}
+
             <label>Nome completo</label>
             <input type="text" name="nome" required autofocus placeholder="Seu nome">
 
@@ -27,7 +44,7 @@
 
             <label>WhatsApp (só números, com DDD)</label>
             <input type="text" name="whatsapp" required placeholder="11987654321" inputmode="numeric" pattern="[0-9]+" style="font-family:monospace;">
-            <p style="color:#5a5a5a; font-size:12px; margin-top:6px;">Aceita com ou sem o 9 na frente. Ex: 1187654321 ou 11987654321</p>
+            <p style="color:#5a5a5a; font-size:12px; margin-top:6px;">Aceita com ou sem o 9 na frente.</p>
 
             <label>Senha (mínimo 6 caracteres)</label>
             <input type="password" name="senha" required minlength="6" placeholder="••••••">
@@ -38,11 +55,6 @@
         <p style="color:#8a8a8a; text-align:center; margin-top:24px; font-size:14px;">
             Já tem conta? <a href="/login" style="color:#00d97e; text-decoration:none; font-weight:600;">Entrar</a>
         </p>
-
-        <p style="color:#5a5a5a; text-align:center; margin-top:20px; font-size:12px; line-height:1.5;">
-            Ao criar conta você concorda em usar a plataforma com responsabilidade.
-        </p>
     </div>
-    <script src="/static/app.js"></script>
 </body>
 </html>

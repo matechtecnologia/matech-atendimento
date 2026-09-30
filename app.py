@@ -172,6 +172,36 @@ def inicializar_banco():
     if 'followup_snooze_ate' not in cols_v:
         cur.execute('ALTER TABLE vendedores ADD COLUMN followup_snooze_ate TIMESTAMP WITH TIME ZONE')
 
+    cur.execute("""
+        DO $$
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                          WHERE table_name='vendedores' AND column_name='codigo_indicacao') THEN
+                ALTER TABLE vendedores ADD COLUMN codigo_indicacao TEXT UNIQUE;
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                          WHERE table_name='vendedores' AND column_name='indicado_por') THEN
+                ALTER TABLE vendedores ADD COLUMN indicado_por INTEGER;
+            END IF;
+            IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                          WHERE table_name='vendedores' AND column_name='indicacao_recompensada') THEN
+                ALTER TABLE vendedores ADD COLUMN indicacao_recompensada BOOLEAN DEFAULT FALSE;
+            END IF;
+        END $$;
+    """)
+
+    cur.execute("""CREATE TABLE IF NOT EXISTS indicacoes (
+        id SERIAL PRIMARY KEY,
+        indicador_id INTEGER NOT NULL,
+        indicado_id INTEGER NOT NULL,
+        codigo TEXT NOT NULL,
+        recompensado BOOLEAN DEFAULT FALSE,
+        recompensado_em TIMESTAMP WITH TIME ZONE,
+        criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )""")
+
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_indicacoes_indicador ON indicacoes(indicador_id)")
+
     cur.execute("CREATE INDEX IF NOT EXISTS idx_clientes_vendedor ON clientes(vendedor_id)")
 
     cur.execute("SELECT * FROM usuarios WHERE email = %s", ("matechtecnologia01@gmail.com",))
@@ -399,7 +429,7 @@ def tela_signup(request: Request, erro: str = None):
 
 
 @app.post("/signup")
-def fazer_signup(request: Request, nome: str = Form(...), email: str = Form(...), senha: str = Form(...), whatsapp: str = Form(...)):
+def fazer_signup(request: Request, nome: str = Form(...), email: str = Form(...), senha: str = Form(...), whatsapp: str = Form(...), ref: str = Form("")):
     ip = obter_ip(request)
 
     if contar_signups_ip(ip, 1) >= 3:
@@ -414,6 +444,16 @@ def fazer_signup(request: Request, nome: str = Form(...), email: str = Form(...)
     ok, msg, uid = criar_vendedor_v2(nome, email, senha, wpp_limpo)
     if not ok:
         return RedirectResponse(url=f"/signup?erro={msg}", status_code=303)
+
+    # Registra indicacao se tiver codigo
+    if ref:
+        try:
+            v_novo = buscar_vendedor(uid)
+            if v_novo:
+                registrar_indicacao(ref, v_novo["id"])
+        except Exception as e:
+            print(f"Erro registrar indicacao: {e}")
+
     return RedirectResponse(url="/login?criado=1", status_code=303)
 
 
@@ -810,6 +850,11 @@ def verificar_pagamento(payment_id: str, usuario_id: str = Cookie(None)):
             cur.execute("UPDATE vendedores SET plano=%s, plano_expira_em=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s", (row[1], exp, row[0]))
             cur.execute("UPDATE pagamentos SET status='pago' WHERE payment_id=%s", (payment_id,))
             conn.commit()
+            # Recompensa quem indicou
+            try:
+                recompensar_indicador(row[0])
+            except Exception as e:
+                print(f"Erro recompensar indicador: {e}")
         cur.close()
         close_conn(conn)
     return RedirectResponse(url=f"/pagamento/{payment_id}", status_code=303)
@@ -2230,3 +2275,150 @@ def tela_configuracoes(request: Request, usuario_id: str = Cookie(None), usuario
         "snooze_data": snooze_data,
         "snooze_dias": snooze_dias,
     })
+
+
+
+# ============ SISTEMA DE INDICACAO ============
+
+import secrets
+import string
+
+def gerar_codigo_indicacao():
+    """Gera codigo unico de 6 caracteres alfanumericos."""
+    alfabeto = string.ascii_uppercase + string.digits
+    for _ in range(20):
+        codigo = ''.join(secrets.choice(alfabeto) for _ in range(6))
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM vendedores WHERE codigo_indicacao = %s", (codigo,))
+        if not cur.fetchone():
+            cur.close()
+            close_conn(conn)
+            return codigo
+        cur.close()
+        close_conn(conn)
+    return None
+
+
+def garantir_codigo_vendedor(vendedor_id):
+    """Garante que o vendedor tem um codigo. Cria se nao tiver."""
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT codigo_indicacao FROM vendedores WHERE id = %s", (vendedor_id,))
+    row = cur.fetchone()
+    if row and row[0]:
+        cur.close()
+        close_conn(conn)
+        return row[0]
+    codigo = gerar_codigo_indicacao()
+    cur.execute("UPDATE vendedores SET codigo_indicacao = %s WHERE id = %s", (codigo, vendedor_id))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return codigo
+
+
+def registrar_indicacao(codigo_ref, indicado_id):
+    """Registra que indicado_id foi indicado por quem tem codigo_ref."""
+    if not codigo_ref:
+        return False
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT id FROM vendedores WHERE codigo_indicacao = %s", (codigo_ref.strip().upper(),))
+    indicador = cur.fetchone()
+    if not indicador:
+        cur.close()
+        close_conn(conn)
+        return False
+    indicador_id = indicador["id"]
+    if indicador_id == indicado_id:
+        cur.close()
+        close_conn(conn)
+        return False
+    cur.execute("UPDATE vendedores SET indicado_por = %s WHERE id = %s", (indicador_id, indicado_id))
+    cur.execute("INSERT INTO indicacoes (indicador_id, indicado_id, codigo) VALUES (%s, %s, %s)",
+                (indicador_id, indicado_id, codigo_ref.strip().upper()))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return True
+
+
+def recompensar_indicador(indicado_id):
+    """Quando o indicado paga o 1o PIX, da +30 dias pro indicador."""
+    from datetime import datetime, timedelta
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    # Pega indicacao pendente
+    cur.execute("""SELECT i.id, i.indicador_id FROM indicacoes i
+                   WHERE i.indicado_id = %s AND i.recompensado = FALSE LIMIT 1""", (indicado_id,))
+    ind = cur.fetchone()
+    if not ind:
+        cur.close()
+        close_conn(conn)
+        return False
+    # Pega dados do indicador
+    cur.execute("SELECT plano, plano_expira_em, usuario_id FROM vendedores WHERE id = %s", (ind["indicador_id"],))
+    v = cur.fetchone()
+    if not v:
+        cur.close()
+        close_conn(conn)
+        return False
+    # Calcula nova expiracao
+    agora = datetime.now()
+    base = v["plano_expira_em"] if v["plano_expira_em"] and v["plano_expira_em"] > agora else agora
+    nova_exp = base + timedelta(days=30)
+    # Se for gratis, promove pra basico por 30 dias (recompensa)
+    if v["plano"] == "gratis":
+        cur.execute("UPDATE vendedores SET plano = 'basico', plano_expira_em = %s WHERE id = %s", (nova_exp, ind["indicador_id"]))
+    else:
+        cur.execute("UPDATE vendedores SET plano_expira_em = %s WHERE id = %s", (nova_exp, ind["indicador_id"]))
+    # Marca recompensado
+    cur.execute("UPDATE indicacoes SET recompensado = TRUE, recompensado_em = CURRENT_TIMESTAMP WHERE id = %s", (ind["id"],))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return True
+
+
+def estatisticas_indicacao(vendedor_id):
+    """Retorna estatisticas do vendedor indicador."""
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT COUNT(*) as t FROM indicacoes WHERE indicador_id = %s", (vendedor_id,))
+    total = cur.fetchone()["t"]
+    cur.execute("SELECT COUNT(*) as t FROM indicacoes WHERE indicador_id = %s AND recompensado = TRUE", (vendedor_id,))
+    pagos = cur.fetchone()["t"]
+    # Lista de indicados
+    cur.execute("""SELECT i.criado_em, i.recompensado, u.nome, u.email
+                   FROM indicacoes i
+                   JOIN vendedores v ON v.id = i.indicado_id
+                   JOIN usuarios u ON u.id = v.usuario_id
+                   WHERE i.indicador_id = %s
+                   ORDER BY i.criado_em DESC LIMIT 20""", (vendedor_id,))
+    lista = [dict(r) for r in cur.fetchall()]
+    cur.close()
+    close_conn(conn)
+    return {"total": total, "pagos": pagos, "dias_ganhos": pagos * 30, "lista": lista}
+
+
+# ============ ROTA /INDICAR ============
+
+@app.get("/indicar", response_class=HTMLResponse)
+def tela_indicar(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+    codigo = garantir_codigo_vendedor(v["id"])
+    stats = estatisticas_indicacao(v["id"])
+    return templates.TemplateResponse(request=request, name="indicar.html", context={
+        "usuario_nome": usuario_nome,
+        "usuario_tipo": usuario_tipo,
+        "total_followups": _total_followups_para_template(usuario_id),
+        "codigo": codigo,
+        "stats": stats,
+    })
+
+

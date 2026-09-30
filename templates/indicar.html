@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M.A Tech - Indique e ganhe</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/app-mobile.css">
+    <link rel="stylesheet" href="/static/tema.css">
+    <style>
+        .indicar-wrap {
+            max-width: 720px;
+            margin: 0 auto;
+        }
+        .hero-indicar {
+            background: linear-gradient(135deg, #0f1a15 0%, #141414 100%);
+            border: 1px solid #222222;
+            border-left: 4px solid #00d97e;
+            border-radius: 14px;
+            padding: 28px 24px;
+            text-align: center;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-indicar:before {
+            content: "";
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(0,217,126,0.15), transparent 70%);
+        }
+        .hero-indicar .emoji {
+            font-size: 52px;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .hero-indicar h2 {
+            font-size: 26px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+            position: relative;
+        }
+        .hero-indicar h2 em {
+            font-style: normal;
+            color: #00d97e;
+            text-shadow: 0 0 30px rgba(0,217,126,0.5);
+        }
+        .hero-indicar p {
+            color: #8a8a8a;
+            font-size: 15px;
+            line-height: 1.6;
+            max-width: 480px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .regra-box {
+            background: #1f1a0a;
+            border-left: 4px solid #f59e0b;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .regra-box .icone {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .regra-box .texto {
+            color: #f59e0b;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .regra-box .texto strong {
+            color: #fbbf24;
+        }
+        .codigo-box {
+            background: #141414;
+            border: 1px solid #222222;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+        .codigo-box h3 {
+            font-size: 12px;
+            color: #8a8a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 800;
+            margin-bottom: 14px;
+        }
+        .codigo-display {
+            background: #0a0a0a;
+            border: 2px dashed #00d97e;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 14px;
+        }
+        .codigo-display .codigo {
+            font-size: 36px;
+            font-weight: 800;
+            color: #00d97e;
+            font-family: 'SF Mono', Consolas, monospace;
+            letter-spacing: 0.15em;
+            text-shadow: 0 0 30px rgba(0,217,126,0.5);
+            line-height: 1;
+        }
+        .codigo-display .label {
+            font-size: 11px;
+            color: #5a5a5a;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 700;
+            margin-top: 10px;
+            font-family: monospace;
+        }
+        .link-display {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+        .link-display input {
+            flex: 1;
+            background: #0a0a0a;
+            border: 1px solid #2a2a2a;
+            color: #8a8a8a;
+            padding: 12px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: monospace;
+            min-width: 0;
+            box-sizing: border-box;
+        }
+        .btn-acao-indicar {
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            border: 1px solid;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            white-space: nowrap;
+            width: auto;
+            margin: 0;
+        }
+        .btn-acao-indicar.copiar {
+            background: #00d97e;
+            color: #0a0a0a;
+            border-color: #00d97e;
+        }
+        .btn-acao-indicar.copiar:hover {
+            background: #00b368;
+            transform: translateY(-1px);
+        }
+        .btn-acao-indicar.whatsapp {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: #fff;
+            border-color: #25D366;
+            width: 100%;
+            justify-content: center;
+            padding: 14px;
+            font-size: 14px;
+        }
+        .btn-acao-indicar.whatsapp:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);
+        }
+        .stats-indicar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-indicar {
+            background: #141414;
+            border: 1px solid #222222;
+            border-radius: 12px;
+            padding: 18px;
+            border-left: 3px solid #00d97e;
+            text-align: center;
+        }
+        .stat-indicar .label {
+            font-size: 11px;
+            color: #8a8a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .stat-indicar .valor {
+            font-size: 30px;
+            font-weight: 800;
+            color: #00d97e;
+            font-family: 'SF Mono', Consolas, monospace;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+        .stat-indicar .sub {
+            font-size: 12px;
+            color: #5a5a5a;
+            margin-top: 6px;
+        }
+        .lista-indicados {
+            background: #141414;
+            border: 1px solid #222222;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .lista-indicados h3 {
+            font-size: 12px;
+            color: #8a8a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 800;
+            margin-bottom: 14px;
+        }
+        .indicado-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .indicado-item:last-child {
+            border-bottom: none;
+        }
+        .indicado-item .nome-ind {
+            font-size: 14px;
+            color: #e8e8e8;
+            font-weight: 600;
+        }
+        .indicado-item .email-ind {
+            font-size: 12px;
+            color: #5a5a5a;
+            font-family: monospace;
+            margin-top: 2px;
+        }
+        .indicado-item .status-ind {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 100px;
+            text-transform: uppercase;
+            font-family: monospace;
+            white-space: nowrap;
+        }
+        .status-ind.pago {
+            background: rgba(0,217,126,0.15);
+            color: #00d97e;
+        }
+        .status-ind.pendente {
+            background: rgba(138,138,138,0.15);
+            color: #8a8a8a;
+        }
+        html[data-tema="claro"] .hero-indicar {
+            background: linear-gradient(135deg, #eafaf1 0%, #ffffff 100%);
+            border-color: #e0e4e8;
+        }
+        html[data-tema="claro"] .hero-indicar h2 {
+            color: #1a1a1a;
+        }
+        html[data-tema="claro"] .codigo-box,
+        html[data-tema="claro"] .stat-indicar,
+        html[data-tema="claro"] .lista-indicados {
+            background: #ffffff;
+            border-color: #e0e4e8;
+        }
+        html[data-tema="claro"] .codigo-display {
+            background: #f5f7f9;
+        }
+        html[data-tema="claro"] .indicado-item .nome-ind {
+            color: #1a1a1a;
+        }
+        @media (max-width: 500px) {
+            .stats-indicar {
+                grid-template-columns: 1fr;
+            }
+            .link-display {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <script>
+    (function() {
+        var t = localStorage.getItem('matech_tema') || 'escuro';
+        document.documentElement.setAttribute('data-tema', t);
+    })();
+    </script>
+</head>
+<body>
+    <div class="container-atendimento">
+        <div class="topo">
+            <h1>M.A Tech</h1>
+            <div class="usuario-info">
+                <span>{{ usuario_nome }}</span>
+                <a href="/clientes" data-rota="/clientes">Clientes</a>
+                <a href="/followups" data-rota="/followups">Follow-ups</a>
+                <a href="/relatorios" data-rota="/relatorios">Relatórios</a>
+                <a href="/configuracoes" data-rota="/configuracoes">Configurações</a>
+                <a href="/logout">Sair</a>
+            </div>
+        </div>
+
+        <div class="indicar-wrap">
+            <div class="hero-indicar">
+                <span class="emoji">🎁</span>
+                <h2>Indique e ganhe <em>1 mês grátis</em></h2>
+                <p>Compartilhe seu link com amigos. Quando alguém se cadastrar e pagar o primeiro PIX, você ganha <strong style="color:#00d97e;">+30 dias</strong> no seu plano automaticamente.</p>
+            </div>
+
+            <div class="regra-box">
+                <span class="icone">💡</span>
+                <div class="texto">
+                    <strong>Como funciona:</strong> você indica → a pessoa cria conta → quando ela paga o primeiro PIX, seus <strong>+30 dias</strong> são adicionados automaticamente. Sem limite de indicações!
+                </div>
+            </div>
+
+            <div class="codigo-box">
+                <h3>🔑 Seu código único</h3>
+                <div class="codigo-display">
+                    <div class="codigo" id="codigo-txt">{{ codigo }}</div>
+                    <div class="label">código de indicação</div>
+                </div>
+
+                <h3 style="margin-top: 20px;">🔗 Seu link de convite</h3>
+                <div class="link-display">
+                    <input type="text" id="link-txt" readonly value="https://matech-novo.onrender.com/signup?ref={{ codigo }}">
+                    <button type="button" class="btn-acao-indicar copiar" onclick="copiarLink()">📋 Copiar</button>
+                </div>
+
+                <a href="https://wa.me/?text=Ol%C3%A1!%20Conheci%20o%20M.A%20Tech%20e%20achei%20que%20voc%C3%AA%20ia%20gostar.%20%C3%89%20uma%20IA%20que%20atende%20seus%20clientes%20no%20WhatsApp.%20Crie%20sua%20conta%20gr%C3%A1tis%3A%20https%3A%2F%2Fmatech-novo.onrender.com%2Fsignup%3Fref%3D{{ codigo }}" target="_blank" class="btn-acao-indicar whatsapp">
+                    💬 Compartilhar no WhatsApp
+                </a>
+            </div>
+
+            <div class="stats-indicar">
+                <div class="stat-indicar">
+                    <div class="label">Indicados</div>
+                    <div class="valor">{{ stats.total }}</div>
+                    <div class="sub">pessoas entraram</div>
+                </div>
+                <div class="stat-indicar" style="border-left-color: #f59e0b;">
+                    <div class="label">Pagaram</div>
+                    <div class="valor" style="color: #f59e0b;">{{ stats.pagos }}</div>
+                    <div class="sub">viraram clientes</div>
+                </div>
+                <div class="stat-indicar">
+                    <div class="label">Dias ganhos</div>
+                    <div class="valor">{{ stats.dias_ganhos }}</div>
+                    <div class="sub">grátis acumulados</div>
+                </div>
+            </div>
+
+            {% if stats.lista %}
+            <div class="lista-indicados">
+                <h3>👥 Quem você indicou</h3>
+                {% for ind in stats.lista %}
+                <div class="indicado-item">
+                    <div>
+                        <div class="nome-ind">{{ ind.nome }}</div>
+                        <div class="email-ind">{{ ind.email }}</div>
+                    </div>
+                    <span class="status-ind {% if ind.recompensado %}pago{% else %}pendente{% endif %}">
+                        {% if ind.recompensado %}✓ Pago{% else %}Aguardando{% endif %}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="lista-indicados">
+                <h3>👥 Quem você indicou</h3>
+                <p style="color: #5a5a5a; font-size: 13px; margin: 0;">Você ainda não indicou ninguém. Compartilhe seu link pra começar a ganhar!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <script src="/static/app.js"></script>
+    <script src="/static/app-mobile.js"></script>
+    <script src="/static/help.js"></script>
+    <script>
+    function copiarLink() {
+        const input = document.getElementById('link-txt');
+        const texto = input.value;
+        navigator.clipboard.writeText(texto).then(() => {
+            if (window.toast) toast('Link copiado! Compartilhe com seus amigos.', 'sucesso');
+            else alert('Link copiado!');
+        }).catch(() => {
+            input.select();
+            document.execCommand('copy');
+            if (window.toast) toast('Link copiado!', 'sucesso');
+        });
+    }
+    </script>
+    <script src="/static/splash.js"></script>
+    <script src="/static/app-ux.js"></script>
+    <script src="/static/sw-register.js"></script>
+</body>
+</html>
