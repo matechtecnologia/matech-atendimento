@@ -5,6 +5,110 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M.A Tech - Meus Nichos</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .nicho-card {
+            background: #141414;
+            border: 1px solid #222222;
+            border-left: 4px solid #22c55e;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 14px;
+            transition: all 0.2s ease;
+        }
+        .nicho-card:hover { border-color: #2a2a2a; border-left-color: #22c55e; }
+        .nicho-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .nicho-head h3 { font-size: 17px; color: #fff; font-weight: 700; margin: 0; }
+        .nicho-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+        .badge-tag {
+            font-size: 11px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 100px;
+            font-family: monospace;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+        .badge-ativo { background: rgba(0,217,126,0.12); color: #00d97e; }
+        .badge-onb { background: rgba(168,85,247,0.15); color: #c084fc; }
+
+        .nicho-campo {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid #1a1a1a;
+            font-size: 13px;
+        }
+        .nicho-campo:last-child { border-bottom: none; }
+        .nicho-campo .label { color: #8a8a8a; font-weight: 600; }
+        .nicho-campo .valor { color: #e8e8e8; line-height: 1.5; word-break: break-word; }
+
+        .btn-mini {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            border: 1px solid;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .btn-mini.editar { background: rgba(245,158,11,0.12); color: #f59e0b; border-color: rgba(245,158,11,0.3); }
+        .btn-mini.editar:hover { background: rgba(245,158,11,0.2); border-color: #f59e0b; transform: translateY(-1px); }
+        .btn-mini.salvar { background: #00d97e; color: #0a0a0a; border-color: #00d97e; }
+        .btn-mini.salvar:hover { background: #00b368; }
+        .btn-mini.cancelar { background: #1a1a1a; color: #8a8a8a; border-color: #2a2a2a; }
+        .btn-mini.cancelar:hover { color: #e8e8e8; }
+
+        .form-edit {
+            display: none;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 2px dashed #2a2a2a;
+        }
+        .form-edit.aberto { display: block; }
+        .form-edit label { display: block; color: #a8a8a8; font-size: 12px; font-weight: 600; margin-bottom: 6px; margin-top: 12px; }
+        .form-edit input,
+        .form-edit textarea {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #2a2a2a;
+            color: #fff;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+        .form-edit input:focus,
+        .form-edit textarea:focus {
+            outline: none;
+            border-color: #00d97e;
+            box-shadow: 0 0 0 3px rgba(0,217,126,0.12);
+        }
+
+        .aviso-ok {
+            background: #0f1a15;
+            border: 1px solid #00d97e;
+            color: #00d97e;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            border-left: 3px solid #00d97e;
+        }
+    </style>
 </head>
 <body>
     <div class="container-atendimento">
@@ -22,8 +126,16 @@
             </div>
         </div>
 
+        {% if request.query_params.get('ok') %}
+        <div class="aviso-ok">✓ Nicho atualizado com sucesso! A IA já está usando as novas informações.</div>
+        {% endif %}
+
         {% if erro %}
         <div class="erro">⚠️ {{ erro }}</div>
+        {% endif %}
+
+        {% if request.query_params.get('erro') %}
+        <div class="erro">⚠️ {{ request.query_params.get('erro') }}</div>
         {% endif %}
 
         {% set pct = (total / limite * 100) if limite > 0 else 0 %}
@@ -31,7 +143,7 @@
         {% elif pct >= 70 %}{% set bar_color = '#f59e0b' %}
         {% else %}{% set bar_color = '#00d97e' %}{% endif %}
 
-        <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%);">
+        <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
             <div class="bloco-topo">
                 <h2>🎯 MEUS NICHOS</h2>
                 <span class="badge-status status-em-atendimento">{{ plano|upper }}</span>
@@ -56,22 +168,81 @@
         {% else %}
 
         {% for n in nichos %}
-        <div class="bloco bloco-texto card-hover">
-            <div class="bloco-topo">
-                <h2>📦 {{ n.nome }}</h2>
-                <span class="badge-status status-cliente">Ativo</span>
+        <div class="nicho-card">
+            <div class="nicho-head">
+                <h3>📦 {{ n.nome }}</h3>
+                <div class="nicho-badges">
+                    {% if loop.index == 1 %}<span class="badge-tag badge-onb">⭐ ONBOARDING</span>{% endif %}
+                    <span class="badge-tag badge-ativo">Ativo</span>
+                </div>
             </div>
-            <p style="color:#e8e8e8; font-size:14px; line-height:1.6;">
-                {{ n.produto[:200] }}{% if n.produto|length > 200 %}...{% endif %}
-            </p>
-            {% if n.publico %}
-            <p style="color:#8a8a8a; font-size:13px; margin-top:10px;">
-                <strong style="color:#a8a8a8;">Público:</strong> {{ n.publico[:120] }}{% if n.publico|length > 120 %}...{% endif %}
-            </p>
-            {% endif %}
-            <p style="color:#5a5a5a; font-size:12px; margin-top:12px;" class="mono">
-                Criado em {{ n.criado_em.strftime('%d/%m/%Y') if n.criado_em else '—' }}
-            </p>
+
+            <div class="nicho-campo">
+                <span class="label">O que vende</span>
+                <span class="valor">{{ (n.produto or '—')[:200] }}{% if n.produto and n.produto|length > 200 %}...{% endif %}</span>
+            </div>
+            <div class="nicho-campo">
+                <span class="label">Público</span>
+                <span class="valor">{{ n.publico or '—' }}</span>
+            </div>
+            <div class="nicho-campo">
+                <span class="label">💰 Preço</span>
+                <span class="valor" style="color:#00d97e; font-weight:600;">{{ n.preco or '—' }}</span>
+            </div>
+            <div class="nicho-campo">
+                <span class="label">Dor do cliente</span>
+                <span class="valor">{{ n.dor or '—' }}</span>
+            </div>
+            <div class="nicho-campo">
+                <span class="label">Objeção</span>
+                <span class="valor">{{ n.objecao or '—' }}</span>
+            </div>
+            <div class="nicho-campo">
+                <span class="label">Diferencial</span>
+                <span class="valor">{{ n.diferencial or '—' }}</span>
+            </div>
+            <div class="nicho-campo">
+                <span class="label">Tom de voz</span>
+                <span class="valor">{{ n.tom or '—' }}</span>
+            </div>
+
+            <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
+                <button type="button" class="btn-mini editar" onclick="toggleEdit({{ n.id }})" id="btn-{{ n.id }}">✏️ Editar informações</button>
+                <span style="color:#5a5a5a; font-size:12px; align-self:center;">Nome e "o que vende" não podem ser editados</span>
+            </div>
+
+            <div class="form-edit" id="form-{{ n.id }}">
+                <div style="background:#1f1a0a; border-left:3px solid #f59e0b; padding:10px 14px; border-radius:6px; margin-bottom:14px;">
+                    <p style="color:#f59e0b; font-size:13px; margin:0; line-height:1.5;">
+                        ⚠️ O <strong>nome</strong> e o <strong>que vende</strong> não podem ser alterados (são a identidade do nicho). Se precisar mudar, crie um novo nicho.
+                    </p>
+                </div>
+
+                <form method="POST" action="/nicho/{{ n.id }}/editar">
+                    <label>👥 Para quem vende</label>
+                    <textarea name="publico" rows="3" required>{{ n.publico or '' }}</textarea>
+
+                    <label>💰 Preço</label>
+                    <textarea name="preco" rows="2" required>{{ n.preco or '' }}</textarea>
+
+                    <label>💔 Dor do cliente</label>
+                    <textarea name="dor" rows="3" required>{{ n.dor or '' }}</textarea>
+
+                    <label>🚧 Objeção mais comum</label>
+                    <textarea name="objecao" rows="3" required>{{ n.objecao or '' }}</textarea>
+
+                    <label>⭐ Seu diferencial</label>
+                    <textarea name="diferencial" rows="3" required>{{ n.diferencial or '' }}</textarea>
+
+                    <label>🗣️ Tom de voz</label>
+                    <textarea name="tom" rows="2" required>{{ n.tom or '' }}</textarea>
+
+                    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+                        <button type="submit" class="btn-mini salvar" style="padding:12px 24px; font-size:13px;">💾 SALVAR E ATUALIZAR IA</button>
+                        <button type="button" class="btn-mini cancelar" style="padding:12px 24px; font-size:13px;" onclick="toggleEdit({{ n.id }})">Cancelar</button>
+                    </div>
+                </form>
+            </div>
         </div>
         {% endfor %}
 
@@ -87,9 +258,6 @@
             <p style="color:#e8e8e8; margin-top:8px; font-size:14px;">
                 Você usou todos os <strong class="mono">{{ limite }}</strong> nichos do plano <strong>{{ plano|upper }}</strong>.
             </p>
-            <p style="color:#8a8a8a; font-size:13px; margin-top:6px;">
-                Faça upgrade pra adicionar mais nichos.
-            </p>
             <a href="/planos" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-top:16px;">
                 ⚡ FAZER UPGRADE
             </a>
@@ -103,12 +271,29 @@
                 <h2>💡 SOBRE NICHOS</h2>
             </div>
             <p style="color:#8a8a8a; margin-top:8px; font-size:13px; line-height:1.6;">
-                Cada nicho é um produto ou serviço diferente que você vende. Os nichos não podem ser editados nem apagados depois de criados — se precisar de mais, faça upgrade do plano.
+                Cada nicho é um produto ou serviço diferente que você vende. Você pode <strong style="color:#00d97e;">editar preço, público, dor, objeção, diferencial e tom de voz</strong> quando quiser — o prompt da IA é regerado automaticamente.
             </p>
         </div>
 
     </div>
     <script src="/static/app.js"></script>
     <script src="/static/help.js"></script>
+    <script>
+    function toggleEdit(id) {
+        const form = document.getElementById('form-' + id);
+        const btn = document.getElementById('btn-' + id);
+        const aberto = form.classList.contains('aberto');
+
+        // Fecha todos
+        document.querySelectorAll('.form-edit').forEach(f => f.classList.remove('aberto'));
+        document.querySelectorAll('[id^="btn-"]').forEach(b => { if (b.tagName === 'BUTTON') b.innerText = '✏️ Editar informações'; });
+
+        if (!aberto) {
+            form.classList.add('aberto');
+            btn.innerText = '▲ Fechar';
+            form.scrollIntoView({behavior: 'smooth', block: 'center'});
+        }
+    }
+    </script>
 </body>
 </html>

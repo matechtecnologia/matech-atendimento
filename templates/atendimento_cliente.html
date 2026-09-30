@@ -52,6 +52,13 @@
             <p style="color:#8a8a8a; font-size:13px; margin-top:4px;" class="mono">📱 {{ cliente.whatsapp }}</p>
         </div>
 
+        {% if request.query_params.get('erro') %}
+        <div class="erro" style="margin-bottom:16px; padding:16px; background:#1f0a0a; border:1px solid #ff3b3b; border-left:4px solid #ff3b3b; border-radius:10px;">
+            <div style="color:#ff3b3b; font-weight:800; font-size:13px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">⚠️ Erro</div>
+            <div style="color:#e8e8e8; font-size:14px; line-height:1.5;">{{ request.query_params.get('erro') }}</div>
+        </div>
+        {% endif %}
+
         <form method="POST" action="/gerar_resposta">
             <input type="hidden" name="whatsapp" value="{{ cliente.whatsapp }}">
             <input type="hidden" name="cliente_id" value="{{ cliente.id }}">

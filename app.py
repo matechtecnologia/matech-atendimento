@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from passlib.context import CryptContext
 from dotenv import load_dotenv
-from gemini import gerar_resposta, gerar_prompt_vendedor
+from gemini import gerar_resposta, gerar_prompt_vendedor, validar_nicho_ia
 from asaas import criar_cliente, criar_cobranca_pix, obter_qr_code, consultar_pagamento
 
 load_dotenv()
@@ -463,6 +463,17 @@ def tela_onboarding(request: Request, usuario_id: str = Cookie(None), usuario_no
 def salvar_onboarding(nome_nicho: str = Form(...), produto: str = Form(...), publico: str = Form(...), preco: str = Form(...), dor: str = Form(...), objecao: str = Form(...), diferencial: str = Form(...), tom: str = Form(...), usuario_id: str = Cookie(None)):
     if not usuario_id:
         return RedirectResponse(url="/login")
+
+    erro_respostas = validar_respostas_onboarding(produto, publico, preco, dor, objecao, diferencial, tom)
+    if erro_respostas:
+        from urllib.parse import quote
+        return RedirectResponse(url=f"/onboarding?erro={quote(erro_respostas)}", status_code=303)
+
+    valido, motivo = validar_nicho_simples(nome_nicho, produto)
+    if not valido:
+        from urllib.parse import quote
+        return RedirectResponse(url=f"/onboarding?erro={quote(motivo)}", status_code=303)
+
     pg = gerar_prompt_vendedor(produto, publico, preco, dor, objecao, diferencial, tom)
     conn = get_conn()
     cur = conn.cursor()
@@ -548,6 +559,9 @@ def tela_cliente_detalhe(request: Request, cliente_id: int, usuario_id: str = Co
 def rota_gerar_resposta(whatsapp: str = Form(...), nicho_id: int = Form(...), mensagem_cliente: str = Form(...), cliente_id: int = Form(None), modo_instrucao: str = Form(None), usuario_id: str = Cookie(None)):
     if not usuario_id:
         return RedirectResponse(url="/login")
+    if not mensagem_cliente or len(mensagem_cliente.strip()) < 3:
+        return RedirectResponse(url=f"/cliente/{cliente_id}/atender?erro=Mensagem+muito+curta+(minimo+3+caracteres)", status_code=303)
+
     if modo_instrucao:
         mensagem_cliente = f"[INSTRUCAO DO VENDEDOR - EXECUTE]: {mensagem_cliente}"
     n = buscar_nicho(nicho_id)
@@ -655,6 +669,28 @@ def salvar_novo_nicho(nome_nicho: str = Form(...), produto: str = Form(...), pub
         return RedirectResponse(url="/onboarding")
     if contar_nichos(v["id"]) >= LIMITES.get(v["plano"], 1):
         return RedirectResponse(url="/meus_nichos?erro=Limite+atingido", status_code=303)
+
+    erro_respostas = validar_respostas_onboarding(produto, publico, preco, dor, objecao, diferencial, tom)
+    if erro_respostas:
+        from urllib.parse import quote
+        return RedirectResponse(url=f"/novo_nicho?erro={quote(erro_respostas)}", status_code=303)
+
+    valido, motivo = validar_nicho_simples(nome_nicho, produto)
+    if not valido:
+        from urllib.parse import quote
+        return RedirectResponse(url=f"/novo_nicho?erro={quote(motivo)}", status_code=303)
+
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM nichos WHERE vendedor_id = %s AND LOWER(nome) = LOWER(%s)", (v["id"], nome_nicho.strip()))
+    if cur.fetchone():
+        cur.close()
+        close_conn(conn)
+        from urllib.parse import quote
+        return RedirectResponse(url=f"/novo_nicho?erro={quote('Voce ja tem um nicho com esse nome.')}", status_code=303)
+    cur.close()
+    close_conn(conn)
+
     pg = gerar_prompt_vendedor(produto, publico, preco, dor, objecao, diferencial, tom)
     conn = get_conn()
     cur = conn.cursor()
@@ -1799,12 +1835,18 @@ def ver_landing(request: Request):
 # ============ MODO NÃO PERTURBE (SNOOZE) ============
 
 @app.post("/snooze-followups")
-def snooze_followups(dias: int = Form(...), usuario_id: str = Cookie(None)):
+async def snooze_followups(request: Request, usuario_id: str = Cookie(None)):
     if not usuario_id:
         return RedirectResponse(url="/login")
     v = buscar_vendedor(usuario_id)
     if not v:
         return RedirectResponse(url="/onboarding")
+    try:
+        form = await request.form()
+        dias_str = form.get("dias", "1")
+        dias = int(str(dias_str).strip())
+    except Exception:
+        dias = 1
     if dias not in [1, 2, 3, 7]:
         dias = 1
     from datetime import datetime, timedelta
@@ -1815,7 +1857,7 @@ def snooze_followups(dias: int = Form(...), usuario_id: str = Cookie(None)):
     conn.commit()
     cur.close()
     close_conn(conn)
-    return RedirectResponse(url=request_referer_ou_clientes(), status_code=303)
+    return RedirectResponse(url="/followups", status_code=303)
 
 
 @app.post("/snooze-followups/cancelar")
@@ -1860,3 +1902,144 @@ def snooze_status(usuario_id: str = Cookie(None)):
         return {"ativo": True, "ate": ate.isoformat(), "dias": (ate - agora).days}
     return {"ativo": False, "ate": None}
 
+
+
+
+def validar_texto_minimo(texto, min_chars, campo):
+    t = (texto or "").strip()
+    if len(t) < min_chars:
+        return f"O campo '{campo}' precisa ter pelo menos {min_chars} caracteres."
+    return None
+
+
+def validar_respostas_onboarding(produto, publico, preco, dor, objecao, diferencial, tom):
+    campos = [
+        ("O que voce vende", produto, 5),
+        ("Para quem vende", publico, 5),
+        ("Preco", preco, 2),
+        ("Dor do cliente", dor, 5),
+        ("Objecao", objecao, 5),
+        ("Diferencial", diferencial, 5),
+        ("Tom de voz", tom, 2),
+    ]
+    for nome, valor, minimo in campos:
+        erro = validar_texto_minimo(valor, minimo, nome)
+        if erro:
+            return erro
+    return None
+
+
+
+
+
+def validar_nicho_simples(nome, produto):
+    """Validacao clara e previsivel. Bloqueia mistura de produtos com mensagem educativa."""
+    import re
+
+    nome_limpo = (nome or "").strip().lower()
+    produto_limpo = (produto or "").strip().lower()
+
+    # Nome muito curto
+    if len(nome_limpo) < 3:
+        return False, "O nome do nicho precisa ter pelo menos 3 letras."
+
+    # Palavras vagas
+    vagas = ["tudo", "coisas", "produtos", "servicos", "serviços", "geral", "varios", "varios produtos", "teste", "negocio", "negócio"]
+    if nome_limpo in vagas:
+        return False, (
+            f"'{nome}' e muito vago. Escolha algo especifico.\n\n"
+            "✅ BOM: 'carro', 'moto', 'curso de ingles', 'pizza', 'consultoria'\n"
+            "❌ RUIM: 'produtos', 'coisas', 'tudo', 'servicos gerais'"
+        )
+
+    # Detecta mistura: "X e Y", "X + Y", "X & Y", "X, Y", "X / Y", "X ou Y", "X - Y"
+    produtos_comuns = [
+        "carro", "carros", "moto", "motos", "caminhao", "caminhão", "caminhoes",
+        "bicicleta", "bicicletas", "barco", "barcos", "aviao", "avião",
+        "pizza", "hamburguer", "hambúrguer", "lanche", "lanches", "sushi",
+        "curso", "cursos", "mentoria", "mentorias", "consultoria", "consultorias",
+        "treinamento", "treinamentos", "aula", "aulas",
+        "seguro", "seguros", "consorcio", "consórcio", "consorcios",
+        "financiamento", "financiamentos", "emprestimo", "empréstimo",
+        "plano", "planos", "servico", "serviço", "servicos", "serviços",
+        "produto", "produtos", "roupa", "roupas", "sapato", "sapatos",
+        "celular", "celulares", "computador", "computadores", "eletronico", "eletrônico",
+        "livro", "livros", "curso online", "software", "app", "aplicativo",
+        "terreno", "terrenos", "casa", "casas", "apartamento", "apartamentos",
+        "caminha", "caminhas", "moto aquatica", "jet ski", "motoaquatica",
+    ]
+
+    # Padroes de separadores
+    padroes = [
+        r"\b(\w{3,})\s+(?:e|ou)\s+(\w{3,})\b",       # "X e Y", "X ou Y"
+        r"\b(\w{3,})\s*[+&]\s*(\w{3,})\b",           # "X + Y", "X & Y"
+        r"\b(\w{3,})\s*,\s*(\w{3,})\b",              # "X, Y"
+        r"\b(\w{3,})\s*/\s*(\w{3,})\b",              # "X / Y"
+    ]
+
+    conectivos_ok = ["para", "com", "sem", "de", "da", "do", "em", "no", "na", "dos", "das"]
+
+    for padrao in padroes:
+        for match in re.finditer(padrao, produto_limpo):
+            a, b = match.group(1).lower(), match.group(2).lower()
+            if a in conectivos_ok or b in conectivos_ok:
+                continue
+            if a in produtos_comuns and b in produtos_comuns and a != b:
+                return False, (
+                    f"Voce mencionou 2 produtos diferentes: '{a}' e '{b}'.\n\n"
+                    "Cada nicho deve ter apenas UM produto ou servico.\n\n"
+                    "✅ CERTO: criar 2 nichos separados — um para carro, outro para moto\n"
+                    "❌ ERRADO: 'vendo carro e moto' no mesmo nicho\n\n"
+                    "Dica: se vende os dois, cadastre primeiro 'carro', depois crie outro nicho 'moto'."
+                )
+
+    # Detecta virgula multipla tipo "carro, moto, bicicleta"
+    if produto_limpo.count(",") >= 1 and len(produtos_comuns) > 0:
+        partes = [p.strip() for p in produto_limpo.split(",") if p.strip()]
+        hits = [p for p in partes if any(pc in p for pc in produtos_comuns)]
+        if len(hits) >= 2:
+            return False, (
+                f"Voce listou varios produtos separados por virgula: {', '.join(hits[:3])}.\n\n"
+                "Cada nicho deve ter apenas UM produto ou servico.\n\n"
+                "✅ CERTO: criar um nicho para cada produto\n"
+                "❌ ERRADO: 'carro, moto, bicicleta' tudo junto"
+            )
+
+    return True, ""
+
+
+
+# ============ EDITAR NICHO (campos permitidos) ============
+
+@app.post("/nicho/{nicho_id}/editar")
+def editar_nicho(nicho_id: int, publico: str = Form(...), preco: str = Form(...), dor: str = Form(...), objecao: str = Form(...), diferencial: str = Form(...), tom: str = Form(...), usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+
+    n = buscar_nicho(nicho_id)
+    if not n or n["vendedor_id"] != v["id"]:
+        return RedirectResponse(url="/meus_nichos?erro=Nicho+nao+encontrado", status_code=303)
+
+    # Valida as respostas
+    erro = validar_respostas_onboarding(n["produto"] or "", publico, preco, dor, objecao, diferencial, tom)
+    if erro:
+        from urllib.parse import quote
+        return RedirectResponse(url=f"/meus_nichos?erro={quote(erro)}", status_code=303)
+
+    # Regera o prompt com os novos dados (mantendo nome e produto originais)
+    pg = gerar_prompt_vendedor(n["produto"] or "", publico, preco, dor, objecao, diferencial, tom)
+
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        UPDATE nichos SET publico=%s, preco=%s, dor=%s, objecao=%s, diferencial=%s, tom=%s, prompt_gerado=%s
+        WHERE id = %s AND vendedor_id = %s
+    """, (publico, preco, dor, objecao, diferencial, tom, pg, nicho_id, v["id"]))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+
+    return RedirectResponse(url="/meus_nichos?ok=1", status_code=303)

@@ -38,6 +38,14 @@
             </p>
         </div>
 
+        {% if request.query_params.get('erro') %}
+        <div class="erro" style="margin-bottom:16px; padding:16px; background:#1f0a0a; border:1px solid #ff3b3b; border-left:4px solid #ff3b3b; border-radius:10px;">
+            <div style="color:#ff3b3b; font-weight:800; font-size:13px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">⚠️ Nicho inválido</div>
+            <div style="color:#e8e8e8; font-size:14px; line-height:1.5;">{{ request.query_params.get('erro') }}</div>
+            <div style="color:#8a8a8a; font-size:12px; margin-top:8px;">Revise as respostas e tente de novo.</div>
+        </div>
+        {% endif %}
+
         <form method="POST" action="/salvar_novo_nicho">
 
             <div class="bloco bloco-crm" style="border-left:4px solid #a855f7; margin-bottom:16px;">

@@ -250,3 +250,41 @@ Responda EXATAMENTE com os 4 marcadores abaixo, cada um em uma linha sozinha.
         diferencial=diferencial,
         tom=tom
     )
+
+
+def validar_nicho_ia(nome, produto):
+    """Usa IA pra validar se o nicho representa UM produto/servico unico."""
+    import json
+    try:
+        from groq import Groq
+        client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+        prompt = f"""Voce e um validador de nichos de venda. Analise o nicho abaixo.
+
+Nome do nicho: "{nome}"
+O que vende: "{produto[:500]}"
+
+REGRAS:
+1. Deve representar UM produto/servico especifico
+2. NAO pode misturar varios (ex: "carro e moto", "pizza e hamburguer", "curso e mentoria")
+3. NAO pode ser vago ("coisas", "produtos", "tudo", "servicos gerais")
+4. Uma categoria unica e OK ("pizza", "carro", "consorcio", "consultoria")
+5. Abrangente dentro de UMA categoria OK ("lanche", "bebidas"), mas misturando categorias NAO
+
+Responda APENAS nesse JSON (sem markdown, sem explicacao extra):
+{{"valido": true, "motivo": "ok"}}
+ou
+{{"valido": false, "motivo": "explicacao curta"}}
+"""
+        r = client.chat.completions.create(
+            model="openai/gpt-oss-120b",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.1,
+            max_tokens=150,
+        )
+        texto = r.choices[0].message.content.strip()
+        texto = texto.replace("```json", "").replace("```", "").strip()
+        dados = json.loads(texto)
+        return dados.get("valido", True), dados.get("motivo", "")
+    except Exception as e:
+        print(f"Erro validar_nicho_ia: {e}")
+        return True, ""
