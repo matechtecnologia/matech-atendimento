@@ -53,13 +53,15 @@
             background: #141414;
             border: 1px solid #222222;
             border-radius: 10px;
-            padding: 18px 20px;
-            margin-bottom: 12px;
-            transition: border-color 0.2s ease, transform 0.15s ease;
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: default;
         }
         .cliente-card:hover {
             border-color: #00d97e;
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(0,217,126,0.12);
         }
         .cliente-head {
             display: flex;
@@ -69,7 +71,7 @@
             flex-wrap: wrap;
         }
         .cliente-head h3 {
-            font-size: 16px;
+            font-size: 15px;
             color: #fff;
             font-weight: 700;
             letter-spacing: -0.01em;
@@ -77,11 +79,11 @@
         }
         .cliente-meta {
             display: flex;
-            gap: 14px;
+            gap: 12px;
             flex-wrap: wrap;
-            margin-top: 10px;
+            margin-top: 6px;
             color: #8a8a8a;
-            font-size: 13px;
+            font-size: 12.5px;
         }
         .cliente-meta .wpp {
             color: #e8e8e8;
@@ -90,38 +92,35 @@
         .cliente-obs {
             color: #8a8a8a;
             font-size: 13px;
-            margin-top: 10px;
+            margin-top: 8px;
             line-height: 1.5;
         }
-
-        /* ===== GRADE 2x2 DOS BOTÕES ===== */
         .cliente-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            margin-top: 16px;
+            gap: 6px;
+            margin-top: 10px;
         }
         .cliente-actions > form {
             display: contents;
         }
-
         .btn-mini {
             background: #1a1a1a;
             color: #c8c8c8;
             border: 1px solid #2a2a2a;
-            padding: 12px 10px;
-            border-radius: 8px;
-            font-size: 13px;
+            padding: 9px 10px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
             text-decoration: none;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
             font-family: inherit;
             white-space: nowrap;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 5px;
             line-height: 1.2;
             width: 100%;
             box-sizing: border-box;
@@ -129,7 +128,6 @@
         .btn-mini:hover {
             transform: translateY(-1px);
         }
-        /* Atender — verde */
         .btn-mini.atender {
             background: #00d97e;
             color: #0a0a0a;
@@ -140,7 +138,6 @@
             background: #00b368;
             box-shadow: 0 6px 24px rgba(0,217,126,0.4);
         }
-        /* Ver histórico — roxo */
         .btn-mini.historico {
             background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.08));
             color: #c084fc;
@@ -152,7 +149,6 @@
             color: #d8b4fe;
             box-shadow: 0 6px 24px rgba(168,85,247,0.3);
         }
-        /* Editar — âmbar */
         .btn-mini.editar {
             background: rgba(245,158,11,0.12);
             color: #f59e0b;
@@ -164,7 +160,6 @@
             color: #fbbf24;
             box-shadow: 0 6px 20px rgba(245,158,11,0.2);
         }
-        /* Excluir — vermelho outline */
         .btn-mini.excluir {
             background: transparent;
             color: #ff3b3b;
@@ -175,10 +170,9 @@
             border-color: #ff3b3b;
             box-shadow: 0 6px 20px rgba(255,59,59,0.2);
         }
-
         .cliente-edit {
-            margin-top: 16px;
-            padding-top: 16px;
+            margin-top: 14px;
+            padding-top: 14px;
             border-top: 1px solid #222222;
         }
         .cliente-edit .linha {
@@ -254,7 +248,7 @@
             </div>
         </div>
 
-                <div style="margin-top:24px; margin-bottom:12px;">
+        <div style="margin-top:24px; margin-bottom:12px;">
             <button type="button" class="btn-novo" onclick="toggleFormAdd()" style="width:100%; padding:14px 20px; font-size:15px;">➕ Novo Cliente</button>
         </div>
 
@@ -447,8 +441,6 @@
     </div>
     <script src="/static/app.js"></script>
     <script>
-    let todosExpandidos = false;
-
     function toggleFormAdd() {
         const f = document.getElementById('form-add-wrapper');
         const abrir = f.style.display === 'none';
@@ -469,18 +461,6 @@
             btn.innerText = '▲ Fechar';
             el.scrollIntoView({behavior: 'smooth', block: 'center'});
         }
-    }
-
-    function expandirTodos() {
-        todosExpandidos = !todosExpandidos;
-        const btn = document.getElementById('btn-expandir');
-        document.querySelectorAll('.cliente-edit').forEach(e => {
-            e.style.display = todosExpandidos ? 'block' : 'none';
-        });
-        document.querySelectorAll('[id^="btn-edit-"]').forEach(b => {
-            b.innerText = todosExpandidos ? '▲ Fechar' : '✏️ Editar';
-        });
-        btn.innerText = todosExpandidos ? 'Recolher tudo' : 'Expandir tudo';
     }
 
     function aplicarFiltros() {
@@ -514,8 +494,8 @@
             if (ok) visiveis++;
         });
 
-        document.getElementById('vazio-busca').style.display = (visiveis === 0 && (q || statusFiltro)) ? 'block' : 'none';
-        document.getElementById('contador').innerText = visiveis;
+        const vazioEl = document.getElementById('vazio-busca');
+        if (vazioEl) vazioEl.style.display = (visiveis === 0 && (q || statusFiltro)) ? 'block' : 'none';
 
         const visiveisCards = cards.filter(c => c.style.display !== 'none');
         visiveisCards.sort((a, b) => {

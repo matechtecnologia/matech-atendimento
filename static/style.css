@@ -1403,3 +1403,195 @@ notepad static\style.css
     color: #0a0a0a !important;
     border-color: #00b368 !important;
 }
+
+
+/* ============================================================
+   MELHORIAS VISUAIS — v2
+   Animações suaves + cards compactos + hover refinado
+   ============================================================ */
+
+/* ===== ANIMAÇÕES BASE ===== */
+@keyframes fade-scale-in {
+    from { opacity: 0; transform: scale(0.98) translateY(6px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,217,126,0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(0,217,126,0); }
+}
+
+@keyframes slide-down {
+    from { opacity: 0; transform: translateY(-8px); max-height: 0; }
+    to { opacity: 1; transform: translateY(0); max-height: 2000px; }
+}
+
+/* ===== BOTÕES — mais suaves e responsivos ===== */
+button,
+.btn-gerar,
+.btn-mini,
+.btn-copiar,
+.btn-acao {
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    will-change: transform, box-shadow;
+}
+
+button:active,
+.btn-gerar:active,
+.btn-mini:active,
+.btn-copiar:active,
+.btn-acao:active {
+    transform: scale(0.97) translateY(0) !important;
+}
+
+/* ===== LINKS DO MENU ===== */
+.usuario-info a {
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+}
+
+.usuario-info a:not(.menu-ativo):not(.ajuda-header-btn):hover {
+    color: #00ff99 !important;
+    transform: translateY(-1px);
+}
+
+/* ===== BLOCOS DE RESULTADO — hover refinado ===== */
+.bloco {
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bloco:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+}
+
+/* ===== STATS CARDS — mais vivos ===== */
+.stat-card {
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stat-card:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 16px 40px rgba(0,217,126,0.15);
+}
+
+/* ===== CARDS DE CLIENTE — compactos + animados ===== */
+.cliente-card {
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.cliente-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 12px 32px rgba(0,217,126,0.12);
+    border-color: #00d97e !important;
+}
+
+/* ===== CARD DE NICHO ===== */
+.nicho-card {
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.nicho-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 12px 32px rgba(34,197,94,0.12);
+}
+
+/* ===== FOLLOW-UP CARDS ===== */
+.follow-card {
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.follow-card:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+}
+
+/* ===== INPUTS — focus com glow mais suave ===== */
+input, textarea, select {
+    transition: border-color 0.2s ease, box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.2s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+    background: #0d0d0d !important;
+}
+
+/* ===== BADGES — micro-animação ===== */
+.badge-status,
+.badge-tag,
+.tipo-badge {
+    transition: all 0.2s ease;
+}
+
+.badge-status:hover,
+.badge-tag:hover,
+.tipo-badge:hover {
+    transform: scale(1.05);
+}
+
+/* ===== FORM DE EDIÇÃO — abre suave ===== */
+.form-edit.aberto {
+    animation: slide-down 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ===== PAINEL DE AJUDA ===== */
+#ajuda-painel[style*="display: block"],
+#ajuda-painel.aberto {
+    animation: fade-scale-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ===== TOASTS — mais suaves ===== */
+.toast {
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+/* ===== SCROLLBAR CUSTOMIZADA ===== */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0a0a0a;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1a1a1a;
+    border-radius: 10px;
+    border: 2px solid #0a0a0a;
+    transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #00d97e;
+    box-shadow: 0 0 12px rgba(0,217,126,0.4);
+}
+
+/* ===== FOCO VISÍVEL ACESSÍVEL ===== */
+*:focus-visible {
+    outline: 2px solid #00d97e;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ===== SELEÇÃO DE TEXTO ===== */
+::selection {
+    background: rgba(0,217,126,0.3);
+    color: #fff;
+}
+
+/* ===== SCROLL SUAVE NA PÁGINA ===== */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ===== MOBILE — menos hover, mais toque ===== */
+@media (max-width: 768px) {
+    .cliente-card:hover,
+    .nicho-card:hover,
+    .follow-card:hover,
+    .bloco:hover,
+    .stat-card:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+}
