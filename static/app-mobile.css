@@ -372,3 +372,200 @@ body.drawer-aberto {
     position: fixed;
     width: 100%;
 }
+
+
+/* ============================================================
+   BOTTOM NAV — Barra inferior estilo app
+   ============================================================ */
+@media (max-width: 768px) {
+    body {
+        padding-bottom: calc(72px + var(--safe-bottom)) !important;
+    }
+
+    .app-bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: calc(64px + var(--safe-bottom));
+        padding-bottom: var(--safe-bottom);
+        background: rgba(15, 15, 15, 0.92);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        z-index: 9997;
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+
+    html[data-tema="claro"] .app-bottom-nav {
+        background: rgba(255, 255, 255, 0.92);
+        border-top-color: #e0e4e8;
+    }
+
+    .app-bottom-nav .nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        text-decoration: none;
+        color: #5a5a5a;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        padding: 6px 2px;
+        border-radius: 10px;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        min-width: 0;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+    }
+
+    .app-bottom-nav .nav-item .icone-nav {
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .app-bottom-nav .nav-item .icone-nav svg {
+        display: block;
+        width: 24px;
+        height: 24px;
+    }
+
+    .app-bottom-nav .nav-item .txt-nav {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+
+    .app-bottom-nav .nav-item:active .icone-nav {
+        transform: scale(0.88);
+    }
+
+    .app-bottom-nav .nav-item.ativo {
+        color: var(--brand);
+    }
+
+    .app-bottom-nav .nav-item.ativo::before {
+        content: "";
+        position: absolute;
+        top: -1px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 22px;
+        height: 3px;
+        background: var(--brand);
+        border-radius: 0 0 4px 4px;
+        box-shadow: 0 0 10px var(--brand);
+    }
+
+    /* Botão central flutuante */
+    .app-bottom-nav .nav-item.destaque {
+        flex: 0 0 auto;
+        width: 56px;
+        height: 56px;
+        margin-top: -22px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--brand) 0%, var(--brand-dark) 100%);
+        color: #0a0a0a;
+        box-shadow: 0 10px 24px rgba(0,217,126,0.45), 0 0 0 4px rgba(10,10,10,0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    html[data-tema="claro"] .app-bottom-nav .nav-item.destaque {
+        box-shadow: 0 10px 24px rgba(0,179,104,0.45), 0 0 0 4px rgba(255,255,255,0.9);
+    }
+
+    .app-bottom-nav .nav-item.destaque:active {
+        transform: scale(0.92);
+    }
+
+    .app-bottom-nav .nav-item.destaque .icone-nav svg {
+        width: 26px;
+        height: 26px;
+    }
+
+    .app-bottom-nav .nav-item.destaque::before {
+        display: none;
+    }
+
+    /* Badge de notificação */
+    .app-bottom-nav .nav-item .badge-nav {
+        position: absolute;
+        top: -6px;
+        right: -8px;
+        min-width: 16px;
+        height: 16px;
+        background: #ff3b3b;
+        color: #fff;
+        border-radius: 100px;
+        font-size: 9px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+        font-family: 'SF Mono', Consolas, monospace;
+        box-shadow: 0 0 0 2px rgba(15,15,15,0.9);
+        line-height: 1;
+    }
+
+    html[data-tema="claro"] .app-bottom-nav .nav-item .badge-nav {
+        box-shadow: 0 0 0 2px #ffffff;
+    }
+}
+
+@media (min-width: 769px) {
+    .app-bottom-nav {
+        display: none !important;
+    }
+}
+
+
+/* ===== BOTÃO AJUDA NO HEADER (pequeno) ===== */
+@media (max-width: 768px) {
+    .app-header .app-help-btn {
+        width: 30px !important;
+        height: 30px !important;
+        border-radius: 50% !important;
+        background: rgba(255,255,255,0.06) !important;
+        border: 1px solid rgba(255,255,255,0.08) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        color: #8a8a8a !important;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .app-header .app-help-btn svg {
+        width: 14px !important;
+        height: 14px !important;
+    }
+
+    .app-header .app-help-btn:hover,
+    .app-header .app-help-btn:active {
+        background: rgba(0,217,126,0.15) !important;
+        border-color: rgba(0,217,126,0.35) !important;
+        color: #00d97e !important;
+    }
+}

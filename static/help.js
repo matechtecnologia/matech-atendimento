@@ -128,6 +128,7 @@ function abrirPainelAjuda() {
         if (btn) btn.classList.remove('ativo');
         return;
     }
+	window.abrirPainelAjuda = abrirPainelAjuda;
     painel.style.display = 'block';
     if (btn) btn.classList.add('ativo');
 }

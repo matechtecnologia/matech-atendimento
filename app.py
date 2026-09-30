@@ -2474,3 +2474,17 @@ def admin_backup(token: str = ""):
     close_conn(conn)
 
     return JSONResponse(dump)
+
+
+
+# ============ API — TOTAL DE FOLLOWUPS ============
+
+@app.get("/api/total-followups")
+def api_total_followups(usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return {"total": 0}
+    try:
+        total = _total_followups_para_template(usuario_id)
+        return {"total": total}
+    except Exception:
+        return {"total": 0}

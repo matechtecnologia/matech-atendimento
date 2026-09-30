@@ -1,0 +1,676 @@
+{
+  "gerado_em": "2026-09-30T13:55:39.467605",
+  "tabelas": {
+    "usuarios": [
+      {
+        "id": 1,
+        "nome": "Admin M.A Tech",
+        "email": "matechtecnologia01@gmail.com",
+        "senha": "$pbkdf2-sha256$29000$9v4/ByAEoHQuRQjBeA8BoA$h81QnSiv6hP5BAX65bBa4bC9Rlsg4I9C.FioM/ui0vw",
+        "tipo": "admin",
+        "ativo": true,
+        "criado_em": "2026-09-28T18:41:42.978553+00:00",
+        "whatsapp": null
+      },
+      {
+        "id": 3,
+        "nome": "awsvawsvawsv1",
+        "email": "awsvawsvawsv1@gmail.com",
+        "senha": "$pbkdf2-sha256$29000$KQVgTAmB8F6LkbIWQshZiw$N6wtZzUosm1sy3.espnocLpF12hkiOIHADkZBXvCR9w",
+        "tipo": "atendente",
+        "ativo": true,
+        "criado_em": "2026-09-28T18:59:03.668302+00:00",
+        "whatsapp": null
+      },
+      {
+        "id": 5,
+        "nome": "Allan",
+        "email": "awsv.ads@gmail.com",
+        "senha": "$pbkdf2-sha256$29000$rJUyRkjp/R/jXIuRsjbGeA$nCTUoQuizgOHWrFTeV6exGWb1J4cl/lv4JhpANoARws",
+        "tipo": "atendente",
+        "ativo": true,
+        "criado_em": "2026-09-28T23:06:26.457805+00:00",
+        "whatsapp": null
+      },
+      {
+        "id": 6,
+        "nome": "Andrey",
+        "email": "andreywillian567@gmail.com",
+        "senha": "$pbkdf2-sha256$29000$RCildG6t1ToHIASg1NobYw$ub.HRNruXVIblgPZ0nDb/NTTZdIjYfjJtg0LGkCHRbk",
+        "tipo": "atendente",
+        "ativo": true,
+        "criado_em": "2026-09-28T23:11:47.883345+00:00",
+        "whatsapp": null
+      },
+      {
+        "id": 7,
+        "nome": "RAFAEL PRADO DE CARLO",
+        "email": "croxfastfood@protonmail.com",
+        "senha": "$pbkdf2-sha256$29000$u5eydu79f0.p1XrP.f.fkw$iqwcJ4ec7aOPUWOcycxE0FTn77rXLVurHmrMqJYoIC0",
+        "tipo": "atendente",
+        "ativo": true,
+        "criado_em": "2026-09-29T00:37:40.423168+00:00",
+        "whatsapp": null
+      },
+      {
+        "id": 8,
+        "nome": "Lucas Martins da Silva ",
+        "email": "martinsmkt99@gmail.com",
+        "senha": "$pbkdf2-sha256$29000$LQVAKOUcI2RszTmnVGrN2Q$N94UvGXq8CGclz4hysZm.Oh23KNVAXetYqZGKIzCOqM",
+        "tipo": "atendente",
+        "ativo": true,
+        "criado_em": "2026-09-29T17:16:41.450554+00:00",
+        "whatsapp": "11998241155"
+      },
+      {
+        "id": 2,
+        "nome": "Allan Willian",
+        "email": "awsvawsvawsv@gmail.com",
+        "senha": "$pbkdf2-sha256$29000$a03JGcOYs3YO4Zzzfu8dAw$mRYpD.JvQbZ0J/C3/LEQ1QHcQTOyBlm/UCu4ixmAfg4",
+        "tipo": "atendente",
+        "ativo": true,
+        "criado_em": "2026-09-28T18:48:54.812762+00:00",
+        "whatsapp": "12997291583"
+      },
+      {
+        "id": 11,
+        "nome": "Kethelin ",
+        "email": "kethelinbeatriz427@gmail.com",
+        "senha": "$pbkdf2-sha256$29000$z7lXqpXSmlNKKaWUUqo1hg$R7S8lkXlj4S2pLyGQNRwhVHnjyJ409BRnLLLNc6niKM",
+        "tipo": "atendente",
+        "ativo": true,
+        "criado_em": "2026-09-30T04:57:36.757046+00:00",
+        "whatsapp": "11932527249"
+      }
+    ],
+    "vendedores": [
+      {
+        "id": 5,
+        "usuario_id": 5,
+        "plano": "gratis",
+        "plano_expira_em": null,
+        "onboarding_completo": true,
+        "criado_em": "2026-09-28T23:06:26.457805+00:00",
+        "atualizado_em": "2026-09-28T23:07:52.993420+00:00",
+        "followup_snooze_ate": null,
+        "codigo_indicacao": null,
+        "indicado_por": null,
+        "indicacao_recompensada": false
+      },
+      {
+        "id": 6,
+        "usuario_id": 6,
+        "plano": "gratis",
+        "plano_expira_em": null,
+        "onboarding_completo": false,
+        "criado_em": "2026-09-28T23:11:47.883345+00:00",
+        "atualizado_em": "2026-09-28T23:11:47.883345+00:00",
+        "followup_snooze_ate": null,
+        "codigo_indicacao": null,
+        "indicado_por": null,
+        "indicacao_recompensada": false
+      },
+      {
+        "id": 7,
+        "usuario_id": 7,
+        "plano": "gratis",
+        "plano_expira_em": null,
+        "onboarding_completo": true,
+        "criado_em": "2026-09-29T00:37:40.423168+00:00",
+        "atualizado_em": "2026-09-29T00:41:10.014059+00:00",
+        "followup_snooze_ate": null,
+        "codigo_indicacao": null,
+        "indicado_por": null,
+        "indicacao_recompensada": false
+      },
+      {
+        "id": 8,
+        "usuario_id": 8,
+        "plano": "gratis",
+        "plano_expira_em": null,
+        "onboarding_completo": false,
+        "criado_em": "2026-09-29T17:16:41.450554+00:00",
+        "atualizado_em": "2026-09-29T17:16:41.450554+00:00",
+        "followup_snooze_ate": null,
+        "codigo_indicacao": null,
+        "indicado_por": null,
+        "indicacao_recompensada": false
+      },
+      {
+        "id": 2,
+        "usuario_id": 3,
+        "plano": "gratis",
+        "plano_expira_em": null,
+        "onboarding_completo": false,
+        "criado_em": "2026-09-28T18:59:03.668302+00:00",
+        "atualizado_em": "2026-09-28T18:59:49.110404+00:00",
+        "followup_snooze_ate": null,
+        "codigo_indicacao": null,
+        "indicado_por": null,
+        "indicacao_recompensada": false
+      },
+      {
+        "id": 1,
+        "usuario_id": 2,
+        "plano": "gratis",
+        "plano_expira_em": null,
+        "onboarding_completo": true,
+        "criado_em": "2026-09-28T18:48:54.812762+00:00",
+        "atualizado_em": "2026-09-29T21:49:58.945634+00:00",
+        "followup_snooze_ate": null,
+        "codigo_indicacao": null,
+        "indicado_por": null,
+        "indicacao_recompensada": false
+      },
+      {
+        "id": 11,
+        "usuario_id": 11,
+        "plano": "gratis",
+        "plano_expira_em": null,
+        "onboarding_completo": true,
+        "criado_em": "2026-09-30T04:57:36.757046+00:00",
+        "atualizado_em": "2026-09-30T05:07:34.685557+00:00",
+        "followup_snooze_ate": null,
+        "codigo_indicacao": null,
+        "indicado_por": null,
+        "indicacao_recompensada": false
+      },
+      {
+        "id": 3,
+        "usuario_id": 1,
+        "plano": "gratis",
+        "plano_expira_em": null,
+        "onboarding_completo": true,
+        "criado_em": "2026-09-28T19:18:54.548836+00:00",
+        "atualizado_em": "2026-09-28T19:18:54.548836+00:00",
+        "followup_snooze_ate": null,
+        "codigo_indicacao": "I5U3FI",
+        "indicado_por": null,
+        "indicacao_recompensada": false
+      }
+    ],
+    "nichos": [
+      {
+        "id": 2,
+        "vendedor_id": 2,
+        "nome": "Meu Negócio",
+        "produto": "Oi",
+        "publico": "Oi",
+        "preco": "Oi",
+        "dor": "Oi",
+        "objecao": "Oi",
+        "diferencial": "Oi",
+        "tom": "Oi",
+        "prompt_gerado": "Você é um closer estratégico especializado em vendas consultivas.\n\n---\n\n# SOBRE O PRODUTO/SERVIÇO\n\nOi\n\n---\n\n# PÚBLICO-ALVO\n\nOi\n\n---\n\n# PREÇO\n\nOi\n\n---\n\n# DOR PRINCIPAL DO CLIENTE\n\nOi\n\n---\n\n# OBJEÇÕES MAIS COMUNS\n\nOi\n\n---\n\n# DIFERENCIAL\n\nOi\n\n---\n\n# TOM DE VOZ\n\nOi\n\n---\n\n# REGRAS CRÍTICAS\n\n1. NUNCA faça mais de uma pergunta por vez\n2. NUNCA pergunte o óbvio\n3. Use todo o contexto acumulado\n4. Cada mensagem deve mover a venda para frente\n5. Áudios de 10-30 segundos, linguagem natural\n6. Texto apenas quando for preço, link, endereço ou informação técnica\n\n---\n\n# REGRA ESPECIAL\n\nO campo \"MENSAGEM DO CLIENTE AGORA\" pode conter:\nA) FALA DO CLIENTE → responda normalmente\nB) INSTRUÇÃO DO VENDEDOR (ex: \"fazer prospecção fria\") → NÃO responda como cliente, GERE a mensagem pedida\n\n---\n\n# FORMATO DE RESPOSTA OBRIGATÓRIO\n\nResponda EXATAMENTE com os 4 marcadores abaixo, cada um em uma linha sozinha.\n\n=== O QUE FALAR ===\n(roteiro do áudio de 10-30 segundos)\n\n=== TEXTO PARA ENVIAR ===\n(texto curto OU NENHUM)\n\n=== ESTAGIO ===\n(Novo Lead, Em Atendimento, Negociação, Cliente ou Perdido)\n\n=== LINHA CRM ===\n(Nome: xxx; Nicho: xxx; Objetivo: xxx; Dor: xxx; Objeção: xxx; Estratégia: xxx; Interesse: xxx; Status: xxx; Próximo passo: xxx)\n",
+        "ativo": true,
+        "criado_em": "2026-09-28T18:59:49.110404+00:00"
+      },
+      {
+        "id": 3,
+        "vendedor_id": 3,
+        "nome": "Consultoria empresarial (PN)",
+        "produto": "Consultoria empresarial",
+        "publico": "Para pequenos negócios",
+        "preco": "A combinar ",
+        "dor": "Falta de gestão",
+        "objecao": "Não sei ",
+        "diferencial": "Atendimento personalizado",
+        "tom": "Profissional mais acessível",
+        "prompt_gerado": "Você é um closer estratégico especializado em vendas consultivas.\n\n---\n\n# SOBRE O PRODUTO/SERVIÇO\n\nConsultoria empresarial\n\n---\n\n# PÚBLICO-ALVO\n\nPara pequenos negócios\n\n---\n\n# PREÇO\n\nA combinar \n\n---\n\n# DOR PRINCIPAL DO CLIENTE\n\nFalta de gestão\n\n---\n\n# OBJEÇÕES MAIS COMUNS\n\nNão sei \n\n---\n\n# DIFERENCIAL\n\nAtendimento personalizado\n\n---\n\n# TOM DE VOZ\n\nProfissional mais acessível\n\n---\n\n# REGRAS CRÍTICAS\n\n1. NUNCA faça mais de uma pergunta por vez\n2. NUNCA pergunte o óbvio\n3. Use todo o contexto acumulado\n4. Cada mensagem deve mover a venda para frente\n5. Áudios de 10-30 segundos, linguagem natural\n6. Texto apenas quando for preço, link, endereço ou informação técnica\n\n---\n\n# REGRA ESPECIAL\n\nO campo \"MENSAGEM DO CLIENTE AGORA\" pode conter:\nA) FALA DO CLIENTE → responda normalmente\nB) INSTRUÇÃO DO VENDEDOR (ex: \"fazer prospecção fria\") → NÃO responda como cliente, GERE a mensagem pedida\n\n---\n\n# FORMATO DE RESPOSTA OBRIGATÓRIO\n\nResponda EXATAMENTE com os 4 marcadores abaixo, cada um em uma linha sozinha.\n\n=== O QUE FALAR ===\n(roteiro do áudio de 10-30 segundos)\n\n=== TEXTO PARA ENVIAR ===\n(texto curto OU NENHUM)\n\n=== ESTAGIO ===\n(Novo Lead, Em Atendimento, Negociação, Cliente ou Perdido)\n\n=== LINHA CRM ===\n(Nome: xxx; Nicho: xxx; Objetivo: xxx; Dor: xxx; Objeção: xxx; Estratégia: xxx; Interesse: xxx; Status: xxx; Próximo passo: xxx)\n",
+        "ativo": true,
+        "criado_em": "2026-09-28T19:18:54.548836+00:00"
+      },
+      {
+        "id": 6,
+        "vendedor_id": 7,
+        "nome": "Burguer Crox ",
+        "produto": "Um burguer focado para família, preço bom e qualidade surpreendente, 80% mais saudável não usamos óleo de soja na operação, variedade nos sabores como burguer com Doritos, burguer com ônion Rings, bacon, catupiry ",
+        "publico": "Para todo mundo que quer comprar comida boa e barata",
+        "preco": "3 unidades por 34,90",
+        "dor": "Fome e custo benefício ",
+        "objecao": "Não tenho isso, tenho silêncio ",
+        "diferencial": "Custk benefícios ",
+        "tom": "Sem gírias, direto no foco ",
+        "prompt_gerado": "Você é um closer estratégico especializado em vendas consultivas.\n\n---\n\n# SOBRE O PRODUTO/SERVIÇO\n\nUm burguer focado para família, preço bom e qualidade surpreendente, 80% mais saudável não usamos óleo de soja na operação, variedade nos sabores como burguer com Doritos, burguer com ônion Rings, bacon, catupiry \n\n---\n\n# PÚBLICO-ALVO\n\nPara todo mundo que quer comprar comida boa e barata\n\n---\n\n# PREÇO\n\n3 unidades por 34,90\n\n---\n\n# DOR PRINCIPAL DO CLIENTE\n\nFome e custo benefício \n\n---\n\n# OBJEÇÕES MAIS COMUNS\n\nNão tenho isso, tenho silêncio \n\n---\n\n# DIFERENCIAL\n\nCustk benefícios \n\n---\n\n# TOM DE VOZ\n\nSem gírias, direto no foco \n\n---\n\n# REGRAS CRÍTICAS\n\n1. NUNCA faça mais de uma pergunta por vez\n2. NUNCA pergunte o óbvio\n3. Use todo o contexto acumulado\n4. Cada mensagem deve mover a venda para frente\n5. Áudios de 10-30 segundos, linguagem natural\n6. Texto apenas quando for preço, link, endereço ou informação técnica\n\n---\n\n# REGRA ESPECIAL\n\nO campo \"MENSAGEM DO CLIENTE AGORA\" pode conter:\nA) FALA DO CLIENTE → responda normalmente\nB) INSTRUÇÃO DO VENDEDOR (ex: \"fazer prospecção fria\") → NÃO responda como cliente, GERE a mensagem pedida\n\n---\n\n# FORMATO DE RESPOSTA OBRIGATÓRIO\n\nResponda EXATAMENTE com os 4 marcadores abaixo, cada um em uma linha sozinha.\n\n=== O QUE FALAR ===\n(roteiro do áudio de 10-30 segundos)\n\n=== TEXTO PARA ENVIAR ===\n(texto curto OU NENHUM)\n\n=== ESTAGIO ===\n(Novo Lead, Em Atendimento, Negociação, Cliente ou Perdido)\n\n=== LINHA CRM ===\n(Nome: xxx; Nicho: xxx; Objetivo: xxx; Dor: xxx; Objeção: xxx; Estratégia: xxx; Interesse: xxx; Status: xxx; Próximo passo: xxx)\n",
+        "ativo": true,
+        "criado_em": "2026-09-29T00:41:10.014059+00:00"
+      },
+      {
+        "id": 8,
+        "vendedor_id": 8,
+        "nome": "Assistente de consórcio ",
+        "produto": "Consórcios Ademicon — planejamento para compra de bens e realização de projetos sem juros, sem entrada e com parcela que cabe no bolso.\r\n\r\nModalidades:\r\n\r\n· Imóveis (casa, apartamento, terreno, construção, reforma, quitação)\r\n· Veículos (carro, moto, caminhão)\r\n· Serviços (viagens, festas, casamento, formatura, intercâmbio)\r\n· Procedimentos e planejamentos (cirurgias, estética, saúde)\r\n· Crédito",
+        "publico": "Pessoas físicas que têm um objetivo ou projeto e precisam de planejamento financeiro para realizar.\r\n\r\nPerfil:\r\n\r\n· Quem paga aluguel e quer sair\r\n· Quem quer comprar um imóvel mas não tem entrada\r\n· Quem quer trocar de carro mas não quer financiar\r\n· Quem quer viajar, casar, fazer uma formatura\r\n· Quem quer fazer uma cirurgia ou procedimento estético\r\n· Quem quer investir em imóvel\r\n· Quem quer construir ou reformar\r\n· Quem quer quitar um financiamento",
+        "preco": "Não há um preço fixo. O valor depende do tipo de consórcio, do valor da carta e do prazo escolhido.\r\n\r\nO que o cliente paga:\r\n\r\n· Taxa de administração — diluída nas parcelas (24% para imóveis, 15% para veículos)\r\n· Seguro prestamista — opcional (0,38%)\r\n· Parcela mensal — calculada com base no valor da carta + taxa + prazo\r\n\r\nO consultor (Allan) faz a simulação no AVA Prévia e apresenta os valores exatos.\r\n\r\nO Lucas NÃO fala de preço, taxa ou parcela. Ele apenas desperta interesse e encaminha para o Allan.",
+        "dor": " Querer realizar um sonho mas não ter o dinheiro à vista\r\n· Não conseguir poupar de forma organizada\r\n· Pagar aluguel e sentir que está jogando dinheiro fora\r\n· Não querer pagar juros altos de financiamento\r\n· Ter medo de não conseguir crédito no banco\r\n· Achar que nunca vai conseguir comprar à vista\r\n· Adiar um projeto por falta de planejamento financeiro",
+        "objecao": "· \"Consórcio demora\"\r\n· \"Não sei se vou ser contemplado\"\r\n· \"Prefiro financiamento\"\r\n· \"Não confio\"\r\n· \"Vou pensar\"\r\n· \"Não tenho dinheiro agora\"\r\n· \"Já tenho financiamento\"\r\n· \"Não entendo como funciona\"\r\n\r\nO Lucas não contorna objeções. Ele apenas identifica se há interesse. Se houver objeção, ele encaminha para o Allan, que é quem contorna.",
+        "diferencial": "· Atendimento consultivo e personalizado — não é venda de produto, é planejamento\r\n· Sem juros — o cliente paga taxa de administração diluída, não juros compostos\r\n· Sem entrada — não precisa ter dinheiro para começar\r\n· Parcela que cabe no bolso — com opção de parcela reduzida\r\n· Flexibilidade de uso — pode usar para compra, construção, reforma, quitação\r\n· FGTS — pode ser usado para lance, amortização ou pagamento de parcelas\r\n· Poder de compra à vista — o cliente negocia como pagamento à vista\r\n· Segurança — Ademicon é a maior administradora independente do Brasil\r\n· Acompanhamento — o consultor cuida da carteira do cliente",
+        "tom": " Consultivo · Humano · Natural · Sem formalidade excessiva · Sem termos técnicos · Sem parecer robô · Sem parecer vendedor · Linguagem de conversa de WhatsApp · Áudios curtos (10 a 30 segundos) · Uma ideia por mensagem · Uma pergunta por vez",
+        "prompt_gerado": "Você é um closer estratégico especializado em vendas consultivas.\n\n---\n\n# SOBRE O PRODUTO/SERVIÇO\n\nConsórcios Ademicon — planejamento para compra de bens e realização de projetos sem juros, sem entrada e com parcela que cabe no bolso.\r\n\r\nModalidades:\r\n\r\n· Imóveis (casa, apartamento, terreno, construção, reforma, quitação)\r\n· Veículos (carro, moto, caminhão)\r\n· Serviços (viagens, festas, casamento, formatura, intercâmbio)\r\n· Procedimentos e planejamentos (cirurgias, estética, saúde)\r\n· Crédito\n\n---\n\n# PÚBLICO-ALVO\n\nPessoas físicas que têm um objetivo ou projeto e precisam de planejamento financeiro para realizar.\r\n\r\nPerfil:\r\n\r\n· Quem paga aluguel e quer sair\r\n· Quem quer comprar um imóvel mas não tem entrada\r\n· Quem quer trocar de carro mas não quer financiar\r\n· Quem quer viajar, casar, fazer uma formatura\r\n· Quem quer fazer uma cirurgia ou procedimento estético\r\n· Quem quer investir em imóvel\r\n· Quem quer construir ou reformar\r\n· Quem quer quitar um financiamento\n\n---\n\n# PREÇO\n\nNão há um preço fixo. O valor depende do tipo de consórcio, do valor da carta e do prazo escolhido.\r\n\r\nO que o cliente paga:\r\n\r\n· Taxa de administração — diluída nas parcelas (24% para imóveis, 15% para veículos)\r\n· Seguro prestamista — opcional (0,38%)\r\n· Parcela mensal — calculada com base no valor da carta + taxa + prazo\r\n\r\nO consultor (Allan) faz a simulação no AVA Prévia e apresenta os valores exatos.\r\n\r\nO Lucas NÃO fala de preço, taxa ou parcela. Ele apenas desperta interesse e encaminha para o Allan.\n\n---\n\n# DOR PRINCIPAL DO CLIENTE\n\n Querer realizar um sonho mas não ter o dinheiro à vista\r\n· Não conseguir poupar de forma organizada\r\n· Pagar aluguel e sentir que está jogando dinheiro fora\r\n· Não querer pagar juros altos de financiamento\r\n· Ter medo de não conseguir crédito no banco\r\n· Achar que nunca vai conseguir comprar à vista\r\n· Adiar um projeto por falta de planejamento financeiro\n\n---\n\n# OBJEÇÕES MAIS COMUNS\n\n· \"Consórcio demora\"\r\n· \"Não sei se vou ser contemplado\"\r\n· \"Prefiro financiamento\"\r\n· \"Não confio\"\r\n· \"Vou pensar\"\r\n· \"Não tenho dinheiro agora\"\r\n· \"Já tenho financiamento\"\r\n· \"Não entendo como funciona\"\r\n\r\nO Lucas não contorna objeções. Ele apenas identifica se há interesse. Se houver objeção, ele encaminha para o Allan, que é quem contorna.\n\n---\n\n# DIFERENCIAL\n\n· Atendimento consultivo e personalizado — não é venda de produto, é planejamento\r\n· Sem juros — o cliente paga taxa de administração diluída, não juros compostos\r\n· Sem entrada — não precisa ter dinheiro para começar\r\n· Parcela que cabe no bolso — com opção de parcela reduzida\r\n· Flexibilidade de uso — pode usar para compra, construção, reforma, quitação\r\n· FGTS — pode ser usado para lance, amortização ou pagamento de parcelas\r\n· Poder de compra à vista — o cliente negocia como pagamento à vista\r\n· Segurança — Ademicon é a maior administradora independente do Brasil\r\n· Acompanhamento — o consultor cuida da carteira do cliente\n\n---\n\n# TOM DE VOZ\n\n Consultivo · Humano · Natural · Sem formalidade excessiva · Sem termos técnicos · Sem parecer robô · Sem parecer vendedor · Linguagem de conversa de WhatsApp · Áudios curtos (10 a 30 segundos) · Uma ideia por mensagem · Uma pergunta por vez\n\n---\n\n# REGRAS CRÍTICAS\n\n1. NUNCA faça mais de uma pergunta por vez\n2. NUNCA pergunte o óbvio\n3. Use todo o contexto acumulado\n4. Cada mensagem deve mover a venda para frente\n5. Áudios de 10-30 segundos, linguagem natural\n6. Texto apenas quando for preço, link, endereço ou informação técnica\n\n---\n\n# REGRA ESPECIAL\n\nO campo \"MENSAGEM DO CLIENTE AGORA\" pode conter:\nA) FALA DO CLIENTE → responda normalmente\nB) INSTRUÇÃO DO VENDEDOR (ex: \"fazer prospecção fria\") → NÃO responda como cliente, GERE a mensagem pedida\n\n---\n\n# FORMATO DE RESPOSTA OBRIGATÓRIO\n\nResponda EXATAMENTE com os 4 marcadores abaixo, cada um em uma linha sozinha.\n\n=== O QUE FALAR ===\n(roteiro do áudio de 10-30 segundos)\n\n=== TEXTO PARA ENVIAR ===\n(texto curto OU NENHUM)\n\n=== ESTAGIO ===\n(Novo Lead, Em Atendimento, Negociação, Cliente ou Perdido)\n\n=== LINHA CRM ===\n(Nome: xxx; Nicho: xxx; Objetivo: xxx; Dor: xxx; Objeção: xxx; Estratégia: xxx; Interesse: xxx; Status: xxx; Próximo passo: xxx)\n",
+        "ativo": true,
+        "criado_em": "2026-09-29T18:57:19.642355+00:00"
+      },
+      {
+        "id": 11,
+        "vendedor_id": 11,
+        "nome": "Meu Negócio",
+        "produto": "Vendo roupas ",
+        "publico": "Homens e mulheres de 20 a 45 anos pessoas que procuram roupas ",
+        "preco": "120,00 reais \r\nAceito Pix, cartão, dinheiro ",
+        "dor": "Não tem roupa pra sair ou pra usar ",
+        "objecao": "Tá caro, será que o tecido é bom ",
+        "diferencial": "Não sei ",
+        "tom": "Profissional ",
+        "prompt_gerado": "Você é um closer estratégico especializado em vendas consultivas.\n\n---\n\n# SOBRE O PRODUTO/SERVIÇO\n\nVendo roupas \n\n---\n\n# PÚBLICO-ALVO\n\nHomens e mulheres de 20 a 45 anos pessoas que procuram roupas \n\n---\n\n# PREÇO\n\n120,00 reais \r\nAceito Pix, cartão, dinheiro \n\n---\n\n# DOR PRINCIPAL DO CLIENTE\n\nNão tem roupa pra sair ou pra usar \n\n---\n\n# OBJEÇÕES MAIS COMUNS\n\nTá caro, será que o tecido é bom \n\n---\n\n# DIFERENCIAL\n\nNão sei \n\n---\n\n# TOM DE VOZ\n\nProfissional \n\n---\n\n# REGRAS CRÍTICAS\n\n1. NUNCA faça mais de uma pergunta por vez\n2. NUNCA pergunte o óbvio\n3. Use todo o contexto acumulado\n4. Cada mensagem deve mover a venda para frente\n5. Áudios de 10-30 segundos, linguagem natural\n6. Texto apenas quando for preço, link, endereço ou informação técnica\n\n---\n\n# REGRA ESPECIAL\n\nO campo \"MENSAGEM DO CLIENTE AGORA\" pode conter:\nA) FALA DO CLIENTE → responda normalmente\nB) INSTRUÇÃO DO VENDEDOR (ex: \"fazer prospecção fria\") → NÃO responda como cliente, GERE a mensagem pedida\n\n---\n\n# FORMATO DE RESPOSTA OBRIGATÓRIO\n\nResponda EXATAMENTE com os 4 marcadores abaixo, cada um em uma linha sozinha.\n\n=== O QUE FALAR ===\n(roteiro do áudio de 10-30 segundos)\n\n=== TEXTO PARA ENVIAR ===\n(texto curto OU NENHUM)\n\n=== ESTAGIO ===\n(Novo Lead, Em Atendimento, Negociação, Cliente ou Perdido)\n\n=== LINHA CRM ===\n(Nome: xxx; Nicho: xxx; Objetivo: xxx; Dor: xxx; Objeção: xxx; Estratégia: xxx; Interesse: xxx; Status: xxx; Próximo passo: xxx)\n",
+        "ativo": true,
+        "criado_em": "2026-09-30T05:07:34.685557+00:00"
+      }
+    ],
+    "clientes": [
+      {
+        "id": 2,
+        "vendedor_id": 2,
+        "whatsapp": "1236788878991",
+        "nome": "Teste 02",
+        "email": "",
+        "origem": "",
+        "status": "novo lead",
+        "observacoes": "",
+        "linha_crm": "Nome: (não informado); Nicho: (não informado); Objetivo: (não informado); Dor: (não informado); Objeção: (nenhuma); Estratégia: qualificar; Interesse: (baixo); Status: Novo Lead; Próximo passo: Agendar diagnóstico.",
+        "nicho_id": null,
+        "criado_em": "2026-09-28T19:07:21.779734+00:00",
+        "atualizado_em": "2026-09-28T19:07:37.062431+00:00"
+      },
+      {
+        "id": 6,
+        "vendedor_id": 3,
+        "whatsapp": "27522525252",
+        "nome": "allan 3",
+        "email": "",
+        "origem": "",
+        "status": "em atendimento",
+        "observacoes": "",
+        "linha_crm": "(Nome: ; Nicho: Pequenos negócios; Objetivo: Melhorar gestão; Dor: Falta de gestão; Objeção: ; Estratégia: Conversa exploratória; Interesse: Médio; Status: Em Atendimento; Próximo passo: Agendar diagnóstico rápido)",
+        "nicho_id": null,
+        "criado_em": "2026-09-28T22:41:07.901427+00:00",
+        "atualizado_em": "2026-09-30T02:17:11.684804+00:00"
+      },
+      {
+        "id": 12,
+        "vendedor_id": 3,
+        "whatsapp": "543645463465363",
+        "nome": "ola",
+        "email": "",
+        "origem": "",
+        "status": "novo lead",
+        "observacoes": "",
+        "linha_crm": "Nome: -; Nicho: Pequenos negócios; Objetivo: Melhorar gestão; Dor: Falta de gestão; Objeção: Não sei; Estratégia: Atendimento personalizado; Interesse: -; Status: Novo Lead; Próximo passo: Agendar diagnóstico rápido",
+        "nicho_id": null,
+        "criado_em": "2026-09-30T02:17:46.973701+00:00",
+        "atualizado_em": "2026-09-30T02:18:06.328158+00:00"
+      },
+      {
+        "id": 13,
+        "vendedor_id": 11,
+        "whatsapp": "12997291583",
+        "nome": "Allan",
+        "email": "awsvawsvawsv1@gmail.com",
+        "origem": "Anúncio do Instagram",
+        "status": "em atendimento",
+        "observacoes": "",
+        "linha_crm": "(Nome: desconhecido; Nicho: roupas; Objetivo: saber mais; Dor: não tem roupa pra sair ou pra usar; Objeção: preço/tecido; Estratégia: apresentar qualidade, preço e opções; Interesse: alto; Status: Em Atendimento; Próximo passo: enviar catálogo de bermudas)",
+        "nicho_id": null,
+        "criado_em": "2026-09-30T05:09:06.225084+00:00",
+        "atualizado_em": "2026-09-30T05:11:51.941614+00:00"
+      },
+      {
+        "id": 10,
+        "vendedor_id": 5,
+        "whatsapp": "12222424242472472",
+        "nome": "testeee",
+        "email": "",
+        "origem": "",
+        "status": "novo lead",
+        "observacoes": "",
+        "linha_crm": "",
+        "nicho_id": null,
+        "criado_em": "2026-09-29T21:16:39.782313+00:00",
+        "atualizado_em": "2026-09-29T21:16:39.782313+00:00"
+      },
+      {
+        "id": 11,
+        "vendedor_id": 1,
+        "whatsapp": "12367888788",
+        "nome": "Allan Willian ",
+        "email": "",
+        "origem": "",
+        "status": "novo lead",
+        "observacoes": "",
+        "linha_crm": "Nome: (não informado); Nicho: (não informado); Objetivo: (não informado); Dor: (não informado); Objeção: (não informado); Estratégia: iniciar descoberta; Interesse: baixo; Status: Novo Lead; Próximo passo: Identificar principal desafio do cliente.",
+        "nicho_id": null,
+        "criado_em": "2026-09-29T21:35:16.591424+00:00",
+        "atualizado_em": "2026-09-29T21:35:43.972411+00:00"
+      }
+    ],
+    "historico": [
+      {
+        "id": 63,
+        "whatsapp": "27522525252",
+        "vendedor_id": 3,
+        "direcao": "cliente",
+        "mensagem": "oi , me fala mais sobre seu serviço",
+        "criado_em": "2026-09-30T02:16:40.744110+00:00"
+      },
+      {
+        "id": 64,
+        "whatsapp": "27522525252",
+        "vendedor_id": 3,
+        "direcao": "ia",
+        "mensagem": "Oi, tudo bem! Nossa consultoria trabalha lado a lado com pequenos negócios para criar processos de gestão simples e eficazes, desde organização financeira até controle de estoque e equipe. Assim, você ganha mais clareza e tempo para focar no crescimento. Qual a maior dificuldade que você sente hoje na gestão da sua empresa?",
+        "criado_em": "2026-09-30T02:16:42.508167+00:00"
+      },
+      {
+        "id": 65,
+        "whatsapp": "27522525252",
+        "vendedor_id": 3,
+        "direcao": "cliente",
+        "mensagem": "ah sim como faço pra chegar mais perto disso?\r\n",
+        "criado_em": "2026-09-30T02:17:09.553740+00:00"
+      },
+      {
+        "id": 66,
+        "whatsapp": "27522525252",
+        "vendedor_id": 3,
+        "direcao": "ia",
+        "mensagem": "Entendo, vamos chegar lá juntos. O próximo passo ideal é fazermos uma breve conversa de 15 minutos, onde eu conheço a sua rotina e mostro como montar processos de gestão que realmente funcionam para o seu negócio. Qual dia e horário funciona melhor para você nesta semana?",
+        "criado_em": "2026-09-30T02:17:11.647423+00:00"
+      },
+      {
+        "id": 67,
+        "whatsapp": "543645463465363",
+        "vendedor_id": 3,
+        "direcao": "cliente",
+        "mensagem": "ola\r\n",
+        "criado_em": "2026-09-30T02:18:04.883511+00:00"
+      },
+      {
+        "id": 68,
+        "whatsapp": "543645463465363",
+        "vendedor_id": 3,
+        "direcao": "ia",
+        "mensagem": "Oi, tudo bem? Aqui é o [Seu Nome] da consultoria. Percebo que muitos pequenos negócios enfrentam dificuldades na gestão diária. Gostaria de entender: qual é o maior desafio que você sente hoje ao organizar seu negócio?",
+        "criado_em": "2026-09-30T02:18:06.291225+00:00"
+      },
+      {
+        "id": 69,
+        "whatsapp": "12997291583",
+        "vendedor_id": 11,
+        "direcao": "cliente",
+        "mensagem": "Olá tenho interesse gostaria de saber mais",
+        "criado_em": "2026-09-30T05:10:21.879436+00:00"
+      },
+      {
+        "id": 70,
+        "whatsapp": "12997291583",
+        "vendedor_id": 11,
+        "direcao": "ia",
+        "mensagem": "Oi, tudo bem? Obrigado pelo interesse! Nossas peças são feitas com tecidos de alta qualidade e design moderno, perfeitas para quem precisa de roupa para sair ou usar no dia a dia. Cada peça custa R$120 e aceitamos Pix, cartão ou dinheiro. Gostaria de saber qual tipo de roupa você procura, para eu indicar as opções que mais combinam com você?",
+        "criado_em": "2026-09-30T05:10:24.824690+00:00"
+      },
+      {
+        "id": 71,
+        "whatsapp": "12997291583",
+        "vendedor_id": 11,
+        "direcao": "cliente",
+        "mensagem": "Ver bermuda \r\n",
+        "criado_em": "2026-09-30T05:11:49.302395+00:00"
+      },
+      {
+        "id": 72,
+        "whatsapp": "12997291583",
+        "vendedor_id": 11,
+        "direcao": "ia",
+        "mensagem": "Oi! Temos várias opções de bermudas, todas com tecido macio e durável, perfeitas para sair ou usar no dia a dia. Temos modelos mais casuais, com bolsos e estampas discretas, e também opções esportivas, mais leves e de secagem rápida. Qual estilo você prefere para eu te enviar as opções que combinam com você?",
+        "criado_em": "2026-09-30T05:11:51.434025+00:00"
+      },
+      {
+        "id": 31,
+        "whatsapp": "27522525252",
+        "vendedor_id": 3,
+        "direcao": "cliente",
+        "mensagem": "oi",
+        "criado_em": "2026-09-28T22:41:20.883200+00:00"
+      },
+      {
+        "id": 32,
+        "whatsapp": "27522525252",
+        "vendedor_id": 3,
+        "direcao": "ia",
+        "mensagem": "Oi, tudo bem! Aqui é o [Seu Nome] da consultoria que ajuda pequenos negócios a organizar a gestão. Muitas vezes a falta de processos claros atrasa o crescimento. Você tem percebido alguma área da sua empresa que está dificultando esse avanço?",
+        "criado_em": "2026-09-28T22:41:23.093769+00:00"
+      },
+      {
+        "id": 1,
+        "whatsapp": "123456789",
+        "vendedor_id": 3,
+        "direcao": "cliente",
+        "mensagem": "Olá tenho interesse ",
+        "criado_em": "2026-09-28T18:57:48.299104+00:00"
+      },
+      {
+        "id": 2,
+        "whatsapp": "123456789",
+        "vendedor_id": 3,
+        "direcao": "ia",
+        "mensagem": "Oi, tudo bem? Fico feliz com seu interesse. Para garantir que a solução atenda exatamente ao que você precisa, poderia me contar qual o principal desafio que você está tentando resolver agora?",
+        "criado_em": "2026-09-28T18:57:52.458512+00:00"
+      },
+      {
+        "id": 3,
+        "whatsapp": "1236788878991",
+        "vendedor_id": 3,
+        "direcao": "cliente",
+        "mensagem": "Oi",
+        "criado_em": "2026-09-28T19:07:34.284254+00:00"
+      },
+      {
+        "id": 4,
+        "whatsapp": "1236788878991",
+        "vendedor_id": 3,
+        "direcao": "ia",
+        "mensagem": "Oi, tudo bem? Aqui é [Seu Nome] da [Sua Empresa]. Gostaria de saber qual é o principal desafio que você está enfrentando hoje na sua operação, para que eu possa entender como podemos ajudar.",
+        "criado_em": "2026-09-28T19:07:36.565086+00:00"
+      }
+    ],
+    "atendimentos": [
+      {
+        "id": 2,
+        "atendente_id": 3,
+        "nicho_id": 2,
+        "whatsapp": "1236788878991",
+        "linha_crm": "",
+        "mensagem_cliente": "Oi",
+        "o_que_falar": "Oi, tudo bem? Aqui é [Seu Nome] da [Sua Empresa]. Gostaria de saber qual é o principal desafio que você está enfrentando hoje na sua operação, para que eu possa entender como podemos ajudar.",
+        "texto_para_enviar": "NENHUM\nNENHUM",
+        "acao_crm": "Novo Lead",
+        "linha_crm_gerada": "Nome: (não informado); Nicho: (não informado); Objetivo: (não informado); Dor: (não informado); Objeção: (nenhuma); Estratégia: qualificar; Interesse: (baixo); Status: Novo Lead; Próximo passo: Agendar diagnóstico.",
+        "cliente_id": 2,
+        "status": "pronto",
+        "criado_em": "2026-09-28T19:07:34.782765+00:00"
+      },
+      {
+        "id": 16,
+        "atendente_id": 1,
+        "nicho_id": 3,
+        "whatsapp": "27522525252",
+        "linha_crm": "",
+        "mensagem_cliente": "oi",
+        "o_que_falar": "Oi, tudo bem! Aqui é o [Seu Nome] da consultoria que ajuda pequenos negócios a organizar a gestão. Muitas vezes a falta de processos claros atrasa o crescimento. Você tem percebido alguma área da sua empresa que está dificultando esse avanço?",
+        "texto_para_enviar": "NENHUM\nNENHUM\n\n=== ESTAGIA ===\nNovo Lead",
+        "acao_crm": "Em Atendimento",
+        "linha_crm_gerada": "Nome: (não informado); Nicho: Pequenos negócios; Objetivo: Melhorar gestão; Dor: Falta de gestão; Objeção: (nenhuma); Estratégia: Conversa exploratória; Interesse: (a definir); Status: Novo Lead; Próximo passo: Identificar necessidade específica",
+        "cliente_id": 6,
+        "status": "pronto",
+        "criado_em": "2026-09-28T22:41:20.919735+00:00"
+      },
+      {
+        "id": 26,
+        "atendente_id": 2,
+        "nicho_id": 1,
+        "whatsapp": "12367888788",
+        "linha_crm": "",
+        "mensagem_cliente": "Oi",
+        "o_que_falar": "Olá, tudo bem? Sou o [Seu Nome] da [Empresa]. Gostaria de entender melhor o que você busca melhorar na sua operação. Qual é o principal desafio que você está enfrentando hoje?",
+        "texto_para_enviar": "NENHUM\nNENHUM",
+        "acao_crm": "Novo Lead",
+        "linha_crm_gerada": "Nome: (não informado); Nicho: (não informado); Objetivo: (não informado); Dor: (não informado); Objeção: (não informado); Estratégia: iniciar descoberta; Interesse: baixo; Status: Novo Lead; Próximo passo: Identificar principal desafio do cliente.",
+        "cliente_id": 11,
+        "status": "pronto",
+        "criado_em": "2026-09-29T21:35:41.106031+00:00"
+      },
+      {
+        "id": 36,
+        "atendente_id": 11,
+        "nicho_id": 11,
+        "whatsapp": "12997291583",
+        "linha_crm": "(Nome: desconhecido; Nicho: roupas; Objetivo: saber mais; Dor: não tem roupa pra sair ou pra usar; Objeção: preço/tecido; Estratégia: apresentar qualidade, preço e opções; Interesse: alto; Status: Em Atendimento; Próximo passo: enviar catálogo ou marcar prova)",
+        "mensagem_cliente": "Ver bermuda \r\n",
+        "o_que_falar": "Oi! Temos várias opções de bermudas, todas com tecido macio e durável, perfeitas para sair ou usar no dia a dia. Temos modelos mais casuais, com bolsos e estampas discretas, e também opções esportivas, mais leves e de secagem rápida. Qual estilo você prefere para eu te enviar as opções que combinam com você?",
+        "texto_para_enviar": "NENHUM\nNENHUM",
+        "acao_crm": "Em Atendimento",
+        "linha_crm_gerada": "(Nome: desconhecido; Nicho: roupas; Objetivo: saber mais; Dor: não tem roupa pra sair ou pra usar; Objeção: preço/tecido; Estratégia: apresentar qualidade, preço e opções; Interesse: alto; Status: Em Atendimento; Próximo passo: enviar catálogo de bermudas)",
+        "cliente_id": 13,
+        "status": "pronto",
+        "criado_em": "2026-09-30T05:11:49.808978+00:00"
+      },
+      {
+        "id": 32,
+        "atendente_id": 1,
+        "nicho_id": 3,
+        "whatsapp": "27522525252",
+        "linha_crm": "Nome: (não informado); Nicho: Pequenos negócios; Objetivo: Melhorar gestão; Dor: Falta de gestão; Objeção: (nenhuma); Estratégia: Conversa exploratória; Interesse: (a definir); Status: Novo Lead; Próximo passo: Identificar necessidade específica",
+        "mensagem_cliente": "oi , me fala mais sobre seu serviço",
+        "o_que_falar": "Oi, tudo bem! Nossa consultoria trabalha lado a lado com pequenos negócios para criar processos de gestão simples e eficazes, desde organização financeira até controle de estoque e equipe. Assim, você ganha mais clareza e tempo para focar no crescimento. Qual a maior dificuldade que você sente hoje na gestão da sua empresa?",
+        "texto_para_enviar": "NENHUM\nNENHUM",
+        "acao_crm": "Em Atendimento",
+        "linha_crm_gerada": "(Nome: ; Nicho: Pequenos negócios; Objetivo: Melhorar gestão; Dor: Falta de gestão; Objeção: ; Estratégia: Conversa exploratória; Interesse: (a definir); Status: Em Atendimento; Próximo passo: Identificar necessidade específica)",
+        "cliente_id": 6,
+        "status": "pronto",
+        "criado_em": "2026-09-30T02:16:40.783270+00:00"
+      },
+      {
+        "id": 33,
+        "atendente_id": 1,
+        "nicho_id": 3,
+        "whatsapp": "27522525252",
+        "linha_crm": "(Nome: ; Nicho: Pequenos negócios; Objetivo: Melhorar gestão; Dor: Falta de gestão; Objeção: ; Estratégia: Conversa exploratória; Interesse: (a definir); Status: Em Atendimento; Próximo passo: Identificar necessidade específica)",
+        "mensagem_cliente": "ah sim como faço pra chegar mais perto disso?\r\n",
+        "o_que_falar": "Entendo, vamos chegar lá juntos. O próximo passo ideal é fazermos uma breve conversa de 15 minutos, onde eu conheço a sua rotina e mostro como montar processos de gestão que realmente funcionam para o seu negócio. Qual dia e horário funciona melhor para você nesta semana?",
+        "texto_para_enviar": "NENHUM\nNENHUM",
+        "acao_crm": "Em Atendimento",
+        "linha_crm_gerada": "(Nome: ; Nicho: Pequenos negócios; Objetivo: Melhorar gestão; Dor: Falta de gestão; Objeção: ; Estratégia: Conversa exploratória; Interesse: Médio; Status: Em Atendimento; Próximo passo: Agendar diagnóstico rápido)",
+        "cliente_id": 6,
+        "status": "pronto",
+        "criado_em": "2026-09-30T02:17:09.590803+00:00"
+      },
+      {
+        "id": 34,
+        "atendente_id": 1,
+        "nicho_id": 3,
+        "whatsapp": "543645463465363",
+        "linha_crm": "",
+        "mensagem_cliente": "ola\r\n",
+        "o_que_falar": "Oi, tudo bem? Aqui é o [Seu Nome] da consultoria. Percebo que muitos pequenos negócios enfrentam dificuldades na gestão diária. Gostaria de entender: qual é o maior desafio que você sente hoje ao organizar seu negócio?",
+        "texto_para_enviar": "NENHUM\nNENHUM",
+        "acao_crm": "Novo Lead",
+        "linha_crm_gerada": "Nome: -; Nicho: Pequenos negócios; Objetivo: Melhorar gestão; Dor: Falta de gestão; Objeção: Não sei; Estratégia: Atendimento personalizado; Interesse: -; Status: Novo Lead; Próximo passo: Agendar diagnóstico rápido",
+        "cliente_id": 12,
+        "status": "pronto",
+        "criado_em": "2026-09-30T02:18:04.941026+00:00"
+      },
+      {
+        "id": 35,
+        "atendente_id": 11,
+        "nicho_id": 11,
+        "whatsapp": "12997291583",
+        "linha_crm": "",
+        "mensagem_cliente": "Olá tenho interesse gostaria de saber mais",
+        "o_que_falar": "Oi, tudo bem? Obrigado pelo interesse! Nossas peças são feitas com tecidos de alta qualidade e design moderno, perfeitas para quem precisa de roupa para sair ou usar no dia a dia. Cada peça custa R$120 e aceitamos Pix, cartão ou dinheiro. Gostaria de saber qual tipo de roupa você procura, para eu indicar as opções que mais combinam com você?",
+        "texto_para_enviar": "NENHUM\nNENHUM",
+        "acao_crm": "Em Atendimento",
+        "linha_crm_gerada": "(Nome: desconhecido; Nicho: roupas; Objetivo: saber mais; Dor: não tem roupa pra sair ou pra usar; Objeção: preço/tecido; Estratégia: apresentar qualidade, preço e opções; Interesse: alto; Status: Em Atendimento; Próximo passo: enviar catálogo ou marcar prova)",
+        "cliente_id": 13,
+        "status": "pronto",
+        "criado_em": "2026-09-30T05:10:22.395996+00:00"
+      }
+    ],
+    "pagamentos": [
+      {
+        "id": 2,
+        "vendedor_id": 3,
+        "payment_id": "pay_41mqhsefusme500p",
+        "plano": "basico",
+        "valor": 97.0,
+        "status": "pendente",
+        "criado_em": "2026-09-28T23:05:17.851331+00:00"
+      },
+      {
+        "id": 3,
+        "vendedor_id": 5,
+        "payment_id": "pay_2ujrafade4m32qxr",
+        "plano": "basico",
+        "valor": 97.0,
+        "status": "pendente",
+        "criado_em": "2026-09-29T20:52:45.856236+00:00"
+      },
+      {
+        "id": 4,
+        "vendedor_id": 2,
+        "payment_id": "pay_qty5tttj7xzwizv1",
+        "plano": "basico",
+        "valor": 97.0,
+        "status": "pendente",
+        "criado_em": "2026-09-29T20:57:28.803988+00:00"
+      }
+    ],
+    "tentativas_signup": [
+      {
+        "id": 1,
+        "ip": "127.0.0.1",
+        "criado_em": "2026-09-29T18:49:06.282773+00:00"
+      },
+      {
+        "id": 2,
+        "ip": "177.106.143.114",
+        "criado_em": "2026-09-29T21:39:53.383421+00:00"
+      },
+      {
+        "id": 3,
+        "ip": "177.106.143.114",
+        "criado_em": "2026-09-29T21:40:27.661543+00:00"
+      },
+      {
+        "id": 4,
+        "ip": "177.106.143.114",
+        "criado_em": "2026-09-29T21:40:52.142989+00:00"
+      },
+      {
+        "id": 5,
+        "ip": "177.106.143.114",
+        "criado_em": "2026-09-30T04:57:36.353204+00:00"
+      }
+    ],
+    "leads_landing": [
+      {
+        "id": 1,
+        "nome": "allan wunii",
+        "whatsapp": "11978545874",
+        "email": "",
+        "ip": "127.0.0.1",
+        "convertido": false,
+        "criado_em": "2026-09-30T01:47:01.714053+00:00"
+      }
+    ],
+    "indicacoes": []
+  }
+}
