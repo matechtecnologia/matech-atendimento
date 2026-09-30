@@ -10,11 +10,7 @@
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
     <link rel="icon" type="image/png" href="/static/favicon-32.png">
-    <link rel="stylesheet" href="/static/splash.css">
     <title>Admin - {{ v.nome }}</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <link rel="stylesheet" href="/static/app-mobile.css">
-    <link rel="stylesheet" href="/static/tema.css">
     <style>
         .card-admin { background: #141414; border: 1px solid #222222; border-left: 4px solid #00d97e; border-radius: 10px; padding: 20px; margin-bottom: 16px; }
         .card-admin h3 { font-size: 14px; color: #a8a8a8; letter-spacing: 0.5px; margin: 0 0 14px 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -45,6 +41,7 @@
         .secao-head h2 { margin: 0; font-size: 16px; color: #a8a8a8; }
         @media (max-width: 700px) { .linha-2 { grid-template-columns: 1fr; } }
     </style>
+    <link rel="stylesheet" href="/static/app.min.css">
 </head>
 <script>
     (function() {
@@ -325,7 +322,6 @@
         {% endfor %}
 
     </div>
-    <script src="/static/app.js"></script>
     <script>
     function toggleForm(id) {
         const el = document.getElementById('form-' + id);
@@ -335,12 +331,8 @@
         if (abrir) el.scrollIntoView({behavior: 'smooth', block: 'center'});
     }
     </script>
-    <script src="/static/help.js"></script>
+    <script src="/static/app.min.js"></script>
     <script src="/static/splash.js"></script>
-    <script src="/static/app-ux.js"></script>
     <script src="/static/sw-register.js"></script>
-    <script src="/static/icons.js"></script>
-    <script src="/static/app-mobile.js"></script>
-    <script src="/static/app-bottom-nav.js"></script>
 </body>
 </html>

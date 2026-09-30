@@ -15,7 +15,18 @@ from asaas import criar_cliente, criar_cobranca_pix, obter_qr_code, consultar_pa
 load_dotenv()
 
 app = FastAPI(title="M.A Tech")
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Static com cache control
+from starlette.staticfiles import StaticFiles as _SF
+from starlette.responses import Response as _Resp
+
+class _CacheStatic(_SF):
+    async def get_response(self, path, scope):
+        resp = await super().get_response(path, scope)
+        if resp.status_code == 200:
+            resp.headers["Cache-Control"] = "public, max-age=86400"
+        return resp
+
+app.mount("/static", _CacheStatic(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 

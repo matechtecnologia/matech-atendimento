@@ -10,11 +10,7 @@
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
     <link rel="icon" type="image/png" href="/static/favicon-32.png">
-    <link rel="stylesheet" href="/static/splash.css">
     <title>M.A Tech - Clientes</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <link rel="stylesheet" href="/static/app-mobile.css">
-    <link rel="stylesheet" href="/static/tema.css">
     <style>
         .toolbar-clientes {
             display: grid;
@@ -241,6 +237,7 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="/static/app.min.css">
 </head>
 <script>
     (function() {
@@ -455,7 +452,6 @@
         </div>
 
     </div>
-    <script src="/static/app.js"></script>
     <script>
     function toggleFormAdd() {
         const f = document.getElementById('form-add-wrapper');
@@ -527,12 +523,8 @@
         cards.filter(c => c.style.display === 'none').forEach(c => container.appendChild(c));
     }
     </script>
-    <script src="/static/help.js"></script>
+    <script src="/static/app.min.js"></script>
     <script src="/static/splash.js"></script>
-    <script src="/static/app-ux.js"></script>
     <script src="/static/sw-register.js"></script>
-    <script src="/static/icons.js"></script>
-    <script src="/static/app-mobile.js"></script>
-    <script src="/static/app-bottom-nav.js"></script>
 </body>
 </html>

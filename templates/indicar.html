@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M.A Tech - Indique e ganhe</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <link rel="stylesheet" href="/static/app-mobile.css">
-    <link rel="stylesheet" href="/static/tema.css">
     <style>
         .indicar-wrap {
             max-width: 720px;
@@ -299,6 +296,7 @@
         document.documentElement.setAttribute('data-tema', t);
     })();
     </script>
+    <link rel="stylesheet" href="/static/app.min.css">
 </head>
 <body>
     <div class="container-atendimento">
@@ -387,8 +385,6 @@
             {% endif %}
         </div>
     </div>
-    <script src="/static/app.js"></script>
-    <script src="/static/help.js"></script>
     <script>
     function copiarLink() {
         const input = document.getElementById('link-txt');
@@ -403,11 +399,8 @@
         });
     }
     </script>
+    <script src="/static/app.min.js"></script>
     <script src="/static/splash.js"></script>
-    <script src="/static/app-ux.js"></script>
     <script src="/static/sw-register.js"></script>
-    <script src="/static/icons.js"></script>
-    <script src="/static/app-mobile.js"></script>
-    <script src="/static/app-bottom-nav.js"></script>
 </body>
 </html>
