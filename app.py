@@ -416,9 +416,9 @@ def salvar_historico(whatsapp, vid, direcao, mensagem):
     close_conn(conn)
 
 
-def processar_atendimento(aid, linha_crm, mensagem, prompt, hist, whatsapp, uid, cid=None):
+def processar_atendimento(aid, linha_crm, mensagem, prompt, hist, whatsapp, uid, cid=None, nicho_dict=None):
     try:
-        r = gerar_resposta(linha_crm, mensagem, prompt, hist)
+        r = gerar_resposta(linha_crm, mensagem, prompt, hist, nicho_dict=nicho_dict)
         salvar_historico(whatsapp, uid, "ia", r.get("o_que_falar", ""))
         conn = get_conn()
         cur = conn.cursor()
@@ -612,19 +612,36 @@ def tela_cliente_detalhe(request: Request, cliente_id: int, usuario_id: str = Co
     v = buscar_vendedor(usuario_id)
     if not v:
         return RedirectResponse(url="/onboarding")
+
     conn = get_conn()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     cur.execute("SELECT * FROM clientes WHERE id = %s AND vendedor_id = %s", (cliente_id, v["id"]))
     cli = cur.fetchone()
+
     hist = []
     if cli:
-        cur.execute("SELECT * FROM historico WHERE whatsapp = %s AND vendedor_id = %s ORDER BY id ASC", (cli["whatsapp"], v["id"]))
+        # Busca o historico completo pelo whatsapp + vendedor
+        cur.execute("""
+            SELECT id, direcao, mensagem, criado_em
+            FROM historico
+            WHERE whatsapp = %s AND vendedor_id = %s
+            ORDER BY id ASC
+        """, (cli["whatsapp"], v["id"]))
         hist = [dict(h) for h in cur.fetchall()]
+
     cur.close()
     close_conn(conn)
+
     if not cli:
         return RedirectResponse(url="/clientes")
-    return templates.TemplateResponse(request=request, name="cliente_detalhe.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id), "cliente": dict(cli), "historico": hist})
+
+    return templates.TemplateResponse(request=request, name="cliente_detalhe.html", context={
+        "usuario_nome": usuario_nome,
+        "usuario_tipo": usuario_tipo,
+        "total_followups": _total_followups_para_template(usuario_id),
+        "cliente": dict(cli),
+        "historico": hist
+    })
 
 
 @app.post("/gerar_resposta")
@@ -637,11 +654,41 @@ def rota_gerar_resposta(whatsapp: str = Form(...), nicho_id: int = Form(...), me
         return RedirectResponse(url="/onboarding")
     vid_real = vendedor_atual["id"]
 
+    if not mensagem_cliente or len(mensagem_cliente.strip()) < 3:
+        return RedirectResponse(url=f"/cliente/{cliente_id}/atender?erro=Mensagem+muito+curta+(minimo+3+caracteres)", status_code=303)
+
     if modo_instrucao:
-        mensagem_cliente = f"[INSTRUCAO DO VENDEDOR - EXECUTE]: {mensagem_cliente}"
+        mensagem_cliente = f"""### INSTRUCAO DIRETA DO VENDEDOR ###
+
+ATENCAO IA: o texto abaixo NAO e uma fala do cliente.
+E uma ORDEM do vendedor pra voce executar.
+
+NAO responda como se voce fosse o cliente.
+NAO trate isso como nova mensagem do cliente.
+EXECUTE essa instrucao e gere a proxima resposta do vendedor.
+
+INSTRUCAO A EXECUTAR:
+{mensagem_cliente}
+
+### FIM DA INSTRUCAO ###"""
+        # Marca no historico como INSTRUCAO, nao como fala do cliente
+        salvar_historico(whatsapp, vid_real, "instrucao", f"[INSTRUCAO] {mensagem_cliente[:200]}")
+
     n = buscar_nicho(nicho_id)
     if not n:
         return RedirectResponse(url="/clientes")
+
+    # CRITICO: SEMPRE regenera o prompt do vendedor na hora (nao usa o do banco)
+    prompt_atualizado = gerar_prompt_vendedor(
+        n.get("produto") or "",
+        n.get("publico") or "",
+        n.get("preco") or "",
+        n.get("dor") or "",
+        n.get("objecao") or "",
+        n.get("diferencial") or "",
+        n.get("tom") or ""
+    )
+
     linha_crm = ""
     if cliente_id:
         conn = get_conn()
@@ -652,8 +699,12 @@ def rota_gerar_resposta(whatsapp: str = Form(...), nicho_id: int = Form(...), me
         close_conn(conn)
         if cli:
             linha_crm = cli["linha_crm"] or ""
+
     hist = buscar_historico(whatsapp, vid_real)
-    salvar_historico(whatsapp, vid_real, "cliente", mensagem_cliente)
+
+    if not modo_instrucao:
+        salvar_historico(whatsapp, vid_real, "cliente", mensagem_cliente)
+
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("INSERT INTO atendimentos (atendente_id, nicho_id, whatsapp, linha_crm, mensagem_cliente, cliente_id, status) VALUES (%s, %s, %s, %s, %s, %s, 'processando') RETURNING id", (usuario_id, nicho_id, whatsapp, linha_crm, mensagem_cliente, cliente_id))
@@ -661,7 +712,8 @@ def rota_gerar_resposta(whatsapp: str = Form(...), nicho_id: int = Form(...), me
     conn.commit()
     cur.close()
     close_conn(conn)
-    threading.Thread(target=processar_atendimento, args=(aid, linha_crm, mensagem_cliente, n["prompt_gerado"], hist, whatsapp, vid_real, cliente_id)).start()
+
+    threading.Thread(target=processar_atendimento, args=(aid, linha_crm, mensagem_cliente, prompt_atualizado, hist, whatsapp, vid_real, cliente_id), kwargs={"nicho_dict": dict(n)}).start()
     return RedirectResponse(url=f"/resultado/{aid}", status_code=303)
 
 
@@ -2646,3 +2698,88 @@ def desbloquear_login(token: str = "", email: str = ""):
     cur.close()
     close_conn(conn)
     return {"ok": True, "removidas": removidas}
+
+
+
+# ============ API HISTORICO DO CLIENTE ============
+
+@app.get("/api/cliente/{cliente_id}/historico")
+def api_historico_cliente(cliente_id: int, usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return {"historico": []}
+    try:
+        v = buscar_vendedor(usuario_id)
+        if not v:
+            return {"historico": []}
+        conn = get_conn()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute("SELECT whatsapp FROM clientes WHERE id = %s AND vendedor_id = %s", (cliente_id, v["id"]))
+        row = cur.fetchone()
+        if not row:
+            cur.close()
+            close_conn(conn)
+            return {"historico": []}
+        wpp = row["whatsapp"]
+        cur.execute("""SELECT direcao, mensagem, criado_em FROM historico
+                       WHERE whatsapp = %s AND vendedor_id = %s
+                       ORDER BY id DESC LIMIT 20""", (wpp, v["id"]))
+        linhas = list(reversed(cur.fetchall()))
+        cur.close()
+        close_conn(conn)
+        return {"historico": [
+            {
+                "direcao": r["direcao"],
+                "mensagem": r["mensagem"][:500],
+                "data": r["criado_em"].strftime("%d/%m %H:%M") if r["criado_em"] else ""
+            } for r in linhas
+        ]}
+    except Exception as e:
+        print(f"Erro api historico: {e}")
+        return {"historico": []}
+
+
+
+# ============ API AVISO PLANO BADGE ============
+
+@app.get("/api/aviso-plano-badge")
+def api_aviso_plano_badge(usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return {"mostrar": False}
+    try:
+        v = buscar_vendedor(usuario_id)
+        if not v:
+            return {"mostrar": False}
+        if v["plano"] == "gratis" or not v["plano_expira_em"]:
+            return {"mostrar": False}
+        from datetime import datetime as _dt
+        exp = v["plano_expira_em"]
+        agora = _dt.now(exp.tzinfo) if exp.tzinfo else _dt.now()
+        dias = (exp - agora).days
+        if 0 <= dias <= 5:
+            return {"mostrar": True, "dias": dias}
+        return {"mostrar": False}
+    except Exception:
+        return {"mostrar": False}
+
+
+
+# ============ API FOLLOWUPS RAPIDOS ============
+
+@app.get("/api/followups-rapidos")
+def api_followups_rapidos(usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return {"itens": []}
+    try:
+        v = buscar_vendedor(usuario_id)
+        if not v:
+            return {"itens": []}
+        dados = calcular_followups_auto(v["id"])
+        itens = []
+        for f in dados.get("urgente", [])[:8]:
+            itens.append({"id": f["id"], "nome": f["nome"], "whatsapp": f["whatsapp"], "dias_sem_contato": f["dias_sem_contato"], "urgencia": "urgente"})
+        for f in dados.get("atencao", [])[:5]:
+            itens.append({"id": f["id"], "nome": f["nome"], "whatsapp": f["whatsapp"], "dias_sem_contato": f["dias_sem_contato"], "urgencia": "atencao"})
+        return {"itens": itens}
+    except Exception as e:
+        print(f"Erro api followups rapidos: {e}")
+        return {"itens": []}
