@@ -1,0 +1,374 @@
+/* ============================================================
+   M.A TECH — APP SHELL (mobile-first)
+   Drawer lateral + header compacto + gestures
+   ============================================================ */
+
+/* ===== VARIÁVEIS ===== */
+:root {
+    --app-header-h: 60px;
+    --drawer-width: 280px;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --brand: #00d97e;
+    --brand-dark: #00b368;
+    --surface: #141414;
+    --surface-2: #0f0f0f;
+    --bg: #0a0a0a;
+    --border: #222222;
+    --text: #e8e8e8;
+    --muted: #8a8a8a;
+}
+
+/* ===== APP SHELL — só no mobile (≤ 768px) ===== */
+@media (max-width: 768px) {
+
+    /* Esconde cabeçalho antigo */
+    .topo { display: none !important; }
+
+    /* Espaço pro header fixo */
+    body {
+        padding-top: calc(var(--app-header-h) + var(--safe-top)) !important;
+        padding-bottom: var(--safe-bottom) !important;
+        background: var(--bg);
+    }
+
+    .container-atendimento {
+        padding: 12px !important;
+        max-width: 100% !important;
+    }
+
+    /* ===== HEADER FIXO ===== */
+    .app-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: calc(var(--app-header-h) + var(--safe-top));
+        padding-top: var(--safe-top);
+        background: rgba(10, 10, 10, 0.85);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border-bottom: 1px solid rgba(34, 34, 34, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-left: 14px;
+        padding-right: 14px;
+        z-index: 9998;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .app-header .logo-app {
+        font-size: 18px;
+        font-weight: 800;
+        color: #fff;
+        text-decoration: none;
+        letter-spacing: -0.03em;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .app-header .logo-app em {
+        font-style: normal;
+        color: var(--brand);
+    }
+
+    .app-header .logo-app .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--brand);
+        box-shadow: 0 0 8px var(--brand);
+        animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* Botão hamburger */
+    .app-hamburger {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        padding: 0;
+        margin: 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .app-hamburger:active {
+        transform: scale(0.92);
+        background: rgba(0,217,126,0.15);
+    }
+
+    .app-hamburger .bar {
+        position: absolute;
+        left: 50%;
+        width: 18px;
+        height: 2px;
+        background: var(--brand);
+        border-radius: 2px;
+        transform: translateX(-50%);
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .app-hamburger .bar:nth-child(1) { top: 13px; }
+    .app-hamburger .bar:nth-child(2) { top: 19px; }
+    .app-hamburger .bar:nth-child(3) { top: 25px; }
+
+    /* Notificação no hamburger */
+    .app-hamburger .badge-notif {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        min-width: 16px;
+        height: 16px;
+        background: #ff3b3b;
+        color: #fff;
+        border-radius: 100px;
+        font-size: 10px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 4px;
+        font-family: 'SF Mono', Consolas, monospace;
+        box-shadow: 0 0 0 2px var(--bg);
+    }
+
+    /* ===== OVERLAY ===== */
+    .app-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+        z-index: 9999;
+    }
+
+    .app-overlay.aberto {
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.3s ease, visibility 0s;
+    }
+
+    /* ===== DRAWER LATERAL ===== */
+    .app-drawer {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: var(--drawer-width);
+        max-width: 85vw;
+        background: linear-gradient(160deg, #141414 0%, #0d0d0d 100%);
+        border-right: 1px solid rgba(255,255,255,0.06);
+        z-index: 10000;
+        transform: translateX(-100%);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 10px 0 40px rgba(0,0,0,0.5);
+    }
+
+    .app-drawer.aberto {
+        transform: translateX(0);
+    }
+
+    /* Cabeçalho do drawer */
+    .app-drawer-header {
+        padding: 24px 20px calc(20px + var(--safe-top));
+        padding-top: calc(24px + var(--safe-top));
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        background: linear-gradient(135deg, rgba(0,217,126,0.08), transparent);
+    }
+
+    .app-drawer-header .avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, var(--brand), #7a5cff);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        font-weight: 800;
+        color: #0a0a0a;
+        margin-bottom: 12px;
+        box-shadow: 0 8px 24px rgba(0,217,126,0.3);
+    }
+
+    .app-drawer-header .nome {
+        font-size: 15px;
+        font-weight: 700;
+        color: #fff;
+        letter-spacing: -0.01em;
+        word-break: break-word;
+    }
+
+    .app-drawer-header .papel {
+        font-size: 12px;
+        color: var(--brand);
+        font-weight: 600;
+        margin-top: 2px;
+        font-family: 'SF Mono', Consolas, monospace;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    /* Lista do drawer */
+    .app-drawer-lista {
+        flex: 1;
+        overflow-y: auto;
+        padding: 12px 10px;
+    }
+
+    .app-drawer-lista a {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 16px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: var(--text);
+        font-size: 15px;
+        font-weight: 600;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        position: relative;
+        margin-bottom: 2px;
+    }
+
+    .app-drawer-lista a .icone {
+        font-size: 20px;
+        width: 24px;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    .app-drawer-lista a .texto {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .app-drawer-lista a .badge-menu {
+        min-width: 22px;
+        height: 22px;
+        background: #ff3b3b;
+        color: #fff;
+        border-radius: 100px;
+        font-size: 11px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 6px;
+        font-family: 'SF Mono', Consolas, monospace;
+    }
+
+    .app-drawer-lista a:active {
+        background: rgba(0,217,126,0.12);
+        transform: scale(0.98);
+    }
+
+    .app-drawer-lista a.menu-ativo {
+        background: linear-gradient(135deg, rgba(0,217,126,0.18), rgba(0,217,126,0.08));
+        color: var(--brand);
+        border: 1px solid rgba(0,217,126,0.3);
+    }
+
+    .app-drawer-lista a.menu-ativo::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 20%;
+        bottom: 20%;
+        width: 3px;
+        background: var(--brand);
+        border-radius: 0 3px 3px 0;
+        box-shadow: 0 0 12px var(--brand);
+    }
+
+    /* Separador */
+    .app-drawer-lista .separador {
+        height: 1px;
+        background: rgba(255,255,255,0.06);
+        margin: 12px 8px;
+    }
+
+    .app-drawer-lista .secao-titulo {
+        font-size: 11px;
+        color: #5a5a5a;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 800;
+        padding: 12px 16px 8px;
+    }
+
+    /* Rodapé do drawer */
+    .app-drawer-footer {
+        padding: 16px 20px calc(20px + var(--safe-bottom));
+        border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .app-drawer-footer a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 14px;
+        border-radius: 10px;
+        text-decoration: none;
+        color: #ff3b3b;
+        font-size: 14px;
+        font-weight: 600;
+        transition: background 0.2s ease;
+    }
+
+    .app-drawer-footer a:active {
+        background: rgba(255,59,59,0.1);
+    }
+
+    /* Ajustes globais no conteúdo */
+    .bloco { border-radius: 14px !important; }
+    .container-login {
+        margin: 20px auto !important;
+        border-radius: 16px !important;
+    }
+
+    /* Bottom padding pra não cortar conteúdo */
+    body::after {
+        content: "";
+        display: block;
+        height: 20px;
+    }
+}
+
+/* ===== DESKTOP (>768px) — esconde elementos mobile ===== */
+@media (min-width: 769px) {
+    .app-header,
+    .app-drawer,
+    .app-overlay {
+        display: none !important;
+    }
+}
+
+/* ===== Evita scroll quando drawer aberto ===== */
+body.drawer-aberto {
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+}
