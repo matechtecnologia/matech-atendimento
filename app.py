@@ -559,8 +559,11 @@ def tela_cliente_detalhe(request: Request, cliente_id: int, usuario_id: str = Co
 def rota_gerar_resposta(whatsapp: str = Form(...), nicho_id: int = Form(...), mensagem_cliente: str = Form(...), cliente_id: int = Form(None), modo_instrucao: str = Form(None), usuario_id: str = Cookie(None)):
     if not usuario_id:
         return RedirectResponse(url="/login")
-    if not mensagem_cliente or len(mensagem_cliente.strip()) < 3:
-        return RedirectResponse(url=f"/cliente/{cliente_id}/atender?erro=Mensagem+muito+curta+(minimo+3+caracteres)", status_code=303)
+
+    vendedor_atual = buscar_vendedor(usuario_id)
+    if not vendedor_atual:
+        return RedirectResponse(url="/onboarding")
+    vid_real = vendedor_atual["id"]
 
     if modo_instrucao:
         mensagem_cliente = f"[INSTRUCAO DO VENDEDOR - EXECUTE]: {mensagem_cliente}"
@@ -577,8 +580,8 @@ def rota_gerar_resposta(whatsapp: str = Form(...), nicho_id: int = Form(...), me
         close_conn(conn)
         if cli:
             linha_crm = cli["linha_crm"] or ""
-    hist = buscar_historico(whatsapp, usuario_id)
-    salvar_historico(whatsapp, usuario_id, "cliente", mensagem_cliente)
+    hist = buscar_historico(whatsapp, vid_real)
+    salvar_historico(whatsapp, vid_real, "cliente", mensagem_cliente)
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("INSERT INTO atendimentos (atendente_id, nicho_id, whatsapp, linha_crm, mensagem_cliente, cliente_id, status) VALUES (%s, %s, %s, %s, %s, %s, 'processando') RETURNING id", (usuario_id, nicho_id, whatsapp, linha_crm, mensagem_cliente, cliente_id))
@@ -586,7 +589,7 @@ def rota_gerar_resposta(whatsapp: str = Form(...), nicho_id: int = Form(...), me
     conn.commit()
     cur.close()
     close_conn(conn)
-    threading.Thread(target=processar_atendimento, args=(aid, linha_crm, mensagem_cliente, n["prompt_gerado"], hist, whatsapp, usuario_id, cliente_id)).start()
+    threading.Thread(target=processar_atendimento, args=(aid, linha_crm, mensagem_cliente, n["prompt_gerado"], hist, whatsapp, vid_real, cliente_id)).start()
     return RedirectResponse(url=f"/resultado/{aid}", status_code=303)
 
 
@@ -2150,3 +2153,26 @@ def admin_dashboard(request: Request, usuario_id: str = Cookie(None), usuario_no
         "crescimento": cresc,
         "por_plano": por_plano,
     })
+
+
+def migrar_historico_antigo():
+    """Migra historico salvo com usuario_id para vendedor_id correto."""
+    try:
+        conn = get_conn()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        # Busca todos os mapeamentos usuario_id -> vendedor_id
+        cur.execute("SELECT usuario_id, id FROM vendedores")
+        mapa = {r["usuario_id"]: r["id"] for r in cur.fetchall()}
+        # Atualiza historico onde vendedor_id é um usuario_id válido
+        total = 0
+        for uid, vid in mapa.items():
+            if uid == vid:
+                continue
+            cur.execute("UPDATE historico SET vendedor_id = %s WHERE vendedor_id = %s", (vid, uid))
+            total += cur.rowcount
+        conn.commit()
+        cur.close()
+        close_conn(conn)
+        print(f"Historico migrado: {total} registros atualizados")
+    except Exception as e:
+        print(f"Erro migrar historico: {e}")
