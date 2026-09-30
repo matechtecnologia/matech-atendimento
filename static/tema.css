@@ -1,0 +1,374 @@
+/* ============================================================
+   M.A TECH — Tema claro/escuro
+   ============================================================ */
+
+/* ===== TEMA CLARO ===== */
+html[data-tema="claro"] {
+    --bg: #f5f7f9;
+    --surface: #ffffff;
+    --surface-2: #f0f2f5;
+    --border: #e0e4e8;
+    --text: #1a1a1a;
+    --text-2: #4a4a4a;
+    --muted: #8a8a8a;
+    --brand: #00b368;
+    --brand-hover: #009456;
+}
+
+html[data-tema="claro"] body {
+    background: var(--bg) !important;
+    color: var(--text) !important;
+}
+
+html[data-tema="claro"] h1,
+html[data-tema="claro"] h2,
+html[data-tema="claro"] h3,
+html[data-tema="claro"] h4 {
+    color: var(--text) !important;
+}
+
+html[data-tema="claro"] .bloco,
+html[data-tema="claro"] .cliente-card,
+html[data-tema="claro"] .nicho-card,
+html[data-tema="claro"] .follow-card,
+html[data-tema="claro"] .stat-card,
+html[data-tema="claro"] .dash-card,
+html[data-tema="claro"] .card-admin,
+html[data-tema="claro"] .card-bloco,
+html[data-tema="claro"] .card-grafico,
+html[data-tema="claro"] .card-planos,
+html[data-tema="claro"] .form-add-cliente,
+html[data-tema="claro"] .item-admin,
+html[data-tema="claro"] .lead-card,
+html[data-tema="claro"] .skeleton-bloco,
+html[data-tema="claro"] .container-login {
+    background: var(--surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+
+html[data-tema="claro"] .bloco pre,
+html[data-tema="claro"] .bloco p,
+html[data-tema="claro"] .cliente-card p,
+html[data-tema="claro"] .nicho-card p {
+    color: var(--text) !important;
+}
+
+html[data-tema="claro"] .topo {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f9f4 100%) !important;
+    border-color: var(--border) !important;
+}
+
+html[data-tema="claro"] .app-header {
+    background: rgba(255, 255, 255, 0.85) !important;
+    border-bottom-color: var(--border) !important;
+}
+
+html[data-tema="claro"] .app-header .logo-app {
+    color: var(--text) !important;
+}
+
+html[data-tema="claro"] .app-drawer {
+    background: linear-gradient(160deg, #ffffff 0%, #f5f7f9 100%) !important;
+}
+
+html[data-tema="claro"] .app-drawer-header {
+    border-bottom-color: var(--border) !important;
+}
+
+html[data-tema="claro"] .app-drawer-header .nome {
+    color: var(--text) !important;
+}
+
+html[data-tema="claro"] .app-drawer-lista a {
+    color: var(--text) !important;
+}
+
+html[data-tema="claro"] .app-drawer-lista a:active {
+    background: rgba(0,179,104,0.1);
+}
+
+html[data-tema="claro"] .app-drawer-footer {
+    border-top-color: var(--border) !important;
+}
+
+html[data-tema="claro"] .app-hamburger {
+    background: rgba(0,0,0,0.04) !important;
+    border-color: rgba(0,0,0,0.06) !important;
+}
+
+html[data-tema="claro"] .app-hamburger .bar {
+    background: var(--brand) !important;
+}
+
+html[data-tema="claro"] .app-overlay {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+html[data-tema="claro"] input,
+html[data-tema="claro"] textarea,
+html[data-tema="claro"] select {
+    background: #ffffff !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+
+html[data-tema="claro"] .usuario-info {
+    color: var(--muted) !important;
+}
+
+html[data-tema="claro"] .usuario-info a {
+    color: var(--brand) !important;
+}
+
+html[data-tema="claro"] .btn-mini {
+    background: #f0f2f5 !important;
+    color: var(--text-2) !important;
+    border-color: var(--border) !important;
+}
+
+html[data-tema="claro"] .btn-copiar {
+    background: #f0f2f5 !important;
+    color: var(--text-2) !important;
+    border-color: var(--border) !important;
+}
+
+html[data-tema="claro"] .stat-label,
+html[data-tema="claro"] .dash-card .label,
+html[data-tema="claro"] .bloco-topo h2 {
+    color: var(--muted) !important;
+}
+
+html[data-tema="claro"] .empty-state {
+    background: var(--surface) !important;
+    border-color: var(--border) !important;
+}
+
+html[data-tema="claro"] .empty-state h3 {
+    color: var(--text) !important;
+}
+
+html[data-tema="claro"] #ajuda-painel {
+    background: linear-gradient(135deg, #f0f9f4 0%, #ffffff 100%) !important;
+    border-color: var(--border) !important;
+}
+
+html[data-tema="claro"] #ajuda-painel h3 {
+    color: var(--text) !important;
+}
+
+html[data-tema="claro"] .ajuda-painel-dica {
+    background: rgba(0,179,104,0.05) !important;
+    color: var(--text) !important;
+}
+
+/* ===== PÁGINA CONFIGURAÇÕES ===== */
+.config-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.config-secao {
+    background: #141414;
+    border: 1px solid #222222;
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-bottom: 14px;
+    transition: all 0.22s ease;
+}
+
+html[data-tema="claro"] .config-secao {
+    background: #ffffff;
+    border-color: #e0e4e8;
+}
+
+.config-secao h3 {
+    font-size: 12px;
+    color: #8a8a8a;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 800;
+    margin: 0 0 16px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.config-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+html[data-tema="claro"] .config-item {
+    border-bottom-color: #f0f2f5;
+}
+
+.config-item:last-child {
+    border-bottom: none;
+}
+
+.config-item .info-config {
+    flex: 1;
+}
+
+.config-item .info-config .titulo-config {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e8e8e8;
+    margin-bottom: 4px;
+}
+
+html[data-tema="claro"] .config-item .info-config .titulo-config {
+    color: #1a1a1a;
+}
+
+.config-item .info-config .desc-config {
+    font-size: 12px;
+    color: #8a8a8a;
+    line-height: 1.5;
+}
+
+/* Toggle switch */
+.toggle {
+    position: relative;
+    width: 48px;
+    height: 28px;
+    background: #2a2a2a;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: background 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    flex-shrink: 0;
+    border: none;
+    padding: 0;
+}
+
+.toggle::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #e8e8e8;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.toggle.ativo {
+    background: #00d97e;
+}
+
+.toggle.ativo::after {
+    transform: translateX(20px);
+    background: #fff;
+}
+
+html[data-tema="claro"] .toggle {
+    background: #d0d4d8;
+}
+
+html[data-tema="claro"] .toggle.ativo {
+    background: #00b368;
+}
+
+/* Segment control (2 opções lado a lado) */
+.segmented {
+    display: inline-flex;
+    background: #0f0f0f;
+    border: 1px solid #222222;
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+html[data-tema="claro"] .segmented {
+    background: #f0f2f5;
+    border-color: #e0e4e8;
+}
+
+.segmented button {
+    background: transparent;
+    border: none;
+    color: #8a8a8a;
+    padding: 8px 16px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    font-family: inherit;
+    width: auto;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.segmented button.ativo {
+    background: #00d97e;
+    color: #0a0a0a;
+    box-shadow: 0 2px 8px rgba(0,217,126,0.3);
+}
+
+html[data-tema="claro"] .segmented button.ativo {
+    background: #00b368;
+    color: #ffffff;
+}
+
+/* Botões de ação em configurações */
+.btn-config {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    border: 1px solid;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    width: auto;
+    margin: 0;
+}
+
+.btn-config.vermelho {
+    background: rgba(255,59,59,0.1);
+    color: #ff3b3b;
+    border-color: rgba(255,59,59,0.3);
+}
+
+.btn-config.vermelho:hover {
+    background: rgba(255,59,59,0.2);
+    border-color: #ff3b3b;
+}
+
+.btn-config.amarelo {
+    background: rgba(245,158,11,0.1);
+    color: #f59e0b;
+    border-color: rgba(245,158,11,0.3);
+}
+
+.btn-config.amarelo:hover {
+    background: rgba(245,158,11,0.2);
+    border-color: #f59e0b;
+}
+
+.config-secao.snooze-box {
+    border-left: 4px solid #f59e0b;
+}
+
+.config-secao.snooze-box.ativo {
+    background: linear-gradient(135deg, #1f1a0a 0%, #141414 100%);
+}
+
+html[data-tema="claro"] .config-secao.snooze-box.ativo {
+    background: linear-gradient(135deg, #fef8ec 0%, #ffffff 100%);
+}

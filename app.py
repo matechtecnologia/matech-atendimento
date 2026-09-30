@@ -2176,3 +2176,57 @@ def migrar_historico_antigo():
         print(f"Historico migrado: {total} registros atualizados")
     except Exception as e:
         print(f"Erro migrar historico: {e}")
+
+
+
+# ============ PWA ============
+
+from fastapi.responses import FileResponse
+
+@app.get("/manifest.json", include_in_schema=False)
+def manifest():
+    return FileResponse("static/manifest.json", media_type="application/manifest+json")
+
+
+@app.get("/service-worker.js", include_in_schema=False)
+def service_worker():
+    return FileResponse("static/service-worker.js", media_type="application/javascript")
+
+
+# ============ CONFIGURACOES ============
+
+@app.get("/configuracoes", response_class=HTMLResponse)
+def tela_configuracoes(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT followup_snooze_ate FROM vendedores WHERE id = %s", (v["id"],))
+    row = cur.fetchone()
+    cur.close()
+    close_conn(conn)
+
+    snooze_ate = row[0] if row else None
+    snooze_ativo = False
+    snooze_data = None
+    snooze_dias = 0
+    if snooze_ate:
+        from datetime import datetime as _dt
+        agora = _dt.now(snooze_ate.tzinfo) if snooze_ate.tzinfo else _dt.now()
+        if snooze_ate > agora:
+            snooze_ativo = True
+            snooze_data = snooze_ate.strftime("%d/%m/%Y")
+            snooze_dias = (snooze_ate - agora).days
+
+    return templates.TemplateResponse(request=request, name="configuracoes.html", context={
+        "usuario_nome": usuario_nome,
+        "usuario_tipo": usuario_tipo,
+        "total_followups": _total_followups_para_template(usuario_id),
+        "snooze_ativo": snooze_ativo,
+        "snooze_data": snooze_data,
+        "snooze_dias": snooze_dias,
+    })

@@ -1,0 +1,92 @@
+/* ============================================================
+   M.A TECH — Splash Screen
+   ============================================================ */
+
+#app-splash {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 50% 40%, #0f1a15 0%, #0a0a0a 60%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999;
+    opacity: 1;
+    transition: opacity 0.5s ease;
+    pointer-events: all;
+}
+
+#app-splash.saindo {
+    opacity: 0;
+    pointer-events: none;
+}
+
+#app-splash .logo-splash {
+    font-size: 52px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 32px;
+}
+
+#app-splash .logo-splash em {
+    font-style: normal;
+    color: #00d97e;
+    text-shadow: 0 0 40px rgba(0,217,126,0.6);
+}
+
+#app-splash .logo-splash .letra {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: sobe-letra 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    display: inline-block;
+}
+
+@keyframes sobe-letra {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+#app-splash .barra-carregando {
+    width: 120px;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 100px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+#app-splash .barra-carregando::before {
+    content: "";
+    display: block;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, #00d97e, transparent);
+    border-radius: 100px;
+    animation: correr 1.2s ease-in-out infinite;
+}
+
+@keyframes correr {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(350%); }
+}
+
+#app-splash .subtitulo {
+    color: #8a8a8a;
+    font-size: 13px;
+    margin-top: 8px;
+    font-family: 'SF Mono', Consolas, monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: aparecer 0.6s ease 0.8s forwards;
+}
+
+@keyframes aparecer {
+    to { opacity: 1; }
+}

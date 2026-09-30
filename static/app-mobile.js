@@ -98,6 +98,7 @@
             { href: '/relatorios', rota: '/relatorios', icone: '📊', texto: 'Relatórios' },
             { href: '/meus_nichos', rota: '/meus_nichos', icone: '🎨', texto: 'Meus Nichos' },
             { href: '/planos', rota: '/planos', icone: '💳', texto: 'Planos' },
+            { href: '/configuracoes', rota: '/configuracoes', icone: '⚙️', texto: 'Configurações' },
         ];
 
         if (admin) {
