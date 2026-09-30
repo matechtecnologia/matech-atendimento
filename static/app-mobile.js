@@ -157,16 +157,34 @@
     }
 
     // Eventos
-    function ligarEventos() {
+        function ligarEventos() {
         const hamburger = document.getElementById('app-hamburger');
         const overlay = document.getElementById('app-overlay');
 
         if (hamburger) {
-            hamburger.addEventListener('click', abrirDrawer);
+            hamburger.addEventListener('click', (e) => {
+                e.preventDefault();
+                abrirDrawer();
+            });
         }
 
         if (overlay) {
             overlay.addEventListener('click', fecharDrawer);
+        }
+
+        // Fecha drawer ao clicar em qualquer link dentro dele
+        const drawer = document.getElementById('app-drawer');
+        if (drawer) {
+            drawer.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    // Remove classes que travam o body ANTES de navegar
+                    fecharDrawer();
+                    document.body.classList.remove('drawer-aberto');
+                    document.body.style.overflow = '';
+                    document.body.style.position = '';
+                    document.body.style.width = '';
+                });
+            });
         }
 
         // Fecha com ESC
@@ -183,7 +201,6 @@
             const touch = e.touches[0];
             touchStartX = touch.clientX;
             touchStartY = touch.clientY;
-            // Só ativa se começar nos primeiros 30px da esquerda
             touchAtivo = (touchStartX < 30);
         }, { passive: true });
 
@@ -192,25 +209,20 @@
             const touch = e.touches[0];
             const dx = touch.clientX - touchStartX;
             const dy = Math.abs(touch.clientY - touchStartY);
-
-            // Só abre se for movimento horizontal claro
             if (dx > 60 && dy < 50) {
                 abrirDrawer();
                 touchAtivo = false;
             }
         }, { passive: true });
 
-        // Swipe pra fechar (dentro do drawer)
-        const drawer = document.getElementById('app-drawer');
+        // Swipe pra fechar
         if (drawer) {
             let startX = 0;
             let abriu = false;
-
             drawer.addEventListener('touchstart', (e) => {
                 startX = e.touches[0].clientX;
                 abriu = false;
             }, { passive: true });
-
             drawer.addEventListener('touchmove', (e) => {
                 const dx = e.touches[0].clientX - startX;
                 if (dx < -50 && !abriu) {

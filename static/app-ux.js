@@ -5,29 +5,34 @@
 (function() {
     'use strict';
 
-    const PREF_HAPTIC = localStorage.getItem('matech_haptic') !== 'off';
+    const PREF_HAPTIC = () => localStorage.getItem('matech_haptic') !== 'off';
+    const PREF_ANIMACOES = () => localStorage.getItem('matech_animacoes') !== 'off';
+
+    // ===== RESET de segurança (caso algo trave) =====
+    window.addEventListener('pageshow', () => {
+        document.body.style.opacity = '1';
+        document.body.style.transform = 'translateX(0)';
+        document.body.classList.remove('drawer-aberto');
+    });
 
     // ===== HAPTIC FEEDBACK =====
     function vibrar(ms) {
-        if (!PREF_HAPTIC) return;
+        if (!PREF_HAPTIC()) return;
         if (!('vibrate' in navigator)) return;
-        try {
-            navigator.vibrate(ms || 10);
-        } catch (e) {}
+        try { navigator.vibrate(ms || 10); } catch (e) {}
     }
 
-    // Aplica haptic em botões e links principais
     function ligarHaptic() {
         document.addEventListener('click', (e) => {
-            const alvo = e.target.closest('button, .btn-gerar, .btn-mini, .btn-copiar, .btn-acao, .app-drawer-lista a, .app-hamburger');
+            const alvo = e.target.closest('button, .btn-gerar, .btn-mini, .btn-copiar, .btn-acao, .app-hamburger, .toggle, .segmented button');
             if (alvo) vibrar(12);
         }, { passive: true });
     }
 
     // ===== TRANSIÇÕES ENTRE TELAS =====
     function ligarTransicoes() {
-        // Só em mobile
         if (!window.matchMedia('(max-width: 768px)').matches) return;
+        if (!PREF_ANIMACOES()) return;
 
         document.addEventListener('click', (e) => {
             const link = e.target.closest('a');
@@ -35,28 +40,36 @@
 
             const href = link.getAttribute('href');
             if (!href) return;
-            if (href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('http') && !href.startsWith(location.origin)) return;
-            if (link.target === '_blank') return;
+            if (href.startsWith('#') || href.startsWith('javascript:')) return;
             if (href.startsWith('/logout')) return;
+            if (link.target === '_blank') return;
+            if (href.startsWith('http') && !href.startsWith(location.origin)) return;
+            if (href === location.pathname) return;
 
-            // Animação de saída
             e.preventDefault();
-            document.body.style.transition = 'opacity 0.18s ease, transform 0.18s ease';
-            document.body.style.opacity = '0';
-            document.body.style.transform = 'translateX(-10px)';
+
+            // Fecha drawer se estiver aberto
+            const drawer = document.getElementById('app-drawer');
+            const overlay = document.getElementById('app-overlay');
+            if (drawer) drawer.classList.remove('aberto');
+            if (overlay) overlay.classList.remove('aberto');
+            document.body.classList.remove('drawer-aberto');
+
+            // Animação leve (não trava a tela)
+            document.body.style.transition = 'opacity 0.15s ease';
+            document.body.style.opacity = '0.7';
 
             setTimeout(() => {
                 window.location.href = href;
-            }, 180);
+            }, 150);
         });
 
-        // Animação de entrada
+        // Entrada suave
         document.body.style.opacity = '0';
-        document.body.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
-        setTimeout(() => {
+        document.body.style.transition = 'opacity 0.2s ease';
+        requestAnimationFrame(() => {
             document.body.style.opacity = '1';
-            document.body.style.transform = 'translateX(0)';
-        }, 50);
+        });
     }
 
     // ===== PULL TO REFRESH =====
@@ -66,12 +79,12 @@
         let startY = 0;
         let puxando = false;
         let indicador = null;
+        let pronto = false;
 
         function criarIndicador() {
             if (indicador) return indicador;
             indicador = document.createElement('div');
             indicador.id = 'ptr-indicador';
-            indicador.innerHTML = '<div class="ptr-spinner"></div>';
             indicador.style.cssText = `
                 position: fixed;
                 top: 70px;
@@ -109,6 +122,7 @@
             if (window.scrollY > 10) return;
             startY = e.touches[0].clientY;
             puxando = true;
+            pronto = false;
         }, { passive: true });
 
         document.addEventListener('touchmove', (e) => {
@@ -118,16 +132,19 @@
                 const ind = criarIndicador();
                 ind.style.opacity = '1';
                 ind.style.transform = 'translateX(-50%) translateY(0)';
+                if (dy > 120) pronto = true;
             }
         }, { passive: true });
 
         document.addEventListener('touchend', () => {
             if (!puxando) return;
             puxando = false;
-            if (indicador && indicador.style.opacity === '1') {
-                setTimeout(() => {
-                    window.location.reload();
-                }, 200);
+            if (indicador) {
+                indicador.style.opacity = '0';
+                indicador.style.transform = 'translateX(-50%) translateY(-40px)';
+            }
+            if (pronto) {
+                setTimeout(() => window.location.reload(), 150);
             }
         }, { passive: true });
     }

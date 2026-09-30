@@ -14,6 +14,7 @@
     <title>M.A Tech - Dashboard</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="/static/app-mobile.css">
+    <link rel="stylesheet" href="/static/tema.css">
     <style>
         .linha-numeros {
             display: grid;
@@ -241,6 +242,12 @@
         }
     </style>
 </head>
+<script>
+    (function() {
+        var t = localStorage.getItem('matech_tema') || 'escuro';
+        document.documentElement.setAttribute('data-tema', t);
+    })();
+    </script>
 <body>
     <div class="container-atendimento">
         <div class="topo">

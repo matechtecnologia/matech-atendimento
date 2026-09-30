@@ -14,6 +14,7 @@
     <title>Admin - {{ v.nome }}</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="/static/app-mobile.css">
+    <link rel="stylesheet" href="/static/tema.css">
     <style>
         .card-admin { background: #141414; border: 1px solid #222222; border-left: 4px solid #00d97e; border-radius: 10px; padding: 20px; margin-bottom: 16px; }
         .card-admin h3 { font-size: 14px; color: #a8a8a8; letter-spacing: 0.5px; margin: 0 0 14px 0; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -45,6 +46,12 @@
         @media (max-width: 700px) { .linha-2 { grid-template-columns: 1fr; } }
     </style>
 </head>
+<script>
+    (function() {
+        var t = localStorage.getItem('matech_tema') || 'escuro';
+        document.documentElement.setAttribute('data-tema', t);
+    })();
+    </script>
 <body>
     <div class="container-atendimento">
         <div class="topo">

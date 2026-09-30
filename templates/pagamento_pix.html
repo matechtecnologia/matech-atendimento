@@ -14,10 +14,17 @@
     <title>M.A Tech - Pagamento PIX</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="/static/app-mobile.css">
+    <link rel="stylesheet" href="/static/tema.css">
     {% if qr_code and not pago %}
     <meta http-equiv="refresh" content="10">
     {% endif %}
 </head>
+<script>
+    (function() {
+        var t = localStorage.getItem('matech_tema') || 'escuro';
+        document.documentElement.setAttribute('data-tema', t);
+    })();
+    </script>
 <body>
     <div class="container-atendimento">
         <div class="topo">

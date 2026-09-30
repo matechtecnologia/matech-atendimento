@@ -14,6 +14,7 @@
     <title>M.A Tech - Meus Nichos</title>
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="/static/app-mobile.css">
+    <link rel="stylesheet" href="/static/tema.css">
     <style>
         .nicho-card {
             background: #141414;
@@ -119,6 +120,12 @@
         }
     </style>
 </head>
+<script>
+    (function() {
+        var t = localStorage.getItem('matech_tema') || 'escuro';
+        document.documentElement.setAttribute('data-tema', t);
+    })();
+    </script>
 <body>
     <div class="container-atendimento">
         <div class="topo">
