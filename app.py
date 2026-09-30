@@ -2422,3 +2422,55 @@ def tela_indicar(request: Request, usuario_id: str = Cookie(None), usuario_nome:
     })
 
 
+
+
+
+# ============ BACKUP AUTOMATICO ============
+
+@app.get("/admin/backup")
+def admin_backup(token: str = ""):
+    """Faz dump completo do banco. Protegido por token na query."""
+    import os as _os
+    from fastapi.responses import JSONResponse
+    from datetime import datetime as _dt
+
+    # Token secreto — pode definir BACKUP_TOKEN no Render
+    token_esperado = _os.getenv("BACKUP_TOKEN", "matech-backup-2026")
+    if token != token_esperado:
+        return JSONResponse({"erro": "token invalido"}, status_code=403)
+
+    tabelas = [
+        "usuarios", "vendedores", "nichos", "clientes",
+        "historico", "atendimentos", "pagamentos",
+        "tentativas_signup", "leads_landing", "indicacoes"
+    ]
+
+    dump = {
+        "gerado_em": _dt.now().isoformat(),
+        "tabelas": {}
+    }
+
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    for tabela in tabelas:
+        try:
+            cur.execute(f"SELECT * FROM {tabela}")
+            linhas = []
+            for r in cur.fetchall():
+                # Converte datetime pra string
+                linha = {}
+                for k, v in dict(r).items():
+                    if hasattr(v, "isoformat"):
+                        linha[k] = v.isoformat()
+                    else:
+                        linha[k] = v
+                linhas.append(linha)
+            dump["tabelas"][tabela] = linhas
+        except Exception as e:
+            dump["tabelas"][tabela] = {"erro": str(e)}
+
+    cur.close()
+    close_conn(conn)
+
+    return JSONResponse(dump)
