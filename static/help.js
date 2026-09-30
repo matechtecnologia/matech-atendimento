@@ -1,5 +1,5 @@
 // ============================================
-// M.A TECH — Ajuda contextual (painel abaixo do cabeçalho)
+// M.A TECH — Ajuda contextual + Aba ativa
 // ============================================
 
 const AJUDA = {
@@ -20,17 +20,16 @@ const AJUDA = {
         dicas: [
             '<b>⚡ Atender este cliente</b> inicia um novo atendimento com IA',
             '<b>✏️ Editar</b> muda qualquer dado do cliente',
-            'O histórico mostra todas as mensagens trocadas, em ordem',
-            'Quando você marca o status como <b>Cliente</b>, o sistema para de cobrar follow-up'
+            'O histórico mostra todas as mensagens trocadas, em ordem'
         ]
     },
     '/atendimento_cliente': {
         titulo: '⚡ Atendendo Cliente',
         descricao: 'Cole a mensagem que o cliente enviou e receba a resposta da IA em segundos.',
         dicas: [
-            'Cole a mensagem <b>exatamente</b> como o cliente escreveu, com erros e tudo',
-            'Escolha o <b>nicho</b> correto (produto/serviço que você está vendendo)',
-            'Use o <b>Modo instrução</b> quando quiser dar uma ordem pra IA',
+            'Cole a mensagem <b>exatamente</b> como o cliente escreveu',
+            'Escolha o <b>nicho</b> correto',
+            'Use o <b>Modo instrução</b> pra dar uma ordem direta pra IA',
             'A IA leva de 2 a 4 segundos pra responder'
         ]
     },
@@ -38,10 +37,9 @@ const AJUDA = {
         titulo: '🎯 Resposta da IA',
         descricao: 'A IA analisou a conversa e preparou 3 coisas pra você.',
         dicas: [
-            '<b>🎤 O QUE FALAR</b> — é o áudio que você vai gravar pro cliente',
-            '<b>📝 TEXTO PARA ENVIAR</b> — mensagem pronta pra colar no WhatsApp',
-            '<b>📊 ESTÁGIO</b> — o funil atualizou automaticamente',
-            'Clique em <b>📋 COPIAR</b> pra copiar cada bloco'
+            '<b>🎤 O QUE FALAR</b> — o áudio que você vai gravar',
+            '<b>📝 TEXTO PARA ENVIAR</b> — mensagem pronta pro WhatsApp',
+            '<b>📊 ESTÁGIO</b> — o funil atualizou automaticamente'
         ]
     },
     '/followups': {
@@ -51,19 +49,17 @@ const AJUDA = {
             '<b>🔴 Urgente</b> — fale hoje ou já passou do prazo',
             '<b>🟠 Atenção</b> — fale nos próximos 2 dias',
             '<b>🟢 Agenda</b> — programado pra depois',
-            'Clique em <b>⚡ ATENDER</b> pra já abrir o atendimento',
-            'Depois que você fala com o cliente, ele sai da lista automaticamente'
+            'Use o bloco <b>🔕 Silenciar follow-ups</b> no topo pra pausar as notificações'
         ]
     },
     '/relatorios': {
         titulo: '📊 Relatórios',
         descricao: 'Visão geral do seu desempenho comercial nos últimos 7 dias.',
         dicas: [
-            '<b>Taxa de conversão</b> — de cada 100 leads, quantos viraram clientes',
+            '<b>Taxa de conversão</b> — quantos leads viraram clientes',
             '<b>Funil</b> — onde estão seus clientes em cada etapa',
-            '<b>De onde vêm seus clientes</b> — Instagram, indicação, etc',
-            '<b>Top clientes</b> — quem você mais atendeu',
-            '<b>Top nichos</b> — qual produto/serviço dá mais resultado'
+            '<b>De onde vêm seus clientes</b>',
+            '<b>Top clientes</b> e <b>top nichos</b>'
         ]
     },
     '/meus_nichos': {
@@ -71,9 +67,8 @@ const AJUDA = {
         descricao: 'Cada nicho é um produto ou serviço diferente que você vende.',
         dicas: [
             'A IA usa o nicho pra falar do seu produto, do seu jeito',
-            'Nichos <b>não podem ser editados nem apagados</b> depois de criados',
-            'Pra adicionar mais nichos, faça upgrade de plano',
-            'Cada atendimento usa 1 nicho — escolha o certo na hora de atender'
+            'Você pode <b>atualizar o preço</b> de cada nicho quando quiser',
+            'Pra adicionar mais nichos, faça upgrade de plano'
         ]
     },
     '/novo_nicho': {
@@ -82,17 +77,16 @@ const AJUDA = {
         dicas: [
             'Responda as 7 perguntas com o máximo de detalhe',
             'Quanto melhor a resposta, melhor a IA fala do seu produto',
-            'O nicho <b>não pode ser editado nem apagado</b> depois de criado'
+            'O nicho <b>não pode ser editado nem apagado</b> depois de criado (exceto preço)'
         ]
     },
     '/planos': {
         titulo: '💳 Planos',
         descricao: 'Escolha o plano ideal pro seu volume de negócios.',
         dicas: [
-            'O plano <b>Grátis</b> permite 1 nicho — bom pra testar',
+            'O plano <b>Grátis</b> permite 1 nicho',
             'Quanto mais nichos, mais produtos/serviços você pode vender',
-            'Pagamento via <b>PIX</b> — ativa em segundos',
-            'Renovação mensal, sem fidelidade'
+            'Pagamento via <b>PIX</b> — ativa em segundos'
         ]
     },
     '/admin': {
@@ -100,8 +94,7 @@ const AJUDA = {
         descricao: 'Visão geral de todos os vendedores da plataforma.',
         dicas: [
             'Clique em qualquer vendedor pra ver detalhes e editar tudo',
-            'Você pode <b>editar nichos, clientes, histórico</b> de qualquer um',
-            'Use <b>➕ CRIAR VENDEDOR</b> pra cadastrar contas manualmente',
+            'Acompanhe os <b>📥 leads da landing</b> que deixaram WhatsApp',
             'Bloqueie, mude plano ou exclua qualquer conta'
         ]
     },
@@ -110,8 +103,8 @@ const AJUDA = {
         descricao: 'Sua IA está configurada e pronta pra atender.',
         dicas: [
             'Cadastre seu primeiro cliente pra começar',
-            'Cole a mensagem do WhatsApp — a IA responde em 2 a 4 segundos',
-            'Use o botão <b>🎯 Follow-ups</b> pra ver quem precisa de atenção'
+            'Cole a mensagem do WhatsApp — a IA responde em segundos',
+            'Use <b>🎯 Follow-ups</b> pra ver quem precisa de atenção'
         ]
     }
 };
@@ -130,15 +123,11 @@ function abrirPainelAjuda() {
     const painel = document.getElementById('ajuda-painel');
     const btn = document.querySelector('.ajuda-header-btn');
     if (!painel) return;
-
-    // Fecha se estiver aberto
     if (painel.style.display === 'block') {
         painel.style.display = 'none';
         if (btn) btn.classList.remove('ativo');
         return;
     }
-
-    // Abre
     painel.style.display = 'block';
     if (btn) btn.classList.add('ativo');
 }
@@ -154,7 +143,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const usuarioInfo = document.querySelector('.usuario-info');
     if (!usuarioInfo) return;
 
-    // ===== Botão "? Ajuda" no cabeçalho =====
+        // ===== Destaca a aba atual =====
+    let rotaAtiva = null;
+    if (path === '/clientes' || path === '/bem_vindo' || path.startsWith('/cliente/')) rotaAtiva = '/clientes';
+    else if (path === '/relatorios') rotaAtiva = '/relatorios';
+    else if (path === '/followups') rotaAtiva = '/followups';
+    else if (path === '/meus_nichos' || path === '/novo_nicho') rotaAtiva = '/meus_nichos';
+    else if (path === '/planos' || path === '/assinar' || path.startsWith('/pagamento/')) rotaAtiva = '/planos';
+    else if (path === '/admin' || path.startsWith('/admin/')) rotaAtiva = '/admin';
+
+    if (rotaAtiva) {
+        usuarioInfo.querySelectorAll('a[data-rota]').forEach(a => {
+            if (a.getAttribute('data-rota') === rotaAtiva) {
+                a.style.color = '#0a0a0a';
+                a.style.background = '#00d97e';
+                a.style.fontWeight = '800';
+                a.style.padding = '6px 14px';
+                a.style.borderRadius = '6px';
+                a.style.boxShadow = '0 4px 16px rgba(0,217,126,0.4)';
+                a.style.textDecoration = 'none';
+            }
+        });
+    }
+
+    // ===== Botão Ajuda =====
     if (!usuarioInfo.querySelector('.ajuda-header-btn')) {
         const btn = document.createElement('a');
         btn.className = 'ajuda-header-btn';
@@ -162,23 +174,40 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.innerHTML = '<span class="ajuda-icone">?</span> Ajuda';
         btn.title = 'Como usar esta tela';
         btn.onclick = abrirPainelAjuda;
+        btn.style.color = '#8a8a8a';
+        btn.style.textDecoration = 'none';
+        btn.style.fontWeight = '500';
+        btn.style.fontSize = '14px';
+        btn.style.display = 'inline-flex';
+        btn.style.alignItems = 'center';
+        btn.style.gap = '6px';
+        btn.style.cursor = 'pointer';
+        btn.style.lineHeight = '1';
+
+        const icone = btn.querySelector('.ajuda-icone');
+        icone.style.display = 'inline-flex';
+        icone.style.alignItems = 'center';
+        icone.style.justifyContent = 'center';
+        icone.style.width = '18px';
+        icone.style.height = '18px';
+        icone.style.borderRadius = '50%';
+        icone.style.background = '#1f1f1f';
+        icone.style.color = '#8a8a8a';
+        icone.style.fontWeight = '800';
+        icone.style.fontSize = '12px';
+        icone.style.fontFamily = 'monospace';
 
         const sair = Array.from(usuarioInfo.querySelectorAll('a')).find(a => (a.getAttribute('href') || '') === '/logout');
-        if (sair) {
-            usuarioInfo.insertBefore(btn, sair);
-        } else {
-            usuarioInfo.appendChild(btn);
-        }
+        if (sair) usuarioInfo.insertBefore(btn, sair);
+        else usuarioInfo.appendChild(btn);
     }
 
-    // ===== Painel de ajuda abaixo do cabeçalho =====
+    // ===== Painel de ajuda =====
     if (!document.getElementById('ajuda-painel')) {
         const topo = document.querySelector('.topo');
         if (!topo) return;
-
         const painel = document.createElement('div');
         painel.id = 'ajuda-painel';
-        // INLINE STYLE GARANTE QUE FICA OCULTO POR PADRÃO
         painel.style.display = 'none';
         painel.style.marginTop = '0';
         painel.style.marginBottom = '24px';
@@ -187,8 +216,6 @@ document.addEventListener('DOMContentLoaded', () => {
         painel.style.borderLeft = '4px solid #00d97e';
         painel.style.borderRadius = '12px';
         painel.style.boxShadow = '0 12px 40px rgba(0,217,126,0.08)';
-        painel.style.animation = 'fade-in-up 0.3s ease both';
-
         painel.innerHTML = `
             <div style="padding: 22px 24px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px;">
@@ -201,8 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-
-        // Insere logo depois do cabeçalho
         topo.parentNode.insertBefore(painel, topo.nextSibling);
     }
 });

@@ -154,6 +154,24 @@ def inicializar_banco():
 
     cur.execute("CREATE INDEX IF NOT EXISTS idx_followups_vendedor ON followups(vendedor_id, data_agendada, feito)")
 
+    cur.execute("""CREATE TABLE IF NOT EXISTS leads_landing (
+        id SERIAL PRIMARY KEY,
+        nome TEXT,
+        whatsapp TEXT NOT NULL,
+        email TEXT,
+        ip TEXT,
+        convertido BOOLEAN DEFAULT FALSE,
+        criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )""")
+
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_leads_landing_wpp ON leads_landing(whatsapp)")
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_leads_landing_data ON leads_landing(criado_em DESC)")
+
+    cur.execute("SELECT column_name FROM information_schema.columns WHERE table_name='vendedores'")
+    cols_v = [r[0] for r in cur.fetchall()]
+    if 'followup_snooze_ate' not in cols_v:
+        cur.execute('ALTER TABLE vendedores ADD COLUMN followup_snooze_ate TIMESTAMP WITH TIME ZONE')
+
     cur.execute("CREATE INDEX IF NOT EXISTS idx_clientes_vendedor ON clientes(vendedor_id)")
 
     cur.execute("SELECT * FROM usuarios WHERE email = %s", ("matechtecnologia01@gmail.com",))
@@ -1647,13 +1665,25 @@ def _total_followups_para_template(usuario_id):
     try:
         conn = get_conn()
         cur = conn.cursor()
-        cur.execute("SELECT id FROM vendedores WHERE usuario_id = %s", (usuario_id,))
+        cur.execute("SELECT id, followup_snooze_ate FROM vendedores WHERE usuario_id = %s", (usuario_id,))
         row = cur.fetchone()
         if not row:
             cur.close()
             close_conn(conn)
             return 0
         vid = row[0]
+        snooze = row[1] if len(row) > 1 else None
+        # Se snooze ainda esta ativo, retorna 0
+        if snooze:
+            from datetime import datetime as _dt
+            try:
+                agora = _dt.now(snooze.tzinfo) if snooze.tzinfo else _dt.now()
+                if snooze > agora:
+                    cur.close()
+                    close_conn(conn)
+                    return 0
+            except Exception:
+                pass
         cur.execute("""
             SELECT COUNT(*) FROM clientes c
             WHERE c.vendedor_id = %s
@@ -1708,4 +1738,125 @@ def tela_bemvindo(request: Request, usuario_id: str = Cookie(None), usuario_nome
         "primeiro_nicho": dict(ns[0]) if ns else None
     })
 
+
+
+
+
+# ============ CAPTURA DE LEADS (LANDING) ============
+
+@app.post("/capturar_lead")
+def capturar_lead(request: Request, nome: str = Form(...), whatsapp: str = Form(...), email: str = Form("")):
+    ip = obter_ip(request)
+
+    wpp_limpo, erro_wpp = validar_whatsapp(whatsapp)
+    if erro_wpp:
+        return RedirectResponse(url=f"/?erro_lead=WhatsApp+invalido#contato", status_code=303)
+
+    conn = get_conn()
+    cur = conn.cursor()
+    # Se ja existe esse whatsapp, atualiza o nome/email
+    cur.execute("SELECT id FROM leads_landing WHERE whatsapp = %s", (wpp_limpo,))
+    row = cur.fetchone()
+    if row:
+        cur.execute("UPDATE leads_landing SET nome=%s, email=%s, ip=%s WHERE id=%s", (nome, email, ip, row[0]))
+    else:
+        cur.execute("INSERT INTO leads_landing (nome, whatsapp, email, ip) VALUES (%s, %s, %s, %s)",
+                    (nome, wpp_limpo, email, ip))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+
+    return RedirectResponse(url="/?capturado=1#contato", status_code=303)
+
+
+@app.get("/admin/leads", response_class=HTMLResponse)
+def admin_leads(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT * FROM leads_landing ORDER BY criado_em DESC")
+    leads = [dict(l) for l in cur.fetchall()]
+    cur.close()
+    close_conn(conn)
+    return templates.TemplateResponse(request=request, name="admin_leads.html", context={
+        "usuario_nome": usuario_nome,
+        "usuario_tipo": usuario_tipo,
+        "leads": leads,
+        "total_followups": _total_followups_para_template(usuario_id),
+    })
+
+
+
+# ============ VER LANDING (mesmo logado) ============
+
+@app.get("/ver-landing", response_class=HTMLResponse)
+def ver_landing(request: Request):
+    return templates.TemplateResponse(request=request, name="landing.html", context={})
+
+
+
+# ============ MODO NÃO PERTURBE (SNOOZE) ============
+
+@app.post("/snooze-followups")
+def snooze_followups(dias: int = Form(...), usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+    if dias not in [1, 2, 3, 7]:
+        dias = 1
+    from datetime import datetime, timedelta
+    ate = datetime.now() + timedelta(days=dias)
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("UPDATE vendedores SET followup_snooze_ate = %s WHERE id = %s", (ate, v["id"]))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url=request_referer_ou_clientes(), status_code=303)
+
+
+@app.post("/snooze-followups/cancelar")
+def cancelar_snooze(usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("UPDATE vendedores SET followup_snooze_ate = NULL WHERE id = %s", (v["id"],))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return RedirectResponse(url="/clientes", status_code=303)
+
+
+def request_referer_ou_clientes():
+    return "/clientes"
+
+
+@app.get("/api/snooze-status")
+def snooze_status(usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return {"ativo": False, "ate": None}
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return {"ativo": False, "ate": None}
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT followup_snooze_ate FROM vendedores WHERE id = %s", (v["id"],))
+    row = cur.fetchone()
+    cur.close()
+    close_conn(conn)
+    ate = row[0] if row else None
+    if not ate:
+        return {"ativo": False, "ate": None}
+    from datetime import datetime as _dt
+    agora = _dt.now(ate.tzinfo) if ate.tzinfo else _dt.now()
+    if ate > agora:
+        return {"ativo": True, "ate": ate.isoformat(), "dias": (ate - agora).days}
+    return {"ativo": False, "ate": None}
 

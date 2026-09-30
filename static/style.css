@@ -131,7 +131,8 @@ button:active { transform: translateY(0); }
     border-radius: 12px;
     background: linear-gradient(135deg, #141414 0%, #0f1a15 100%);
     position: relative;
-    overflow: hidden;
+    flex-wrap: wrap;
+    gap: 16px;
 }
 
 .topo:before {
@@ -152,10 +153,12 @@ button:active { transform: translateY(0); }
 
 .usuario-info {
     display: flex;
-    gap: 16px;
+    gap: 12px;
     align-items: center;
     color: #8a8a8a;
     font-size: 14px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .usuario-info a {
@@ -1130,4 +1133,273 @@ notepad static\style.css
     .ajuda-painel-head h3 {
         font-size: 15px;
     }
+}
+
+
+/* ===== MODO NÃO PERTURBE ===== */
+.snooze-header-btn {
+    color: #8a8a8a !important;
+    text-decoration: none;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1px solid #2a2a2a;
+    background: #141414;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    line-height: 1;
+    padding: 0;
+}
+
+.snooze-header-btn:hover {
+    background: #1f1a0a;
+    border-color: #f59e0b;
+    color: #f59e0b !important;
+    text-shadow: none;
+}
+
+/* Wrapper pro menu abrir ancorado no botão */
+.snooze-header-btn {
+    overflow: visible;
+}
+
+#snooze-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    border-top: 3px solid #f59e0b;
+    border-radius: 10px;
+    padding: 16px;
+    min-width: 240px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.8);
+    z-index: 9999;
+    display: none;
+    text-align: left;
+}
+
+.snooze-titulo {
+    font-size: 12px;
+    color: #f59e0b;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 12px;
+}
+
+.snooze-opcao {
+    background: #1f1a0a;
+    color: #f59e0b;
+    border: 1px solid rgba(245,158,11,0.3);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    width: auto;
+    margin: 0;
+}
+
+.snooze-opcao:hover {
+    background: #f59e0b;
+    color: #0a0a0a;
+    border-color: #f59e0b;
+}
+
+.snooze-desc {
+    font-size: 12px;
+    color: #5a5a5a;
+    margin-top: 12px;
+    line-height: 1.5;
+}
+
+
+/* ===== SNOOZE — estado ativo + badge ===== */
+.snooze-header-btn.snooze-ativo {
+    background: rgba(245,158,11,0.15);
+    border-color: #f59e0b;
+    color: #f59e0b !important;
+    box-shadow: 0 0 12px rgba(245,158,11,0.3);
+}
+
+.snooze-header-btn .snooze-emoji {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.snooze-header-btn .snooze-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #f59e0b;
+    color: #0a0a0a;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 100px;
+    font-family: 'SF Mono', Consolas, monospace;
+    line-height: 1;
+    box-shadow: 0 0 0 2px #0a0a0a;
+    min-width: 18px;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+}
+
+.snooze-ativo-box {
+    background: #1f1a0a;
+    border: 1px solid rgba(245,158,11,0.3);
+    border-left: 3px solid #f59e0b;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+}
+
+.snooze-ativo-titulo {
+    font-size: 12px;
+    color: #f59e0b;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+}
+
+.snooze-ativo-desc {
+    font-size: 13px;
+    color: #e8e8e8;
+    line-height: 1.5;
+}
+
+.snooze-ativo-desc b {
+    color: #f59e0b;
+}
+
+.snooze-ativo-dias {
+    font-size: 11px;
+    color: #5a5a5a;
+    font-family: 'SF Mono', Consolas, monospace;
+    margin-top: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+}
+
+.snooze-cancelar {
+    background: #0f1a15;
+    color: #00d97e;
+    border: 1px solid #00d97e;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    width: 100%;
+    margin: 0;
+}
+
+.snooze-cancelar:hover {
+    background: #00d97e;
+    color: #0a0a0a;
+}
+
+
+/* ===== SNOOZE — botões de opção dentro de /followups ===== */
+.snooze-opcao {
+    background: #1f1a0a;
+    color: #f59e0b;
+    border: 1px solid rgba(245,158,11,0.3);
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+    width: auto;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.snooze-opcao:hover {
+    background: #f59e0b;
+    color: #0a0a0a;
+    border-color: #f59e0b;
+}
+
+
+
+/* Ajuda sem borda */
+.ajuda-header-btn {
+    color: #8a8a8a !important;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    background: none;
+    border: none;
+    transition: color 0.2s ease;
+    cursor: pointer;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.ajuda-header-btn:hover {
+    color: #00d97e !important;
+    text-shadow: none;
+}
+
+.ajuda-header-btn .ajuda-icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #1f1f1f;
+    color: #8a8a8a;
+    font-weight: 800;
+    font-size: 12px;
+    font-family: 'SF Mono', Consolas, monospace;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.ajuda-header-btn:hover .ajuda-icone {
+    background: #00d97e;
+    color: #0a0a0a;
+}
+
+/* ===== ABA ATIVA NO MENU ===== */
+.usuario-info a.menu-ativo {
+    color: #0a0a0a !important;
+    font-weight: 800 !important;
+    background: #00d97e !important;
+    border: 1px solid #00d97e !important;
+    padding: 6px 14px !important;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 16px rgba(0,217,126,0.4) !important;
+    text-shadow: none !important;
+    text-decoration: none !important;
+}
+
+.usuario-info a.menu-ativo:hover {
+    background: #00b368 !important;
+    color: #0a0a0a !important;
+    border-color: #00b368 !important;
 }

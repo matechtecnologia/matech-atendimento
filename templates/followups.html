@@ -182,15 +182,17 @@
             <h1>M.A Tech</h1>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
-                <a href="/clientes">Clientes</a>
-                <a href="/relatorios">Relatórios</a>
-                <a href="/meus_nichos">Nichos</a>
-                {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
+                <a href="/clientes" data-rota="/clientes">Clientes</a>
+                <a href="/relatorios" data-rota="/relatorios">Relatórios</a>
+                <a href="/followups" data-rota="/followups" style="position:relative;">🎯 Follow-ups{% if total_followups and total_followups > 0 %}<span style="position:absolute; top:-8px; right:-12px; background:#ff3b3b; color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:100px; font-family:monospace; line-height:1; box-shadow:0 0 0 2px #141414; min-width:16px; text-align:center;">{{ total_followups }}</span>{% endif %}</a>
+                <a href="/meus_nichos" data-rota="/meus_nichos">Nichos</a>
+                <a href="/planos" data-rota="/planos">Planos</a>
+                {% if usuario_tipo == 'admin' %}<a href="/admin" data-rota="/admin">Admin</a>{% endif %}
                 <a href="/logout">Sair</a>
             </div>
         </div>
 
-        <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
+                <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
             <div class="bloco-topo">
                 <h2>🎯 QUEM FALAR HOJE</h2>
                 <span class="badge-status status-em-atendimento">{{ total }} pra acompanhar</span>
@@ -198,7 +200,65 @@
             <p style="color:#8a8a8a; font-size:14px; margin-top:10px; line-height:1.5;">
                 A IA analisa <strong style="color:#e8e8e8;">todos os seus clientes</strong> e mostra quem precisa de atenção agora — baseado no tempo sem contato e no estágio do funil.
             </p>
+
+            <div id="snooze-bloco" style="margin-top:18px; padding:14px 16px; background:#0f0f0f; border:1px solid #1f1f1f; border-left:3px solid #f59e0b; border-radius:8px;">
+                <div id="snooze-carregando" style="color:#8a8a8a; font-size:13px;">Carregando status...</div>
+
+                <div id="snooze-ativo" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+                        <div>
+                            <div style="color:#f59e0b; font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em;">🔕 Silenciado</div>
+                            <div style="color:#e8e8e8; font-size:13px; margin-top:4px;">
+                                Follow-ups pausados até <strong id="snooze-ate" style="color:#f59e0b;"></strong>
+                            </div>
+                            <div id="snooze-dias" style="color:#5a5a5a; font-size:11px; margin-top:4px; font-family:monospace; text-transform:uppercase; letter-spacing:0.05em; font-weight:700;"></div>
+                        </div>
+                        <form method="POST" action="/snooze-followups/cancelar" style="margin:0;">
+                            <button type="submit" style="background:#00d97e; color:#0a0a0a; border:none; padding:10px 18px; border-radius:6px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; width:auto; margin:0;">▶️ Reativar agora</button>
+                        </form>
+                    </div>
+                    <div style="color:#5a5a5a; font-size:12px; margin-top:14px;">Ou mude o prazo:</div>
+                    <form method="POST" action="/snooze-followups" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
+                        <button type="submit" name="dias" value="1" class="snooze-opcao">+1 dia</button>
+                        <button type="submit" name="dias" value="2" class="snooze-opcao">+2 dias</button>
+                        <button type="submit" name="dias" value="3" class="snooze-opcao">+3 dias</button>
+                        <button type="submit" name="dias" value="7" class="snooze-opcao">+7 dias</button>
+                    </form>
+                </div>
+
+                <div id="snooze-inativo" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+                        <div>
+                            <div style="color:#f59e0b; font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em;">🔕 Silenciar follow-ups</div>
+                            <div style="color:#8a8a8a; font-size:12px; margin-top:4px;">Pausa o badge vermelho do menu por um período.</div>
+                        </div>
+                        <form method="POST" action="/snooze-followups" style="display:flex; gap:8px; flex-wrap:wrap; margin:0;">
+                            <button type="submit" name="dias" value="1" class="snooze-opcao">1 dia</button>
+                            <button type="submit" name="dias" value="2" class="snooze-opcao">2 dias</button>
+                            <button type="submit" name="dias" value="3" class="snooze-opcao">3 dias</button>
+                            <button type="submit" name="dias" value="7" class="snooze-opcao">7 dias</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        <script>
+        fetch('/api/snooze-status').then(r => r.json()).then(st => {
+            document.getElementById('snooze-carregando').style.display = 'none';
+            if (st && st.ativo) {
+                const dt = new Date(st.ate);
+                const dataFmt = dt.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                document.getElementById('snooze-ate').innerText = dataFmt;
+                document.getElementById('snooze-dias').innerText = st.dias + ' dia(s) restante(s)';
+                document.getElementById('snooze-ativo').style.display = 'block';
+            } else {
+                document.getElementById('snooze-inativo').style.display = 'block';
+            }
+        }).catch(() => {
+            document.getElementById('snooze-carregando').innerText = 'Não foi possível carregar o status.';
+        });
+        </script>
 
         {% if total == 0 %}
         <div class="empty-state">

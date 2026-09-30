@@ -72,7 +72,6 @@
   footer{border-top:1px solid #222222;padding:40px 0;text-align:center;color:#5a5a5a;font-size:14px}
   footer a{color:#8a8a8a;text-decoration:none;margin:0 12px;transition:.2s}
   footer a:hover{color:#00d97e}
-  .destaque-erro{color:#ff3b3b}
   @media(max-width:900px){
     .steps,.grid-4,.plans{grid-template-columns:1fr 1fr}
   }
@@ -214,6 +213,44 @@
   </div>
 </section>
 
+<section id="contato" style="background:#0d1320;">
+  <div class="container">
+    <h2>Quer ver funcionando?</h2>
+    <p class="sub">Deixa seu WhatsApp. A gente te mostra o sistema por dentro — sem enrolação.</p>
+
+    {% if request.query_params.get('capturado') %}
+    <div style="max-width:520px; margin:0 auto 24px; padding:16px 20px; background:#0a1f15; border:1px solid #00d97e; border-left:4px solid #00d97e; border-radius:10px; text-align:center;">
+      <p style="color:#00d97e; font-size:15px; font-weight:700; margin:0;">✓ Recebemos seu contato!</p>
+      <p style="color:#8a8a8a; font-size:13px; margin-top:6px;">Entraremos em contato pelo WhatsApp em breve.</p>
+    </div>
+    {% endif %}
+
+    {% if request.query_params.get('erro_lead') %}
+    <div style="max-width:520px; margin:0 auto 24px; padding:16px 20px; background:#1f0a0a; border:1px solid #ff3b3b; border-left:4px solid #ff3b3b; border-radius:10px; text-align:center;">
+      <p style="color:#ff3b3b; font-size:14px; font-weight:700; margin:0;">⚠️ {{ request.query_params.get('erro_lead') }}</p>
+    </div>
+    {% endif %}
+
+    <form method="POST" action="/capturar_lead" style="max-width:520px; margin:0 auto; background:#141414; border:1px solid #222222; border-radius:14px; padding:32px;">
+      <div style="margin-bottom:16px;">
+        <label style="display:block; color:#a8a8a8; font-size:13px; margin-bottom:8px; font-weight:600;">Nome</label>
+        <input type="text" name="nome" required placeholder="Seu nome" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:14px; border-radius:8px; font-size:15px; font-family:inherit; box-sizing:border-box;">
+      </div>
+      <div style="margin-bottom:16px;">
+        <label style="display:block; color:#a8a8a8; font-size:13px; margin-bottom:8px; font-weight:600;">WhatsApp (só números, com DDD)</label>
+        <input type="text" name="whatsapp" required placeholder="11987654321" inputmode="numeric" pattern="[0-9]+" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:14px; border-radius:8px; font-size:15px; font-family:monospace; box-sizing:border-box; letter-spacing:0.05em;">
+        <p style="color:#5a5a5a; font-size:12px; margin-top:6px;">Aceita com ou sem o 9 na frente</p>
+      </div>
+      <div style="margin-bottom:24px;">
+        <label style="display:block; color:#a8a8a8; font-size:13px; margin-bottom:8px; font-weight:600;">Email (opcional)</label>
+        <input type="email" name="email" placeholder="voce@email.com" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:14px; border-radius:8px; font-size:15px; font-family:inherit; box-sizing:border-box;">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; padding:16px; font-size:16px;">QUERO VER O SISTEMA →</button>
+      <p style="color:#5a5a5a; font-size:12px; text-align:center; margin-top:14px;">Sem spam. Sem enrolação. Resposta rápida.</p>
+    </form>
+  </div>
+</section>
+
 <section>
   <div class="container">
     <div class="cta-final">
@@ -232,6 +269,7 @@
       <a href="/signup">Criar conta</a>
       <a href="#planos">Planos</a>
       <a href="#faq">FAQ</a>
+      <a href="#contato">Contato</a>
     </div>
     <p style="margin-top:20px;font-size:13px">© 2026 M.A Tech. Todos os direitos reservados.</p>
   </div>

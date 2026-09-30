@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Leads da Landing</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .lead-card {
+            background: #141414;
+            border: 1px solid #222222;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            border-left: 4px solid #00d97e;
+            transition: border-color 0.2s ease, transform 0.15s ease;
+        }
+        .lead-card:hover { transform: translateY(-1px); border-color: #2a2a2a; }
+        .lead-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        .lead-head h4 { font-size: 16px; color: #e8e8e8; margin: 0; font-weight: 700; }
+        .lead-meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            color: #8a8a8a;
+            font-size: 13px;
+        }
+        .lead-meta .wpp { color: #00d97e; font-family: monospace; font-weight: 700; }
+        .btn-wpp {
+            background: #00d97e;
+            color: #0a0a0a;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-wpp:hover { background: #00b368; transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+    <div class="container-atendimento">
+        <div class="topo">
+            <h1>M.A Tech — Admin</h1>
+            <div class="usuario-info">
+                <span>{{ usuario_nome }}</span>
+                <a href="/clientes" data-rota="/clientes">Clientes</a>
+                <a href="/relatorios" data-rota="/relatorios">Relatórios</a>
+                <a href="/followups" data-rota="/followups" style="position:relative;">🎯 Follow-ups{% if total_followups and total_followups > 0 %}<span style="position:absolute; top:-8px; right:-12px; background:#ff3b3b; color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:100px; font-family:monospace; line-height:1; box-shadow:0 0 0 2px #141414; min-width:16px; text-align:center;">{{ total_followups }}</span>{% endif %}</a>
+                <a href="/meus_nichos" data-rota="/meus_nichos">Nichos</a>
+                <a href="/planos" data-rota="/planos">Planos</a>
+                {% if usuario_tipo == 'admin' %}<a href="/admin" data-rota="/admin">Admin</a>{% endif %}
+                <a href="/logout">Sair</a>
+            </div>
+        </div>
+
+        <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
+            <div class="bloco-topo">
+                <h2>📥 LEADS DA LANDING</h2>
+                <span class="badge-status status-em-atendimento">{{ leads|length }} lead(s)</span>
+            </div>
+            <p style="color:#8a8a8a; font-size:14px; margin-top:10px; line-height:1.5;">
+                Visitantes que deixaram o WhatsApp no formulário da landing. <strong style="color:#e8e8e8;">Entre em contato pra fechar!</strong>
+            </p>
+        </div>
+
+        {% if not leads %}
+        <div class="empty-state">
+            <span class="emoji">📥</span>
+            <h3>Nenhum lead ainda</h3>
+            <p>Assim que alguém preencher o formulário da landing, aparece aqui.</p>
+            <a href="/ver-landing" target="_blank" class="btn-gerar" style="display:inline-block; width:auto; padding:14px 28px; text-decoration:none; margin-top:16px;">VER LANDING →</a>
+        </div>
+        {% endif %}
+
+        {% for l in leads %}
+        <div class="lead-card">
+            <div class="lead-head">
+                <h4>👤 {{ l.nome or "Sem nome" }}</h4>
+                <a href="https://wa.me/55{{ l.whatsapp }}" target="_blank" class="btn-wpp">💬 ABRIR WHATSAPP</a>
+            </div>
+            <div class="lead-meta">
+                <span class="wpp">📱 {{ l.whatsapp }}</span>
+                {% if l.email %}<span>✉️ {{ l.email }}</span>{% endif %}
+                {% if l.criado_em %}<span>📅 {{ l.criado_em.strftime('%d/%m/%Y às %H:%M') }}</span>{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
