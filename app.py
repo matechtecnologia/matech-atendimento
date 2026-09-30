@@ -488,8 +488,8 @@ def fazer_login(request: Request, email: str = Form(...), senha: str = Form(...)
     ip = obter_ip(request)
 
     # Rate limit: max 5 tentativas falhas em 15 min
-    if contar_tentativas_login(email, ip, 15) >= 5:
-        return RedirectResponse(url="/login?erro=Muitas tentativas. Aguarde 15 minutos.", status_code=303)
+    if contar_tentativas_login(email, ip, 5) >= 5:
+        return RedirectResponse(url="/login?erro=Muitas tentativas. Aguarde 5 minutos.", status_code=303)
 
     u = buscar_usuario(email)
     if not u:
@@ -2586,3 +2586,63 @@ def limpar_tentativas_antigas():
     cur.close()
     close_conn(conn)
 
+
+
+
+# ============ API — AVISO DE PLANO ============
+
+@app.get("/api/aviso-plano")
+def api_aviso_plano(usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return {"mostrar": False}
+    try:
+        v = buscar_vendedor(usuario_id)
+        if not v:
+            return {"mostrar": False}
+        # So mostra pra planos pagos com expiracao
+        if v["plano"] == "gratis" or not v["plano_expira_em"]:
+            return {"mostrar": False}
+
+        from datetime import datetime as _dt
+        exp = v["plano_expira_em"]
+        agora = _dt.now(exp.tzinfo) if exp.tzinfo else _dt.now()
+        dias = (exp - agora).days
+
+        # So mostra se faltar 5 dias ou menos E ainda nao expirou
+        if dias < 0 or dias > 5:
+            return {"mostrar": False}
+
+        return {
+            "mostrar": True,
+            "dias": dias,
+            "plano": v["plano"].upper(),
+            "data": exp.strftime("%d/%m/%Y"),
+        }
+    except Exception as e:
+        print(f"Erro aviso plano: {e}")
+        return {"mostrar": False}
+
+
+
+# ============ DESBLOQUEAR LOGIN (rota secreta) ============
+
+@app.get("/admin/desbloquear")
+def desbloquear_login(token: str = "", email: str = ""):
+    import os as _os
+    from fastapi.responses import JSONResponse
+    token_esperado = _os.getenv("BACKUP_TOKEN", "matech-backup-2026")
+    if token != token_esperado:
+        return JSONResponse({"erro": "token invalido"}, status_code=403)
+
+    conn = get_conn()
+    cur = conn.cursor()
+    if email:
+        cur.execute("DELETE FROM tentativas_login WHERE sucesso = FALSE AND email = %s", (email,))
+        removidas = cur.rowcount
+    else:
+        cur.execute("DELETE FROM tentativas_login WHERE sucesso = FALSE")
+        removidas = cur.rowcount
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    return {"ok": True, "removidas": removidas}
