@@ -2043,3 +2043,110 @@ def editar_nicho(nicho_id: int, publico: str = Form(...), preco: str = Form(...)
     close_conn(conn)
 
     return RedirectResponse(url="/meus_nichos?ok=1", status_code=303)
+
+
+
+# ============ ADMIN — DASHBOARD COM GRÁFICO ============
+
+@app.get("/admin/dashboard", response_class=HTMLResponse)
+def admin_dashboard(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id or usuario_tipo != "admin":
+        return RedirectResponse(url="/login")
+
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+
+    # Total de vendedores
+    cur.execute("SELECT COUNT(*) as t FROM vendedores")
+    total_vend = cur.fetchone()["t"]
+
+    # Total de leads capturados
+    cur.execute("SELECT COUNT(*) as t FROM leads_landing")
+    total_leads = cur.fetchone()["t"]
+
+    # Total de clientes (todos os vendedores)
+    cur.execute("SELECT COUNT(*) as t FROM clientes")
+    total_clientes = cur.fetchone()["t"]
+
+    # Total de atendimentos
+    cur.execute("SELECT COUNT(*) as t FROM atendimentos")
+    total_atend = cur.fetchone()["t"]
+
+    # Vendedores por mês (últimos 6 meses)
+    cur.execute("""
+        SELECT TO_CHAR(criado_em, 'YYYY-MM') as mes, COUNT(*) as qtd
+        FROM vendedores
+        WHERE criado_em >= NOW() - INTERVAL '6 months'
+        GROUP BY mes ORDER BY mes
+    """)
+    vend_mes_raw = {r["mes"]: r["qtd"] for r in cur.fetchall()}
+
+    # Leads por mês (últimos 6 meses)
+    cur.execute("""
+        SELECT TO_CHAR(criado_em, 'YYYY-MM') as mes, COUNT(*) as qtd
+        FROM leads_landing
+        WHERE criado_em >= NOW() - INTERVAL '6 months'
+        GROUP BY mes ORDER BY mes
+    """)
+    leads_mes_raw = {r["mes"]: r["qtd"] for r in cur.fetchall()}
+
+    # Monta os últimos 6 meses (mesmo os zerados)
+    from datetime import date
+    hoje = date.today()
+    meses = []
+    for i in range(5, -1, -1):
+        # Calcula o mês retroativo
+        ano = hoje.year
+        mes = hoje.month - i
+        while mes <= 0:
+            mes += 12
+            ano -= 1
+        chave = f"{ano:04d}-{mes:02d}"
+        nome_mes = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"][mes - 1]
+        meses.append({
+            "chave": chave,
+            "nome": nome_mes,
+            "ano": ano,
+            "vendedores": vend_mes_raw.get(chave, 0),
+            "leads": leads_mes_raw.get(chave, 0),
+        })
+
+    max_vend = max([m["vendedores"] for m in meses] + [1])
+    max_leads = max([m["leads"] for m in meses] + [1])
+
+    # Crescimento vs mês anterior
+    if len(meses) >= 2:
+        atual = meses[-1]["vendedores"]
+        anterior = meses[-2]["vendedores"]
+        if anterior > 0:
+            cresc = round(((atual - anterior) / anterior) * 100, 1)
+        elif atual > 0:
+            cresc = 100
+        else:
+            cresc = 0
+    else:
+        cresc = 0
+
+    # Plano atual de cada vendedor
+    cur.execute("""
+        SELECT plano, COUNT(*) as qtd FROM vendedores GROUP BY plano
+    """)
+    por_plano = {r["plano"]: r["qtd"] for r in cur.fetchall()}
+
+    cur.close()
+    close_conn(conn)
+
+    return templates.TemplateResponse(request=request, name="admin_dashboard.html", context={
+        "usuario_nome": usuario_nome,
+        "usuario_tipo": usuario_tipo,
+        "total_followups": _total_followups_para_template(usuario_id),
+        "total_vend": total_vend,
+        "total_leads": total_leads,
+        "total_clientes": total_clientes,
+        "total_atend": total_atend,
+        "meses": meses,
+        "max_vend": max_vend,
+        "max_leads": max_leads,
+        "crescimento": cresc,
+        "por_plano": por_plano,
+    })

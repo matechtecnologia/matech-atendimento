@@ -12,12 +12,9 @@
             <h1>M.A Tech — Admin</h1>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
-                <a href="/clientes" data-rota="/clientes">Clientes</a>
-                <a href="/relatorios" data-rota="/relatorios">Relatórios</a>
-                <a href="/followups" data-rota="/followups" style="position:relative;">🎯 Follow-ups{% if total_followups and total_followups > 0 %}<span style="position:absolute; top:-8px; right:-12px; background:#ff3b3b; color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:100px; font-family:monospace; line-height:1; box-shadow:0 0 0 2px #141414; min-width:16px; text-align:center;">{{ total_followups }}</span>{% endif %}</a>
-                <a href="/meus_nichos" data-rota="/meus_nichos">Nichos</a>
-                <a href="/planos" data-rota="/planos">Planos</a>
-                {% if usuario_tipo == 'admin' %}<a href="/admin" data-rota="/admin">Admin</a>{% endif %}
+                <a href="/admin/dashboard" data-rota="/admin/dashboard">📊 Dashboard</a>
+                <a href="/admin/leads" data-rota="/admin/leads">📥 Leads</a>
+                <a href="/admin" data-rota="/admin">👥 Vendedores</a>
                 <a href="/logout">Sair</a>
             </div>
         </div>
@@ -28,74 +25,26 @@
         </div>
         {% endif %}
 
-        {% set ns = namespace(gratis=0, basico=0, pro=0, empresarial=0, total_nichos=0, total_clientes=0) %}
-        {% for v in vendedores %}
-            {% if v.plano == 'gratis' %}{% set ns.gratis = ns.gratis + 1 %}
-            {% elif v.plano == 'basico' %}{% set ns.basico = ns.basico + 1 %}
-            {% elif v.plano == 'pro' %}{% set ns.pro = ns.pro + 1 %}
-            {% elif v.plano == 'empresarial' %}{% set ns.empresarial = ns.empresarial + 1 %}
-            {% endif %}
-            {% set ns.total_nichos = ns.total_nichos + (v.total_nichos or 0) %}
-            {% set ns.total_clientes = ns.total_clientes + (v.total_clientes or 0) %}
-        {% endfor %}
-
         <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
             <div class="bloco-topo">
-                <h2>👑 PAINEL DO ADMINISTRADOR</h2>
-                <span class="badge-status status-em-atendimento">ADMIN</span>
+                <h2>👥 VENDEDORES</h2>
+                <span class="badge-status status-em-atendimento">{{ vendedores|length }} cadastrado(s)</span>
             </div>
             <p style="color:#8a8a8a; font-size:14px; margin-top:10px;">
-                Visão geral de todos os vendedores da plataforma.
+                Clique em um vendedor pra ver detalhes, editar ou excluir.
             </p>
             <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
                 <a href="/admin/criar" class="btn-gerar" style="display:inline-block; width:auto; padding:12px 24px; text-decoration:none; margin-top:0;">
                     ➕ CRIAR VENDEDOR
                 </a>
+                <a href="/admin/dashboard" style="display:inline-block; width:auto; padding:12px 24px; text-decoration:none; margin-top:0; background:#a855f7; color:#fff; border-radius:6px; font-weight:700; font-size:14px;">
+                    📊 VER DASHBOARD
+                </a>
                 <a href="/admin/leads" style="display:inline-block; width:auto; padding:12px 24px; text-decoration:none; margin-top:0; background:transparent; color:#00d97e; border:1px solid #00d97e; border-radius:6px; font-weight:700; font-size:14px;">
-                    📥 VER LEADS DA LANDING
+                    📥 VER LEADS
                 </a>
             </div>
         </div>
-
-        <div class="stats-grid">
-            <div class="stat-card neutro">
-                <div class="stat-label">Vendedores</div>
-                <div class="stat-valor">{{ vendedores|length }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Nichos</div>
-                <div class="stat-valor">{{ ns.total_nichos }}</div>
-            </div>
-            <div class="stat-card alerta">
-                <div class="stat-label">Clientes</div>
-                <div class="stat-valor">{{ ns.total_clientes }}</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Planos pagos</div>
-                <div class="stat-valor">{{ ns.basico + ns.pro + ns.empresarial }}</div>
-            </div>
-        </div>
-
-        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px;">
-            <div style="background:#141414; border:1px solid #222222; border-left:3px solid #5a5a5a; border-radius:10px; padding:14px 16px;">
-                <div style="font-size:11px; color:#8a8a8a; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; margin-bottom:6px;">Grátis</div>
-                <div style="font-size:22px; font-weight:800; color:#e8e8e8; font-family:monospace;">{{ ns.gratis }}</div>
-            </div>
-            <div style="background:#141414; border:1px solid #222222; border-left:3px solid #00d97e; border-radius:10px; padding:14px 16px;">
-                <div style="font-size:11px; color:#8a8a8a; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; margin-bottom:6px;">Básico</div>
-                <div style="font-size:22px; font-weight:800; color:#00d97e; font-family:monospace;">{{ ns.basico }}</div>
-            </div>
-            <div style="background:#141414; border:1px solid #222222; border-left:3px solid #f59e0b; border-radius:10px; padding:14px 16px;">
-                <div style="font-size:11px; color:#8a8a8a; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; margin-bottom:6px;">Pro</div>
-                <div style="font-size:22px; font-weight:800; color:#f59e0b; font-family:monospace;">{{ ns.pro }}</div>
-            </div>
-            <div style="background:#141414; border:1px solid #222222; border-left:3px solid #a855f7; border-radius:10px; padding:14px 16px;">
-                <div style="font-size:11px; color:#8a8a8a; text-transform:uppercase; letter-spacing:0.08em; font-weight:700; margin-bottom:6px;">Empresarial</div>
-                <div style="font-size:22px; font-weight:800; color:#a855f7; font-family:monospace;">{{ ns.empresarial }}</div>
-            </div>
-        </div>
-
-        <h2 style="margin-bottom:16px; font-size:18px; letter-spacing:-0.01em;">👥 Vendedores cadastrados</h2>
 
         {% if not vendedores %}
         <div class="empty-state">

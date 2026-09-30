@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M.A Tech - Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .linha-numeros {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .numero-card {
+            background: linear-gradient(135deg, #141414 0%, #0f1a15 100%);
+            border: 1px solid #222222;
+            border-radius: 14px;
+            padding: 22px 24px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .numero-card:hover {
+            transform: translateY(-3px);
+            border-color: #00d97e;
+            box-shadow: 0 16px 40px rgba(0,217,126,0.15);
+        }
+        .numero-card .titulo {
+            font-size: 12px;
+            color: #8a8a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .numero-card .num {
+            font-size: 42px;
+            font-weight: 800;
+            font-family: 'SF Mono', Consolas, monospace;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+        .numero-card.vend .num { color: #00d97e; }
+        .numero-card.leads .num { color: #a855f7; }
+        .numero-card.clientes .num { color: #f59e0b; }
+        .numero-card .info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #8a8a8a;
+        }
+        .variacao {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 800;
+            font-family: monospace;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+        .variacao.positiva { background: rgba(0,217,126,0.12); color: #00d97e; }
+        .variacao.negativa { background: rgba(255,59,59,0.12); color: #ff3b3b; }
+        .variacao.neutra { background: #1a1a1a; color: #5a5a5a; }
+
+        /* GRÁFICO */
+        .card-grafico {
+            background: #141414;
+            border: 1px solid #222222;
+            border-radius: 14px;
+            padding: 28px 28px 24px;
+            margin-bottom: 24px;
+        }
+        .card-grafico h3 {
+            margin: 0 0 4px 0;
+            font-size: 17px;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        .card-grafico .sub {
+            font-size: 13px;
+            color: #8a8a8a;
+            margin-bottom: 28px;
+        }
+        .grafico {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            height: 200px;
+            gap: 12px;
+            padding: 0 8px;
+            border-bottom: 2px solid #222222;
+        }
+        .col-mes {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+            height: 100%;
+            position: relative;
+        }
+        .col-mes .barra {
+            width: 100%;
+            max-width: 60px;
+            background: linear-gradient(180deg, #00d97e, #00b368);
+            border-radius: 8px 8px 0 0;
+            min-height: 4px;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,217,126,0.25);
+        }
+        .col-mes .barra .num {
+            position: absolute;
+            top: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 13px;
+            font-family: monospace;
+            font-weight: 800;
+            color: #00d97e;
+            white-space: nowrap;
+        }
+        .col-mes.atual .barra {
+            background: linear-gradient(180deg, #00d97e, #00b368);
+            box-shadow: 0 0 32px rgba(0,217,126,0.5);
+        }
+        .col-mes.atual .barra .num {
+            font-size: 15px;
+        }
+        .col-mes .nome-mes {
+            font-size: 12px;
+            color: #8a8a8a;
+            font-family: monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 700;
+            padding-top: 12px;
+            border-top: 1px solid #1a1a1a;
+            width: 100%;
+            text-align: center;
+        }
+        .col-mes.atual .nome-mes {
+            color: #00d97e;
+        }
+        .legenda-grafico {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #8a8a8a;
+        }
+        .legenda-grafico .ponto {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            background: #00d97e;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        /* PLANOS */
+        .card-planos {
+            background: #141414;
+            border: 1px solid #222222;
+            border-radius: 14px;
+            padding: 24px 28px;
+            margin-bottom: 20px;
+        }
+        .card-planos h3 {
+            margin: 0 0 4px 0;
+            font-size: 17px;
+            color: #fff;
+            font-weight: 700;
+        }
+        .card-planos .sub {
+            font-size: 13px;
+            color: #8a8a8a;
+            margin-bottom: 20px;
+        }
+        .planos-linha {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .plano-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .plano-item .nome {
+            width: 110px;
+            font-size: 13px;
+            color: #a8a8a8;
+            font-weight: 700;
+        }
+        .plano-item .barra-wrap {
+            flex: 1;
+            height: 10px;
+            background: #0a0a0a;
+            border-radius: 100px;
+            overflow: hidden;
+        }
+        .plano-item .barra-plan {
+            height: 100%;
+            border-radius: 100px;
+            transition: width 0.5s ease;
+        }
+        .plano-item .qtd {
+            font-size: 18px;
+            font-family: monospace;
+            font-weight: 800;
+            min-width: 40px;
+            text-align: right;
+        }
+
+        @media (max-width: 800px) {
+            .linha-numeros { grid-template-columns: 1fr; }
+            .numero-card .num { font-size: 36px; }
+            .grafico { height: 160px; gap: 6px; }
+            .col-mes .barra { max-width: 40px; }
+            .col-mes .barra .num { font-size: 11px; top: -20px; }
+            .col-mes .nome-mes { font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-atendimento">
+        <div class="topo">
+            <h1>M.A Tech — Admin</h1>
+            <div class="usuario-info">
+                <span>{{ usuario_nome }}</span>
+                <a href="/admin/dashboard" data-rota="/admin/dashboard">📊 Dashboard</a>
+                <a href="/admin/leads" data-rota="/admin/leads">📥 Leads</a>
+                <a href="/admin" data-rota="/admin">👥 Vendedores</a>
+                <a href="/logout">Sair</a>
+            </div>
+        </div>
+
+        <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:24px;">
+            <div class="bloco-topo">
+                <h2>📊 EVOLUÇÃO DA PLATAFORMA</h2>
+                <span class="badge-status status-em-atendimento">ÚLTIMOS 6 MESES</span>
+            </div>
+            <p style="color:#8a8a8a; font-size:14px; margin-top:10px; line-height:1.5;">
+                Acompanhe o crescimento do negócio mês a mês.
+            </p>
+        </div>
+
+        <!-- NÚMEROS ATUAIS -->
+        <div class="linha-numeros">
+            <div class="numero-card vend">
+                <div class="titulo">👥 Vendedores</div>
+                <div class="num">{{ total_vend }}</div>
+                <div class="info">
+                    {% if crescimento > 0 %}
+                        <span class="variacao positiva">↑ {{ crescimento }}%</span>
+                        <span>neste mês</span>
+                    {% elif crescimento < 0 %}
+                        <span class="variacao negativa">↓ {{ crescimento|abs }}%</span>
+                        <span>neste mês</span>
+                    {% else %}
+                        <span class="variacao neutra">—</span>
+                        <span>sem mudança</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="numero-card leads">
+                <div class="titulo">📥 Leads capturados</div>
+                <div class="num">{{ total_leads }}</div>
+                <div class="info">
+                    {% if total_leads > 0 %}
+                        <span class="variacao positiva">{{ ((total_vend / total_leads) * 100)|round(1) }}%</span>
+                        <span>viraram vendedores</span>
+                    {% else %}
+                        <span style="color:#5a5a5a;">Nenhum lead ainda</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="numero-card clientes">
+                <div class="titulo">🎯 Clientes ativos</div>
+                <div class="num">{{ total_clientes }}</div>
+                <div class="info">
+                    {% if total_vend > 0 %}
+                        <span class="variacao positiva">{{ (total_clientes / total_vend)|round(1) }}</span>
+                        <span>por vendedor</span>
+                    {% else %}
+                        <span style="color:#5a5a5a;">Nenhum vendedor</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- GRÁFICO DE EVOLUÇÃO -->
+        <div class="card-grafico">
+            <h3>📈 Vendedores por mês</h3>
+            <p class="sub">Quantos novos vendedores entraram em cada mês</p>
+
+            <div class="grafico">
+                {% for m in meses %}
+                <div class="col-mes {% if loop.last %}atual{% endif %}">
+                    <div class="barra" style="height: {{ (m.vendedores / max_vend * 160) if max_vend > 0 else 4 }}px;">
+                        <span class="num">{{ m.vendedores }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="grafico" style="border: none; padding-top: 0; height: auto;">
+                {% for m in meses %}
+                <div class="col-mes {% if loop.last %}atual{% endif %}">
+                    <div class="nome-mes">{{ m.nome }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="legenda-grafico">
+                <span><span class="ponto"></span>Vendedores cadastrados</span>
+            </div>
+        </div>
+
+        <!-- PLANOS -->
+        <div class="card-planos">
+            <h3>💳 Distribuição por plano</h3>
+            <p class="sub">Como estão divididos os {{ total_vend }} vendedores</p>
+
+            {% set max_plano = [por_plano.get('gratis', 0), por_plano.get('basico', 0), por_plano.get('pro', 0), por_plano.get('empresarial', 0), 1]|max %}
+            <div class="planos-linha">
+                <div class="plano-item">
+                    <span class="nome">Grátis</span>
+                    <div class="barra-wrap">
+                        <div class="barra-plan" style="width: {{ (por_plano.get('gratis', 0) / max_plano * 100) }}%; background: #5a5a5a;"></div>
+                    </div>
+                    <span class="qtd" style="color: #8a8a8a;">{{ por_plano.get('gratis', 0) }}</span>
+                </div>
+                <div class="plano-item">
+                    <span class="nome">Básico</span>
+                    <div class="barra-wrap">
+                        <div class="barra-plan" style="width: {{ (por_plano.get('basico', 0) / max_plano * 100) }}%; background: #00d97e;"></div>
+                    </div>
+                    <span class="qtd" style="color: #00d97e;">{{ por_plano.get('basico', 0) }}</span>
+                </div>
+                <div class="plano-item">
+                    <span class="nome">Pro</span>
+                    <div class="barra-wrap">
+                        <div class="barra-plan" style="width: {{ (por_plano.get('pro', 0) / max_plano * 100) }}%; background: #f59e0b;"></div>
+                    </div>
+                    <span class="qtd" style="color: #f59e0b;">{{ por_plano.get('pro', 0) }}</span>
+                </div>
+                <div class="plano-item">
+                    <span class="nome">Empresarial</span>
+                    <div class="barra-wrap">
+                        <div class="barra-plan" style="width: {{ (por_plano.get('empresarial', 0) / max_plano * 100) }}%; background: #a855f7;"></div>
+                    </div>
+                    <span class="qtd" style="color: #a855f7;">{{ por_plano.get('empresarial', 0) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <p style="margin-top:24px; text-align:center;">
+            <a href="/admin" style="color:#00d97e; text-decoration:none;">← Voltar pros vendedores</a>
+        </p>
+
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
