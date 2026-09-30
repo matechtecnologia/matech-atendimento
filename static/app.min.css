@@ -1,4 +1,4 @@
-/* M.A Tech — CSS combinado */
+/* M.A Tech */
 
 
 /* ===== style.css ===== */
@@ -1601,6 +1601,14 @@ html {
 }
 
 
+
+
+
+
+
+
+
+
 /* ===== app-mobile.css ===== */
 /* ============================================================
    M.A TECH — APP SHELL (mobile-first)
@@ -2549,6 +2557,15 @@ html[data-tema="claro"] .segmented button.ativo {
 html[data-tema="claro"] .config-secao.snooze-box.ativo {
     background: linear-gradient(135deg, #fef8ec 0%, #ffffff 100%);
 }
+
+/* Padrão = escuro (força caso não tenha atributo) */
+html:not([data-tema]) body {
+    background: #0a0a0a !important;
+    color: #e8e8e8 !important;
+}
+
+
+
 
 /* ===== splash.css ===== */
 /* ============================================================

@@ -90,7 +90,7 @@
                 <span class="icone-nav">${icone('nichos')}</span>
                 <span class="txt-nav">Nichos</span>
             </a>
-            <a href="/followups" class="nav-item ${ativa === 'followups' ? 'ativo' : ''}">
+            <a href="/followups" class="nav-item ${ativa === 'followups' ? 'ativo' : ''}" id="nav-followups-btn">
                 <span class="icone-nav">${icone('followups')}${badge}</span>
                 <span class="txt-nav">Follow-ups</span>
             </a>
@@ -98,7 +98,7 @@
 
         document.body.appendChild(nav);
 
-        document.getElementById('nav-menu-btn').addEventListener('click', () => {
+                document.getElementById('nav-menu-btn').addEventListener('click', () => {
             if (window.abrirDrawerApp) {
                 window.abrirDrawerApp();
             } else {
@@ -112,6 +112,7 @@
 
         // Busca o total real da API (e atualiza o badge)
         setTimeout(carregarTotal, 150);
+        
     }
 
     function init() {

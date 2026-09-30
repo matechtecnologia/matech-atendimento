@@ -3,118 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#00d97e">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="M.A Tech">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
-    <link rel="icon" type="image/png" href="/static/favicon-32.png">
     <title>M.A Tech - Relatórios</title>
+    <link rel="stylesheet" href="/static/app.min.css?v=99">
     <style>
-        .card-bloco {
+        /* ===== FILTRO DE DATA ===== */
+        .filtro-data {
             background: #141414;
-            border: 1px solid #222222;
+            border: 1px solid #222;
             border-radius: 12px;
-            padding: 22px 24px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .filtro-data-titulo {
+            font-size: 11px;
+            color: #8a8a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        .filtro-data-linha {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+        .filtro-data-linha > div {
+            flex: 1;
+            min-width: 140px;
+        }
+        .filtro-data label {
+            display: block;
+            color: #a8a8a8;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .filtro-data input[type="date"] {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #2a2a2a;
+            color: #fff;
+            padding: 11px 12px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-family: inherit;
+            box-sizing: border-box;
+            color-scheme: dark;
+        }
+        .filtro-data input[type="date"]:focus {
+            outline: none;
+            border-color: #00d97e;
+        }
+        .btn-filtrar {
+            background: #00d97e;
+            color: #0a0a0a;
+            border: none;
+            padding: 11px 24px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 800;
+            cursor: pointer;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+        .btn-filtrar:hover { background: #00b368; }
+
+        .atalhos-data {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .atalho {
+            background: #0a0a0a;
+            border: 1px solid #2a2a2a;
+            color: #8a8a8a;
+            padding: 6px 12px;
+            border-radius: 100px;
+            font-size: 11.5px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+        .atalho:hover { border-color: #00d97e; color: #00d97e; }
+        .atalho.ativo { background: #00d97e; color: #0a0a0a; border-color: #00d97e; }
+
+        /* ===== CARDS DE MÉTRICAS ===== */
+        .metricas {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .metrica {
+            background: #141414;
+            border: 1px solid #222;
+            border-left: 3px solid #00d97e;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .metrica .label {
+            font-size: 10.5px;
+            color: #8a8a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .metrica .valor {
+            font-size: 26px;
+            font-weight: 800;
+            font-family: 'SF Mono', Consolas, monospace;
+            letter-spacing: -0.03em;
+            line-height: 1;
+            color: #fff;
+        }
+        .metrica.total { border-left-color: #00d97e; }
+        .metrica.total .valor { color: #00d97e; }
+        .metrica.atend . border-left-color: #f59e0b;
+        .metrica.atend .valor { color: #f59e0b; }
+        .metrica.ganhos { border-left-color: #22c55e; }
+        .metrica.ganhos .valor { color: #22c55e; }
+        .metrica.perdidos { border-left-color: #ff3b3b; }
+        .metrica.perdidos .valor { color: #ff3b3b; }
+
+        /* ===== GRÁFICO ===== */
+        .card-secao {
+            background: #141414;
+            border: 1px solid #222;
+            border-radius: 12px;
+            padding: 20px;
             margin-bottom: 16px;
         }
-        .card-bloco h3 {
+        .card-secao h3 {
             font-size: 13px;
             color: #8a8a8a;
-            letter-spacing: 0.08em;
-            font-weight: 700;
             text-transform: uppercase;
-            margin: 0 0 18px 0;
+            letter-spacing: 0.1em;
+            font-weight: 800;
+            margin: 0 0 16px 0;
+        }
+        .grafico {
             display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 160px;
+            gap: 6px;
+            padding: 0 4px;
+            border-bottom: 1px solid #222;
+        }
+        .col-mes {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 8px;
+            justify-content: flex-end;
+            gap: 4px;
+            height: 100%;
+        }
+        .col-mes .barra {
+            width: 100%;
+            max-width: 40px;
+            background: linear-gradient(180deg, #00d97e, #00b368);
+            border-radius: 6px 6px 0 0;
+            min-height: 3px;
+            position: relative;
+            box-shadow: 0 0 12px rgba(0,217,126,0.2);
+        }
+        .col-mes .barra .num {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            font-family: monospace;
+            font-weight: 800;
+            color: #00d97e;
+            white-space: nowrap;
+        }
+        .col-mes .nome {
+            font-size: 10px;
+            color: #8a8a8a;
+            font-family: monospace;
+            text-transform: uppercase;
+            font-weight: 700;
+            padding-top: 8px;
+            border-top: 1px solid #1a1a1a;
+            width: 100%;
+            text-align: center;
         }
 
         /* ===== FUNIL ===== */
-        .funil { display: flex; flex-direction: column; gap: 10px; }
+        .funil-lista { display: flex; flex-direction: column; gap: 8px; }
         .funil-item {
             display: flex;
             align-items: center;
-            gap: 14px;
-            padding: 12px 14px;
+            gap: 12px;
+            padding: 10px 12px;
             background: #0f0f0f;
             border-radius: 8px;
-            border-left: 4px solid;
+            border-left: 3px solid;
         }
-        .funil-item .icone { font-size: 20px; width: 28px; text-align: center; }
-        .funil-item .info { flex: 1; }
-        .funil-item .nome { font-size: 14px; color: #e8e8e8; font-weight: 600; margin-bottom: 4px; }
+        .funil-item .nome { flex: 1; font-size: 13px; color: #e8e8e8; font-weight: 600; }
         .funil-item .barra-wrap {
+            flex: 1;
             height: 6px;
-            background: #1a1a1a;
+            background: #0a0a0a;
             border-radius: 100px;
             overflow: hidden;
         }
         .funil-item .barra {
             height: 100%;
             border-radius: 100px;
-            transition: width 0.5s ease;
+            transition: width 0.4s ease;
         }
         .funil-item .num {
             font-family: monospace;
-            font-weight: 700;
-            font-size: 18px;
+            font-weight: 800;
+            font-size: 15px;
             min-width: 40px;
             text-align: right;
         }
-        .funil-item .pct {
-            font-family: monospace;
-            font-size: 12px;
-            color: #5a5a5a;
-            min-width: 42px;
-            text-align: right;
-        }
+        .funil-item.novo { border-left-color: #8a8a8a; }
+        .funil-item.novo .num { color: #8a8a8a; }
+        .funil-item.atend { border-left-color: #00d97e; }
+        .funil-item.atend .num { color: #00d97e; }
+        .funil-item.negoc { border-left-color: #f59e0b; }
+        .funil-item.negoc .num { color: #f59e0b; }
+        .funil-item.ganho { border-left-color: #22c55e; }
+        .funil-item.ganho .num { color: #22c55e; }
+        .funil-item.perdido { border-left-color: #ff3b3b; }
+        .funil-item.perdido .num { color: #ff3b3b; }
 
-        /* ===== GRÁFICO ===== */
-        .grafico {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-around;
-            height: 160px;
-            gap: 8px;
-            padding: 16px 8px 0;
-            background: #0a0a0a;
-            border-radius: 10px;
-        }
-        .barra-wrap-col {
-            flex: 1;
+        /* ===== LISTA GENÉRICA ===== */
+        .lista-ranque {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            height: 100%;
             gap: 6px;
         }
-        .barra-vertical {
-            width: 100%;
-            max-width: 44px;
-            background: linear-gradient(180deg, #00d97e, #00b368);
-            border-radius: 6px 6px 0 0;
-            box-shadow: 0 0 16px rgba(0,217,126,0.25);
-            min-height: 4px;
-            transition: height 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .barra-num { font-size: 12px; font-family: monospace; color: #00d97e; font-weight: 700; }
-        .barra-dia { font-size: 11px; color: #8a8a8a; font-family: monospace; }
-
-        /* ===== ORIGENS ===== */
-        .origem-item {
+        .ranque-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 10px 0;
-            border-bottom: 1px solid #1a1a1a;
+            padding: 10px 12px;
+            background: #0f0f0f;
+            border-radius: 8px;
         }
-        .origem-item:last-child { border-bottom: none; }
-        .origem-item .pos {
-            width: 24px;
-            height: 24px;
+        .ranque-item .pos {
+            width: 26px;
+            height: 26px;
             border-radius: 50%;
             background: #1a1a1a;
             color: #8a8a8a;
@@ -123,85 +262,52 @@
             justify-content: center;
             font-size: 11px;
             font-family: monospace;
-            font-weight: 700;
+            font-weight: 800;
             flex-shrink: 0;
         }
-        .origem-item:first-child .pos { background: #00d97e; color: #0a0a0a; }
-        .origem-item .nome { flex: 1; font-size: 14px; color: #e8e8e8; }
-        .origem-item .qtd { font-family: monospace; font-weight: 700; color: #00d97e; font-size: 15px; }
-
-        /* ===== DESTAQUE ===== */
-        .destaque-conversao {
-            background: linear-gradient(135deg, #0f1a15 0%, #141414 100%);
-            border: 1px solid #00d97e;
-            border-radius: 14px;
-            padding: 28px 24px;
-            text-align: center;
-            margin-bottom: 16px;
-            position: relative;
+        .ranque-item:nth-child(1) .pos { background: #00d97e; color: #0a0a0a; }
+        .ranque-item:nth-child(2) .pos { background: #2a2a2a; color: #fff; }
+        .ranque-item:nth-child(3) .pos { background: #3a2a1a; color: #f59e0b; }
+        .ranque-item .info { flex: 1; min-width: 0; }
+        .ranque-item .nome {
+            font-size: 13.5px;
+            color: #e8e8e8;
+            font-weight: 600;
             overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
-        .destaque-conversao:before {
-            content: "";
-            position: absolute;
-            top: -60px; right: -60px;
-            width: 200px; height: 200px;
-            background: radial-gradient(circle, rgba(0,217,126,0.15), transparent 70%);
+        .ranque-item .sub {
+            font-size: 11.5px;
+            color: #5a5a5a;
+            font-family: monospace;
+            margin-top: 2px;
         }
-        .destaque-conversao .label {
-            font-size: 12px; color: #00d97e; font-weight: 700;
-            letter-spacing: 0.1em; text-transform: uppercase;
-            margin-bottom: 8px; position: relative;
-        }
-        .destaque-conversao .valor {
-            font-size: 52px; font-weight: 800; color: #00d97e;
-            font-family: monospace; letter-spacing: -0.04em;
-            line-height: 1; position: relative;
-            text-shadow: 0 0 40px rgba(0,217,126,0.4);
-        }
-        .destaque-conversao .contexto {
-            font-size: 14px; color: #8a8a8a;
-            margin-top: 10px; position: relative;
+        .ranque-item .num {
+            font-family: monospace;
+            font-weight: 800;
+            color: #00d97e;
+            font-size: 15px;
         }
 
-        /* ===== MINI-STATS ===== */
-        .mini-stats {
+        .grid-2 {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 16px;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
         }
-        .mini-stat {
-            background: #141414;
-            border: 1px solid #222222;
-            border-radius: 10px;
-            padding: 16px 18px;
-            border-left: 3px solid;
-        }
-        .mini-stat .label {
-            font-size: 11px; color: #8a8a8a; text-transform: uppercase;
-            letter-spacing: 0.08em; font-weight: 700; margin-bottom: 6px;
-        }
-        .mini-stat .valor {
-            font-size: 24px; font-weight: 800; font-family: monospace;
-            letter-spacing: -0.03em; line-height: 1;
-        }
-        .mini-stat .sub { font-size: 12px; color: #5a5a5a; margin-top: 4px; }
-
         @media (max-width: 700px) {
-            .mini-stats { grid-template-columns: 1fr; }
-            .destaque-conversao .valor { font-size: 40px; }
-            .grafico { height: 130px; }
+            .metricas { grid-template-columns: repeat(2, 1fr); }
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .empty-secao {
+            color: #5a5a5a;
+            font-size: 13px;
+            text-align: center;
+            padding: 20px 0;
         }
     </style>
-    <link rel="stylesheet" href="/static/app.min.css">
 </head>
-<script>
-    (function() {
-        var t = localStorage.getItem('matech_tema') || 'escuro';
-        document.documentElement.setAttribute('data-tema', t);
-    })();
-    </script>
 <body>
     <div class="container-atendimento">
         <div class="topo">
@@ -210,7 +316,7 @@
                 <span>{{ usuario_nome }}</span>
                 <a href="/clientes" data-rota="/clientes">Clientes</a>
                 <a href="/relatorios" data-rota="/relatorios">Relatórios</a>
-                <a href="/followups" data-rota="/followups" style="position:relative;">🎯 Follow-ups{% if total_followups and total_followups > 0 %}<span style="position:absolute; top:-8px; right:-12px; background:#ff3b3b; color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:100px; font-family:monospace; line-height:1; box-shadow:0 0 0 2px #141414; min-width:16px; text-align:center;">{{ total_followups }}</span>{% endif %}</a>
+                <a href="/followups" data-rota="/followups">Follow-ups</a>
                 <a href="/meus_nichos" data-rota="/meus_nichos">Nichos</a>
                 <a href="/planos" data-rota="/planos">Planos</a>
                 {% if usuario_tipo == 'admin' %}<a href="/admin" data-rota="/admin">Admin</a>{% endif %}
@@ -218,176 +324,196 @@
             </div>
         </div>
 
-        <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
-            <div class="bloco-topo">
-                <h2>📊 RELATÓRIOS</h2>
-                <span class="badge-status status-em-atendimento">ÚLTIMOS 7 DIAS</span>
+        <!-- FILTRO DE DATA -->
+        <div class="filtro-data">
+            <div class="filtro-data-titulo">Período</div>
+            <form method="GET" action="/relatorios">
+                <div class="filtro-data-linha">
+                    <div>
+                        <label>De</label>
+                        <input type="date" name="data_ini" value="{{ data_ini }}">
+                    </div>
+                    <div>
+                        <label>Até</label>
+                        <input type="date" name="data_fim" value="{{ data_fim }}">
+                    </div>
+                    <div style="flex:0;">
+                        <button type="submit" class="btn-filtrar">Filtrar</button>
+                    </div>
+                </div>
+                <div class="atalhos-data">
+                    <button type="button" class="atalho" onclick="atalho(7)">7 dias</button>
+                    <button type="button" class="atalho ativo" onclick="atalho(30)">30 dias</button>
+                    <button type="button" class="atalho" onclick="atalho(90)">90 dias</button>
+                    <button type="button" class="atalho" onclick="atalho(365)">Este ano</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- MÉTRICAS -->
+        <div class="metricas">
+            <div class="metrica total">
+                <div class="label">Total clientes</div>
+                <div class="valor">{{ total }}</div>
             </div>
-            <p style="color:#8a8a8a; font-size:14px; margin-top:10px;">
-                Visão geral do seu desempenho comercial.
-            </p>
+            <div class="metrica" style="border-left-color:#f59e0b;">
+                <div class="label">Em andamento</div>
+                <div class="valor" style="color:#f59e0b;">{{ em_neg + em_atend }}</div>
+            </div>
+            <div class="metrica ganhos">
+                <div class="label">Ganhos</div>
+                <div class="valor">{{ ganhos }}</div>
+            </div>
+            <div class="metrica perdidos">
+                <div class="label">Perdidos</div>
+                <div class="valor">{{ perdidos }}</div>
+            </div>
         </div>
 
-        {% if total == 0 %}
-        <div class="empty-state">
-            <span class="emoji">📊</span>
-            <h3>Sem dados ainda</h3>
-            <p>Assim que você cadastrar clientes e fazer atendimentos, os relatórios aparecem aqui.</p>
-            <a href="/clientes" class="btn-gerar" style="display:inline-block; width:auto; padding:14px 28px; text-decoration:none; margin-top:16px;">IR PARA CLIENTES →</a>
-        </div>
-        {% else %}
-
-        <div class="destaque-conversao">
-            <div class="label">Taxa de conversão</div>
-            <div class="valor">{{ taxa_conversao }}%</div>
-            <div class="contexto">
+        <!-- TAXA DE CONVERSÃO -->
+        <div class="card-secao" style="background:linear-gradient(135deg,#0f1a15 0%,#141414 100%);border-left:4px solid #00d97e;">
+            <h3 style="color:#00d97e;">Taxa de conversão</h3>
+            <div style="font-size:44px;font-weight:800;font-family:monospace;color:#00d97e;letter-spacing:-0.04em;line-height:1;text-shadow:0 0 30px rgba(0,217,126,0.4);">{{ taxa_conversao }}%</div>
+            <p style="color:#8a8a8a;font-size:13px;margin:10px 0 0 0;">
                 {% if ganhos == 0 %}
-                    Nenhum cliente fechado ainda — continue trabalhando!
-                {% elif ganhos == total %}
-                    Você converteu todos os seus clientes! 🎉
+                    Nenhum cliente fechado neste período
                 {% else %}
                     De <strong style="color:#e8e8e8;">{{ total }}</strong> clientes, <strong style="color:#00d97e;">{{ ganhos }}</strong> viraram cliente
                 {% endif %}
-            </div>
-        </div>
-
-        <div class="mini-stats">
-            <div class="mini-stat" style="border-left-color: #8a8a8a;">
-                <div class="label">Total clientes</div>
-                <div class="valor" style="color:#e8e8e8;">{{ total }}</div>
-                <div class="sub">{{ novos }} novos leads</div>
-            </div>
-            <div class="mini-stat" style="border-left-color: #f59e0b;">
-                <div class="label">Em andamento</div>
-                <div class="valor" style="color:#f59e0b;">{{ em_neg + em_atend }}</div>
-                <div class="sub">negociação + atendimento</div>
-            </div>
-            <div class="mini-stat" style="border-left-color: #00d97e;">
-                <div class="label">Atendimentos</div>
-                <div class="valor" style="color:#00d97e;">{{ total_atend }}</div>
-                <div class="sub">média {{ media_atend_cliente }}/cliente</div>
-            </div>
-        </div>
-
-        <div class="card-bloco">
-            <h3>🎯 FUNIL DE VENDAS</h3>
-            <div class="funil">
-                <div class="funil-item" style="border-left-color: #8a8a8a;">
-                    <span class="icone">🆕</span>
-                    <div class="info">
-                        <div class="nome">Novo Lead</div>
-                        <div class="barra-wrap"><div class="barra" style="width: {{ pct_novos }}%; background: #8a8a8a;"></div></div>
-                    </div>
-                    <span class="num" style="color:#e8e8e8;">{{ novos }}</span>
-                    <span class="pct">{{ pct_novos }}%</span>
-                </div>
-
-                <div class="funil-item" style="border-left-color: #f59e0b;">
-                    <span class="icone">💬</span>
-                    <div class="info">
-                        <div class="nome">Em atendimento</div>
-                        <div class="barra-wrap"><div class="barra" style="width: {{ pct_neg }}%; background: #f59e0b;"></div></div>
-                    </div>
-                    <span class="num" style="color:#f59e0b;">{{ em_neg + em_atend }}</span>
-                    <span class="pct">{{ pct_neg }}%</span>
-                </div>
-
-                <div class="funil-item" style="border-left-color: #00d97e;">
-                    <span class="icone">✅</span>
-                    <div class="info">
-                        <div class="nome">Cliente ganho</div>
-                        <div class="barra-wrap"><div class="barra" style="width: {{ pct_ganhos }}%; background: #00d97e;"></div></div>
-                    </div>
-                    <span class="num" style="color:#00d97e;">{{ ganhos }}</span>
-                    <span class="pct">{{ pct_ganhos }}%</span>
-                </div>
-
-                {% if perdidos > 0 %}
-                <div class="funil-item" style="border-left-color: #ff3b3b;">
-                    <span class="icone">❌</span>
-                    <div class="info">
-                        <div class="nome">Perdido</div>
-                        <div class="barra-wrap"><div class="barra" style="width: {{ pct_perdidos }}%; background: #ff3b3b;"></div></div>
-                    </div>
-                    <span class="num" style="color:#ff3b3b;">{{ perdidos }}</span>
-                    <span class="pct">{{ pct_perdidos }}%</span>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="card-bloco">
-            <h3>📈 ATIVIDADE DOS ÚLTIMOS 7 DIAS</h3>
-            <p style="color:#8a8a8a; font-size:13px; margin: -10px 0 16px 0;">
-                Total: <strong style="color:#00d97e; font-family:monospace;">{{ total_atividade }}</strong> atendimento(s) na semana
             </p>
+        </div>
+
+        <!-- ATIVIDADE -->
+        <div class="card-secao">
+            <h3>Atividade no período</h3>
+            {% if total_atividade == 0 %}
+            <div class="empty-secao">Nenhum atendimento no período.</div>
+            {% else %}
+            <p style="color:#8a8a8a;font-size:12.5px;margin:0 0 16px 0;">Total: <strong style="color:#00d97e;font-family:monospace;">{{ total_atividade }}</strong> atendimento(s)</p>
             <div class="grafico">
                 {% for a in atividade %}
-                <div class="barra-wrap-col">
-                    <span class="barra-num">{{ a.qtd }}</span>
-                    <div class="barra-vertical" style="height: {{ (a.qtd / max_atividade * 110) if max_atividade > 0 else 4 }}px;"></div>
-                    <span class="barra-dia">{{ a.curto }}</span>
+                <div class="col-mes">
+                    <div class="barra" style="height: {{ (a.qtd / max_atividade * 130) if max_atividade > 0 else 3 }}px;">
+                        {% if a.qtd > 0 %}<span class="num">{{ a.qtd }}</span>{% endif %}
+                    </div>
+                    <div class="nome">{{ a.curto }}</div>
                 </div>
                 {% endfor %}
             </div>
-        </div>
-
-        <div class="card-bloco">
-            <h3>🔗 DE ONDE VÊM SEUS CLIENTES</h3>
-            {% if not top_origens %}
-            <p style="color:#8a8a8a; font-size:13px;">Nenhuma origem cadastrada ainda. Edite um cliente e preencha o campo "Origem".</p>
-            {% else %}
-            {% for o in top_origens %}
-            <div class="origem-item">
-                <div class="pos">{{ loop.index }}</div>
-                <div class="nome">{{ o.origem }}</div>
-                <div class="qtd">{{ o.qtd }}</div>
-            </div>
-            {% endfor %}
             {% endif %}
         </div>
 
-        <div style="display:grid; grid-template-columns:1fr; gap:16px;">
-            <div class="card-bloco">
-                <h3>👥 TOP CLIENTES (mais atendidos)</h3>
-                {% if not top_clientes %}
-                <p style="color:#8a8a8a; font-size:13px;">Nenhum atendimento ainda.</p>
-                {% else %}
-                {% for c in top_clientes %}
-                <div class="origem-item">
+        <!-- FUNIL -->
+        <div class="card-secao">
+            <h3>Funil de vendas</h3>
+            {% set max_f = [novos, em_neg + em_atend, ganhos, perdidos, 1]|max %}
+            <div class="funil-lista">
+                <div class="funil-item novo">
+                    <span class="nome">Novo Lead</span>
+                    <div class="barra-wrap"><div class="barra" style="width:{{ (novos / max_f * 100) }}%;background:#8a8a8a;"></div></div>
+                    <span class="num">{{ novos }}</span>
+                </div>
+                <div class="funil-item atend">
+                    <span class="nome">Em Atendimento</span>
+                    <div class="barra-wrap"><div class="barra" style="width:{{ ((em_neg + em_atend) / max_f * 100) }}%;background:#00d97e;"></div></div>
+                    <span class="num">{{ em_neg + em_atend }}</span>
+                </div>
+                <div class="funil-item ganho">
+                    <span class="nome">Cliente ganho</span>
+                    <div class="barra-wrap"><div class="barra" style="width:{{ (ganhos / max_f * 100) }}%;background:#22c55e;"></div></div>
+                    <span class="num">{{ ganhos }}</span>
+                </div>
+                <div class="funil-item perdido">
+                    <span class="nome">Perdido</span>
+                    <div class="barra-wrap"><div class="barra" style="width:{{ (perdidos / max_f * 100) }}%;background:#ff3b3b;"></div></div>
+                    <span class="num">{{ perdidos }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ORIGENS -->
+        <div class="card-secao">
+            <h3>De onde vêm seus clientes</h3>
+            {% if not top_origens %}
+            <div class="empty-secao">Nenhuma origem cadastrada no período. Preencha o campo "Origem" ao cadastrar cliente.</div>
+            {% else %}
+            <div class="lista-ranque">
+                {% for o in top_origens %}
+                <div class="ranque-item">
                     <div class="pos">{{ loop.index }}</div>
-                    <div class="nome">
-                        {{ c.nome or "Sem nome" }}
-                        <span style="color:#5a5a5a; font-size:12px; font-family:monospace; margin-left:6px;">{{ c.whatsapp }}</span>
+                    <div class="info">
+                        <div class="nome">{{ o.origem }}</div>
                     </div>
-                    <div class="qtd">{{ c.qtd }}</div>
+                    <div class="num">{{ o.qtd }}</div>
                 </div>
                 {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- TOP CLIENTES + TOP NICHOS -->
+        <div class="grid-2">
+            <div class="card-secao">
+                <h3>Top clientes</h3>
+                {% if not top_clientes %}
+                <div class="empty-secao">Sem dados no período.</div>
+                {% else %}
+                <div class="lista-ranque">
+                    {% for c in top_clientes %}
+                    <div class="ranque-item">
+                        <div class="pos">{{ loop.index }}</div>
+                        <div class="info">
+                            <div class="nome">{{ c.nome or "Sem nome" }}</div>
+                            <div class="sub">{{ c.whatsapp }} · {{ c.qtd }} atend.</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
                 {% endif %}
             </div>
-
-            <div class="card-bloco">
-                <h3>🎯 TOP NICHOS</h3>
+            <div class="card-secao">
+                <h3>Top nichos</h3>
                 {% if not top_nichos %}
-                <p style="color:#8a8a8a; font-size:13px;">Nenhum atendimento ainda.</p>
+                <div class="empty-secao">Sem dados no período.</div>
                 {% else %}
-                {% for n in top_nichos %}
-                <div class="origem-item">
-                    <div class="pos">{{ loop.index }}</div>
-                    <div class="nome">{{ n.nome }}</div>
-                    <div class="qtd">{{ n.qtd }}</div>
+                <div class="lista-ranque">
+                    {% for n in top_nichos %}
+                    <div class="ranque-item">
+                        <div class="pos">{{ loop.index }}</div>
+                        <div class="info">
+                            <div class="nome">{{ n.nome }}</div>
+                            <div class="sub">{{ n.qtd }} atendimento(s)</div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
                 {% endif %}
             </div>
         </div>
 
-        {% endif %}
-
     </div>
-    <script src="/static/app.min.js"></script>
-    <script src="/static/splash.js"></script>
-    <script src="/static/sw-register.js"></script>
-    <script src="/static/app-aviso-plano.js"></script>
+
+    <script src="/static/app.min.js?v=99"></script>
+    <script>
+    function atalho(dias) {
+        var fim = new Date();
+        var ini = new Date();
+        ini.setDate(ini.getDate() - dias);
+
+        function fmt(d) {
+            var y = d.getFullYear();
+            var m = String(d.getMonth() + 1).padStart(2, '0');
+            var dd = String(d.getDate()).padStart(2, '0');
+            return y + '-' + m + '-' + dd;
+        }
+
+        var form = document.querySelector('form[action="/relatorios"]');
+        form.querySelector('input[name="data_ini"]').value = fmt(ini);
+        form.querySelector('input[name="data_fim"]').value = fmt(fim);
+
+        document.querySelectorAll('.atalho').forEach(function(b) { b.classList.remove('ativo'); });
+        event.target.classList.add('ativo');
+    }
+    </script>
 </body>
 </html>

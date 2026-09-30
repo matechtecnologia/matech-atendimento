@@ -3,248 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#00d97e">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="M.A Tech">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
-    <link rel="icon" type="image/png" href="/static/favicon-32.png">
     <title>M.A Tech - Clientes</title>
+    <link rel="stylesheet" href="/static/app.min.css?v=99">
     <style>
-        .toolbar-clientes {
-            display: grid;
-            grid-template-columns: 1fr auto auto;
-            gap: 10px;
-            margin-top: 12px;
-            margin-bottom: 20px;
-            align-items: center;
-        }
-        .toolbar-clientes input[type="text"],
-        .toolbar-clientes select {
+        .card-cli {
             background: #141414;
-            border: 1px solid #2a2a2a;
-            color: #fff;
-            padding: 12px 14px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            width: 100%;
-        }
-        .toolbar-clientes input[type="text"]:focus,
-        .toolbar-clientes select:focus {
-            outline: none;
-            border-color: #00d97e;
-            box-shadow: 0 0 0 3px rgba(0,217,126,0.12);
-        }
-        .toolbar-clientes .btn-novo {
-            background: #00d97e;
-            color: #0a0a0a;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: background 0.2s ease, transform 0.15s ease;
-            box-shadow: 0 4px 20px rgba(0,217,126,0.25);
-        }
-        .toolbar-clientes .btn-novo:hover {
-            background: #00b368;
-            transform: translateY(-1px);
-        }
-        .cliente-card {
-            background: #141414;
-            border: 1px solid #222222;
-            border-radius: 10px;
+            border: 1px solid #222;
+            border-left: 4px solid #00d97e;
+            border-radius: 12px;
             padding: 14px 16px;
             margin-bottom: 8px;
-            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-            cursor: default;
-        }
-        .cliente-card:hover {
-            border-color: #00d97e;
-            transform: translateY(-2px);
-            box-shadow: 0 12px 30px rgba(0,217,126,0.12);
-        }
-        .cliente-head {
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-        .cliente-head h3 {
-            font-size: 15px;
-            color: #fff;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-            margin: 0;
-        }
-        .cliente-meta {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-top: 6px;
-            color: #8a8a8a;
-            font-size: 12.5px;
-        }
-        .cliente-meta .wpp {
-            color: #e8e8e8;
-            font-family: 'SF Mono', Consolas, monospace;
-        }
-        .cliente-obs {
-            color: #8a8a8a;
-            font-size: 13px;
-            margin-top: 8px;
-            line-height: 1.5;
-        }
-        .cliente-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            margin-top: 10px;
-        }
-        .cliente-actions > form {
-            display: contents;
-        }
-        .btn-mini {
-            background: #1a1a1a;
-            color: #c8c8c8;
-            border: 1px solid #2a2a2a;
-            padding: 9px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-            font-family: inherit;
-            white-space: nowrap;
-            display: inline-flex;
             align-items: center;
-            justify-content: center;
-            gap: 5px;
-            line-height: 1.2;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .btn-mini:hover {
-            transform: translateY(-1px);
-        }
-        .btn-mini.atender {
-            background: #00d97e;
-            color: #0a0a0a;
-            border-color: #00d97e;
-            box-shadow: 0 4px 16px rgba(0,217,126,0.25);
-        }
-        .btn-mini.atender:hover {
-            background: #00b368;
-            box-shadow: 0 6px 24px rgba(0,217,126,0.4);
-        }
-        .btn-mini.historico {
-            background: linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.08));
-            color: #c084fc;
-            border-color: rgba(168,85,247,0.35);
-        }
-        .btn-mini.historico:hover {
-            background: linear-gradient(135deg, rgba(168,85,247,0.25), rgba(168,85,247,0.15));
-            border-color: #a855f7;
-            color: #d8b4fe;
-            box-shadow: 0 6px 24px rgba(168,85,247,0.3);
-        }
-        .btn-mini.editar {
-            background: rgba(245,158,11,0.12);
-            color: #f59e0b;
-            border-color: rgba(245,158,11,0.3);
-        }
-        .btn-mini.editar:hover {
-            background: rgba(245,158,11,0.2);
-            border-color: #f59e0b;
-            color: #fbbf24;
-            box-shadow: 0 6px 20px rgba(245,158,11,0.2);
-        }
-        .btn-mini.excluir {
-            background: transparent;
-            color: #ff3b3b;
-            border-color: rgba(255,59,59,0.3);
-        }
-        .btn-mini.excluir:hover {
-            background: rgba(255,59,59,0.1);
-            border-color: #ff3b3b;
-            box-shadow: 0 6px 20px rgba(255,59,59,0.2);
-        }
-        .cliente-edit {
-            margin-top: 14px;
-            padding-top: 14px;
-            border-top: 1px solid #222222;
-        }
-        .cliente-edit .linha {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-bottom: 12px;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .cliente-edit label {
-            display: block;
-            color: #a8a8a8;
-            font-size: 12px;
-            margin-bottom: 6px;
-            font-weight: 600;
+        .card-cli:hover { background: #171717; border-color: #2a2a2a; }
+        .card-cli .avatar {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: #1e1e1e; border: 2px solid #2a2a2a;
+            display: flex; align-items: center; justify-content: center;
+            color: #00d97e; font-size: 16px; font-weight: 800; flex-shrink: 0;
         }
-        .cliente-edit input,
-        .cliente-edit select,
-        .cliente-edit textarea {
-            width: 100%;
-            background: #0a0a0a;
-            border: 1px solid #2a2a2a;
-            color: #fff;
-            padding: 10px 12px;
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: inherit;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            resize: vertical;
-            box-sizing: border-box;
+        .card-cli .info { flex: 1; min-width: 0; }
+        .card-cli .nome {
+            font-size: 15px; font-weight: 700; color: #fff;
+            margin-bottom: 3px; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap;
         }
-        .cliente-edit input:focus,
-        .cliente-edit select:focus,
-        .cliente-edit textarea:focus {
-            outline: none;
-            border-color: #00d97e;
-            box-shadow: 0 0 0 3px rgba(0,217,126,0.12);
+        .card-cli .linha {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12px; color: #8a8a8a; flex-wrap: wrap;
         }
-        .form-add-cliente {
-            background: #141414;
-            border: 1px solid #222222;
-            border-left: 4px solid #00d97e;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
+        .card-cli .tel { font-family: 'SF Mono', Consolas, monospace; }
+        .card-cli .dot { width: 3px; height: 3px; border-radius: 50%; background: #3a3a3a; }
+        .card-cli .acoes { display: flex; gap: 5px; flex-shrink: 0; }
+        .btn-icone {
+            width: 36px; height: 36px; border-radius: 9px; border: none;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s ease; font-family: inherit; padding: 0;
         }
-        @media (max-width: 500px) {
-            .toolbar-clientes {
-                grid-template-columns: 1fr;
-            }
-            .cliente-edit .linha {
-                grid-template-columns: 1fr;
-            }
-            .btn-mini {
-                font-size: 12px;
-                padding: 11px 8px;
-            }
+        .btn-icone svg { width: 15px; height: 15px; }
+        .btn-icone.atender {
+            background: rgba(0,217,126,0.15); color: #00d97e;
+            border: 1px solid rgba(0,217,126,0.3);
+        }
+        .btn-icone.atender:hover { background: #00d97e; color: #0a0a0a; }
+        .btn-icone.historico {
+            background: rgba(168,85,247,0.12); color: #c084fc;
+            border: 1px solid rgba(168,85,247,0.3);
+        }
+        .btn-icone.historico:hover { background: #a855f7; color: #fff; }
+        .btn-icone.editar {
+            background: rgba(245,158,11,0.1); color: #f59e0b;
+            border: 1px solid rgba(245,158,11,0.3);
+        }
+        .btn-icone.editar:hover { background: #f59e0b; color: #0a0a0a; }
+
+        .card-cli.s-novo { border-left-color: #8a8a8a; }
+        .card-cli.s-atend { border-left-color: #00d97e; }
+        .card-cli.s-negoc { border-left-color: #f59e0b; }
+        .card-cli.s-cliente { border-left-color: #22c55e; }
+        .card-cli.s-perdido { border-left-color: #ff3b3b; }
+
+        .busca-input {
+            display: block; width: 100%; padding: 14px 16px; margin-bottom: 10px;
+            background: #141414; color: #ffffff; border: 1px solid #222222;
+            border-radius: 12px; font-size: 15px; font-family: inherit; box-sizing: border-box;
+        }
+        .busca-input:focus { outline: none; border-color: #00d97e; box-shadow: 0 0 0 3px rgba(0,217,126,0.12); }
+        .busca-input::placeholder { color: #5a5a5a; }
+
+        .filtro-btn {
+            display: block; width: 100%; padding: 12px; margin-bottom: 14px;
+            background: #141414; color: #8a8a8a; border: 1px solid #222222;
+            border-radius: 12px; font-size: 14px; font-weight: 700;
+            cursor: pointer; font-family: inherit; transition: all 0.2s ease;
+        }
+        .filtro-btn:hover, .filtro-btn.ativo { border-color: #00d97e; color: #00d97e; }
+
+        .painel-filtros {
+            display: none; background: #141414; border: 1px solid #222;
+            border-left: 4px solid #00d97e; border-radius: 12px;
+            padding: 16px; margin-bottom: 14px;
+        }
+        .painel-filtros.aberto { display: block; }
+        .painel-filtros h4 {
+            font-size: 11px; color: #8a8a8a; text-transform: uppercase;
+            letter-spacing: 0.1em; font-weight: 800; margin: 0 0 10px 0;
+        }
+        .painel-filtros h4:not(:first-child) { margin-top: 14px; }
+        .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+        .chip {
+            background: #0a0a0a; border: 1px solid #2a2a2a; color: #8a8a8a;
+            padding: 7px 14px; border-radius: 100px; font-size: 12px;
+            font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap;
+        }
+        .chip:hover { border-color: #00d97e; color: #00d97e; }
+        .chip.ativo { background: #00d97e; color: #0a0a0a; border-color: #00d97e; }
+
+        /* Modal histórico */
+        .hist-modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
+            z-index: 999999; align-items: center; justify-content: center; padding: 20px;
+        }
+        .hist-modal.aberto { display: flex; }
+        .hist-modal-inner {
+            background: #141414; border: 1px solid #222; border-radius: 16px;
+            padding: 20px; max-width: 520px; width: 100%; max-height: 80vh;
+            display: flex; flex-direction: column;
+        }
+        .hist-modal-topo {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid #222;
+        }
+        .hist-modal-topo h3 { font-size: 16px; color: #fff; margin: 0; font-weight: 700; }
+        .hist-modal-fechar {
+            background: #1a1a1a; border: 1px solid #2a2a2a; color: #8a8a8a;
+            width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0; font-size: 14px; font-family: inherit;
+        }
+        .hist-modal-fechar:hover { color: #ff3b3b; border-color: #ff3b3b; }
+        .hist-modal-lista { overflow-y: auto; flex: 1; padding-right: 4px; }
+        .hist-modal-item {
+            font-size: 13px; line-height: 1.5; padding: 10px 12px;
+            border-radius: 8px; border-left: 3px solid #00d97e;
+            background: rgba(0,217,126,0.06); margin-bottom: 8px; color: #e8e8e8;
+        }
+        .hist-modal-item.ia { border-left-color: #a855f7; background: rgba(168,85,247,0.06); }
+        .hist-modal-data {
+            display: block; font-size: 10.5px; color: #5a5a5a;
+            font-family: monospace; margin-bottom: 4px;
+            text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;
         }
     </style>
-    <link rel="stylesheet" href="/static/app.min.css">
 </head>
-<script>
-    (function() {
-        var t = localStorage.getItem('matech_tema') || 'escuro';
-        document.documentElement.setAttribute('data-tema', t);
-    })();
-    </script>
 <body>
     <div class="container-atendimento">
         <div class="topo">
@@ -253,7 +148,7 @@
                 <span>{{ usuario_nome }}</span>
                 <a href="/clientes" data-rota="/clientes">Clientes</a>
                 <a href="/relatorios" data-rota="/relatorios">Relatórios</a>
-                <a href="/followups" data-rota="/followups" style="position:relative;">🎯 Follow-ups{% if total_followups and total_followups > 0 %}<span style="position:absolute; top:-8px; right:-12px; background:#ff3b3b; color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:100px; font-family:monospace; line-height:1; box-shadow:0 0 0 2px #141414; min-width:16px; text-align:center;">{{ total_followups }}</span>{% endif %}</a>
+                <a href="/followups" data-rota="/followups">Follow-ups</a>
                 <a href="/meus_nichos" data-rota="/meus_nichos">Nichos</a>
                 <a href="/planos" data-rota="/planos">Planos</a>
                 {% if usuario_tipo == 'admin' %}<a href="/admin" data-rota="/admin">Admin</a>{% endif %}
@@ -261,271 +156,264 @@
             </div>
         </div>
 
-        <div style="margin-top:24px; margin-bottom:12px;">
-            <button type="button" class="btn-novo" onclick="toggleFormAdd()" style="width:100%; padding:14px 20px; font-size:15px;">➕ Novo Cliente</button>
-        </div>
+        <button type="button" onclick="abrirNovo()" style="display:block;width:100%;padding:14px;margin-bottom:14px;background:#00d97e;color:#0a0a0a;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;">
+            + Novo Cliente
+        </button>
 
-        <div class="toolbar-clientes">
-            <input type="text" id="busca" placeholder="🔍 Buscar por nome, WhatsApp ou origem..." oninput="aplicarFiltros()">
-            <select id="filtro-status" onchange="aplicarFiltros()">
-                <option value="">Todos os status</option>
-                <option value="novo lead">Novo Lead</option>
-                <option value="em atendimento">Em Atendimento</option>
-                <option value="negociação">Negociação</option>
-                <option value="cliente">Cliente</option>
-                <option value="perdido">Perdido</option>
-            </select>
-            <select id="ordenar" onchange="aplicarFiltros()">
-                <option value="recente">Mais recentes</option>
-                <option value="nome">Nome (A-Z)</option>
-                <option value="antigo">Mais antigos</option>
-            </select>
-        </div>
+        <input type="text" id="busca" class="busca-input" placeholder="Buscar cliente..." oninput="filtrar()">
+        <button type="button" class="filtro-btn" id="btn-filtros" onclick="togglePainel()">Filtros</button>
 
-        <div class="form-add-cliente" id="form-add-wrapper" style="display:none;">
-            <div style="margin-bottom:14px;">
-                <h3 style="font-size:14px; color:#a8a8a8; letter-spacing:0.5px; margin:0;">➕ ADICIONAR NOVO CLIENTE</h3>
+        <div class="painel-filtros" id="painel">
+            <h4>Status</h4>
+            <div class="chips">
+                <button type="button" class="chip" data-status="" onclick="setStatus('',this)">Todos</button>
+                <button type="button" class="chip" data-status="novo lead" onclick="setStatus('novo lead',this)">Novo Lead</button>
+                <button type="button" class="chip" data-status="em atendimento" onclick="setStatus('em atendimento',this)">Em Atendimento</button>
+                <button type="button" class="chip" data-status="negociação" onclick="setStatus('negociação',this)">Negociação</button>
+                <button type="button" class="chip" data-status="cliente" onclick="setStatus('cliente',this)">Cliente</button>
+                <button type="button" class="chip" data-status="perdido" onclick="setStatus('perdido',this)">Perdido</button>
             </div>
+            <h4>Ordenar</h4>
+            <div class="chips">
+                <button type="button" class="chip" data-ordem="recente" onclick="setOrdem('recente',this)">Mais recentes</button>
+                <button type="button" class="chip" data-ordem="nome" onclick="setOrdem('nome',this)">Nome (A-Z)</button>
+                <button type="button" class="chip" data-ordem="antigo" onclick="setOrdem('antigo',this)">Mais antigos</button>
+            </div>
+        </div>
+
+        <div id="form-novo" style="display:none;background:#141414;border:1px solid #222;border-radius:12px;padding:18px;margin-bottom:14px;">
+            <h3 style="font-size:12px;color:#8a8a8a;letter-spacing:0.05em;margin:0 0 14px 0;text-transform:uppercase;">Adicionar cliente</h3>
             <form method="POST" action="/salvar_cliente_manual">
-                <div class="cliente-edit" style="margin-top:0; padding-top:0; border-top:none;">
-                    <div class="linha">
-                        <div>
-                            <label>WhatsApp (só números)</label>
-                            <input type="text" name="whatsapp" required placeholder="11987654321" inputmode="numeric" pattern="[0-9]+" style="font-family:monospace;">
-                        </div>
-                        <div>
-                            <label>Nome</label>
-                            <input type="text" name="nome" required placeholder="Nome do cliente">
-                        </div>
-                    </div>
-                    <div class="linha">
-                        <div>
-                            <label>Email</label>
-                            <input type="email" name="email" placeholder="opcional">
-                        </div>
-                        <div>
-                            <label>Origem</label>
-                            <input type="text" name="origem" placeholder="Instagram, indicação...">
-                        </div>
-                    </div>
-                    <div class="linha">
-                        <div>
-                            <label>Status</label>
-                            <select name="status">
-                                <option value="novo lead">Novo Lead</option>
-                                <option value="em atendimento">Em Atendimento</option>
-                                <option value="negociação">Negociação</option>
-                                <option value="cliente">Cliente</option>
-                                <option value="perdido">Perdido</option>
-                            </select>
-                        </div>
-                        <div></div>
-                    </div>
-                    <div style="margin-bottom:12px;">
-                        <label>Observações</label>
-                        <textarea name="observacoes" rows="2" placeholder="Anotações..."></textarea>
-                    </div>
-                </div>
-                <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <button type="submit" class="btn-gerar" style="flex:1; min-width:180px;">💾 SALVAR CLIENTE</button>
-                    <button type="button" onclick="toggleFormAdd()" class="btn-mini" style="width:auto; padding:14px 20px;">Cancelar</button>
-                </div>
+                <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">WhatsApp</label>
+                <input type="text" name="whatsapp" required placeholder="11987654321" inputmode="numeric" pattern="[0-9]+" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:12px;border-radius:8px;font-size:14px;font-family:monospace;box-sizing:border-box;margin-bottom:12px;">
+                <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">Nome</label>
+                <input type="text" name="nome" required style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:12px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:12px;">
+                <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">Email</label>
+                <input type="email" name="email" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:12px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:12px;">
+                <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">Origem</label>
+                <input type="text" name="origem" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:12px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:12px;">
+                <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">Status</label>
+                <select name="status" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:12px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:12px;">
+                    <option value="novo lead">Novo Lead</option>
+                    <option value="em atendimento">Em Atendimento</option>
+                    <option value="negociação">Negociação</option>
+                    <option value="cliente">Cliente</option>
+                    <option value="perdido">Perdido</option>
+                </select>
+                <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">Observações</label>
+                <textarea name="observacoes" rows="2" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:12px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;resize:vertical;margin-bottom:14px;"></textarea>
+                <button type="submit" style="width:100%;padding:12px;background:#00d97e;color:#0a0a0a;border:none;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;">Salvar</button>
+                <button type="button" onclick="abrirNovo()" style="width:100%;padding:10px;margin-top:8px;background:transparent;color:#8a8a8a;border:1px solid #2a2a2a;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Cancelar</button>
             </form>
         </div>
 
-        <div id="vazio-busca" style="display:none;" class="empty-state">
-            <span class="emoji">🔍</span>
-            <h3>Nenhum cliente encontrado</h3>
-            <p>Tenta outro termo ou limpa os filtros.</p>
-        </div>
-
-        {% if not clientes %}
-        <div class="empty-state">
-            <span class="emoji">👥</span>
-            <h3>Nenhum cliente cadastrado ainda</h3>
-            <p>Clique em "➕ Novo Cliente" pra cadastrar o primeiro.</p>
-        </div>
-        {% endif %}
+        <div id="vazio-busca" style="display:none;text-align:center;padding:30px;color:#8a8a8a;">Nenhum cliente encontrado.</div>
 
         <div id="lista-clientes">
         {% for c in clientes %}
             {% set s = (c.status or 'novo lead')|lower %}
-            {% if s in ['novo lead', 'lead'] %}
-                {% set badge_class = 'status-novo-lead' %}
-                {% set badge_text = 'Novo Lead' %}
-            {% elif s in ['em atendimento', 'negociando'] %}
-                {% set badge_class = 'status-em-atendimento' %}
-                {% set badge_text = 'Em Atendimento' %}
-            {% elif s in ['negociação', 'negociacao'] %}
-                {% set badge_class = 'status-negociacao' %}
-                {% set badge_text = 'Negociação' %}
+            {% if s in ['novo lead','lead'] %}
+                {% set bc = 'status-novo-lead' %}{% set bt = 'Novo Lead' %}{% set cls = 's-novo' %}
+            {% elif s in ['em atendimento','negociando'] %}
+                {% set bc = 'status-em-atendimento' %}{% set bt = 'Em Atendimento' %}{% set cls = 's-atend' %}
+            {% elif s in ['negociação','negociacao'] %}
+                {% set bc = 'status-negociacao' %}{% set bt = 'Negociação' %}{% set cls = 's-negoc' %}
             {% elif s == 'cliente' %}
-                {% set badge_class = 'status-cliente' %}
-                {% set badge_text = 'Cliente' %}
+                {% set bc = 'status-cliente' %}{% set bt = 'Cliente' %}{% set cls = 's-cliente' %}
             {% elif s == 'perdido' %}
-                {% set badge_class = 'status-perdido' %}
-                {% set badge_text = 'Perdido' %}
+                {% set bc = 'status-perdido' %}{% set bt = 'Perdido' %}{% set cls = 's-perdido' %}
             {% else %}
-                {% set badge_class = 'status-novo-lead' %}
-                {% set badge_text = c.status|upper %}
+                {% set bc = 'status-novo-lead' %}{% set bt = c.status|upper %}{% set cls = '' %}
             {% endif %}
 
-            <div class="cliente-card"
-                 data-id="{{ c.id }}"
+            <div class="card-cli {{ cls }}"
                  data-nome="{{ (c.nome or '')|lower }}"
                  data-wpp="{{ c.whatsapp or '' }}"
                  data-origem="{{ (c.origem or '')|lower }}"
                  data-status="{{ (c.status or 'novo lead')|lower }}"
                  data-criado="{{ c.criado_em.strftime('%Y%m%d%H%M%S') if c.criado_em else '0' }}">
 
-                <div class="cliente-head">
-                    <h3>👤 {{ c.nome or "Sem nome" }}</h3>
-                    <span class="badge-status {{ badge_class }}">{{ badge_text }}</span>
+                <div class="avatar">{{ (c.nome or 'S')[0]|upper }}</div>
+                <div class="info">
+                    <div class="nome">{{ c.nome or "Sem nome" }}</div>
+                    <div class="linha">
+                        <span class="tel">{{ c.whatsapp }}</span>
+                        {% if c.origem %}<span class="dot"></span><span>{{ c.origem }}</span>{% endif %}
+                        <span class="dot"></span>
+                        <span class="badge-status {{ bc }}">{{ bt }}</span>
+                    </div>
                 </div>
-
-                <div class="cliente-meta">
-                    <span class="wpp">📱 {{ c.whatsapp }}</span>
-                    {% if c.email %}<span>✉️ {{ c.email }}</span>{% endif %}
-                    {% if c.origem %}<span>🔗 {{ c.origem }}</span>{% endif %}
+                <div class="acoes">
+                    <button type="button" onclick="verHistorico({{ c.id }}, '{{ (c.nome or "Cliente")|replace("'", "\\'") }}')" class="btn-icone historico" title="Histórico">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </button>
+                    <a href="/cliente/{{ c.id }}/atender" class="btn-icone atender" title="Atender">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </a>
+                    <button type="button" onclick="abrirEditar({{ c.id }})" class="btn-icone editar" title="Editar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </button>
                 </div>
+            </div>
 
-                {% if c.observacoes %}
-                <div class="cliente-obs">{{ c.observacoes[:180] }}{% if c.observacoes|length > 180 %}...{% endif %}</div>
-                {% endif %}
-
-                <div class="cliente-actions">
-                    <a href="/cliente/{{ c.id }}/atender" class="btn-mini atender">⚡ Atender</a>
-                    <a href="/cliente/{{ c.id }}" class="btn-mini historico">💬 Ver histórico</a>
-                    <button type="button" class="btn-mini editar" onclick="toggleEdit({{ c.id }})" id="btn-edit-{{ c.id }}">✏️ Editar</button>
-                    <form method="POST" action="/cliente/{{ c.id }}/excluir" onsubmit="return confirm('Excluir {{ (c.nome or 'este cliente')|replace("'", "\\'") }}?\n\nApaga o histórico e atendimentos. Não tem como desfazer.');">
-                        <button type="submit" class="btn-mini excluir">🗑️ Excluir</button>
-                    </form>
-                </div>
-
-                <div class="cliente-edit" id="edit-{{ c.id }}" style="display:none;">
-                    <form method="POST" action="/cliente/{{ c.id }}/editar">
-                        <div class="linha">
-                            <div>
-                                <label>WhatsApp (só números)</label>
-                                <input type="text" name="whatsapp" required value="{{ c.whatsapp or '' }}" inputmode="numeric" pattern="[0-9]+" style="font-family:monospace;">
-                            </div>
-                            <div>
-                                <label>Nome</label>
-                                <input type="text" name="nome" required value="{{ c.nome or '' }}">
-                            </div>
-                        </div>
-                        <div class="linha">
-                            <div>
-                                <label>Email</label>
-                                <input type="email" name="email" value="{{ c.email or '' }}">
-                            </div>
-                            <div>
-                                <label>Origem</label>
-                                <input type="text" name="origem" value="{{ c.origem or '' }}">
-                            </div>
-                        </div>
-                        <div class="linha">
-                            <div>
-                                <label>Status</label>
-                                <select name="status">
-                                    <option value="novo lead" {% if s in ['novo lead', 'lead'] %}selected{% endif %}>Novo Lead</option>
-                                    <option value="em atendimento" {% if s in ['em atendimento', 'negociando'] %}selected{% endif %}>Em Atendimento</option>
-                                    <option value="negociação" {% if s in ['negociação', 'negociacao'] %}selected{% endif %}>Negociação</option>
-                                    <option value="cliente" {% if s == 'cliente' %}selected{% endif %}>Cliente</option>
-                                    <option value="perdido" {% if s == 'perdido' %}selected{% endif %}>Perdido</option>
-                                </select>
-                            </div>
-                            <div></div>
-                        </div>
-                        <div style="margin-bottom:12px;">
-                            <label>Observações</label>
-                            <textarea name="observacoes" rows="2">{{ c.observacoes or '' }}</textarea>
-                        </div>
-                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                            <button type="submit" class="btn-gerar" style="flex:1; min-width:160px;">💾 SALVAR</button>
-                            <button type="button" class="btn-mini" onclick="toggleEdit({{ c.id }})" style="width:auto; padding:14px 20px;">Cancelar</button>
-                        </div>
-                    </form>
-                </div>
+            <div id="edit-{{ c.id }}" style="display:none;background:#141414;border:1px solid #222;border-radius:12px;padding:16px;margin-bottom:10px;">
+                <form method="POST" action="/cliente/{{ c.id }}/editar">
+                    <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">WhatsApp</label>
+                    <input type="text" name="whatsapp" required value="{{ c.whatsapp or '' }}" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:10px;border-radius:8px;font-size:13px;font-family:monospace;box-sizing:border-box;margin-bottom:10px;">
+                    <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">Nome</label>
+                    <input type="text" name="nome" required value="{{ c.nome or '' }}" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:10px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box;margin-bottom:10px;">
+                    <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">Email</label>
+                    <input type="email" name="email" value="{{ c.email or '' }}" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:10px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box;margin-bottom:10px;">
+                    <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">Origem</label>
+                    <input type="text" name="origem" value="{{ c.origem or '' }}" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:10px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box;margin-bottom:10px;">
+                    <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">Status</label>
+                    <select name="status" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:10px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box;margin-bottom:10px;">
+                        <option value="novo lead" {% if s in ['novo lead','lead'] %}selected{% endif %}>Novo Lead</option>
+                        <option value="em atendimento" {% if s in ['em atendimento','negociando'] %}selected{% endif %}>Em Atendimento</option>
+                        <option value="negociação" {% if s in ['negociação','negociacao'] %}selected{% endif %}>Negociação</option>
+                        <option value="cliente" {% if s == 'cliente' %}selected{% endif %}>Cliente</option>
+                        <option value="perdido" {% if s == 'perdido' %}selected{% endif %}>Perdido</option>
+                    </select>
+                    <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">Observações</label>
+                    <textarea name="observacoes" rows="2" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:10px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box;resize:vertical;margin-bottom:12px;">{{ c.observacoes or '' }}</textarea>
+                    <button type="submit" style="width:100%;padding:12px;background:#00d97e;color:#0a0a0a;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;">Salvar</button>
+                </form>
+                <form method="POST" action="/cliente/{{ c.id }}/excluir" style="margin-top:8px;" onsubmit="return confirm('Excluir cliente?');">
+                    <button type="submit" style="width:100%;padding:10px;background:transparent;color:#ff3b3b;border:1px solid rgba(255,59,59,0.3);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Excluir</button>
+                </form>
+                <button type="button" onclick="fecharEditar({{ c.id }})" style="width:100%;padding:10px;margin-top:8px;background:transparent;color:#8a8a8a;border:1px solid #2a2a2a;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;">Fechar</button>
             </div>
         {% endfor %}
         </div>
-
     </div>
+
+    <!-- MODAL HISTÓRICO -->
+    <div class="hist-modal" id="hist-modal" onclick="if(event.target===this)fecharHistorico()">
+        <div class="hist-modal-inner">
+            <div class="hist-modal-topo">
+                <h3 id="hist-modal-titulo">Histórico</h3>
+                <button type="button" class="hist-modal-fechar" onclick="fecharHistorico()">✕</button>
+            </div>
+            <div class="hist-modal-lista" id="hist-modal-lista"></div>
+        </div>
+    </div>
+
+    <script src="/static/app.min.js?v=99"></script>
     <script>
-    function toggleFormAdd() {
-        const f = document.getElementById('form-add-wrapper');
-        const abrir = f.style.display === 'none';
-        f.style.display = abrir ? 'block' : 'none';
-        if (abrir) f.scrollIntoView({behavior: 'smooth', block: 'start'});
+    var filtroStatus = '';
+    var ordemAtual = 'recente';
+
+    function abrirNovo() {
+        var f = document.getElementById('form-novo');
+        f.style.display = (f.style.display === 'none' || f.style.display === '') ? 'block' : 'none';
     }
 
-    function toggleEdit(id) {
-        const el = document.getElementById('edit-' + id);
-        const btn = document.getElementById('btn-edit-' + id);
-        const abrir = el.style.display === 'none';
-
-        document.querySelectorAll('.cliente-edit').forEach(e => { e.style.display = 'none'; });
-        document.querySelectorAll('[id^="btn-edit-"]').forEach(b => { b.innerText = '✏️ Editar'; });
-
-        if (abrir) {
-            el.style.display = 'block';
-            btn.innerText = '▲ Fechar';
-            el.scrollIntoView({behavior: 'smooth', block: 'center'});
-        }
+    function togglePainel() {
+        var p = document.getElementById('painel');
+        var b = document.getElementById('btn-filtros');
+        p.classList.toggle('aberto');
+        b.classList.toggle('ativo');
     }
 
-    function aplicarFiltros() {
-        const q = document.getElementById('busca').value.toLowerCase().trim();
-        const statusFiltro = document.getElementById('filtro-status').value.toLowerCase().trim();
-        const ordem = document.getElementById('ordenar').value;
+    function setStatus(s, btn) {
+        filtroStatus = s;
+        document.querySelectorAll('[data-status]').forEach(function(c) { c.classList.remove('ativo'); });
+        btn.classList.add('ativo');
+        filtrar();
+    }
 
-        const container = document.getElementById('lista-clientes');
-        const cards = Array.from(container.querySelectorAll('.cliente-card'));
+    function setOrdem(o, btn) {
+        ordemAtual = o;
+        document.querySelectorAll('[data-ordem]').forEach(function(c) { c.classList.remove('ativo'); });
+        btn.classList.add('ativo');
+        filtrar();
+    }
 
-        function normaliza(s) {
-            s = (s || '').toLowerCase();
-            if (s === 'lead') return 'novo lead';
-            if (s === 'negociando') return 'em atendimento';
-            if (s === 'negociacao') return 'negociação';
-            return s;
-        }
+    function abrirEditar(id) {
+        var el = document.getElementById('edit-' + id);
+        el.style.display = 'block';
+        el.scrollIntoView({behavior: 'smooth', block: 'center'});
+    }
 
-        let visiveis = 0;
-        cards.forEach(c => {
-            const nome = c.dataset.nome || '';
-            const wpp = c.dataset.wpp || '';
-            const origem = c.dataset.origem || '';
-            const status = normaliza(c.dataset.status);
+    function fecharEditar(id) {
+        document.getElementById('edit-' + id).style.display = 'none';
+    }
 
-            const matchBusca = !q || nome.includes(q) || wpp.includes(q) || origem.includes(q);
-            const matchStatus = !statusFiltro || status === statusFiltro;
+    function verHistorico(id, nome) {
+        var modal = document.getElementById('hist-modal');
+        var lista = document.getElementById('hist-modal-lista');
+        var titulo = document.getElementById('hist-modal-titulo');
+        modal.classList.add('aberto');
+        titulo.innerText = 'Histórico · ' + (nome || 'Cliente');
+        lista.innerHTML = '<p style="color:#8a8a8a;font-size:13px;text-align:center;padding:20px;">Carregando...</p>';
 
-            const ok = matchBusca && matchStatus;
+        fetch('/api/cliente/' + id + '/historico')
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                var h = d.historico || [];
+                if (h.length === 0) {
+                    lista.innerHTML = '<p style="color:#8a8a8a;font-size:13px;text-align:center;padding:20px;">Nenhuma conversa ainda com esse cliente.</p>';
+                    return;
+                }
+                var html = '';
+                h.forEach(function(m) {
+                    var cls = m.direcao === 'cliente' ? '' : ' ia';
+                    var quem = m.direcao === 'cliente' ? 'Cliente' : 'Você (IA)';
+                    html += '<div class="hist-modal-item' + cls + '"><span class="hist-modal-data">' + quem + ' · ' + m.data + '</span>' + m.mensagem + '</div>';
+                });
+                lista.innerHTML = html;
+            })
+            .catch(function() {
+                lista.innerHTML = '<p style="color:#ff3b3b;font-size:13px;text-align:center;padding:20px;">Erro ao carregar histórico.</p>';
+            });
+    }
+
+    function fecharHistorico() {
+        document.getElementById('hist-modal').classList.remove('aberto');
+    }
+
+    function norm(s) {
+        s = (s || '').toLowerCase();
+        if (s === 'lead') return 'novo lead';
+        if (s === 'negociando') return 'em atendimento';
+        if (s === 'negociacao') return 'negociação';
+        return s;
+    }
+
+    function filtrar() {
+        var q = document.getElementById('busca').value.toLowerCase().trim();
+        var container = document.getElementById('lista-clientes');
+        var cards = Array.prototype.slice.call(container.querySelectorAll('.card-cli'));
+        var visiveis = 0;
+
+        cards.forEach(function(c) {
+            var nome = c.dataset.nome || '';
+            var wpp = c.dataset.wpp || '';
+            var origem = c.dataset.origem || '';
+            var status = norm(c.dataset.status);
+            var matchBusca = !q || nome.indexOf(q) !== -1 || wpp.indexOf(q) !== -1 || origem.indexOf(q) !== -1;
+            var matchStatus = !filtroStatus || status === norm(filtroStatus);
+            var ok = matchBusca && matchStatus;
             c.style.display = ok ? '' : 'none';
             if (ok) visiveis++;
         });
 
-        const vazioEl = document.getElementById('vazio-busca');
-        if (vazioEl) vazioEl.style.display = (visiveis === 0 && (q || statusFiltro)) ? 'block' : 'none';
+        document.getElementById('vazio-busca').style.display = (visiveis === 0 && (q || filtroStatus)) ? 'block' : 'none';
 
-        const visiveisCards = cards.filter(c => c.style.display !== 'none');
-        visiveisCards.sort((a, b) => {
-            if (ordem === 'nome') {
-                return (a.dataset.nome || '').localeCompare(b.dataset.nome || '');
-            } else if (ordem === 'antigo') {
-                return (a.dataset.criado || '').localeCompare(b.dataset.criado || '');
-            } else {
-                return (b.dataset.criado || '').localeCompare(a.dataset.criado || '');
-            }
+        var visiveisCards = cards.filter(function(c) { return c.style.display !== 'none'; });
+        visiveisCards.sort(function(a, b) {
+            if (ordemAtual === 'nome') return (a.dataset.nome || '').localeCompare(b.dataset.nome || '');
+            if (ordemAtual === 'antigo') return (a.dataset.criado || '').localeCompare(b.dataset.criado || '');
+            return (b.dataset.criado || '').localeCompare(a.dataset.criado || '');
         });
-        visiveisCards.forEach(c => container.appendChild(c));
-        cards.filter(c => c.style.display === 'none').forEach(c => container.appendChild(c));
+        visiveisCards.forEach(function(c) { container.appendChild(c); });
+        cards.filter(function(c) { return c.style.display === 'none'; }).forEach(function(c) { container.appendChild(c); });
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelector('[data-status=""]').classList.add('ativo');
+        document.querySelector('[data-ordem="recente"]').classList.add('ativo');
+    });
     </script>
-    <script src="/static/app.min.js"></script>
-    <script src="/static/splash.js"></script>
-    <script src="/static/sw-register.js"></script>
-    <script src="/static/app-aviso-plano.js"></script>
 </body>
 </html>

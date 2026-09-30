@@ -1,7 +1,6 @@
-// Registra o Service Worker (PWA)
+// M.A Tech — SW register
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/static/service-worker.js')
-            .catch(() => {});
+        navigator.serviceWorker.register('/static/service-worker.js').catch(() => {});
     });
 }

@@ -11,7 +11,7 @@
     <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
     <link rel="icon" type="image/png" href="/static/favicon-32.png">
     <title>M.A Tech - Planos</title>
-    <link rel="stylesheet" href="/static/app.min.css">
+    <link rel="stylesheet" href="/static/app.min.css?v=99">
 </head>
 <script>
     (function() {
@@ -27,13 +27,78 @@
                 <span>{{ usuario_nome }}</span>
                 <a href="/clientes" data-rota="/clientes">Clientes</a>
                 <a href="/relatorios" data-rota="/relatorios">Relatórios</a>
-                <a href="/followups" data-rota="/followups" style="position:relative;">🎯 Follow-ups{% if total_followups and total_followups > 0 %}<span style="position:absolute; top:-8px; right:-12px; background:#ff3b3b; color:#fff; font-size:10px; font-weight:800; padding:2px 6px; border-radius:100px; font-family:monospace; line-height:1; box-shadow:0 0 0 2px #141414; min-width:16px; text-align:center;">{{ total_followups }}</span>{% endif %}</a>
+                <a href="/followups" data-rota="/followups" style="position:relative;">🎯 Follow-ups{% if total_followups and total_followups > 0 %}{% endif %}</a>
                 <a href="/meus_nichos" data-rota="/meus_nichos">Nichos</a>
                 <a href="/planos" data-rota="/planos">Planos</a>
                 {% if usuario_tipo == 'admin' %}<a href="/admin" data-rota="/admin">Admin</a>{% endif %}
                 <a href="/logout">Sair</a>
             </div>
         </div>
+
+        {% if aviso_ativo %}
+        <div class="aviso-vence-plano">
+            <div class="aviso-vence-icone">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                </svg>
+            </div>
+            <div class="aviso-vence-texto">
+                <div class="aviso-vence-titulo">
+                    {% if aviso_dias == 0 %}Seu plano expira <strong>hoje</strong>
+                    {% elif aviso_dias == 1 %}Seu plano expira <strong>amanhã</strong>
+                    {% else %}Seu plano expira em <strong>{{ aviso_dias }} dias</strong>{% endif %}
+                </div>
+                <div class="aviso-vence-desc">Vence em {{ aviso_data }} — renove abaixo pra continuar</div>
+            </div>
+        </div>
+        <style>
+        .aviso-vence-plano {
+            background: linear-gradient(135deg, #1f1a0a 0%, #2a1f0a 100%);
+            border: 1px solid rgba(245,158,11,0.35);
+            border-left: 4px solid #f59e0b;
+            border-radius: 12px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            animation: aviso-aparecer 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes aviso-aparecer {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .aviso-vence-icone {
+            color: #f59e0b;
+            flex-shrink: 0;
+            width: 44px;
+            height: 44px;
+            background: rgba(245,158,11,0.15);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .aviso-vence-titulo {
+            color: #fbbf24;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+        .aviso-vence-titulo strong { color: #fff; }
+        .aviso-vence-desc {
+            color: #d4a960;
+            font-size: 13px;
+        }
+        html[data-tema="claro"] .aviso-vence-plano {
+            background: linear-gradient(135deg, #fef8ec 0%, #fef3d6 100%);
+        }
+        html[data-tema="claro"] .aviso-vence-titulo { color: #92400e; }
+        html[data-tema="claro"] .aviso-vence-titulo strong { color: #1a1a1a; }
+        html[data-tema="claro"] .aviso-vence-desc { color: #92400e; }
+        </style>
+        {% endif %}
 
         <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
             <div class="bloco-topo">
@@ -198,9 +263,9 @@
         </div>
 
     </div>
-    <script src="/static/app.min.js"></script>
+    <script src="/static/app.min.js?v=99"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
-    <script src="/static/app-aviso-plano.js"></script>
+    <script src="/static/app-badge-plano.js"></script>
 </body>
 </html>

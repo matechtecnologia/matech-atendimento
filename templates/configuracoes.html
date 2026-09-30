@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M.A Tech - Configurações</title>
-    <link rel="stylesheet" href="/static/app.min.css">
+    <link rel="stylesheet" href="/static/app.min.css?v=99">
 </head>
 <body>
     <div class="container-atendimento">
@@ -51,16 +51,9 @@
                 <div class="config-item">
                     <div class="info-config">
                         <div class="titulo-config">Tema</div>
-                        <div class="desc-config">Escolha entre claro ou escuro</div>
+                        <div class="desc-config">O tema claro está em desenvolvimento. Em breve disponível.</div>
                     </div>
-                    <div class="segmented" id="seg-tema">
-                        <button type="button" data-tema="escuro" onclick="setTema('escuro')">
-                            <span>🌙</span> Escuro
-                        </button>
-                        <button type="button" data-tema="claro" onclick="setTema('claro')">
-                            <span>☀️</span> Claro
-                        </button>
-                    </div>
+                    <span style="background: rgba(245,158,11,0.15); color: #f59e0b; padding: 6px 12px; border-radius: 100px; font-size: 11px; font-weight: 800; font-family: monospace;">EM BREVE</span>
                 </div>
 
                 <div class="config-item">
@@ -222,9 +215,9 @@
         atualizarToggles();
     });
     </script>
-    <script src="/static/app.min.js"></script>
+    <script src="/static/app.min.js?v=99"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
-    <script src="/static/app-aviso-plano.js"></script>
+    <script src="/static/app-badge-plano.js"></script>
 </body>
 </html>

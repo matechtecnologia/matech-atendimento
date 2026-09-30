@@ -1,5 +1,5 @@
 // ============================================
-// M.A TECH — App Mobile (header + drawer)
+// M.A Tech — App Mobile (header + 2 drawers + swipes)
 // ============================================
 
 (function() {
@@ -19,12 +19,7 @@
     }
 
     function getFollowups() {
-        const el = document.querySelector('.usuario-info a[href="/followups"] span');
-        if (el) {
-            const n = parseInt(el.textContent.trim());
-            return isNaN(n) ? 0 : n;
-        }
-        return 0;
+        return window.__followups_total_cache || 0;
     }
 
     function rotaAtiva() {
@@ -40,10 +35,9 @@
         return null;
     }
 
-    // Cria o header fixo (logo + botão ajuda)
+    // ===== HEADER =====
     function criarHeader() {
         if (document.querySelector('.app-header')) return;
-
         const header = document.createElement('header');
         header.className = 'app-header';
         header.innerHTML = `
@@ -57,9 +51,9 @@
         `;
         document.body.appendChild(header);
 
-        const helpBtn = document.getElementById('app-help-btn');
-        if (helpBtn) {
-            helpBtn.addEventListener('click', () => {
+        const btn = document.getElementById('app-help-btn');
+        if (btn) {
+            btn.addEventListener('click', () => {
                 if (typeof window.abrirPainelAjuda === 'function') {
                     window.abrirPainelAjuda();
                 }
@@ -67,6 +61,7 @@
         }
     }
 
+    // ===== OVERLAY (um só pros 2 drawers) =====
     function criarOverlay() {
         if (document.querySelector('.app-overlay')) return;
         const overlay = document.createElement('div');
@@ -75,9 +70,9 @@
         document.body.appendChild(overlay);
     }
 
+    // ===== DRAWER ESQUERDO (menu) =====
     function criarDrawer() {
         if (document.querySelector('.app-drawer')) return;
-
         const nome = getUsuario();
         const admin = isAdmin();
         const ativa = rotaAtiva();
@@ -93,7 +88,6 @@
             { href: '/indicar', rota: '/indicar', icone: 'indicar', texto: 'Indique e ganhe' },
             { href: '/configuracoes', rota: '/configuracoes', icone: 'configuracoes', texto: 'Configurações' },
         ];
-
         if (admin) {
             links.push({ href: '/admin/dashboard', rota: '/admin/dashboard', icone: 'dashboard', texto: 'Dashboard' });
             links.push({ href: '/admin/leads', rota: '/admin/leads', icone: 'leads', texto: 'Leads' });
@@ -120,9 +114,7 @@
                 <div class="nome">${nome}</div>
                 <div class="papel">${admin ? 'Administrador' : 'Vendedor'}</div>
             </div>
-            <nav class="app-drawer-lista">
-                ${linksHTML}
-            </nav>
+            <nav class="app-drawer-lista">${linksHTML}</nav>
             <div class="app-drawer-footer">
                 <a href="/logout">
                     <span class="icone">${window.ICONE ? window.ICONE('sair', { tamanho: 20 }) : ''}</span>
@@ -133,85 +125,121 @@
         document.body.appendChild(drawer);
     }
 
+    // ===== DRAWER DIREITO (follow-ups rápidos) =====
+    function criarDrawerRight() {
+        if (document.querySelector('.app-drawer-right')) return;
+
+        const drawer = document.createElement('aside');
+        drawer.className = 'app-drawer-right';
+        drawer.id = 'app-drawer-right';
+        drawer.innerHTML = `
+            <div class="app-drawer-header">
+                <div class="avatar">⚡</div>
+                <div class="nome">Follow-ups rápidos</div>
+                <div class="papel">quem falar hoje</div>
+            </div>
+            <div style="flex:1;overflow-y:auto;padding:12px 14px;" id="fr-lista">
+                <div class="fr-vazio"><div class="ok">...</div>Carregando...</div>
+            </div>
+            <div class="app-drawer-footer">
+                <a href="/followups" style="color:#f59e0b;">
+                    <span class="icone">${window.ICONE ? window.ICONE('followups', { tamanho: 20 }) : ''}</span>
+                    Ver todos os follow-ups
+                </a>
+            </div>
+        `;
+        document.body.appendChild(drawer);
+
+        // Carrega follow-ups via API
+        carregarFollowupsDrawer();
+    }
+
+    function carregarFollowupsDrawer() {
+        const lista = document.getElementById('fr-lista');
+        if (!lista) return;
+
+        fetch('/api/total-followups').then(r => r.json()).then(d => {
+            const total = d.total || 0;
+            if (total === 0) {
+                lista.innerHTML = '<div class="fr-vazio"><div class="ok">✓</div>Tudo em dia!<br><span style="color:#5a5a5a;font-size:12px;">Ninguém precisa de atenção agora</span></div>';
+                return;
+            }
+            // Busca os follow-ups reais
+            return fetch('/api/followups-rapidos').then(r => r.json()).then(f => {
+                const itens = f.itens || [];
+                if (itens.length === 0) {
+                    lista.innerHTML = '<div class="fr-vazio"><div class="ok">✓</div>Tudo em dia!</div>';
+                    return;
+                }
+                let html = '';
+                itens.forEach(i => {
+                    const cls = i.urgencia || 'atencao';
+                    const letra = (i.nome || 'S').charAt(0).toUpperCase();
+                    html += `<a href="/cliente/${i.id}/atender" class="fr-card ${cls}">
+                        <div class="avatar-mini">${letra}</div>
+                        <div class="fr-info">
+                            <div class="fr-nome">${i.nome || 'Sem nome'}</div>
+                            <div class="fr-dias">${i.dias_sem_contato}d sem contato</div>
+                        </div>
+                        <span class="fr-seta">›</span>
+                    </a>`;
+                });
+                lista.innerHTML = html;
+            });
+        }).catch(() => {
+            lista.innerHTML = '<div class="fr-vazio">Erro ao carregar</div>';
+        });
+    }
+
+    // ===== ABRIR / FECHAR =====
     function abrirDrawer() {
         const drawer = document.getElementById('app-drawer');
+        const right = document.getElementById('app-drawer-right');
         const overlay = document.getElementById('app-overlay');
+        if (right) right.classList.remove('aberto');
         if (drawer) drawer.classList.add('aberto');
         if (overlay) overlay.classList.add('aberto');
         document.body.classList.add('drawer-aberto');
     }
 
+    function abrirDrawerRight() {
+        // Redireciona direto pra página de follow-ups
+        window.location.href = '/followups';
+    }
+
     function fecharDrawer() {
         const drawer = document.getElementById('app-drawer');
+        const right = document.getElementById('app-drawer-right');
         const overlay = document.getElementById('app-overlay');
         if (drawer) drawer.classList.remove('aberto');
+        if (right) right.classList.remove('aberto');
         if (overlay) overlay.classList.remove('aberto');
         document.body.classList.remove('drawer-aberto');
     }
 
+    // ===== EVENTOS =====
     function ligarEventos() {
         const overlay = document.getElementById('app-overlay');
-        if (overlay) {
-            overlay.addEventListener('click', fecharDrawer);
-        }
+        if (overlay) overlay.addEventListener('click', fecharDrawer);
 
-        const drawer = document.getElementById('app-drawer');
-        if (drawer) {
-            drawer.querySelectorAll('a').forEach(link => {
-                link.addEventListener('click', () => {
-                    fecharDrawer();
-                    document.body.classList.remove('drawer-aberto');
-                    document.body.style.overflow = '';
-                    document.body.style.position = '';
-                    document.body.style.width = '';
-                });
+        document.querySelectorAll('.app-drawer a').forEach(link => {
+            link.addEventListener('click', () => {
+                fecharDrawer();
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
             });
-        }
+        });
 
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') fecharDrawer();
         });
 
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let touchAtivo = false;
-
-        document.addEventListener('touchstart', (e) => {
-            const touch = e.touches[0];
-            touchStartX = touch.clientX;
-            touchStartY = touch.clientY;
-            touchAtivo = (touchStartX < 30);
-        }, { passive: true });
-
-        document.addEventListener('touchmove', (e) => {
-            if (!touchAtivo) return;
-            const touch = e.touches[0];
-            const dx = touch.clientX - touchStartX;
-            const dy = Math.abs(touch.clientY - touchStartY);
-            if (dx > 60 && dy < 50) {
-                abrirDrawer();
-                touchAtivo = false;
-            }
-        }, { passive: true });
-
-        if (drawer) {
-            let startX = 0;
-            let abriu = false;
-            drawer.addEventListener('touchstart', (e) => {
-                startX = e.touches[0].clientX;
-                abriu = false;
-            }, { passive: true });
-            drawer.addEventListener('touchmove', (e) => {
-                const dx = e.touches[0].clientX - startX;
-                if (dx < -50 && !abriu) {
-                    fecharDrawer();
-                    abriu = true;
-                }
-            }, { passive: true });
         }
-    }
 
+    // Expõe
     window.abrirDrawerApp = abrirDrawer;
+    window.abrirDrawerRightApp = abrirDrawerRight;
     window.fecharDrawerApp = fecharDrawer;
 
     function init() {
@@ -223,6 +251,7 @@
         criarHeader();
         criarOverlay();
         criarDrawer();
+        // criarDrawerRight();
         ligarEventos();
 
         window.addEventListener('resize', () => {
@@ -230,9 +259,6 @@
                 fecharDrawer();
                 const header = document.querySelector('.app-header');
                 if (header) header.style.display = 'none';
-            } else {
-                const header = document.querySelector('.app-header');
-                if (header) header.style.display = '';
             }
         });
     }
