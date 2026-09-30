@@ -4,8 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M.A Tech - Criar Conta</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <link rel="stylesheet" href="/static/tema.css">
+    <link rel="stylesheet" href="/static/app.min.css">
+    <style>
+        .forca-senha {
+            margin-top: 10px;
+            height: 4px;
+            background: #1a1a1a;
+            border-radius: 100px;
+            overflow: hidden;
+        }
+        .forca-senha .barra {
+            height: 100%;
+            width: 0%;
+            transition: all 0.3s ease;
+            border-radius: 100px;
+        }
+        .forca-senha.fraca .barra { width: 33%; background: #ff3b3b; }
+        .forca-senha.media .barra { width: 66%; background: #f59e0b; }
+        .forca-senha.forte .barra { width: 100%; background: #00d97e; }
+        .forca-texto {
+            font-size: 12px;
+            color: #8a8a8a;
+            margin-top: 6px;
+        }
+        .forca-texto.fraca { color: #ff3b3b; }
+        .forca-texto.media { color: #f59e0b; }
+        .forca-texto.forte { color: #00d97e; }
+        .requisitos {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0 0 0;
+            font-size: 12px;
+        }
+        .requisitos li {
+            color: #5a5a5a;
+            padding: 3px 0 3px 20px;
+            position: relative;
+            transition: color 0.2s ease;
+        }
+        .requisitos li:before {
+            content: "○";
+            position: absolute;
+            left: 0;
+            font-weight: 800;
+        }
+        .requisitos li.ok {
+            color: #00d97e;
+        }
+        .requisitos li.ok:before {
+            content: "✓";
+        }
+        html[data-tema="claro"] .requisitos li {
+            color: #8a8a8a;
+        }
+        html[data-tema="claro"] .forca-senha {
+            background: #e0e4e8;
+        }
+    </style>
     <script>
     (function() {
         var t = localStorage.getItem('matech_tema') || 'escuro';
@@ -46,15 +101,66 @@
             <input type="text" name="whatsapp" required placeholder="11987654321" inputmode="numeric" pattern="[0-9]+" style="font-family:monospace;">
             <p style="color:#5a5a5a; font-size:12px; margin-top:6px;">Aceita com ou sem o 9 na frente.</p>
 
-            <label>Senha (mínimo 6 caracteres)</label>
-            <input type="password" name="senha" required minlength="6" placeholder="••••••">
+            <label>Senha</label>
+            <input type="password" name="senha" id="input-senha" required placeholder="••••••••" minlength="8" oninput="validarSenha()">
+            <div class="forca-senha" id="forca-barra"><div class="barra"></div></div>
+            <div class="forca-texto" id="forca-texto">Digite uma senha</div>
 
-            <button type="submit">CRIAR CONTA GRÁTIS →</button>
+            <ul class="requisitos">
+                <li id="req-8">Pelo menos 8 caracteres</li>
+                <li id="req-letra">Pelo menos 1 letra</li>
+                <li id="req-num">Pelo menos 1 número</li>
+            </ul>
+
+            <button type="submit" id="btn-criar" disabled style="opacity:0.5; cursor:not-allowed;">CRIAR CONTA GRÁTIS →</button>
         </form>
 
         <p style="color:#8a8a8a; text-align:center; margin-top:24px; font-size:14px;">
             Já tem conta? <a href="/login" style="color:#00d97e; text-decoration:none; font-weight:600;">Entrar</a>
         </p>
     </div>
+
+    <script>
+    function validarSenha() {
+        const s = document.getElementById('input-senha').value;
+        const barra = document.getElementById('forca-barra');
+        const texto = document.getElementById('forca-texto');
+        const btn = document.getElementById('btn-criar');
+
+        const ok8 = s.length >= 8;
+        const okLetra = /[a-zA-Z]/.test(s);
+        const okNum = /[0-9]/.test(s);
+
+        document.getElementById('req-8').classList.toggle('ok', ok8);
+        document.getElementById('req-letra').classList.toggle('ok', okLetra);
+        document.getElementById('req-num').classList.toggle('ok', okNum);
+
+        const pontos = [ok8, okLetra, okNum].filter(Boolean).length;
+
+        let nivel = '';
+        if (s.length === 0) {
+            nivel = '';
+            texto.textContent = 'Digite uma senha';
+        } else if (pontos <= 1) {
+            nivel = 'fraca';
+            texto.textContent = 'Senha fraca';
+        } else if (pontos === 2) {
+            nivel = 'media';
+            texto.textContent = 'Senha média';
+        } else {
+            nivel = 'forte';
+            texto.textContent = '✓ Senha forte';
+        }
+
+        barra.className = 'forca-senha ' + nivel;
+        texto.className = 'forca-texto ' + nivel;
+
+        // Habilita botão só se senha forte
+        const valido = ok8 && okLetra && okNum;
+        btn.disabled = !valido;
+        btn.style.opacity = valido ? '1' : '0.5';
+        btn.style.cursor = valido ? 'pointer' : 'not-allowed';
+    }
+    </script>
 </body>
 </html>

@@ -213,6 +213,16 @@ def inicializar_banco():
 
     cur.execute("CREATE INDEX IF NOT EXISTS idx_indicacoes_indicador ON indicacoes(indicador_id)")
 
+    cur.execute("""CREATE TABLE IF NOT EXISTS tentativas_login (
+        id SERIAL PRIMARY KEY,
+        email TEXT NOT NULL,
+        ip TEXT,
+        sucesso BOOLEAN DEFAULT FALSE,
+        criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    )""")
+
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_tentativas_login ON tentativas_login(email, criado_em DESC)")
+
     cur.execute("CREATE INDEX IF NOT EXISTS idx_clientes_vendedor ON clientes(vendedor_id)")
 
     cur.execute("SELECT * FROM usuarios WHERE email = %s", ("matechtecnologia01@gmail.com",))
@@ -474,12 +484,23 @@ def tela_login(request: Request, erro: str = None):
 
 
 @app.post("/login")
-def fazer_login(email: str = Form(...), senha: str = Form(...)):
+def fazer_login(request: Request, email: str = Form(...), senha: str = Form(...)):
+    ip = obter_ip(request)
+
+    # Rate limit: max 5 tentativas falhas em 15 min
+    if contar_tentativas_login(email, ip, 15) >= 5:
+        return RedirectResponse(url="/login?erro=Muitas tentativas. Aguarde 15 minutos.", status_code=303)
+
     u = buscar_usuario(email)
     if not u:
+        registrar_tentativa_login(email, ip, False)
         return RedirectResponse(url="/login?erro=Usuario nao encontrado", status_code=303)
     if not pwd_context.verify(senha, u["senha"]):
+        registrar_tentativa_login(email, ip, False)
         return RedirectResponse(url="/login?erro=Senha incorreta", status_code=303)
+
+    # Login OK
+    registrar_tentativa_login(email, ip, True)
     v = buscar_vendedor(u["id"])
     if v:
         verificar_expiracao(v["id"])
@@ -1502,6 +1523,11 @@ def validar_whatsapp(wpp):
 
 
 def criar_vendedor_v2(nome, email, senha, whatsapp):
+    # Valida senha forte
+    erro_senha = validar_senha_forte(senha)
+    if erro_senha:
+        return False, erro_senha, None
+
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("SELECT id FROM usuarios WHERE email = %s", (email,))
@@ -2499,3 +2525,64 @@ def api_total_followups(usuario_id: str = Cookie(None)):
         return {"total": total}
     except Exception:
         return {"total": 0}
+
+
+
+# ============ SEGURANCA ============
+
+def validar_senha_forte(senha):
+    """Valida se a senha e forte o suficiente."""
+    if not senha or len(senha) < 8:
+        return "A senha precisa ter pelo menos 8 caracteres."
+    tem_letra = any(c.isalpha() for c in senha)
+    tem_numero = any(c.isdigit() for c in senha)
+    if not tem_letra or not tem_numero:
+        return "A senha precisa ter letras E numeros."
+    return None
+
+
+def contar_tentativas_login(email, ip, minutos=15):
+    """Conta tentativas falhas nos ultimos X minutos."""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        cur.execute("""
+            SELECT COUNT(*) FROM tentativas_login
+            WHERE (email = %s OR ip = %s)
+              AND sucesso = FALSE
+              AND criado_em >= NOW() - INTERVAL '%s minutes'
+        """, (email, ip, minutos))
+        total = cur.fetchone()[0]
+    except Exception:
+        total = 0
+    cur.close()
+    close_conn(conn)
+    return total
+
+
+def registrar_tentativa_login(email, ip, sucesso):
+    """Registra uma tentativa de login."""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        cur.execute("INSERT INTO tentativas_login (email, ip, sucesso) VALUES (%s, %s, %s)",
+                    (email, ip, sucesso))
+        conn.commit()
+    except Exception:
+        pass
+    cur.close()
+    close_conn(conn)
+
+
+def limpar_tentativas_antigas():
+    """Limpa tentativas mais antigas que 30 dias."""
+    conn = get_conn()
+    cur = conn.cursor()
+    try:
+        cur.execute("DELETE FROM tentativas_login WHERE criado_em < NOW() - INTERVAL '30 days'")
+        conn.commit()
+    except Exception:
+        pass
+    cur.close()
+    close_conn(conn)
+
