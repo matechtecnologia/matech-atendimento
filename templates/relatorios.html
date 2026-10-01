@@ -4,93 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M.A Tech - Relatórios</title>
-    <link rel="stylesheet" href="/static/app.min.css?v=99">
+    <link rel="stylesheet" href="/static/app.min.css">
     <style>
-        /* ===== FILTRO DE DATA ===== */
-        .filtro-data {
-            background: #141414;
-            border: 1px solid #222;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 20px;
-        }
-        .filtro-data-titulo {
-            font-size: 11px;
-            color: #8a8a8a;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            font-weight: 800;
-            margin-bottom: 12px;
-        }
-        .filtro-data-linha {
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
-            flex-wrap: wrap;
-        }
-        .filtro-data-linha > div {
-            flex: 1;
-            min-width: 140px;
-        }
-        .filtro-data label {
-            display: block;
-            color: #a8a8a8;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-        .filtro-data input[type="date"] {
-            width: 100%;
-            background: #0a0a0a;
-            border: 1px solid #2a2a2a;
-            color: #fff;
-            padding: 11px 12px;
-            border-radius: 8px;
-            font-size: 13.5px;
-            font-family: inherit;
-            box-sizing: border-box;
-            color-scheme: dark;
-        }
-        .filtro-data input[type="date"]:focus {
-            outline: none;
-            border-color: #00d97e;
-        }
-        .btn-filtrar {
-            background: #00d97e;
-            color: #0a0a0a;
-            border: none;
-            padding: 11px 24px;
-            border-radius: 8px;
-            font-size: 13.5px;
-            font-weight: 800;
-            cursor: pointer;
-            font-family: inherit;
-            white-space: nowrap;
-        }
-        .btn-filtrar:hover { background: #00b368; }
-
-        .atalhos-data {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-            margin-top: 12px;
-        }
-        .atalho {
-            background: #0a0a0a;
-            border: 1px solid #2a2a2a;
-            color: #8a8a8a;
-            padding: 6px 12px;
-            border-radius: 100px;
-            font-size: 11.5px;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: inherit;
-            transition: all 0.2s ease;
-        }
-        .atalho:hover { border-color: #00d97e; color: #00d97e; }
-        .atalho.ativo { background: #00d97e; color: #0a0a0a; border-color: #00d97e; }
-
-        /* ===== CARDS DE MÉTRICAS ===== */
         .metricas {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -122,14 +37,11 @@
         }
         .metrica.total { border-left-color: #00d97e; }
         .metrica.total .valor { color: #00d97e; }
-        .metrica.atend . border-left-color: #f59e0b;
-        .metrica.atend .valor { color: #f59e0b; }
         .metrica.ganhos { border-left-color: #22c55e; }
         .metrica.ganhos .valor { color: #22c55e; }
         .metrica.perdidos { border-left-color: #ff3b3b; }
         .metrica.perdidos .valor { color: #ff3b3b; }
 
-        /* ===== GRÁFICO ===== */
         .card-secao {
             background: #141414;
             border: 1px solid #222;
@@ -195,7 +107,6 @@
             text-align: center;
         }
 
-        /* ===== FUNIL ===== */
         .funil-lista { display: flex; flex-direction: column; gap: 8px; }
         .funil-item {
             display: flex;
@@ -230,14 +141,11 @@
         .funil-item.novo .num { color: #8a8a8a; }
         .funil-item.atend { border-left-color: #00d97e; }
         .funil-item.atend .num { color: #00d97e; }
-        .funil-item.negoc { border-left-color: #f59e0b; }
-        .funil-item.negoc .num { color: #f59e0b; }
         .funil-item.ganho { border-left-color: #22c55e; }
         .funil-item.ganho .num { color: #22c55e; }
         .funil-item.perdido { border-left-color: #ff3b3b; }
         .funil-item.perdido .num { color: #ff3b3b; }
 
-        /* ===== LISTA GENÉRICA ===== */
         .lista-ranque {
             display: flex;
             flex-direction: column;
@@ -295,9 +203,149 @@
             grid-template-columns: 1fr 1fr;
             gap: 16px;
         }
-        @media (max-width: 700px) {
-            .metricas { grid-template-columns: repeat(2, 1fr); }
-            .grid-2 { grid-template-columns: 1fr; }
+
+        /* ===== FILTRO DE PERIODO (FINAL) ===== */
+        .periodo-card {
+            background: linear-gradient(135deg, #141414 0%, #0f1a15 100%);
+            border: 1px solid #222;
+            border-left: 4px solid #00d97e;
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .periodo-card::before {
+            content: "";
+            position: absolute;
+            top: -80px;
+            right: -80px;
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, rgba(0,217,126,0.08), transparent 70%);
+            pointer-events: none;
+        }
+        .periodo-titulo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #fff;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .periodo-titulo .ponto {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00d97e;
+            box-shadow: 0 0 12px #00d97e;
+        }
+        .periodo-form {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            position: relative;
+        }
+        .periodo-input {
+            flex: 1;
+            min-width: 160px;
+        }
+        .periodo-input label {
+            display: block;
+            font-size: 11px;
+            color: #8a8a8a;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .periodo-input input[type="date"] {
+            width: 100%;
+            background: #0a0a0a;
+            border: 1px solid #2a2a2a;
+            color: #fff;
+            padding: 14px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: 'SF Mono', Consolas, monospace;
+            box-sizing: border-box;
+            color-scheme: dark;
+            transition: all 0.2s ease;
+        }
+        .periodo-input input[type="date"]:focus {
+            outline: none;
+            border-color: #00d97e;
+            box-shadow: 0 0 0 3px rgba(0,217,126,0.12);
+        }
+        .periodo-btn {
+            background: #00d97e;
+            color: #0a0a0a;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 800;
+            cursor: pointer;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 24px rgba(0,217,126,0.3);
+            white-space: nowrap;
+        }
+        .periodo-btn:hover {
+            background: #00b368;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(0,217,126,0.45);
+        }
+        .atalhos-data {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .atalho {
+            background: rgba(0,217,126,0.08);
+            border: 1px solid rgba(0,217,126,0.25);
+            color: #00d97e;
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            letter-spacing: 0.02em;
+        }
+        .atalho:hover {
+            background: rgba(0,217,126,0.18);
+            border-color: #00d97e;
+            transform: translateY(-1px);
+        }
+        .atalho.ativo {
+            background: #00d97e;
+            color: #0a0a0a;
+            border-color: #00d97e;
+            box-shadow: 0 4px 16px rgba(0,217,126,0.4);
+        }
+        .periodo-info {
+            color: #8a8a8a;
+            font-size: 12.5px;
+            margin-top: 14px;
+            text-align: center;
+            font-family: monospace;
+        }
+        .periodo-info strong {
+            color: #00d97e;
+            font-weight: 700;
         }
 
         .empty-secao {
@@ -305,6 +353,14 @@
             font-size: 13px;
             text-align: center;
             padding: 20px 0;
+        }
+
+        @media (max-width: 700px) {
+            .metricas { grid-template-columns: repeat(2, 1fr); }
+            .grid-2 { grid-template-columns: 1fr; }
+            .periodo-form { flex-direction: column; align-items: stretch; }
+            .periodo-btn { width: 100%; }
+            .periodo-input input[type="date"] { font-size: 16px; }
         }
     </style>
 </head>
@@ -324,33 +380,16 @@
             </div>
         </div>
 
-        <!-- FILTRO DE DATA -->
-        <div class="filtro-data">
-            <div class="filtro-data-titulo">Período</div>
-            <form method="GET" action="/relatorios">
-                <div class="filtro-data-linha">
-                    <div>
-                        <label>De</label>
-                        <input type="date" name="data_ini" value="{{ data_ini }}">
-                    </div>
-                    <div>
-                        <label>Até</label>
-                        <input type="date" name="data_fim" value="{{ data_fim }}">
-                    </div>
-                    <div style="flex:0;">
-                        <button type="submit" class="btn-filtrar">Filtrar</button>
-                    </div>
-                </div>
-                <div class="atalhos-data">
-                    <button type="button" class="atalho" onclick="atalho(7)">7 dias</button>
-                    <button type="button" class="atalho ativo" onclick="atalho(30)">30 dias</button>
-                    <button type="button" class="atalho" onclick="atalho(90)">90 dias</button>
-                    <button type="button" class="atalho" onclick="atalho(365)">Este ano</button>
-                </div>
-            </form>
+        <!-- CABECALHO -->
+        <div style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%);border:1px solid #222;border-left:4px solid #00d97e;border-radius:12px;padding:18px;margin-bottom:20px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+                <h2 style="font-size:15px;color:#fff;margin:0;font-weight:800;letter-spacing:-0.01em;">Visão Geral</h2>
+                <span style="background:rgba(0,217,126,0.12);color:#00d97e;padding:4px 12px;border-radius:100px;font-size:11px;font-family:monospace;font-weight:800;">{{ data_ini }} → {{ data_fim }}</span>
+            </div>
+            <p style="color:#8a8a8a;font-size:13px;margin:10px 0 0 0;line-height:1.5;">Acompanhe o desempenho comercial no período selecionado.</p>
         </div>
 
-        <!-- MÉTRICAS -->
+        <!-- METRICAS -->
         <div class="metricas">
             <div class="metrica total">
                 <div class="label">Total clientes</div>
@@ -370,7 +409,7 @@
             </div>
         </div>
 
-        <!-- TAXA DE CONVERSÃO -->
+        <!-- TAXA DE CONVERSAO -->
         <div class="card-secao" style="background:linear-gradient(135deg,#0f1a15 0%,#141414 100%);border-left:4px solid #00d97e;">
             <h3 style="color:#00d97e;">Taxa de conversão</h3>
             <div style="font-size:44px;font-weight:800;font-family:monospace;color:#00d97e;letter-spacing:-0.04em;line-height:1;text-shadow:0 0 30px rgba(0,217,126,0.4);">{{ taxa_conversao }}%</div>
@@ -435,7 +474,7 @@
         <div class="card-secao">
             <h3>De onde vêm seus clientes</h3>
             {% if not top_origens %}
-            <div class="empty-secao">Nenhuma origem cadastrada no período. Preencha o campo "Origem" ao cadastrar cliente.</div>
+            <div class="empty-secao">Nenhuma origem cadastrada no período.</div>
             {% else %}
             <div class="lista-ranque">
                 {% for o in top_origens %}
@@ -491,11 +530,39 @@
             </div>
         </div>
 
+        <!-- FILTRO DE PERIODO (FINAL) -->
+        <div class="periodo-card">
+            <div class="periodo-titulo">
+                <span class="ponto"></span>
+                Filtrar período
+            </div>
+            <form method="GET" action="/relatorios" class="periodo-form" id="form-periodo">
+                <div class="periodo-input">
+                    <label>De</label>
+                    <input type="date" name="data_ini" id="data_ini" value="{{ data_ini }}">
+                </div>
+                <div class="periodo-input">
+                    <label>Até</label>
+                    <input type="date" name="data_fim" id="data_fim" value="{{ data_fim }}">
+                </div>
+                <button type="submit" class="periodo-btn">Aplicar filtro</button>
+            </form>
+            <div class="atalhos-data">
+                <button type="button" class="atalho" onclick="atalho(7, this)">Últimos 7 dias</button>
+                <button type="button" class="atalho" onclick="atalho(30, this)">Últimos 30 dias</button>
+                <button type="button" class="atalho" onclick="atalho(90, this)">Últimos 90 dias</button>
+                <button type="button" class="atalho" onclick="atalho(365, this)">Este ano</button>
+            </div>
+            <div class="periodo-info">
+                Mostrando dados de <strong>{{ data_ini }}</strong> até <strong>{{ data_fim }}</strong>
+            </div>
+        </div>
+
     </div>
 
-    <script src="/static/app.min.js?v=99"></script>
+    <script src="/static/app.min.js"></script>
     <script>
-    function atalho(dias) {
+    function atalho(dias, btn) {
         var fim = new Date();
         var ini = new Date();
         ini.setDate(ini.getDate() - dias);
@@ -507,12 +574,14 @@
             return y + '-' + m + '-' + dd;
         }
 
-        var form = document.querySelector('form[action="/relatorios"]');
-        form.querySelector('input[name="data_ini"]').value = fmt(ini);
-        form.querySelector('input[name="data_fim"]').value = fmt(fim);
+        document.getElementById('data_ini').value = fmt(ini);
+        document.getElementById('data_fim').value = fmt(fim);
 
         document.querySelectorAll('.atalho').forEach(function(b) { b.classList.remove('ativo'); });
-        event.target.classList.add('ativo');
+        btn.classList.add('ativo');
+
+        // Aplica automaticamente
+        document.getElementById('form-periodo').submit();
     }
     </script>
 </body>
