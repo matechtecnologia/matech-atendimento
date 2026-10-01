@@ -55,10 +55,6 @@
             <h1>M.A Tech — Admin</h1>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
-                <a href="/clientes" data-rota="/clientes">Clientes</a>
-                <a href="/relatorios" data-rota="/relatorios">Relatórios</a>
-                <a href="/followups" data-rota="/followups" style="position:relative;">🎯 Follow-ups{% if total_followups and total_followups > 0 %}{% endif %}</a>
-                <a href="/meus_nichos" data-rota="/meus_nichos">Nichos</a>
                 <a href="/planos" data-rota="/planos">Planos</a>
                 {% if usuario_tipo == 'admin' %}<a href="/admin" data-rota="/admin">Admin</a>{% endif %}
                 <a href="/logout">Sair</a>

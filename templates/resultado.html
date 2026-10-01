@@ -28,8 +28,6 @@
             <h1>M.A Tech</h1>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
-                <a href="/clientes">Clientes</a>
-                <a href="/followups" style="position:relative;">🎯 Follow-ups{% if total_followups and total_followups > 0 %}{% endif %}</a>
                 {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
                 <a href="/logout">Sair</a>
             </div>

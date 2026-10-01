@@ -2182,6 +2182,122 @@ body.drawer-aberto {
     }
 }
 
+
+/* ===== DRAWER DIREITO (Follow-ups) ===== */
+@media (max-width: 768px) {
+    .app-drawer-right {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 280px;
+        max-width: 85vw;
+        background: linear-gradient(160deg, #141414 0%, #0d0d0d 100%);
+        border-left: 1px solid rgba(255,255,255,0.06);
+        z-index: 10001;
+        transform: translateX(100%);
+        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+        box-shadow: -10px 0 40px rgba(0,0,0,0.5);
+    }
+    .app-drawer-right.aberto {
+        transform: translateX(0);
+    }
+    .app-drawer-right .app-drawer-header {
+        padding: 24px 20px calc(20px + var(--safe-top));
+        padding-top: calc(24px + var(--safe-top));
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        background: linear-gradient(135deg, rgba(245,158,11,0.08), transparent);
+    }
+    .app-drawer-right .app-drawer-header .avatar {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        box-shadow: 0 8px 24px rgba(245,158,11,0.3);
+    }
+    .app-drawer-right .app-drawer-header .papel {
+        color: #f59e0b;
+    }
+
+    /* Cards de follow-up dentro do drawer direito */
+    .fr-card {
+        background: #0f0f0f;
+        border: 1px solid #1a1a1a;
+        border-left: 3px solid #f59e0b;
+        border-radius: 10px;
+        padding: 11px 12px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+        transition: all 0.2s ease;
+    }
+    .fr-card:hover,
+    .fr-card:active {
+        background: #141414;
+        border-color: #2a2a2a;
+    }
+    .fr-card .avatar-mini {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #1e1e1e;
+        border: 1px solid #2a2a2a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 800;
+        flex-shrink: 0;
+    }
+    .fr-card.urgente { border-left-color: #ff3b3b; }
+    .fr-card.urgente .avatar-mini { color: #ff3b3b; }
+    .fr-card.atencao { border-left-color: #f59e0b; }
+    .fr-card.atencao .avatar-mini { color: #f59e0b; }
+    .fr-card.agenda { border-left-color: #00d97e; }
+    .fr-card.agenda .avatar-mini { color: #00d97e; }
+
+    .fr-card .fr-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .fr-card .fr-nome {
+        font-size: 13.5px;
+        color: #e8e8e8;
+        font-weight: 600;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-bottom: 2px;
+    }
+    .fr-card .fr-dias {
+        font-size: 11px;
+        color: #5a5a5a;
+        font-family: monospace;
+        font-weight: 700;
+    }
+    .fr-card .fr-seta {
+        color: #3a3a3a;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .fr-vazio {
+        text-align: center;
+        padding: 40px 20px;
+        color: #5a5a5a;
+        font-size: 13px;
+    }
+    .fr-vazio .ok {
+        font-size: 40px;
+        color: #00d97e;
+        margin-bottom: 10px;
+    }
+}
+
+
+
 /* ===== tema.css ===== */
 /* ============================================================
    M.A TECH — Tema claro/escuro
