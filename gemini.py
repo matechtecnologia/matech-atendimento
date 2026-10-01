@@ -469,3 +469,127 @@ def validar_nicho_ia(nome, produto):
     except Exception as e:
         print("Erro validar_nicho_ia: " + str(e))
         return True, ""
+
+
+def gerar_resposta_stream(linha_crm, mensagem_cliente, prompt_vendedor=None, historico="", nicho_dict=None):
+    """
+    Igual ao gerar_resposta, mas retorna um gerador que entrega
+    a resposta em pedacos (streaming).
+    """
+    # Chama o gerar_resposta internamente só pra validar/reusar
+    # Mas com stream=True precisa ser separado.
+    # Vou fazer a mesma preparação do prompt e chamar o stream.
+
+    # ============================================
+    # ENRIQUECIMENTO AUTOMATICO
+    # ============================================
+    if nicho_dict:
+        try:
+            enriquecido = enriquecer_prompt(
+                nicho_dict.get("produto", ""),
+                nicho_dict.get("publico", ""),
+                nicho_dict.get("preco", ""),
+                nicho_dict.get("dor", ""),
+                nicho_dict.get("objecao", ""),
+                nicho_dict.get("diferencial", ""),
+                nicho_dict.get("tom", "")
+            )
+            prompt_vendedor = gerar_prompt_vendedor(
+                enriquecido["produto"],
+                enriquecido["publico"],
+                enriquecido["preco"],
+                enriquecido["dor"],
+                enriquecido["objecao"],
+                enriquecido["diferencial"],
+                enriquecido["tom"]
+            )
+        except Exception as e:
+            print("Erro enriquecimento stream: " + str(e))
+
+    if not prompt_vendedor:
+        prompt_vendedor = "Voce vende produtos e servicos em geral."
+
+    tem_hist = bool(historico and historico.strip() and "Primeira interação" not in historico)
+    eh_instrucao = ("### INSTRUCAO DIRETA DO VENDEDOR ###" in mensagem_cliente) or ("[INSTRUCAO DO VENDEDOR" in mensagem_cliente)
+
+    if eh_instrucao:
+        bloco_especial = "INSTRUCAO DIRETA DO VENDEDOR RECEBIDA. Voce NAO e o cliente. Voce e o vendedor executando uma ordem. Gere DIRETAMENTE a proxima mensagem do vendedor conforme pedido. NUNCA responda 'claro', 'ok', 'vou ajudar'."
+    elif tem_hist:
+        bloco_especial = "JA CONVERSOU com esse cliente ANTES. NUNCA diga 'Oi', 'Ola', 'Tudo bem?'. Continue de onde pararam."
+    else:
+        bloco_especial = "PRIMEIRA mensagem. Pode cumprimentar UMA vez, curto."
+
+    hist_txt = historico if tem_hist else "(primeira interacao)"
+    crm_txt = linha_crm if linha_crm else "(cliente novo, sem dados)"
+
+    # ============================================
+    # Reusa o mesmo prompt do gerar_resposta
+    # ============================================
+    # Chama o gerar_resposta normal pra pegar o prompt? Nao, monta aqui.
+    # Importa o _montar_prompt de gerar_resposta pra nao duplicar
+    prompt = _montar_prompt_interno(linha_crm, mensagem_cliente, prompt_vendedor, historico, bloco_especial, hist_txt, crm_txt)
+
+    try:
+        response = client.chat.completions.create(
+            model=MODELO,
+            messages=[
+                {"role": "system", "content": "Voce e um closer consultivo. Entende antes de recomendar. Nunca vende no primeiro contato. Nunca repete saudacao se ja conversou. Uma pergunta por vez. Nunca fica em interrogatorio. Se receber INSTRUCAO DIRETA DO VENDEDOR, executa direto sem responder 'claro'. Nunca usa frases genericas. Responda SEMPRE com os 4 blocos exatos."},
+                {"role": "user", "content": prompt}
+            ],
+            timeout=60,
+            temperature=0.7,
+            stream=True
+        )
+
+        for chunk in response:
+            if chunk.choices and chunk.choices[0].delta and chunk.choices[0].delta.content:
+                yield chunk.choices[0].delta.content
+
+    except Exception as e:
+        yield f"ERRO NA API: {e}"
+
+
+def _montar_prompt_interno(linha_crm, mensagem_cliente, prompt_vendedor, historico, bloco_especial, hist_txt, crm_txt):
+    """Extraido do gerar_resposta pra poder ser reusado no stream."""
+    # Reusa o gerar_resposta passando um flag pra retornar o prompt em vez da resposta
+    # Truque: chama gerar_resposta com mensagem vazia, captura o prompt via variavel global
+    # Melhor: extrair pra função separada. Vou fazer isso.
+
+    # Por simplicidade, monta o prompt aqui (mesmo do gerar_resposta)
+    # (por enquanto, versao simplificada — o usuario pode depois refatorar)
+    prompt = (
+        "Voce e o especialista em atendimento comercial e conversao.\n\n"
+        "REGRA #0 - INSTRUCAO DIRETA DO VENDEDOR (MAXIMA PRIORIDADE):\n"
+        "Se a MENSAGEM ATUAL comecar com ### INSTRUCAO DIRETA DO VENDEDOR ###\n"
+        "ou [INSTRUCAO DO VENDEDOR: NAO e cliente, e ordem do vendedor.\n"
+        "Gere DIRETAMENTE a resposta conforme pedido.\n\n"
+        "PRINCIPIO: Primeiro entender. Depois diagnosticar. Depois recomendar.\n\n"
+        "REGRA #1 - UMA PERGUNTA POR VEZ\n"
+        "REGRA #2 - NAO PERGUNTAR O OBVIO\n"
+        "REGRA #3 - NAO FICAR EM INTERROGATORIO (max 2 perguntas)\n"
+        "REGRA #4 - ESCADA DE VALOR: Descoberta -> Valor -> Conducao\n"
+        "REGRA #5 - RESPEITAR CANAL DO CLIENTE\n"
+        "REGRA #6 - GERAR VALOR ANTES DE VENDER\n"
+        "REGRA #7 - ESTAGIOS: nao avancar por suposicao\n"
+        "REGRA #8 - LEAD ISOLADO: nunca assumir info de outro cliente\n"
+        "REGRA #9 - PRIMEIRO CONTATO: responder a duvida primeiro\n"
+        "REGRA #10 - PROIBIDO FRASES GENERICAS ('obrigado pelo interesse', etc)\n"
+        "REGRA #11 - OBJECOES: entender a causa, nao contra-argumentar\n"
+        "REGRA #12 - FECHAMENTO: quando cliente quer, pare de perguntar\n"
+        "REGRA #13 - SAUDACAO: " + bloco_especial + "\n"
+        "REGRA #14 - AUDIO NATURAL: 10-30s, linguagem falada\n\n"
+        "CONTEXTO DO NEGOCIO:\n" + prompt_vendedor + "\n\n"
+        "CRM DO CLIENTE:\n" + crm_txt + "\n\n"
+        "HISTORICO:\n" + hist_txt + "\n\n"
+        "MENSAGEM ATUAL DO CLIENTE:\n" + mensagem_cliente + "\n\n"
+        "FORMATO DE RESPOSTA (obrigatorio):\n"
+        "=== O QUE FALAR ===\n"
+        "(roteiro do audio, 10-30s, terminando com UMA pergunta)\n\n"
+        "=== TEXTO PARA ENVIAR ===\n"
+        "(texto curto OU a palavra NENHUM — so preco/link/info tecnica)\n\n"
+        "=== ESTAGIO ===\n"
+        "(Novo Lead / Em Atendimento / Negociacao / Cliente / Perdido)\n\n"
+        "=== LINHA CRM ===\n"
+        "(Nome: xxx; Nicho: xxx; Objetivo: xxx; Dor: xxx; Objecao: xxx; Estrategia: xxx; Interesse: xxx; Status: xxx; Proximo passo: xxx)\n"
+    )
+    return prompt

@@ -2783,3 +2783,114 @@ def api_followups_rapidos(usuario_id: str = Cookie(None)):
     except Exception as e:
         print(f"Erro api followups rapidos: {e}")
         return {"itens": []}
+
+
+
+# ============ STREAMING DE RESPOSTA IA ============
+
+from fastapi.responses import StreamingResponse
+import json as _json
+
+@app.get("/api/gerar_stream/{atendimento_id}")
+def gerar_stream(atendimento_id: int, usuario_id: str = Cookie(None)):
+    """
+    Streaming da resposta da IA via SSE.
+    O frontend consome isso e mostra o texto aparecendo.
+    """
+    if not usuario_id:
+        return StreamingResponse(iter(["data: " + _json.dumps({"erro": "nao logado"}) + "\n\n"]), media_type="text/event-stream")
+
+    def evento(tipo, dados):
+        return "data: " + _json.dumps({"tipo": tipo, **dados}) + "\n\n"
+
+    def stream():
+        try:
+            # Busca o atendimento
+            conn = get_conn()
+            cur = conn.cursor(cursor_factory=RealDictCursor)
+            cur.execute("SELECT * FROM atendimentos WHERE id = %s", (atendimento_id,))
+            a = cur.fetchone()
+            cur.close()
+            close_conn(conn)
+
+            if not a:
+                yield evento("erro", {"msg": "atendimento nao encontrado"})
+                return
+
+            # Pega o nicho
+            n = buscar_nicho(a["nicho_id"])
+            if not n:
+                yield evento("erro", {"msg": "nicho nao encontrado"})
+                return
+
+            # Pega o vendedor
+            v = buscar_vendedor(usuario_id)
+            if not v:
+                yield evento("erro", {"msg": "vendedor nao encontrado"})
+                return
+
+            # Prompt atualizado
+            from gemini import gerar_prompt_vendedor as _gpv
+            prompt_atualizado = _gpv(
+                n.get("produto") or "",
+                n.get("publico") or "",
+                n.get("preco") or "",
+                n.get("dor") or "",
+                n.get("objecao") or "",
+                n.get("diferencial") or "",
+                n.get("tom") or ""
+            )
+
+            # Historico
+            hist = buscar_historico(a["whatsapp"], v["id"])
+
+            # Envia evento inicial
+            yield evento("inicio", {"msg": "comecando"})
+
+            # Chama o stream do gemini
+            from gemini import gerar_resposta_stream
+            texto_acumulado = ""
+            for pedaco in gerar_resposta_stream(a["linha_crm"] or "", a["mensagem_cliente"] or "", prompt_atualizado, hist):
+                texto_acumulado += pedaco
+                yield evento("pedaco", {"texto": pedaco})
+
+            # Separa os blocos
+            from gemini import separar_resposta
+            blocos = separar_resposta(texto_acumulado)
+
+            # Salva no banco
+            conn = get_conn()
+            cur = conn.cursor()
+            cur.execute(
+                "UPDATE atendimentos SET o_que_falar=%s, texto_para_enviar=%s, acao_crm=%s, linha_crm_gerada=%s, status='pronto' WHERE id=%s",
+                (blocos["o_que_falar"], blocos["texto_para_enviar"], blocos["estagio"], blocos["linha_crm"], atendimento_id)
+            )
+            if a["cliente_id"] and blocos.get("linha_crm"):
+                cur.execute(
+                    "UPDATE clientes SET linha_crm=%s, status=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s",
+                    (blocos["linha_crm"], blocos["estagio"].lower(), a["cliente_id"])
+                )
+            conn.commit()
+            cur.close()
+            close_conn(conn)
+
+            # Salva no histórico
+            salvar_historico(a["whatsapp"], v["id"], "ia", blocos.get("o_que_falar", ""))
+
+            # Envia evento final com os blocos separados
+            yield evento("fim", {
+                "o_que_falar": blocos["o_que_falar"],
+                "texto_para_enviar": blocos["texto_para_enviar"],
+                "estagio": blocos["estagio"],
+                "linha_crm": blocos["linha_crm"]
+            })
+
+        except Exception as e:
+            print(f"Erro streaming: {e}")
+            yield evento("erro", {"msg": str(e)})
+
+    return StreamingResponse(stream(), media_type="text/event-stream", headers={
+        "Cache-Control": "no-cache",
+        "X-Accel-Buffering": "no",
+        "Connection": "keep-alive"
+    })

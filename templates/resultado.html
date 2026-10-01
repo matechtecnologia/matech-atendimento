@@ -3,124 +3,386 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#00d97e">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="M.A Tech">
-    <link rel="manifest" href="/manifest.json">
-    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
-    <link rel="icon" type="image/png" href="/static/favicon-32.png">
     <title>M.A Tech - Resultado</title>
-    {% if atendimento.status == 'processando' %}
-    <meta http-equiv="refresh" content="2">
-    {% endif %}
-    <link rel="stylesheet" href="/static/app.min.css?v=99">
+    <link rel="stylesheet" href="/static/app.min.css">
+    <style>
+        .loading-wrap {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .loading-icone {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 24px;
+            border: 4px solid #1a1a1a;
+            border-top-color: #00d97e;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            box-shadow: 0 0 40px rgba(0,217,126,0.3);
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-titulo {
+            font-size: 18px;
+            color: #00d97e;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+        .loading-sub {
+            color: #8a8a8a;
+            font-size: 13px;
+            margin-bottom: 24px;
+            font-family: monospace;
+        }
+        .progresso {
+            max-width: 400px;
+            margin: 0 auto;
+            height: 6px;
+            background: #1a1a1a;
+            border-radius: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progresso-barra {
+            height: 100%;
+            background: linear-gradient(90deg, #00d97e, #00ff99);
+            border-radius: 100px;
+            width: 0%;
+            transition: width 0.3s ease;
+            box-shadow: 0 0 20px rgba(0,217,126,0.6);
+        }
+        .loading-frase {
+            color: #a8a8a8;
+            font-size: 13px;
+            margin-top: 16px;
+            font-family: monospace;
+            min-height: 20px;
+        }
+        .loading-frase::after {
+            content: "...";
+            animation: pontos 1.5s steps(4, end) infinite;
+        }
+        @keyframes pontos {
+            0% { content: ""; }
+            25% { content: "."; }
+            50% { content: ".."; }
+            75% { content: "..."; }
+        }
+
+        /* Preview em tempo real */
+        .preview-stream {
+            display: none;
+            background: #0f1a15;
+            border: 1px solid #00d97e;
+            border-left: 4px solid #00d97e;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .preview-stream.aberto { display: block; }
+        .preview-stream .titulo {
+            font-size: 12px;
+            color: #00d97e;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 800;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .preview-stream .titulo .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00d97e;
+            box-shadow: 0 0 10px #00d97e;
+            animation: pulse-dot 1.2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        .preview-stream .texto {
+            font-family: 'SF Mono', Consolas, monospace;
+            font-size: 13px;
+            color: #e8e8e8;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .preview-stream .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: #00d97e;
+            vertical-align: middle;
+            animation: pisca 0.8s ease-in-out infinite;
+        }
+        @keyframes pisca {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        .bloco-wrap {
+            display: none;
+        }
+        .bloco-wrap.aberto { display: block; }
+    </style>
 </head>
-<script>
-    (function() {
-        var t = localStorage.getItem('matech_tema') || 'escuro';
-        document.documentElement.setAttribute('data-tema', t);
-    })();
-    </script>
 <body>
     <div class="container-atendimento">
         <div class="topo">
             <h1>M.A Tech</h1>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
+                <a href="/clientes">Clientes</a>
                 {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
                 <a href="/logout">Sair</a>
             </div>
         </div>
 
-        {% if atendimento.status == 'processando' %}
-
-        <div class="loading">
-            <div class="spinner"></div>
-            <h3>🤖 IA analisando a conversa...</h3>
-            <p>Isso leva de 2 a 4 segundos. A página atualiza sozinha.</p>
+        <!-- LOADING (some quando terminar) -->
+        <div id="loading" class="loading-wrap">
+            <div class="loading-icone"></div>
+            <div class="loading-titulo">IA analisando a conversa</div>
+            <div class="loading-sub">Isso leva de 2 a 7 segundos</div>
+            <div class="progresso">
+                <div class="progresso-barra" id="progresso-barra"></div>
+            </div>
+            <div class="loading-frase" id="loading-frase">Conectando com a IA</div>
         </div>
 
-        <div class="skeleton-bloco">
-            <div class="skeleton-titulo"></div>
-            <div class="skeleton-linha longa"></div>
-            <div class="skeleton-linha media"></div>
-            <div class="skeleton-linha curta"></div>
+        <!-- PREVIEW STREAMING -->
+        <div class="preview-stream" id="preview-stream">
+            <div class="titulo"><span class="dot"></span> Recebendo resposta em tempo real</div>
+            <div class="texto" id="preview-texto"></div>
         </div>
 
-        <div class="skeleton-bloco">
-            <div class="skeleton-titulo"></div>
-            <div class="skeleton-linha longa"></div>
-            <div class="skeleton-linha media"></div>
-        </div>
-
-        <div class="skeleton-bloco">
-            <div class="skeleton-titulo"></div>
-            <div class="skeleton-linha curta"></div>
-        </div>
-
-        {% elif atendimento.status == 'erro' %}
-
-        <div class="erro">
-            ⚠️ Ocorreu um erro ao gerar a resposta. Tente novamente.
-        </div>
-
-        <p style="margin-top:24px;"><a href="/clientes" style="color:#00d97e;">← Voltar para clientes</a></p>
-
-        {% else %}
-
-        {% if not atendimento.cliente_id %}
-        <form method="POST" action="/salvar_atendimento_como_cliente/{{ atendimento.id }}" style="margin-bottom:16px;">
-            <button type="submit" class="btn-gerar">💾 SALVAR COMO CLIENTE</button>
-        </form>
-        {% endif %}
-
-        <div class="bloco bloco-fala">
+        <!-- BLOCO 1: O QUE FALAR -->
+        <div class="bloco bloco-fala bloco-wrap" id="bloco-fala">
             <div class="bloco-topo">
                 <h2>🎤 O QUE FALAR (áudio)</h2>
                 <button onclick="copiar('fala', this)" class="btn-copiar">📋 COPIAR</button>
             </div>
-            <pre id="fala">{{ atendimento.o_que_falar }}</pre>
+            <pre id="fala"></pre>
         </div>
 
-        <div class="bloco bloco-texto">
+        <!-- BLOCO 2: TEXTO PARA ENVIAR -->
+        <div class="bloco bloco-texto bloco-wrap" id="bloco-texto">
             <div class="bloco-topo">
                 <h2>📝 TEXTO PARA ENVIAR</h2>
                 <button onclick="copiar('texto', this)" class="btn-copiar">📋 COPIAR</button>
             </div>
-            <pre id="texto">{{ atendimento.texto_para_enviar }}</pre>
+            <pre id="texto"></pre>
         </div>
 
-        <div class="bloco bloco-crm">
+        <!-- BLOCO 3: ESTAGIO -->
+        <div class="bloco bloco-crm bloco-wrap" id="bloco-estagio">
             <div class="bloco-topo">
                 <h2>📊 ESTÁGIO DO CLIENTE</h2>
             </div>
-            {% set estagio = (atendimento.acao_crm or '')|lower %}
-            {% if 'novo' in estagio or 'lead' in estagio %}
-                {% set badge = 'status-novo-lead' %}
-            {% elif 'negocia' in estagio %}
-                {% set badge = 'status-negociacao' %}
-            {% elif 'atendimento' in estagio %}
-                {% set badge = 'status-em-atendimento' %}
-            {% elif 'cliente' in estagio %}
-                {% set badge = 'status-cliente' %}
-            {% elif 'perdido' in estagio %}
-                {% set badge = 'status-perdido' %}
-            {% else %}
-                {% set badge = 'status-em-atendimento' %}
-            {% endif %}
-            <div style="text-align:center; padding:16px 0;">
-                <span class="badge-status {{ badge }}" style="font-size:14px; padding:8px 20px;">{{ atendimento.acao_crm }}</span>
+            <div style="text-align:center; padding:16px 0;" id="estagio-wrap">
+                <span id="estagio-badge" class="badge-status status-em-atendimento" style="font-size:14px; padding:8px 20px;"></span>
             </div>
         </div>
 
-        <p style="margin-top:24px;"><a href="/clientes" style="color:#00d97e;">← Voltar para clientes</a></p>
+        <!-- ERRO -->
+        <div id="erro-box" style="display:none;" class="erro">⚠️ <span id="erro-texto"></span></div>
 
-        {% endif %}
+        <!-- VOLTAR -->
+        <div id="voltar-wrap" style="display:none; margin-top:24px; text-align:center;">
+            <a href="/clientes" style="color:#00d97e; text-decoration:none; font-weight:700;">← Voltar para clientes</a>
+        </div>
     </div>
-    <script src="/static/app.min.js?v=99"></script>
-    <script src="/static/splash.js"></script>
-    <script src="/static/sw-register.js"></script>
-    <script src="/static/app-badge-plano.js"></script>
+
+    <script src="/static/app.min.js"></script>
+    <script>
+    const ATENDIMENTO_ID = {{ atendimento.id }};
+    let texto_acumulado = "";
+    let progressoAtual = 0;
+    let fraseIdx = 0;
+    let loadingAtivo = true;
+
+    const FRASES = [
+        "Conectando com a IA",
+        "Analisando o histórico da conversa",
+        "Consultando o CRM do cliente",
+        "Verificando o estágio do funil",
+        "Gerando a resposta ideal",
+        "Preparando os blocos",
+        "Quase pronto"
+    ];
+
+    // ===== Progresso simulado (o cérebro sente que tá andando) =====
+    function tickProgresso() {
+        if (!loadingAtivo) return;
+        // Sobe até 92% (o 100% vem quando chega o fim)
+        if (progressoAtual < 92) {
+            const inc = progressoAtual < 40 ? 4 : progressoAtual < 70 ? 2 : 1;
+            progressoAtual = Math.min(92, progressoAtual + inc);
+            document.getElementById('progresso-barra').style.width = progressoAtual + '%';
+        }
+        setTimeout(tickProgresso, 250);
+    }
+
+    // ===== Frase rotativa =====
+    function tickFrase() {
+        if (!loadingAtivo) return;
+        fraseIdx = (fraseIdx + 1) % FRASES.length;
+        document.getElementById('loading-frase').innerText = FRASES[fraseIdx];
+        setTimeout(tickFrase, 900);
+    }
+
+    // ===== SSE (Server-Sent Events) =====
+    function consumirStream() {
+        const evtSource = new EventSource('/api/gerar_stream/' + ATENDIMENTO_ID);
+
+        evtSource.onmessage = function(e) {
+            let dados;
+            try {
+                dados = JSON.parse(e.data);
+            } catch (err) {
+                return;
+            }
+
+            if (dados.tipo === "inicio") {
+                // Streaming começou — muda o texto
+                document.getElementById('loading-titulo').innerText = "IA escrevendo a resposta";
+                // Mostra o preview
+                document.getElementById('preview-stream').classList.add('aberto');
+            }
+
+            if (dados.tipo === "pedaco") {
+                texto_acumulado += dados.texto;
+                const preview = document.getElementById('preview-texto');
+                preview.innerHTML = escapeHtml(texto_acumulado) + '<span class="cursor"></span>';
+                // Auto scroll
+                const box = document.getElementById('preview-stream');
+                box.scrollTop = box.scrollHeight;
+                // Acelera a barra quando chega pedaço
+                progressoAtual = Math.min(95, progressoAtual + 1);
+                document.getElementById('progresso-barra').style.width = progressoAtual + '%';
+            }
+
+            if (dados.tipo === "fim") {
+                evtSource.close();
+                finalizar(dados);
+            }
+
+            if (dados.tipo === "erro") {
+                evtSource.close();
+                mostrarErro(dados.msg);
+            }
+        };
+
+        evtSource.onerror = function() {
+            // Se fechar sem "fim", tenta fallback
+            evtSource.close();
+            // Espera 5s e recarrega a página (fallback)
+            setTimeout(() => {
+                if (document.getElementById('loading').style.display !== 'none') {
+                    location.reload();
+                }
+            }, 3000);
+        };
+    }
+
+    function finalizar(dados) {
+        loadingAtivo = false;
+
+        // 100% na barra
+        document.getElementById('progresso-barra').style.width = '100%';
+
+        // Fecha loading + preview
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('preview-stream').classList.remove('aberto');
+        }, 300);
+
+        // Preenche os blocos
+        document.getElementById('fala').textContent = dados.o_que_falar || "(vazio)";
+        document.getElementById('texto').textContent = dados.texto_para_enviar || "NENHUM";
+        document.getElementById('estagio-badge').textContent = dados.estagio || "";
+
+        // Cor do badge do estagio
+        const est = (dados.estagio || "").toLowerCase();
+        const badge = document.getElementById('estagio-badge');
+        if (est.indexOf("novo") !== -1 || est.indexOf("lead") !== -1) {
+            badge.className = "badge-status status-novo-lead";
+        } else if (est.indexOf("negocia") !== -1) {
+            badge.className = "badge-status status-negociacao";
+        } else if (est.indexOf("cliente") !== -1) {
+            badge.className = "badge-status status-cliente";
+        } else if (est.indexOf("perdido") !== -1) {
+            badge.className = "badge-status status-perdido";
+        } else {
+            badge.className = "badge-status status-em-atendimento";
+        }
+
+        // Abre os blocos
+        setTimeout(() => {
+            document.getElementById('bloco-fala').classList.add('aberto');
+            document.getElementById('bloco-texto').classList.add('aberto');
+            document.getElementById('bloco-estagio').classList.add('aberto');
+            document.getElementById('voltar-wrap').style.display = 'block';
+        }, 350);
+    }
+
+    function mostrarErro(msg) {
+        loadingAtivo = false;
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('erro-box').style.display = 'block';
+        document.getElementById('erro-texto').innerText = msg;
+        document.getElementById('voltar-wrap').style.display = 'block';
+    }
+
+    function escapeHtml(texto) {
+        const div = document.createElement('div');
+        div.textContent = texto;
+        return div.innerHTML;
+    }
+
+    function copiar(id, botao) {
+        const el = document.getElementById(id);
+        const texto = el.textContent;
+        navigator.clipboard.writeText(texto).then(() => {
+            const original = botao.innerText;
+            botao.innerText = '✓ COPIADO!';
+            botao.style.color = '#00d97e';
+            botao.style.borderColor = '#00d97e';
+            setTimeout(() => {
+                botao.innerText = original;
+                botao.style.color = '';
+                botao.style.borderColor = '';
+            }, 1500);
+        });
+    }
+
+    // ===== Start =====
+    document.addEventListener('DOMContentLoaded', function() {
+        // Se ja estava pronto no banco (caso de refresh), pula o streaming
+        const statusAtend = "{{ atendimento.status }}";
+        if (statusAtend === "pronto") {
+            // Recupera do HTML server-side (os dados ja estao no template)
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('fala').textContent = "{{ atendimento.o_que_falar }}";
+            document.getElementById('texto').textContent = "{{ atendimento.texto_para_enviar }}";
+            const est = "{{ atendimento.acao_crm }}";
+            document.getElementById('estagio-badge').textContent = est;
+            document.getElementById('bloco-fala').classList.add('aberto');
+            document.getElementById('bloco-texto').classList.add('aberto');
+            document.getElementById('bloco-estagio').classList.add('aberto');
+            document.getElementById('voltar-wrap').style.display = 'block';
+            return;
+        }
+
+        tickProgresso();
+        tickFrase();
+        consumirStream();
+    });
+    </script>
 </body>
 </html>
