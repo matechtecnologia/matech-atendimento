@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>M.A Tech - Plano Estratégico</title>
+    <link rel="stylesheet" href="/static/app.min.css?v=99">
+    <style>
+        body { background:#0a0a0a; color:#e8e8e8; font-family:sans-serif; margin:0; }
+        .topo { background:#0f1a15; padding:16px 24px; border-bottom:1px solid #00d97e33; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+        .topo h1 { color:#00d97e; font-size:20px; margin:0; }
+        .menu a { color:#e8e8e8; text-decoration:none; margin-left:16px; font-size:14px; }
+        .menu a.ativo { color:#00d97e; font-weight:700; }
+        .container { max-width:1200px; margin:24px auto; padding:0 24px; }
+        .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:24px; }
+        .card { background:#141414; border:1px solid #2a2a2a; border-radius:8px; padding:16px; }
+        .card h3 { color:#8a8a8a; font-size:12px; text-transform:uppercase; margin:0 0 8px 0; }
+        .card .valor { color:#00d97e; font-size:28px; font-weight:700; font-family:monospace; }
+        .card .sub { color:#5a5a5a; font-size:12px; margin-top:4px; }
+        .bloco { background:#141414; border:1px solid #2a2a2a; border-radius:8px; padding:20px; margin-bottom:16px; }
+        .bloco h2 { color:#e8e8e8; font-size:16px; margin:0 0 12px 0; }
+        .badge { display:inline-block; padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700; text-transform:uppercase; }
+        .badge-verde { background:#0a1f15; color:#00d97e; border:1px solid #00d97e; }
+        .badge-amarelo { background:#1f1a0a; color:#f5c542; border:1px solid #f5c542; }
+        .badge-vermelho { background:#1f0a0a; color:#ff5555; border:1px solid #ff5555; }
+        .barra { height:8px; background:#2a2a2a; border-radius:4px; overflow:hidden; margin-top:8px; }
+        .barra-preenchida { height:100%; background:#00d97e; }
+        .btn { display:inline-block; padding:12px 24px; background:#00d97e; color:#0f1a15; text-decoration:none; border-radius:6px; font-weight:700; }
+        .texto-cinza { color:#8a8a8a; font-size:13px; }
+    </style>
+</head>
+<body>
+
+<div class="topo">
+    <h1>🧭 Plano Estratégico M.A Tech</h1>
+    <div class="menu">
+        <a href="/plano" class="{% if ativo == 'dashboard' %}ativo{% endif %}">Dashboard</a>
+        <a href="/plano/roadmap" class="{% if ativo == 'roadmap' %}ativo{% endif %}">Roadmap</a>
+        <a href="/plano/metas" class="{% if ativo == 'metas' %}ativo{% endif %}">Metas</a>
+        <a href="/plano/tarefas" class="{% if ativo == 'tarefas' %}ativo{% endif %}">Tarefas</a>
+        <a href="/plano/diario" class="{% if ativo == 'diario' %}ativo{% endif %}">Diário</a>
+        <a href="/admin/dashboard">← Voltar Admin</a>
+    </div>
+</div>
+
+<div class="container">
+
+    {% if dados.fase_atual %}
+    <div class="bloco">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+            <div>
+                <div class="texto-cinza">FASE ATUAL</div>
+                <h2 style="font-size:20px; color:#00d97e; margin:4px 0 0 0;">{{ dados.fase_atual.nome }}</h2>
+                <p class="texto-cinza" style="margin:8px 0 0 0;">{{ dados.fase_atual.descricao or "" }}</p>
+            </div>
+            <div>
+                {% if dados.fase_atual.status == 'em_execucao' %}
+                    <span class="badge badge-verde">🟢 EM EXECUÇÃO</span>
+                {% elif dados.fase_atual.status == 'concluido' %}
+                    <span class="badge badge-verde">✅ CONCLUÍDA</span>
+                {% else %}
+                    <span class="badge badge-amarelo">{{ dados.fase_atual.status }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="bloco">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h2>📊 EXECUÇÃO DO PLANO</h2>
+            {% if execucao.status == 'no_caminho' %}
+                <span class="badge badge-verde">🟢 NO CAMINHO</span>
+            {% elif execucao.status == 'atencao' %}
+                <span class="badge badge-amarelo">🟡 ATENÇÃO</span>
+            {% else %}
+                <span class="badge badge-vermelho">🔴 ATRASADO</span>
+            {% endif %}
+        </div>
+        <div style="font-size:32px; font-family:monospace; color:#00d97e; margin-top:12px;">{{ execucao.pct }}%</div>
+        <div class="barra"><div class="barra-preenchida" style="width:{{ execucao.pct }}%;"></div></div>
+        <p class="texto-cinza" style="margin-top:12px;">{{ execucao.motivo }}</p>
+    </div>
+
+    <div class="cards">
+        <div class="card">
+            <h3>💰 MRR</h3>
+            <div class="valor">R$ {{ "%.2f"|format(dados.mrr) }}</div>
+        </div>
+        <div class="card">
+            <h3>👥 Clientes Pagantes</h3>
+            <div class="valor">{{ dados.clientes_pagantes }}</div>
+        </div>
+        <div class="card">
+            <h3>👤 Usuários Grátis</h3>
+            <div class="valor">{{ dados.usuarios_gratis }}</div>
+        </div>
+        <div class="card">
+            <h3>📈 Total Usuários</h3>
+            <div class="valor">{{ dados.total_usuarios }}</div>
+        </div>
+        <div class="card">
+            <h3>🎯 Meta Atual</h3>
+            <div class="valor">{{ dados.meta_valor_atual }}/{{ dados.meta_valor_meta }}</div>
+            <div class="sub">{{ dados.meta_pct }}%</div>
+        </div>
+        <div class="card">
+            <h3>🚧 Bloqueios</h3>
+            <div class="valor">{{ dados.total_bloqueios }}</div>
+        </div>
+    </div>
+
+    {% if dados.proxima_acao %}
+    <div class="bloco" style="border-left:3px solid #00d97e;">
+        <h2>⚡ PRÓXIMA AÇÃO</h2>
+        <p style="font-size:18px; margin:8px 0;">{{ dados.proxima_acao.titulo }}</p>
+        {% if dados.proxima_acao.goal_titulo %}
+        <p class="texto-cinza">Meta: {{ dados.proxima_acao.goal_titulo }}</p>
+        {% endif %}
+        <a href="/plano/tarefas" class="btn" style="margin-top:12px;">EXECUTAR</a>
+    </div>
+    {% endif %}
+
+    {% if dados.bloqueio_principal %}
+    <div class="bloco" style="border-left:3px solid #ff5555;">
+        <h2>🚧 PRINCIPAL BLOQUEIO</h2>
+        <p style="font-size:16px; margin:8px 0;">{{ dados.bloqueio_principal.titulo }}</p>
+        <p class="texto-cinza">{{ dados.bloqueio_principal.problema or "" }}</p>
+    </div>
+    {% endif %}
+
+</div>
+
+</body>
+</html>

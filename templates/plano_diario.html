@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>M.A Tech - Diário</title>
+    <link rel="stylesheet" href="/static/app.min.css?v=99">
+    <style>
+        body { background:#0a0a0a; color:#e8e8e8; font-family:sans-serif; margin:0; }
+        .topo { background:#0f1a15; padding:16px 24px; border-bottom:1px solid #00d97e33; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+        .topo h1 { color:#00d97e; font-size:20px; margin:0; }
+        .menu a { color:#e8e8e8; text-decoration:none; margin-left:16px; font-size:14px; }
+        .menu a.ativo { color:#00d97e; font-weight:700; }
+        .container { max-width:1000px; margin:24px auto; padding:0 24px; }
+        .entrada { background:#141414; border:1px solid #2a2a2a; border-left:3px solid #00d97e; border-radius:8px; padding:20px; margin-bottom:16px; }
+        .entrada h2 { color:#e8e8e8; font-size:16px; margin:0 0 8px 0; }
+        .entrada .data { color:#5a5a5a; font-size:12px; font-family:monospace; margin-bottom:8px; }
+        .entrada p { color:#c8c8c8; font-size:14px; margin:8px 0; }
+        .entrada .resultado { color:#00d97e; font-size:13px; margin-top:8px; }
+        .entrada .proximo { color:#f5c542; font-size:13px; margin-top:6px; }
+        .badge { display:inline-block; padding:3px 8px; border-radius:10px; font-size:10px; font-weight:700; text-transform:uppercase; background:#1a1a1a; color:#8a8a8a; border:1px solid #3a3a3a; }
+    </style>
+</head>
+<body>
+
+<div class="topo">
+    <h1>🧭 Diário M.A Tech</h1>
+    <div class="menu">
+        <a href="/plano" class="{% if ativo == 'dashboard' %}ativo{% endif %}">Dashboard</a>
+        <a href="/plano/roadmap" class="{% if ativo == 'roadmap' %}ativo{% endif %}">Roadmap</a>
+        <a href="/plano/metas" class="{% if ativo == 'metas' %}ativo{% endif %}">Metas</a>
+        <a href="/plano/tarefas" class="{% if ativo == 'tarefas' %}ativo{% endif %}">Tarefas</a>
+        <a href="/plano/diario" class="{% if ativo == 'diario' %}ativo{% endif %}">Diário</a>
+        <a href="/admin/dashboard">← Voltar Admin</a>
+    </div>
+</div>
+
+<div class="container">
+
+    {% if not entradas %}
+    <p style="color:#8a8a8a;">Nenhuma entrada no diário.</p>
+    {% endif %}
+
+    {% for e in entradas %}
+        <div class="entrada">
+            <div class="data">{{ e.data }} <span class="badge">{{ e.categoria or "" }}</span></div>
+            <h2>{{ e.titulo }}</h2>
+            {% if e.conteudo %}<p>{{ e.conteudo }}</p>{% endif %}
+            {% if e.resultado %}<p class="resultado">✓ Resultado: {{ e.resultado }}</p>{% endif %}
+            {% if e.proximo_passo %}<p class="proximo">→ Próximo passo: {{ e.proximo_passo }}</p>{% endif %}
+        </div>
+    {% endfor %}
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>M.A Tech - Roadmap</title>
+    <link rel="stylesheet" href="/static/app.min.css?v=99">
+    <style>
+        body { background:#0a0a0a; color:#e8e8e8; font-family:sans-serif; margin:0; }
+        .topo { background:#0f1a15; padding:16px 24px; border-bottom:1px solid #00d97e33; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+        .topo h1 { color:#00d97e; font-size:20px; margin:0; }
+        .menu a { color:#e8e8e8; text-decoration:none; margin-left:16px; font-size:14px; }
+        .menu a.ativo { color:#00d97e; font-weight:700; }
+        .container { max-width:1000px; margin:24px auto; padding:0 24px; }
+        .fase { background:#141414; border:1px solid #2a2a2a; border-left:3px solid #00d97e; border-radius:8px; padding:20px; margin-bottom:16px; }
+        .fase.concluida { border-left-color:#00d97e; opacity:0.8; }
+        .fase.execucao { border-left-color:#f5c542; }
+        .fase.planejada { border-left-color:#5a5a5a; opacity:0.6; }
+        .fase h2 { color:#e8e8e8; font-size:16px; margin:0 0 8px 0; }
+        .fase .numero { color:#00d97e; font-family:monospace; }
+        .fase p { color:#8a8a8a; font-size:13px; margin:6px 0; }
+        .badge { display:inline-block; padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700; text-transform:uppercase; }
+        .badge-verde { background:#0a1f15; color:#00d97e; border:1px solid #00d97e; }
+        .badge-amarelo { background:#1f1a0a; color:#f5c542; border:1px solid #f5c542; }
+        .badge-cinza { background:#1a1a1a; color:#8a8a8a; border:1px solid #3a3a3a; }
+        .barra { height:6px; background:#2a2a2a; border-radius:3px; overflow:hidden; margin-top:8px; }
+        .barra-preenchida { height:100%; background:#00d97e; }
+    </style>
+</head>
+<body>
+
+<div class="topo">
+    <h1>🧭 Roadmap M.A Tech</h1>
+    <div class="menu">
+        <a href="/plano" class="{% if ativo == 'dashboard' %}ativo{% endif %}">Dashboard</a>
+        <a href="/plano/roadmap" class="{% if ativo == 'roadmap' %}ativo{% endif %}">Roadmap</a>
+        <a href="/plano/metas" class="{% if ativo == 'metas' %}ativo{% endif %}">Metas</a>
+        <a href="/plano/tarefas" class="{% if ativo == 'tarefas' %}ativo{% endif %}">Tarefas</a>
+        <a href="/plano/diario" class="{% if ativo == 'diario' %}ativo{% endif %}">Diário</a>
+        <a href="/admin/dashboard">← Voltar Admin</a>
+    </div>
+</div>
+
+<div class="container">
+
+    {% for f in fases %}
+        {% if f.status == 'concluido' %}
+            {% set classe = 'concluida' %}
+            {% set badge = 'badge-verde' %}
+        {% elif f.status == 'em_execucao' %}
+            {% set classe = 'execucao' %}
+            {% set badge = 'badge-amarelo' %}
+        {% else %}
+            {% set classe = 'planejada' %}
+            {% set badge = 'badge-cinza' %}
+        {% endif %}
+
+        <div class="fase {{ classe }}">
+            <h2>
+                <span class="numero">FASE {{ f.numero }}</span> — {{ f.nome }}
+                <span class="badge {{ badge }}" style="float:right;">{{ f.status }}</span>
+            </h2>
+            <p>{{ f.descricao or "" }}</p>
+            {% if f.objetivo %}<p><strong style="color:#e8e8e8;">Objetivo:</strong> {{ f.objetivo }}</p>{% endif %}
+            <div class="barra"><div class="barra-preenchida" style="width:{{ f.percentual }}%;"></div></div>
+            <p style="text-align:right; margin-top:4px; color:#00d97e; font-family:monospace;">{{ f.percentual }}%</p>
+        </div>
+    {% endfor %}
+
+</div>
+
+</body>
+</html>

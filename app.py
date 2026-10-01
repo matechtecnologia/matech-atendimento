@@ -11,6 +11,8 @@ from passlib.context import CryptContext
 from dotenv import load_dotenv
 from gemini import gerar_resposta, gerar_prompt_vendedor, validar_nicho_ia
 from asaas import criar_cliente, criar_cobranca_pix, obter_qr_code, consultar_pagamento
+from plano_rotas import registrar_rotas_plano
+from plano_estrategico import inicializar_plano_estrategico
 
 load_dotenv()
 
@@ -309,13 +311,19 @@ def inicializar_banco():
     conn.commit()
     cur.close()
     close_conn(conn)
-    print("Banco inicializado")
+print("Banco inicializado")
 
 
 try:
     inicializar_banco()
 except Exception as e:
     print(f"Erro ao inicializar banco: {e}")
+
+
+try:
+    inicializar_plano_estrategico(get_conn, close_conn)
+except Exception as e:
+    print(f"Erro ao inicializar plano estrategico: {e}")
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -2982,3 +2990,21 @@ def gerar_stream(atendimento_id: int, usuario_id: str = Cookie(None)):
         "X-Accel-Buffering": "no",
         "Connection": "keep-alive"
     })
+
+
+
+# ============ PLANO ESTRATÉGICO (registra rotas /plano/*) ============
+
+try:
+    registrar_rotas_plano(
+        app=app,
+        get_conn=get_conn,
+        close_conn=close_conn,
+        templates=templates,
+        Cookie=Cookie,
+        RedirectResponse=RedirectResponse,
+        HTMLResponse=HTMLResponse,
+        Request=Request,
+    )
+except Exception as e:
+    print(f"Erro ao registrar rotas do plano: {e}")
