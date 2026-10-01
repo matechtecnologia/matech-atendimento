@@ -2524,7 +2524,7 @@ def admin_backup(token: str = ""):
     from datetime import datetime as _dt
 
     # Token secreto — pode definir BACKUP_TOKEN no Render
-    token_esperado = _os.getenv("BACKUP_TOKEN", "matech-backup-2026")
+    token_esperado = _os.getenv("BACKUP_TOKEN", "")
     if token != token_esperado:
         return JSONResponse({"erro": "token invalido"}, status_code=403)
 
@@ -2678,11 +2678,11 @@ def api_aviso_plano(usuario_id: str = Cookie(None)):
 
 # ============ DESBLOQUEAR LOGIN (rota secreta) ============
 
-@app.get("/admin/desbloquear")
+@app.post("/admin/desbloquear")
 def desbloquear_login(token: str = "", email: str = ""):
     import os as _os
     from fastapi.responses import JSONResponse
-    token_esperado = _os.getenv("BACKUP_TOKEN", "matech-backup-2026")
+    token_esperado = _os.getenv("BACKUP_TOKEN", "")
     if token != token_esperado:
         return JSONResponse({"erro": "token invalido"}, status_code=403)
 
