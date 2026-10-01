@@ -15,6 +15,78 @@ from asaas import criar_cliente, criar_cobranca_pix, obter_qr_code, consultar_pa
 load_dotenv()
 
 app = FastAPI(title="M.A Tech")
+
+# ===== SEGURANCA: SESSAO ASSINADA =====
+# O navegador NAO pode mais dizer quem ele e. Os cookies usuario_id e usuario_tipo
+# enviados pelo navegador sao descartados; so vale o cookie assinado "sessao".
+import hmac as _hmac
+import hashlib as _hashlib
+import time as _time
+import secrets as _secrets
+
+SECRET_KEY = os.getenv("SECRET_KEY") or _secrets.token_hex(32)
+if not os.getenv("SECRET_KEY"):
+    print("AVISO: SECRET_KEY nao definida. Defina no Render, senao todos saem do login a cada reinicio.")
+_COOKIE_SECURE = bool(os.getenv("RENDER"))
+_SESSAO_DURACAO = 60 * 60 * 24 * 7
+
+
+def assinar_sessao(uid, tipo):
+    exp = int(_time.time()) + _SESSAO_DURACAO
+    base = f"{int(uid)}.{tipo}.{exp}"
+    sig = _hmac.new(SECRET_KEY.encode(), base.encode(), _hashlib.sha256).hexdigest()
+    return f"{base}.{sig}"
+
+
+def ler_sessao(valor):
+    try:
+        uid, tipo, exp, sig = (valor or "").split(".")
+        base = f"{uid}.{tipo}.{exp}"
+        esperado = _hmac.new(SECRET_KEY.encode(), base.encode(), _hashlib.sha256).hexdigest()
+        if not _hmac.compare_digest(sig, esperado):
+            return None
+        if int(exp) < _time.time():
+            return None
+        return uid, tipo
+    except Exception:
+        return None
+
+
+class AuthCookieMiddleware:
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            partes_cookie = []
+            for k, v in scope["headers"]:
+                if k == b"cookie":
+                    for parte in v.decode("latin-1").split(";"):
+                        parte = parte.strip()
+                        if parte:
+                            partes_cookie.append(parte)
+            sessao = None
+            mantidos = []
+            for parte in partes_cookie:
+                nome, _, valor = parte.partition("=")
+                nome = nome.strip()
+                if nome == "sessao":
+                    sessao = valor.strip()
+                elif nome not in ("usuario_id", "usuario_tipo"):
+                    mantidos.append(parte)
+            dados = ler_sessao(sessao) if sessao else None
+            if dados:
+                mantidos.append(f"usuario_id={dados[0]}")
+                mantidos.append(f"usuario_tipo={dados[1]}")
+            novos = [(k, v) for k, v in scope["headers"] if k != b"cookie"]
+            if mantidos:
+                novos.append((b"cookie", "; ".join(mantidos).encode("latin-1")))
+            scope = dict(scope)
+            scope["headers"] = novos
+        await self.app(scope, receive, send)
+
+
+app.add_middleware(AuthCookieMiddleware)
 # Static com cache control
 from starlette.staticfiles import StaticFiles as _SF
 from starlette.responses import Response as _Resp
@@ -31,6 +103,7 @@ templates = Jinja2Templates(directory="templates")
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 LIMITES = {"gratis": 1, "basico": 3, "pro": 10, "empresarial": 25}
+PLANOS_PRECO = {"basico": 97.0, "pro": 297.0, "empresarial": 597.0}
 from psycopg2 import pool as pg_pool
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -225,10 +298,13 @@ def inicializar_banco():
 
     cur.execute("CREATE INDEX IF NOT EXISTS idx_clientes_vendedor ON clientes(vendedor_id)")
 
-    cur.execute("SELECT * FROM usuarios WHERE email = %s", ("matechtecnologia01@gmail.com",))
-    if not cur.fetchone():
-        h = pwd_context.hash("M@techtechnologia12997291583")
-        cur.execute("INSERT INTO usuarios (nome, email, senha, tipo) VALUES (%s, %s, %s, 'admin')", ("Admin M.A Tech", "matechtecnologia01@gmail.com", h))
+    _adm_email = os.getenv("ADMIN_EMAIL")
+    _adm_senha = os.getenv("ADMIN_SENHA_INICIAL")
+    if _adm_email and _adm_senha:
+        cur.execute("SELECT id FROM usuarios WHERE email = %s", (_adm_email,))
+        if not cur.fetchone():
+            h = pwd_context.hash(_adm_senha)
+            cur.execute("INSERT INTO usuarios (nome, email, senha, tipo) VALUES (%s, %s, %s, 'admin')", ("Admin M.A Tech", _adm_email, h))
 
     conn.commit()
     cur.close()
@@ -510,9 +586,8 @@ def fazer_login(request: Request, email: str = Form(...), senha: str = Form(...)
         v = buscar_vendedor(u["id"])
         destino = "/onboarding" if (not v or not v["onboarding_completo"]) else "/clientes"
     r = RedirectResponse(url=destino, status_code=303)
-    r.set_cookie(key="usuario_id", value=str(u["id"]), httponly=True)
-    r.set_cookie(key="usuario_nome", value=u["nome"], httponly=True)
-    r.set_cookie(key="usuario_tipo", value=u["tipo"], httponly=True)
+    r.set_cookie(key="usuario_nome", value=u["nome"], httponly=True, samesite="lax", secure=_COOKIE_SECURE)
+    r.set_cookie(key="sessao", value=assinar_sessao(u["id"], u["tipo"]), httponly=True, samesite="lax", secure=_COOKIE_SECURE, max_age=_SESSAO_DURACAO)
     return r
 
 
@@ -675,7 +750,7 @@ INSTRUCAO A EXECUTAR:
         salvar_historico(whatsapp, vid_real, "instrucao", f"[INSTRUCAO] {mensagem_cliente[:200]}")
 
     n = buscar_nicho(nicho_id)
-    if not n:
+    if not n or n["vendedor_id"] != vid_real:
         return RedirectResponse(url="/clientes")
 
     # CRITICO: SEMPRE regenera o prompt do vendedor na hora (nao usa o do banco)
@@ -693,12 +768,14 @@ INSTRUCAO A EXECUTAR:
     if cliente_id:
         conn = get_conn()
         cur = conn.cursor(cursor_factory=RealDictCursor)
-        cur.execute("SELECT linha_crm FROM clientes WHERE id = %s", (cliente_id,))
+        cur.execute("SELECT linha_crm FROM clientes WHERE id = %s AND vendedor_id = %s", (cliente_id, vid_real))
         cli = cur.fetchone()
         cur.close()
         close_conn(conn)
         if cli:
             linha_crm = cli["linha_crm"] or ""
+        else:
+            cliente_id = None
 
     hist = buscar_historico(whatsapp, vid_real)
 
@@ -723,7 +800,7 @@ def tela_resultado(request: Request, atendimento_id: int, usuario_id: str = Cook
         return RedirectResponse(url="/login")
     conn = get_conn()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("SELECT * FROM atendimentos WHERE id = %s", (atendimento_id,))
+    cur.execute("SELECT * FROM atendimentos WHERE id = %s AND atendente_id = %s", (atendimento_id, int(usuario_id)))
     a = cur.fetchone()
     cur.close()
     close_conn(conn)
@@ -741,7 +818,7 @@ def salvar_atendimento_como_cliente(atendimento_id: int, usuario_id: str = Cooki
         return RedirectResponse(url="/onboarding")
     conn = get_conn()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("SELECT * FROM atendimentos WHERE id = %s", (atendimento_id,))
+    cur.execute("SELECT * FROM atendimentos WHERE id = %s AND atendente_id = %s", (atendimento_id, int(usuario_id)))
     a = cur.fetchone()
     cur.close()
     close_conn(conn)
@@ -843,6 +920,10 @@ def tela_planos(request: Request, usuario_id: str = Cookie(None), usuario_nome: 
 
 @app.post("/assinar")
 def assinar(request: Request, plano: str = Form(...), valor: str = Form(...), usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):
+    plano = (plano or "").lower().strip()
+    if plano not in PLANOS_PRECO:
+        return RedirectResponse(url="/planos", status_code=303)
+    valor = f"{PLANOS_PRECO[plano]:.2f}"
     if not usuario_id:
         return RedirectResponse(url="/login")
     v = buscar_vendedor(usuario_id)
@@ -853,6 +934,10 @@ def assinar(request: Request, plano: str = Form(...), valor: str = Form(...), us
 
 @app.post("/gerar_pix")
 def gerar_pix(request: Request, plano: str = Form(...), valor: str = Form(...), cpf_cnpj: str = Form(...), usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):
+    plano = (plano or "").lower().strip()
+    if plano not in PLANOS_PRECO:
+        return RedirectResponse(url="/planos", status_code=303)
+    valor = f"{PLANOS_PRECO[plano]:.2f}"
     if not usuario_id:
         return RedirectResponse(url="/login")
     v = buscar_vendedor(usuario_id)
@@ -889,7 +974,7 @@ def tela_pagamento(request: Request, payment_id: str, usuario_id: str = Cookie(N
         return RedirectResponse(url="/login")
     conn = get_conn()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    cur.execute("SELECT plano, valor, status FROM pagamentos WHERE payment_id = %s", (payment_id,))
+    cur.execute("SELECT plano, valor, status FROM pagamentos WHERE payment_id = %s AND vendedor_id = (SELECT id FROM vendedores WHERE usuario_id = %s)", (payment_id, int(usuario_id)))
     p = cur.fetchone()
     cur.close()
     close_conn(conn)
@@ -952,7 +1037,9 @@ async def webhook_asaas(request: Request):
         pay = body.get("payment", {})
         pid = pay.get("id", "")
         print(f"Webhook: {ev} - {pid}")
-        if ev in ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"]:
+        info_real = consultar_pagamento(pid) if pid else None
+        confirmado = bool(info_real) and info_real.get("status") in ["CONFIRMED", "RECEIVED"]
+        if ev in ["PAYMENT_CONFIRMED", "PAYMENT_RECEIVED"] and confirmado:
             conn = get_conn()
             cur = conn.cursor()
             cur.execute("SELECT vendedor_id, plano FROM pagamentos WHERE payment_id = %s", (pid,))
@@ -976,6 +1063,7 @@ def logout():
     r.delete_cookie("usuario_id")
     r.delete_cookie("usuario_nome")
     r.delete_cookie("usuario_tipo")
+    r.delete_cookie("sessao")
     return r
 
 
@@ -2525,7 +2613,7 @@ def admin_backup(token: str = ""):
 
     # Token secreto — pode definir BACKUP_TOKEN no Render
     token_esperado = _os.getenv("BACKUP_TOKEN", "")
-    if token != token_esperado:
+    if not token_esperado or token != token_esperado:
         return JSONResponse({"erro": "token invalido"}, status_code=403)
 
     tabelas = [
@@ -2683,7 +2771,7 @@ def desbloquear_login(token: str = "", email: str = ""):
     import os as _os
     from fastapi.responses import JSONResponse
     token_esperado = _os.getenv("BACKUP_TOKEN", "")
-    if token != token_esperado:
+    if not token_esperado or token != token_esperado:
         return JSONResponse({"erro": "token invalido"}, status_code=403)
 
     conn = get_conn()
@@ -2808,7 +2896,7 @@ def gerar_stream(atendimento_id: int, usuario_id: str = Cookie(None)):
             # Busca o atendimento
             conn = get_conn()
             cur = conn.cursor(cursor_factory=RealDictCursor)
-            cur.execute("SELECT * FROM atendimentos WHERE id = %s", (atendimento_id,))
+            cur.execute("SELECT * FROM atendimentos WHERE id = %s AND atendente_id = %s", (atendimento_id, int(usuario_id)))
             a = cur.fetchone()
             cur.close()
             close_conn(conn)
