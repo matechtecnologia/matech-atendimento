@@ -10,3 +10,4 @@ reescrever_*.py
 consertar_*.py
 adicionar_*.py
 aplicar_*.py
+backups/
