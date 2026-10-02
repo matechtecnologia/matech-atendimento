@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -9,64 +9,59 @@
         .topo { background:#0f1a15; padding:16px 24px; border-bottom:1px solid #00d97e33; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
         .topo h1 { color:#00d97e; font-size:20px; margin:0; }
         .menu a { color:#e8e8e8; text-decoration:none; margin-left:16px; font-size:14px; }
-        .menu a.ativo { color:#00d97e; font-weight:700; }
         .container { max-width:1000px; margin:24px auto; padding:0 24px; }
         .fase { background:#141414; border:1px solid #2a2a2a; border-left:3px solid #00d97e; border-radius:8px; padding:20px; margin-bottom:16px; }
-        .fase.concluida { border-left-color:#00d97e; opacity:0.8; }
-        .fase.execucao { border-left-color:#f5c542; }
-        .fase.planejada { border-left-color:#5a5a5a; opacity:0.6; }
         .fase h2 { color:#e8e8e8; font-size:16px; margin:0 0 8px 0; }
-        .fase .numero { color:#00d97e; font-family:monospace; }
         .fase p { color:#8a8a8a; font-size:13px; margin:6px 0; }
-        .badge { display:inline-block; padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700; text-transform:uppercase; }
-        .badge-verde { background:#0a1f15; color:#00d97e; border:1px solid #00d97e; }
-        .badge-amarelo { background:#1f1a0a; color:#f5c542; border:1px solid #f5c542; }
-        .badge-cinza { background:#1a1a1a; color:#8a8a8a; border:1px solid #3a3a3a; }
+        .badge { display:inline-block; padding:4px 10px; border-radius:12px; font-size:11px; font-weight:700; text-transform:uppercase; background:#1a1a1a; color:#8a8a8a; border:1px solid #3a3a3a; }
         .barra { height:6px; background:#2a2a2a; border-radius:3px; overflow:hidden; margin-top:8px; }
         .barra-preenchida { height:100%; background:#00d97e; }
+        .aviso { background:#0a1f15; border-left:3px solid #00d97e; padding:12px; border-radius:6px; margin-bottom:16px; color:#00d97e; font-size:14px; }
+        .form-inline { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; padding-top:14px; border-top:1px solid #2a2a2a; align-items:flex-end; }
+        .form-inline input, .form-inline select { background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:8px 12px; border-radius:6px; font-size:13px; font-family:inherit; }
+        .form-inline label { color:#8a8a8a; font-size:11px; display:block; margin-bottom:4px; }
+        .btn { display:inline-block; padding:8px 16px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; border:1px solid; background:#00d97e; color:#0a0a0a; border-color:#00d97e; }
     </style>
 </head>
 <body>
-
 <div class="topo">
-    <h1>🧭 Roadmap M.A Tech</h1>
+    <h1>Roadmap M.A Tech</h1>
     <div class="menu">
-        <a href="/plano" class="{% if ativo == 'dashboard' %}ativo{% endif %}">Dashboard</a>
-        <a href="/plano/roadmap" class="{% if ativo == 'roadmap' %}ativo{% endif %}">Roadmap</a>
-        <a href="/plano/metas" class="{% if ativo == 'metas' %}ativo{% endif %}">Metas</a>
-        <a href="/plano/tarefas" class="{% if ativo == 'tarefas' %}ativo{% endif %}">Tarefas</a>
-        <a href="/plano/diario" class="{% if ativo == 'diario' %}ativo{% endif %}">Diário</a>
-        <a href="/admin/dashboard">← Voltar Admin</a>
+        <a href="/plano">Dashboard</a>
+        <a href="/plano/roadmap">Roadmap</a>
+        <a href="/plano/metas">Metas</a>
+        <a href="/plano/tarefas">Tarefas</a>
+        <a href="/plano/diario">Diario</a>
+        <a href="/admin/dashboard">Voltar Admin</a>
     </div>
 </div>
-
 <div class="container">
-
+    {% if ok %}<div class="aviso">Alteracao salva</div>{% endif %}
     {% for f in fases %}
-        {% if f.status == 'concluido' %}
-            {% set classe = 'concluida' %}
-            {% set badge = 'badge-verde' %}
-        {% elif f.status == 'em_execucao' %}
-            {% set classe = 'execucao' %}
-            {% set badge = 'badge-amarelo' %}
-        {% else %}
-            {% set classe = 'planejada' %}
-            {% set badge = 'badge-cinza' %}
-        {% endif %}
-
-        <div class="fase {{ classe }}">
-            <h2>
-                <span class="numero">FASE {{ f.numero }}</span> — {{ f.nome }}
-                <span class="badge {{ badge }}" style="float:right;">{{ f.status }}</span>
-            </h2>
+        <div class="fase">
+            <h2>FASE {{ f.numero }} - {{ f.nome }} <span class="badge" style="float:right;">{{ f.status }}</span></h2>
             <p>{{ f.descricao or "" }}</p>
-            {% if f.objetivo %}<p><strong style="color:#e8e8e8;">Objetivo:</strong> {{ f.objetivo }}</p>{% endif %}
             <div class="barra"><div class="barra-preenchida" style="width:{{ f.percentual }}%;"></div></div>
-            <p style="text-align:right; margin-top:4px; color:#00d97e; font-family:monospace;">{{ f.percentual }}%</p>
+            <p style="text-align:right; color:#00d97e; font-family:monospace;">{{ f.percentual }}%</p>
+            <form method="POST" action="/plano/fase/{{ f.id }}/atualizar" class="form-inline">
+                <div>
+                    <label>Status</label>
+                    <select name="status">
+                        <option value="planejado" {% if f.status == 'planejado' %}selected{% endif %}>Planejado</option>
+                        <option value="em_execucao" {% if f.status == 'em_execucao' %}selected{% endif %}>Em execucao</option>
+                        <option value="concluido" {% if f.status == 'concluido' %}selected{% endif %}>Concluido</option>
+                        <option value="validado" {% if f.status == 'validado' %}selected{% endif %}>Validado</option>
+                        <option value="bloqueado" {% if f.status == 'bloqueado' %}selected{% endif %}>Bloqueado</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Progresso (%)</label>
+                    <input type="number" name="percentual" value="{{ f.percentual }}" min="0" max="100" style="width:80px;">
+                </div>
+                <button type="submit" class="btn">ATUALIZAR</button>
+            </form>
         </div>
     {% endfor %}
-
 </div>
-
 </body>
 </html>

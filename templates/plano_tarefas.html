@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -14,63 +14,94 @@
         .tarefa { background:#141414; border:1px solid #2a2a2a; border-left:3px solid #00d97e; border-radius:8px; padding:16px; margin-bottom:12px; }
         .tarefa.critica { border-left-color:#ff5555; }
         .tarefa.alta { border-left-color:#f5c542; }
-        .tarefa.media { border-left-color:#00d97e; }
-        .tarefa.baixa { border-left-color:#5a5a5a; }
-        .tarefa.concluida { opacity:0.5; text-decoration:line-through; }
+        .tarefa.concluida { opacity:0.5; }
+        .tarefa.concluida h2 { text-decoration:line-through; }
         .tarefa h2 { color:#e8e8e8; font-size:15px; margin:0 0 6px 0; }
         .tarefa p { color:#8a8a8a; font-size:13px; margin:4px 0; }
         .badge { display:inline-block; padding:3px 8px; border-radius:10px; font-size:10px; font-weight:700; text-transform:uppercase; }
         .badge-verde { background:#0a1f15; color:#00d97e; border:1px solid #00d97e; }
         .badge-amarelo { background:#1f1a0a; color:#f5c542; border:1px solid #f5c542; }
-        .badge-vermelho { background:#1f0a0a; color:#ff5555; border:1px solid #ff5555; }
         .badge-cinza { background:#1a1a1a; color:#8a8a8a; border:1px solid #3a3a3a; }
+        .btn { display:inline-block; padding:8px 14px; border-radius:6px; font-size:12px; font-weight:700; cursor:pointer; font-family:inherit; border:1px solid; text-decoration:none; margin-right:6px; margin-top:6px; }
+        .btn-verde { background:#00d97e; color:#0a0a0a; border-color:#00d97e; }
+        .btn-cinza { background:#1a1a1a; color:#8a8a8a; border-color:#2a2a2a; }
+        .btn-vermelho { background:transparent; color:#ff5555; border-color:#ff5555; }
+        .aviso { background:#0a1f15; border-left:3px solid #00d97e; padding:12px; border-radius:6px; margin-bottom:16px; color:#00d97e; font-size:14px; }
+        .form-box { background:#0f1a15; border:1px solid #00d97e; border-radius:8px; padding:16px; margin-bottom:20px; }
+        .form-box h3 { color:#00d97e; font-size:14px; margin:0 0 12px 0; }
+        .form-box input, .form-box select, .form-box textarea { width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:10px; border-radius:6px; font-size:14px; font-family:inherit; box-sizing:border-box; margin-bottom:10px; }
+        .form-box label { color:#a8a8a8; font-size:12px; display:block; margin-bottom:4px; }
+        details summary { cursor:pointer; color:#00d97e; font-weight:700; padding:10px; background:#0f1a15; border-radius:6px; margin-bottom:16px; }
     </style>
 </head>
 <body>
-
 <div class="topo">
-    <h1>🧭 Tarefas M.A Tech</h1>
+    <h1>Tarefas M.A Tech</h1>
     <div class="menu">
-        <a href="/plano" class="{% if ativo == 'dashboard' %}ativo{% endif %}">Dashboard</a>
-        <a href="/plano/roadmap" class="{% if ativo == 'roadmap' %}ativo{% endif %}">Roadmap</a>
-        <a href="/plano/metas" class="{% if ativo == 'metas' %}ativo{% endif %}">Metas</a>
-        <a href="/plano/tarefas" class="{% if ativo == 'tarefas' %}ativo{% endif %}">Tarefas</a>
-        <a href="/plano/diario" class="{% if ativo == 'diario' %}ativo{% endif %}">Diário</a>
-        <a href="/admin/dashboard">← Voltar Admin</a>
+        <a href="/plano">Dashboard</a>
+        <a href="/plano/roadmap">Roadmap</a>
+        <a href="/plano/metas">Metas</a>
+        <a href="/plano/tarefas">Tarefas</a>
+        <a href="/plano/diario">Diario</a>
+        <a href="/admin/dashboard">Voltar Admin</a>
     </div>
 </div>
-
 <div class="container">
-
-    {% if not tarefas %}
-    <p style="color:#8a8a8a;">Nenhuma tarefa cadastrada.</p>
-    {% endif %}
-
+    {% if ok %}<div class="aviso">Alteracao salva</div>{% endif %}
+    <details>
+        <summary>CRIAR NOVA TAREFA</summary>
+        <div class="form-box">
+            <form method="POST" action="/plano/tarefa/criar">
+                <label>Titulo *</label>
+                <input type="text" name="titulo" required>
+                <label>Descricao</label>
+                <textarea name="descricao" rows="2"></textarea>
+                <label>Meta (opcional)</label>
+                <select name="goal_id">
+                    <option value="">Sem meta</option>
+                    {% for m in metas %}
+                    <option value="{{ m.id }}">{{ m.titulo }}</option>
+                    {% endfor %}
+                </select>
+                <label>Prioridade</label>
+                <select name="prioridade">
+                    <option value="critica">Critica</option>
+                    <option value="alta">Alta</option>
+                    <option value="media" selected>Media</option>
+                    <option value="baixa">Baixa</option>
+                </select>
+                <label>Impacto</label>
+                <select name="impacto">
+                    <option value="">-</option>
+                    <option value="alto">Alto</option>
+                    <option value="medio">Medio</option>
+                    <option value="baixo">Baixo</option>
+                </select>
+                <label>Esforco</label>
+                <select name="esforco">
+                    <option value="">-</option>
+                    <option value="alto">Alto</option>
+                    <option value="medio">Medio</option>
+                    <option value="baixo">Baixo</option>
+                </select>
+                <button type="submit" class="btn btn-verde">CRIAR TAREFA</button>
+            </form>
+        </div>
+    </details>
     {% for t in tarefas %}
-        {% if t.prioridade == 'critica' %}{% set classe = 'critica' %}
-        {% elif t.prioridade == 'alta' %}{% set classe = 'alta' %}
-        {% elif t.prioridade == 'media' %}{% set classe = 'media' %}
-        {% else %}{% set classe = 'baixa' %}{% endif %}
-
-        {% if t.status == 'concluida' %}{% set classe = classe + ' concluida' %}{% endif %}
-
-        {% if t.status == 'concluida' %}{% set bcor = 'badge-verde' %}
-        {% elif t.status == 'em_andamento' %}{% set bcor = 'badge-amarelo' %}
-        {% elif t.status == 'bloqueada' or t.status == 'cancelada' %}{% set bcor = 'badge-vermelho' %}
-        {% else %}{% set bcor = 'badge-cinza' %}{% endif %}
-
-        <div class="tarefa {{ classe }}">
-            <h2>
-                {{ t.titulo }}
-                <span class="badge {{ bcor }}" style="float:right;">{{ t.status }}</span>
-            </h2>
+        <div class="tarefa {% if t.prioridade == 'critica' %}critica{% elif t.prioridade == 'alta' %}alta{% endif %} {% if t.status == 'concluida' %}concluida{% endif %}">
+            <h2>{{ t.titulo }}</h2>
             {% if t.descricao %}<p>{{ t.descricao }}</p>{% endif %}
-            {% if t.goal_titulo %}<p>🎯 Meta: {{ t.goal_titulo }}</p>{% endif %}
-            <p>Prioridade: {{ t.prioridade }} | Impacto: {{ t.impacto or "-" }} | Esforço: {{ t.esforco or "-" }}</p>
+            {% if t.goal_titulo %}<p>Meta: {{ t.goal_titulo }}</p>{% endif %}
+            <p>Prioridade: {{ t.prioridade }} | Status: {{ t.status }}</p>
+            {% if t.status == 'concluida' %}
+            <form method="POST" action="/plano/tarefa/{{ t.id }}/reabrir" style="display:inline;"><button type="submit" class="btn btn-cinza">REABRIR</button></form>
+            {% else %}
+            <form method="POST" action="/plano/tarefa/{{ t.id }}/concluir" style="display:inline;"><button type="submit" class="btn btn-verde">CONCLUIR</button></form>
+            {% endif %}
+            <form method="POST" action="/plano/tarefa/{{ t.id }}/excluir" onsubmit="return confirm('Excluir?');" style="display:inline;"><button type="submit" class="btn btn-vermelho">EXCLUIR</button></form>
         </div>
     {% endfor %}
-
 </div>
-
 </body>
 </html>
