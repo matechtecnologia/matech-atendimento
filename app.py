@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from passlib.context import CryptContext
 from dotenv import load_dotenv
-from gemini import gerar_resposta, gerar_prompt_vendedor, validar_nicho_ia
+from gemini import gerar_resposta, gerar_prompt_vendedor, validar_nicho_ia, gerar_prompt_personalizado, gerar_prompt_personalizado
 from plano_install import instalar_plano
 from asaas import criar_cliente, criar_cobranca_pix, obter_qr_code, consultar_pagamento
 from plano_rotas import registrar_rotas_plano
@@ -512,7 +512,7 @@ def processar_atendimento(aid, linha_crm, mensagem, prompt, hist, whatsapp, uid,
         salvar_historico(whatsapp, uid, "ia", r.get("o_que_falar", ""))
         conn = get_conn()
         cur = conn.cursor()
-        cur.execute("UPDATE atendimentos SET o_que_falar=%s, texto_para_enviar=%s, acao_crm=%s, linha_crm_gerada=%s, status='pronto' WHERE id=%s", (r["o_que_falar"], r["texto_para_enviar"], r["estagio"], r["linha_crm"], aid))
+        cur.execute("UPDATE atendimentos SET o_que_falar=%s, texto_para_enviar=%s, acao_crm=%s, linha_crm_gerada=%s, status='pronto' WHERE id=%s", (r.get("o_que_falar", ""), r.get("texto_para_enviar", ""), r.get("estagio", "Em Atendimento"), r.get("linha_crm", ""), aid))
         if cid and r.get("linha_crm"):
             cur.execute("UPDATE clientes SET linha_crm=%s, status=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s", (r["linha_crm"], r["estagio"].lower(), cid))
         conn.commit()
@@ -635,7 +635,7 @@ def salvar_onboarding(nome_nicho: str = Form(...), produto: str = Form(...), pub
         from urllib.parse import quote
         return RedirectResponse(url=f"/onboarding?erro={quote(motivo)}", status_code=303)
 
-    pg = gerar_prompt_vendedor(produto, publico, preco, dor, objecao, diferencial, tom)
+    pg = gerar_prompt_personalizado(nome_nicho, produto, publico, preco, dor, objecao, diferencial, tom)
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("SELECT id FROM vendedores WHERE usuario_id = %s", (usuario_id,))
@@ -870,16 +870,20 @@ INSTRUCAO A EXECUTAR:
     if not n or n["vendedor_id"] != vid_real:
         return RedirectResponse(url="/clientes")
 
-    # CRITICO: SEMPRE regenera o prompt do vendedor na hora (nao usa o do banco)
-    prompt_atualizado = gerar_prompt_vendedor(
-        n.get("produto") or "",
-        n.get("publico") or "",
-        n.get("preco") or "",
-        n.get("dor") or "",
-        n.get("objecao") or "",
-        n.get("diferencial") or "",
-        n.get("tom") or ""
-    )
+    # Usa o prompt personalizado que foi gerado pela IA e salvo no banco
+    prompt_atualizado = n.get("prompt_gerado") or ""
+    if not prompt_atualizado:
+        # Se por algum motivo nao tiver, gera na hora
+        prompt_atualizado = gerar_prompt_personalizado(
+            n.get("nome") or "",
+            n.get("produto") or "",
+            n.get("publico") or "",
+            n.get("preco") or "",
+            n.get("dor") or "",
+            n.get("objecao") or "",
+            n.get("diferencial") or "",
+            n.get("tom") or ""
+        )
 
     linha_crm = ""
     if cliente_id:
@@ -1012,7 +1016,7 @@ def salvar_novo_nicho(nome_nicho: str = Form(...), produto: str = Form(...), pub
     cur.close()
     close_conn(conn)
 
-    pg = gerar_prompt_vendedor(produto, publico, preco, dor, objecao, diferencial, tom)
+    pg = gerar_prompt_personalizado(nome_nicho, produto, publico, preco, dor, objecao, diferencial, tom)
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("INSERT INTO nichos (vendedor_id, nome, produto, publico, preco, dor, objecao, diferencial, tom, prompt_gerado) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (v["id"], nome_nicho, produto, publico, preco, dor, objecao, diferencial, tom, pg))
@@ -1555,7 +1559,7 @@ def admin_editar_nicho(vendedor_id: int, nicho_id: int, nome: str = Form(...), p
         cur.close()
         close_conn(conn)
         return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}")
-    pg = gerar_prompt_vendedor(produto, publico, preco, dor, objecao, diferencial, tom)
+    pg = gerar_prompt_personalizado(nome_nicho, produto, publico, preco, dor, objecao, diferencial, tom)
     cur.execute("UPDATE nichos SET nome=%s, produto=%s, publico=%s, preco=%s, dor=%s, objecao=%s, diferencial=%s, tom=%s, prompt_gerado=%s WHERE id=%s",
                 (nome, produto, publico, preco, dor, objecao, diferencial, tom, pg, nicho_id))
     conn.commit()
@@ -1816,7 +1820,7 @@ def criar_vendedor_v2(nome, email, senha, whatsapp):
 def admin_criar_nicho(vendedor_id: int, nome: str = Form(...), produto: str = Form(""), publico: str = Form(""), preco: str = Form(""), dor: str = Form(""), objecao: str = Form(""), diferencial: str = Form(""), tom: str = Form(""), usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
     if not usuario_id or usuario_tipo != "admin":
         return RedirectResponse(url="/login")
-    pg = gerar_prompt_vendedor(produto, publico, preco, dor, objecao, diferencial, tom)
+    pg = gerar_prompt_personalizado(nome_nicho, produto, publico, preco, dor, objecao, diferencial, tom)
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("INSERT INTO nichos (vendedor_id, nome, produto, publico, preco, dor, objecao, diferencial, tom, prompt_gerado) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
@@ -2372,7 +2376,7 @@ def editar_nicho(nicho_id: int, publico: str = Form(...), preco: str = Form(...)
         return RedirectResponse(url=f"/meus_nichos?erro={quote(erro)}", status_code=303)
 
     # Regera o prompt com os novos dados (mantendo nome e produto originais)
-    pg = gerar_prompt_vendedor(n["produto"] or "", publico, preco, dor, objecao, diferencial, tom)
+    pg = gerar_prompt_personalizado(n["nome"], n["produto"] or "", publico, preco, dor, objecao, diferencial, tom)
 
     conn = get_conn()
     cur = conn.cursor()
@@ -2998,100 +3002,40 @@ import json as _json
 
 @app.get("/api/gerar_stream/{atendimento_id}")
 def gerar_stream(atendimento_id: int, usuario_id: str = Cookie(None)):
-    """
-    Streaming da resposta da IA via SSE.
-    O frontend consome isso e mostra o texto aparecendo.
-    """
+    import time as _t
     if not usuario_id:
-        return StreamingResponse(iter(["data: " + _json.dumps({"erro": "nao logado"}) + "\n\n"]), media_type="text/event-stream")
+        return StreamingResponse(iter(["data: " + _json.dumps({"tipo": "erro", "msg": "nao logado"}) + chr(10) + chr(10)]), media_type="text/event-stream")
 
     def evento(tipo, dados):
-        return "data: " + _json.dumps({"tipo": tipo, **dados}) + "\n\n"
+        return "data: " + _json.dumps({"tipo": tipo, **dados}) + chr(10) + chr(10)
 
     def stream():
         try:
-            # Busca o atendimento
-            conn = get_conn()
-            cur = conn.cursor(cursor_factory=RealDictCursor)
-            cur.execute("SELECT * FROM atendimentos WHERE id = %s AND atendente_id = %s", (atendimento_id, int(usuario_id)))
-            a = cur.fetchone()
-            cur.close()
-            close_conn(conn)
-
-            if not a:
-                yield evento("erro", {"msg": "atendimento nao encontrado"})
-                return
-
-            # Pega o nicho
-            n = buscar_nicho(a["nicho_id"])
-            if not n:
-                yield evento("erro", {"msg": "nicho nao encontrado"})
-                return
-
-            # Pega o vendedor
-            v = buscar_vendedor(usuario_id)
-            if not v:
-                yield evento("erro", {"msg": "vendedor nao encontrado"})
-                return
-
-            # Prompt atualizado
-            from gemini import gerar_prompt_vendedor as _gpv
-            prompt_atualizado = _gpv(
-                n.get("produto") or "",
-                n.get("publico") or "",
-                n.get("preco") or "",
-                n.get("dor") or "",
-                n.get("objecao") or "",
-                n.get("diferencial") or "",
-                n.get("tom") or ""
-            )
-
-            # Historico
-            hist = buscar_historico(a["whatsapp"], v["id"])
-
-            # Envia evento inicial
-            yield evento("inicio", {"msg": "comecando"})
-
-            # Chama o stream do gemini
-            from gemini import gerar_resposta_stream
-            texto_acumulado = ""
-            for pedaco in gerar_resposta_stream(a["linha_crm"] or "", a["mensagem_cliente"] or "", prompt_atualizado, hist):
-                texto_acumulado += pedaco
-                yield evento("pedaco", {"texto": pedaco})
-
-            # Separa os blocos
-            from gemini import separar_resposta
-            blocos = separar_resposta(texto_acumulado)
-
-            # Salva no banco
-            conn = get_conn()
-            cur = conn.cursor()
-            cur.execute(
-                "UPDATE atendimentos SET o_que_falar=%s, texto_para_enviar=%s, acao_crm=%s, linha_crm_gerada=%s, status='pronto' WHERE id=%s",
-                (blocos["o_que_falar"], blocos["texto_para_enviar"], blocos["estagio"], blocos["linha_crm"], atendimento_id)
-            )
-            if a["cliente_id"] and blocos.get("linha_crm"):
-                cur.execute(
-                    "UPDATE clientes SET linha_crm=%s, status=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s",
-                    (blocos["linha_crm"], blocos["estagio"].lower(), a["cliente_id"])
-                )
-            conn.commit()
-            cur.close()
-            close_conn(conn)
-
-            # Salva no histÃ³rico
-            salvar_historico(a["whatsapp"], v["id"], "ia", blocos.get("o_que_falar", ""))
-
-            # Envia evento final com os blocos separados
-            yield evento("fim", {
-                "o_que_falar": blocos["o_que_falar"],
-                "texto_para_enviar": blocos["texto_para_enviar"],
-                "estagio": blocos["estagio"],
-                "linha_crm": blocos["linha_crm"]
-            })
-
+            yield evento("inicio", {"msg": "aguardando"})
+            for _ in range(60):
+                conn = get_conn()
+                cur = conn.cursor(cursor_factory=RealDictCursor)
+                cur.execute("SELECT * FROM atendimentos WHERE id = %s AND atendente_id = %s", (atendimento_id, int(usuario_id)))
+                a = cur.fetchone()
+                cur.close()
+                close_conn(conn)
+                if not a:
+                    yield evento("erro", {"msg": "nao encontrado"})
+                    return
+                if a.get("status") == "pronto":
+                    yield evento("fim", {
+                        "o_que_falar": a.get("o_que_falar") or "",
+                        "texto_para_enviar": a.get("texto_para_enviar") or "",
+                        "estagio": a.get("acao_crm") or "Em Atendimento",
+                        "linha_crm": a.get("linha_crm_gerada") or ""
+                    })
+                    return
+                if a.get("status") == "erro":
+                    yield evento("erro", {"msg": a.get("o_que_falar") or "Erro na IA"})
+                    return
+                _t.sleep(0.5)
+            yield evento("erro", {"msg": "tempo esgotado"})
         except Exception as e:
-            print(f"Erro streaming: {e}")
             yield evento("erro", {"msg": str(e)})
 
     return StreamingResponse(stream(), media_type="text/event-stream", headers={
@@ -3101,19 +3045,3 @@ def gerar_stream(atendimento_id: int, usuario_id: str = Cookie(None)):
     })
 
 
-
-# ============ PLANO ESTRATÃ‰GICO (registra rotas /plano/*) ============
-
-try:
-    registrar_rotas_plano(
-        app=app,
-        get_conn=get_conn,
-        close_conn=close_conn,
-        templates=templates,
-        Cookie=Cookie,
-        RedirectResponse=RedirectResponse,
-        HTMLResponse=HTMLResponse,
-        Request=Request,
-    )
-except Exception as e:
-    print(f"Erro ao registrar rotas do plano: {e}")

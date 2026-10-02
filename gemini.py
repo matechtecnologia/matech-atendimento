@@ -341,6 +341,64 @@ def gerar_resposta(linha_crm, mensagem_cliente, prompt_vendedor=None, historico=
         return {"o_que_falar": "ERRO NA API: " + str(e), "texto_para_enviar": "NENHUM", "estagio": "Em Atendimento", "linha_crm": ""}
 
 
+
+
+def gerar_prompt_personalizado(nome_nicho, produto, publico, preco, dor, objecao, diferencial, tom):
+    import os as _os
+    prompt_mae = 'Voce e o ARQUITETO DE PROMPT da M.A Tech.' + chr(10)*2 + \
+        'Sua funcao: transformar as informacoes do negocio do vendedor em um PROMPT DE ATENDIMENTO completo, que outra IA vai usar pra conversar com os clientes finais.' + chr(10)*2 + \
+        'Voce recebe: nicho, produto, publico, preco, dor, objecao, diferencial, tom.' + chr(10) + \
+        'Voce entrega: PROMPT DE ATENDIMENTO pronto. Texto puro. Sem comentario. Sem markdown.' + chr(10)*2 + \
+        'O PROMPT DEVE TER 6 SECOES:' + chr(10)*2 + \
+        '1. IDENTIDADE - frase curta.' + chr(10) + \
+        '2. CONTEXTO DO NEGOCIO - informacoes recebidas, sem alterar.' + chr(10) + \
+        '3. COMO CONVERSAR: R1 Entender antes de oferecer. R2 Responder primeiro, perguntar depois. R3 Se cliente disser nao sei/explica, EXPLICAR em 2-3 frases, nao devolver pergunta. R4 UMA pergunta por vez. R5 Nao repetir pergunta. R6 Nao terminar toda resposta com pergunta. R7 Se cliente frustrado, PARAR de perguntar. R8 Adaptar ao tom.' + chr(10) + \
+        '4. COMO RESPONDER: oi->cumprimentar+1pergunta. como funciona->EXPLICAR. quanto custa->dar preco do contexto. nao sei->EXPLICAR. vou pensar->respeitar. quero testar->proximo passo. objecao->entender causa. pergunta fora do contexto->vou confirmar.' + chr(10) + \
+        '5. O QUE NUNCA FAZER: inventar preco, prazo, link, QR, garantia, pagamento. Dizer que le WhatsApp se nao estiver no contexto. Frases genericas. Repetir pergunta. Usar info de outro cliente.' + chr(10) + \
+        '6. FORMATO: === O QUE FALAR === / === ESTAGIO === / === LINHA CRM ===' + chr(10)*2 + \
+        'REGRA FINAL: se coloque no lugar do dono. Como ELE falaria? Use o tom, produto, publico, dor, diferencial. Nada generico.' + chr(10)*2 + \
+        'Entregue APENAS o prompt. Texto puro.'
+
+    dados = 'NICHO: ' + (nome_nicho or '') + chr(10)
+    dados += 'O QUE VENDE: ' + (produto or '') + chr(10)
+    dados += 'PUBLICO-ALVO: ' + (publico or '') + chr(10)
+    dados += 'PRECO: ' + (preco or '') + chr(10)
+    dados += 'DOR DO CLIENTE: ' + (dor or '') + chr(10)
+    dados += 'OBJECAO COMUM: ' + (objecao or '') + chr(10)
+    dados += 'DIFERENCIAL: ' + (diferencial or '') + chr(10)
+    dados += 'TOM DE VOZ: ' + (tom or '')
+
+    try:
+        r = client.chat.completions.create(
+            model=MODELO,
+            messages=[
+                {'role': 'system', 'content': prompt_mae},
+                {'role': 'user', 'content': dados},
+            ],
+            temperature=0.7,
+            max_tokens=2000,
+            timeout=60,
+        )
+        texto = r.choices[0].message.content.strip()
+        if texto:
+            print('[gemini] prompt personalizado gerado para nicho: ' + (nome_nicho or '?'))
+            return texto
+    except Exception as e:
+        print('[gemini] erro gerar_prompt_personalizado: ' + str(e))
+
+    print('[gemini] usando fallback local')
+    return ('Voce atende clientes no WhatsApp para ' + (nome_nicho or '') + chr(10)*2 +
+            'O QUE VENDE: ' + (produto or '') + chr(10)*2 +
+            'PUBLICO: ' + (publico or '') + chr(10)*2 +
+            'PRECO: ' + (preco or '') + chr(10)*2 +
+            'DOR: ' + (dor or '') + chr(10)*2 +
+            'OBJECAO: ' + (objecao or '') + chr(10)*2 +
+            'DIFERENCIAL: ' + (diferencial or '') + chr(10)*2 +
+            'TOM: ' + (tom or '') + chr(10)*2 +
+            'Responda SEMPRE em 3 blocos: O QUE FALAR / ESTAGIO / LINHA CRM.' + chr(10) +
+            'Nao invente nada. Se nao souber, diga: vou confirmar com quem vende e te retorno.')
+
+
 def gerar_prompt_vendedor(produto, publico, preco, dor, objecao, diferencial, tom):
     return (
         "# O QUE VENDE\n\n" + (produto or "") + "\n\n"
