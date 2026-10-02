@@ -1,4 +1,4 @@
-import os
+﻿import os
 import threading
 from datetime import datetime, timedelta
 import psycopg2
@@ -10,6 +10,7 @@ from fastapi.templating import Jinja2Templates
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 from gemini import gerar_resposta, gerar_prompt_vendedor, validar_nicho_ia
+from plano_install import instalar_plano
 from asaas import criar_cliente, criar_cobranca_pix, obter_qr_code, consultar_pagamento
 from plano_rotas import registrar_rotas_plano
 from plano_estrategico import inicializar_plano_estrategico
@@ -318,6 +319,11 @@ try:
     inicializar_banco()
 except Exception as e:
     print(f"Erro ao inicializar banco: {e}")
+
+try:
+    instalar_plano(app, get_conn, close_conn, Cookie, Request)
+except Exception as e:
+    print(f'Erro ao instalar plano: {e}')
 
 
 try:
@@ -1076,7 +1082,7 @@ def logout():
 
 
 
-# ============ CRM — CLIENTES (editar/excluir) ============
+# ============ CRM â€” CLIENTES (editar/excluir) ============
 
 def buscar_cliente(cid, vid):
     conn = get_conn()
@@ -1155,7 +1161,7 @@ def rota_excluir_cliente(cliente_id: int, usuario_id: str = Cookie(None)):
     return RedirectResponse(url="/clientes?excluido=1", status_code=303)
 
 
-# ============ ADMIN — GESTÃO DE VENDEDORES ============
+# ============ ADMIN â€” GESTÃƒO DE VENDEDORES ============
 
 def buscar_vendedor_admin(vid):
     conn = get_conn()
@@ -1310,7 +1316,7 @@ def favicon():
 
 
 
-# ============ RELATÓRIOS ============
+# ============ RELATÃ“RIOS ============
 
 @app.get("/relatorios", response_class=HTMLResponse)
 def tela_relatorios(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
@@ -1333,20 +1339,20 @@ def tela_relatorios(request: Request, usuario_id: str = Cookie(None), usuario_no
 
     total = sum(por_status.values())
     novos = por_status.get("novo lead", 0) + por_status.get("lead", 0)
-    em_neg = por_status.get("negociação", 0) + por_status.get("negociacao", 0) + por_status.get("negociando", 0)
+    em_neg = por_status.get("negociaÃ§Ã£o", 0) + por_status.get("negociacao", 0) + por_status.get("negociando", 0)
     em_atend = por_status.get("em atendimento", 0)
     ganhos = por_status.get("cliente", 0)
     perdidos = por_status.get("perdido", 0)
 
     # Clientes por origem (top 5)
     cur.execute("""
-        SELECT COALESCE(NULLIF(TRIM(origem), ''), 'Não informada') as origem, COUNT(*) as qtd
+        SELECT COALESCE(NULLIF(TRIM(origem), ''), 'NÃ£o informada') as origem, COUNT(*) as qtd
         FROM clientes WHERE vendedor_id = %s
         GROUP BY origem ORDER BY qtd DESC LIMIT 5
     """, (vid,))
     top_origens = [dict(r) for r in cur.fetchall()]
 
-    # Atividade últimos 7 dias (atendimentos por dia)
+    # Atividade Ãºltimos 7 dias (atendimentos por dia)
     cur.execute("""
         SELECT DATE(criado_em) as dia, COUNT(*) as qtd
         FROM atendimentos
@@ -1361,7 +1367,7 @@ def tela_relatorios(request: Request, usuario_id: str = Cookie(None), usuario_no
     for i in range(6, -1, -1):
         d = hoje - timedelta(days=i)
         atividade.append({
-            "curto": ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"][d.weekday()],
+            "curto": ["Seg","Ter","Qua","Qui","Sex","SÃ¡b","Dom"][d.weekday()],
             "data": d.strftime("%d/%m"),
             "qtd": atividade_raw.get(str(d), 0)
         })
@@ -1389,14 +1395,14 @@ def tela_relatorios(request: Request, usuario_id: str = Cookie(None), usuario_no
     """, (vid,))
     top_nichos = [dict(r) for r in cur.fetchall() if r["qtd"] > 0]
 
-    # Atendimentos totais (só pra contexto)
+    # Atendimentos totais (sÃ³ pra contexto)
     cur.execute("SELECT COUNT(*) as t FROM atendimentos WHERE atendente_id = %s", (usuario_id,))
     total_atend = cur.fetchone()["t"]
 
     cur.close()
     close_conn(conn)
 
-    # Métricas calculadas
+    # MÃ©tricas calculadas
     clientes_ativos = novos + em_neg + em_atend
     taxa_conversao = round((ganhos / total * 100), 1) if total > 0 else 0
     media_atend_cliente = round(total_atend / total, 1) if total > 0 else 0
@@ -1432,7 +1438,7 @@ def tela_relatorios(request: Request, usuario_id: str = Cookie(None), usuario_no
     })
 
 
-# ============ ADMIN — EDITAR NICHOS E CLIENTES DO VENDEDOR ============
+# ============ ADMIN â€” EDITAR NICHOS E CLIENTES DO VENDEDOR ============
 
 @app.post("/admin/vendedor/{vendedor_id}/nicho/{nicho_id}/editar")
 def admin_editar_nicho(vendedor_id: int, nicho_id: int, nome: str = Form(...), produto: str = Form(""), publico: str = Form(""), preco: str = Form(""), dor: str = Form(""), objecao: str = Form(""), diferencial: str = Form(""), tom: str = Form(""), usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
@@ -1548,7 +1554,7 @@ def admin_reset_senha(vendedor_id: int, nova_senha: str = Form(...), usuario_id:
 
 
 
-# ============ ADMIN — HISTÓRICO E ATENDIMENTOS ============
+# ============ ADMIN â€” HISTÃ“RICO E ATENDIMENTOS ============
 
 @app.get("/admin/vendedor/{vendedor_id}/cliente/{cliente_id}/historico", response_class=HTMLResponse)
 def admin_ver_historico(request: Request, vendedor_id: int, cliente_id: int, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
@@ -1620,12 +1626,12 @@ def admin_excluir_atendimento(vendedor_id: int, atend_id: int, usuario_id: str =
 
 
 
-# ============ PROTEÇÃO IP + WHATSAPP OBRIGATÓRIO ============
+# ============ PROTEÃ‡ÃƒO IP + WHATSAPP OBRIGATÃ“RIO ============
 
 from fastapi import HTTPException
 
 def obter_ip(request: Request):
-    # Render fica atrás de proxy: pega o IP real do X-Forwarded-For
+    # Render fica atrÃ¡s de proxy: pega o IP real do X-Forwarded-For
     xff = request.headers.get("x-forwarded-for")
     if xff:
         return xff.split(",")[0].strip()
@@ -1655,18 +1661,18 @@ def registrar_tentativa_ip(ip):
 
 
 def validar_whatsapp(wpp):
-    # Remove tudo que não for dígito
+    # Remove tudo que nÃ£o for dÃ­gito
     limpo = "".join(filter(str.isdigit, wpp or ""))
-    # Aceita 10 ou 11 dígitos (com ou sem o 9 na frente)
+    # Aceita 10 ou 11 dÃ­gitos (com ou sem o 9 na frente)
     if len(limpo) not in (10, 11):
-        return None, "WhatsApp inválido. Digite DDD + número (10 ou 11 dígitos)."
-    # Se tiver 13 dígitos (com 55 do Brasil), remove o 55
+        return None, "WhatsApp invÃ¡lido. Digite DDD + nÃºmero (10 ou 11 dÃ­gitos)."
+    # Se tiver 13 dÃ­gitos (com 55 do Brasil), remove o 55
     if len(limpo) == 13 and limpo.startswith("55"):
         limpo = limpo[2:]
     if len(limpo) == 12 and limpo.startswith("55"):
         limpo = limpo[2:]
     if len(limpo) not in (10, 11):
-        return None, "WhatsApp inválido. Digite DDD + número (10 ou 11 dígitos)."
+        return None, "WhatsApp invÃ¡lido. Digite DDD + nÃºmero (10 ou 11 dÃ­gitos)."
     return limpo, None
 
 
@@ -1701,7 +1707,7 @@ def criar_vendedor_v2(nome, email, senha, whatsapp):
     return True, "OK", uid
 
 
-# ============ ADMIN — CRIAR DADOS PELO VENDEDOR ============
+# ============ ADMIN â€” CRIAR DADOS PELO VENDEDOR ============
 
 @app.post("/admin/vendedor/{vendedor_id}/nicho/criar")
 def admin_criar_nicho(vendedor_id: int, nome: str = Form(...), produto: str = Form(""), publico: str = Form(""), preco: str = Form(""), dor: str = Form(""), objecao: str = Form(""), diferencial: str = Form(""), tom: str = Form(""), usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
@@ -1768,11 +1774,11 @@ def admin_editar_whatsapp_vendedor(vendedor_id: int, whatsapp: str = Form(...), 
 
 
 
-# ============ FOLLOW-UPS AUTOMÁTICOS ============
+# ============ FOLLOW-UPS AUTOMÃTICOS ============
 
 def calcular_followups_auto(vendedor_id):
     """
-    Analisa todos os clientes do vendedor e calcula quem precisa de atenção.
+    Analisa todos os clientes do vendedor e calcula quem precisa de atenÃ§Ã£o.
     Retorna dict com listas: urgente, atencao, agenda.
     """
     from datetime import date, timedelta, datetime as dt
@@ -1783,7 +1789,7 @@ def calcular_followups_auto(vendedor_id):
         "lead": 1,
         "em atendimento": 2,
         "negociando": 2,
-        "negociação": 1,
+        "negociaÃ§Ã£o": 1,
         "negociacao": 1,
         "cliente": 15,
         "perdido": None,  # nunca
@@ -1874,24 +1880,24 @@ def calcular_followups_auto(vendedor_id):
 
 
 def texto_sugestao(f):
-    """Gera uma sugestão curta de ação baseada no estado."""
+    """Gera uma sugestÃ£o curta de aÃ§Ã£o baseada no estado."""
     s = f["status"]
     d = f["dias_sem_contato"]
-    if s in ["negociação", "negociacao", "negociando"]:
+    if s in ["negociaÃ§Ã£o", "negociacao", "negociando"]:
         if d >= 2:
-            return f"Cliente em negociação há {d} dias sem contato. Cobrar proposta!"
-        return "Cliente em negociação. Vale confirmar interesse hoje."
+            return f"Cliente em negociaÃ§Ã£o hÃ¡ {d} dias sem contato. Cobrar proposta!"
+        return "Cliente em negociaÃ§Ã£o. Vale confirmar interesse hoje."
     if s in ["novo lead", "lead"]:
         if d >= 2:
-            return f"Lead novo há {d} dias sem resposta. Reengajar agora."
+            return f"Lead novo hÃ¡ {d} dias sem resposta. Reengajar agora."
         return "Lead novo. Fazer primeiro contato hoje."
     if s in ["em atendimento"]:
         if d >= 3:
-            return f"Em atendimento há {d} dias parado. Retomar conversa."
+            return f"Em atendimento hÃ¡ {d} dias parado. Retomar conversa."
         return "Acompanhar atendimento. Ver se tem novidade."
     if s == "cliente":
         if d >= 20:
-            return f"Cliente há {d} dias sem contato. Pós-venda pra fortalecer relação."
+            return f"Cliente hÃ¡ {d} dias sem contato. PÃ³s-venda pra fortalecer relaÃ§Ã£o."
         return "Cliente ativo. Vale um follow-up de relacionamento."
     return "Entrar em contato."
 
@@ -1906,7 +1912,7 @@ def tela_followups(request: Request, usuario_id: str = Cookie(None), usuario_nom
 
     dados = calcular_followups_auto(v["id"])
 
-    # Adiciona sugestão de texto em cada item
+    # Adiciona sugestÃ£o de texto em cada item
     for lista in [dados["urgente"], dados["atencao"], dados["agenda"]]:
         for f in lista:
             f["sugestao"] = texto_sugestao(f)
@@ -1971,7 +1977,7 @@ def _total_followups_para_template(usuario_id):
                 (LOWER(COALESCE(c.status, '')) IN ('em atendimento','negociando') AND
                  COALESCE((SELECT MAX(h.criado_em) FROM historico h WHERE h.whatsapp=c.whatsapp AND h.vendedor_id=c.vendedor_id), c.criado_em) < NOW() - INTERVAL '2 days')
                 OR
-                (LOWER(COALESCE(c.status, '')) IN ('negociação','negociacao') AND
+                (LOWER(COALESCE(c.status, '')) IN ('negociaÃ§Ã£o','negociacao') AND
                  COALESCE((SELECT MAX(h.criado_em) FROM historico h WHERE h.whatsapp=c.whatsapp AND h.vendedor_id=c.vendedor_id), c.criado_em) < NOW() - INTERVAL '1 day')
                 OR
                 (LOWER(COALESCE(c.status, '')) = 'cliente' AND
@@ -2065,7 +2071,7 @@ def ver_landing(request: Request):
 
 
 
-# ============ MODO NÃO PERTURBE (SNOOZE) ============
+# ============ MODO NÃƒO PERTURBE (SNOOZE) ============
 
 @app.post("/snooze-followups")
 async def snooze_followups(request: Request, usuario_id: str = Cookie(None)):
@@ -2177,26 +2183,26 @@ def validar_nicho_simples(nome, produto):
         return False, "O nome do nicho precisa ter pelo menos 3 letras."
 
     # Palavras vagas
-    vagas = ["tudo", "coisas", "produtos", "servicos", "serviços", "geral", "varios", "varios produtos", "teste", "negocio", "negócio"]
+    vagas = ["tudo", "coisas", "produtos", "servicos", "serviÃ§os", "geral", "varios", "varios produtos", "teste", "negocio", "negÃ³cio"]
     if nome_limpo in vagas:
         return False, (
             f"'{nome}' e muito vago. Escolha algo especifico.\n\n"
-            "✅ BOM: 'carro', 'moto', 'curso de ingles', 'pizza', 'consultoria'\n"
-            "❌ RUIM: 'produtos', 'coisas', 'tudo', 'servicos gerais'"
+            "âœ… BOM: 'carro', 'moto', 'curso de ingles', 'pizza', 'consultoria'\n"
+            "âŒ RUIM: 'produtos', 'coisas', 'tudo', 'servicos gerais'"
         )
 
     # Detecta mistura: "X e Y", "X + Y", "X & Y", "X, Y", "X / Y", "X ou Y", "X - Y"
     produtos_comuns = [
-        "carro", "carros", "moto", "motos", "caminhao", "caminhão", "caminhoes",
-        "bicicleta", "bicicletas", "barco", "barcos", "aviao", "avião",
-        "pizza", "hamburguer", "hambúrguer", "lanche", "lanches", "sushi",
+        "carro", "carros", "moto", "motos", "caminhao", "caminhÃ£o", "caminhoes",
+        "bicicleta", "bicicletas", "barco", "barcos", "aviao", "aviÃ£o",
+        "pizza", "hamburguer", "hambÃºrguer", "lanche", "lanches", "sushi",
         "curso", "cursos", "mentoria", "mentorias", "consultoria", "consultorias",
         "treinamento", "treinamentos", "aula", "aulas",
-        "seguro", "seguros", "consorcio", "consórcio", "consorcios",
-        "financiamento", "financiamentos", "emprestimo", "empréstimo",
-        "plano", "planos", "servico", "serviço", "servicos", "serviços",
+        "seguro", "seguros", "consorcio", "consÃ³rcio", "consorcios",
+        "financiamento", "financiamentos", "emprestimo", "emprÃ©stimo",
+        "plano", "planos", "servico", "serviÃ§o", "servicos", "serviÃ§os",
         "produto", "produtos", "roupa", "roupas", "sapato", "sapatos",
-        "celular", "celulares", "computador", "computadores", "eletronico", "eletrônico",
+        "celular", "celulares", "computador", "computadores", "eletronico", "eletrÃ´nico",
         "livro", "livros", "curso online", "software", "app", "aplicativo",
         "terreno", "terrenos", "casa", "casas", "apartamento", "apartamentos",
         "caminha", "caminhas", "moto aquatica", "jet ski", "motoaquatica",
@@ -2221,8 +2227,8 @@ def validar_nicho_simples(nome, produto):
                 return False, (
                     f"Voce mencionou 2 produtos diferentes: '{a}' e '{b}'.\n\n"
                     "Cada nicho deve ter apenas UM produto ou servico.\n\n"
-                    "✅ CERTO: criar 2 nichos separados — um para carro, outro para moto\n"
-                    "❌ ERRADO: 'vendo carro e moto' no mesmo nicho\n\n"
+                    "âœ… CERTO: criar 2 nichos separados â€” um para carro, outro para moto\n"
+                    "âŒ ERRADO: 'vendo carro e moto' no mesmo nicho\n\n"
                     "Dica: se vende os dois, cadastre primeiro 'carro', depois crie outro nicho 'moto'."
                 )
 
@@ -2234,8 +2240,8 @@ def validar_nicho_simples(nome, produto):
             return False, (
                 f"Voce listou varios produtos separados por virgula: {', '.join(hits[:3])}.\n\n"
                 "Cada nicho deve ter apenas UM produto ou servico.\n\n"
-                "✅ CERTO: criar um nicho para cada produto\n"
-                "❌ ERRADO: 'carro, moto, bicicleta' tudo junto"
+                "âœ… CERTO: criar um nicho para cada produto\n"
+                "âŒ ERRADO: 'carro, moto, bicicleta' tudo junto"
             )
 
     return True, ""
@@ -2279,7 +2285,7 @@ def editar_nicho(nicho_id: int, publico: str = Form(...), preco: str = Form(...)
 
 
 
-# ============ ADMIN — DASHBOARD COM GRÁFICO ============
+# ============ ADMIN â€” DASHBOARD COM GRÃFICO ============
 
 @app.get("/admin/dashboard", response_class=HTMLResponse)
 def admin_dashboard(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
@@ -2305,7 +2311,7 @@ def admin_dashboard(request: Request, usuario_id: str = Cookie(None), usuario_no
     cur.execute("SELECT COUNT(*) as t FROM atendimentos")
     total_atend = cur.fetchone()["t"]
 
-    # Vendedores por mês (últimos 6 meses)
+    # Vendedores por mÃªs (Ãºltimos 6 meses)
     cur.execute("""
         SELECT TO_CHAR(criado_em, 'YYYY-MM') as mes, COUNT(*) as qtd
         FROM vendedores
@@ -2314,7 +2320,7 @@ def admin_dashboard(request: Request, usuario_id: str = Cookie(None), usuario_no
     """)
     vend_mes_raw = {r["mes"]: r["qtd"] for r in cur.fetchall()}
 
-    # Leads por mês (últimos 6 meses)
+    # Leads por mÃªs (Ãºltimos 6 meses)
     cur.execute("""
         SELECT TO_CHAR(criado_em, 'YYYY-MM') as mes, COUNT(*) as qtd
         FROM leads_landing
@@ -2323,12 +2329,12 @@ def admin_dashboard(request: Request, usuario_id: str = Cookie(None), usuario_no
     """)
     leads_mes_raw = {r["mes"]: r["qtd"] for r in cur.fetchall()}
 
-    # Monta os últimos 6 meses (mesmo os zerados)
+    # Monta os Ãºltimos 6 meses (mesmo os zerados)
     from datetime import date
     hoje = date.today()
     meses = []
     for i in range(5, -1, -1):
-        # Calcula o mês retroativo
+        # Calcula o mÃªs retroativo
         ano = hoje.year
         mes = hoje.month - i
         while mes <= 0:
@@ -2347,7 +2353,7 @@ def admin_dashboard(request: Request, usuario_id: str = Cookie(None), usuario_no
     max_vend = max([m["vendedores"] for m in meses] + [1])
     max_leads = max([m["leads"] for m in meses] + [1])
 
-    # Crescimento vs mês anterior
+    # Crescimento vs mÃªs anterior
     if len(meses) >= 2:
         atual = meses[-1]["vendedores"]
         anterior = meses[-2]["vendedores"]
@@ -2393,7 +2399,7 @@ def migrar_historico_antigo():
         # Busca todos os mapeamentos usuario_id -> vendedor_id
         cur.execute("SELECT usuario_id, id FROM vendedores")
         mapa = {r["usuario_id"]: r["id"] for r in cur.fetchall()}
-        # Atualiza historico onde vendedor_id é um usuario_id válido
+        # Atualiza historico onde vendedor_id Ã© um usuario_id vÃ¡lido
         total = 0
         for uid, vid in mapa.items():
             if uid == vid:
@@ -2619,7 +2625,7 @@ def admin_backup(token: str = ""):
     from fastapi.responses import JSONResponse
     from datetime import datetime as _dt
 
-    # Token secreto — pode definir BACKUP_TOKEN no Render
+    # Token secreto â€” pode definir BACKUP_TOKEN no Render
     token_esperado = _os.getenv("BACKUP_TOKEN", "")
     if not token_esperado or token != token_esperado:
         return JSONResponse({"erro": "token invalido"}, status_code=403)
@@ -2662,7 +2668,7 @@ def admin_backup(token: str = ""):
 
 
 
-# ============ API — TOTAL DE FOLLOWUPS ============
+# ============ API â€” TOTAL DE FOLLOWUPS ============
 
 @app.get("/api/total-followups")
 def api_total_followups(usuario_id: str = Cookie(None)):
@@ -2737,7 +2743,7 @@ def limpar_tentativas_antigas():
 
 
 
-# ============ API — AVISO DE PLANO ============
+# ============ API â€” AVISO DE PLANO ============
 
 @app.get("/api/aviso-plano")
 def api_aviso_plano(usuario_id: str = Cookie(None)):
@@ -2970,7 +2976,7 @@ def gerar_stream(atendimento_id: int, usuario_id: str = Cookie(None)):
             cur.close()
             close_conn(conn)
 
-            # Salva no histórico
+            # Salva no histÃ³rico
             salvar_historico(a["whatsapp"], v["id"], "ia", blocos.get("o_que_falar", ""))
 
             # Envia evento final com os blocos separados
@@ -2993,7 +2999,7 @@ def gerar_stream(atendimento_id: int, usuario_id: str = Cookie(None)):
 
 
 
-# ============ PLANO ESTRATÉGICO (registra rotas /plano/*) ============
+# ============ PLANO ESTRATÃ‰GICO (registra rotas /plano/*) ============
 
 try:
     registrar_rotas_plano(
