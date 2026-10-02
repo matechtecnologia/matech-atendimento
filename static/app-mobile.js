@@ -31,6 +31,7 @@
         if (path === '/planos' || path === '/assinar' || path.startsWith('/pagamento/')) return '/planos';
         if (path === '/configuracoes') return '/configuracoes';
         if (path === '/indicar') return '/indicar';
+        if (path === '/plano' || path.startsWith('/plano/')) return '/plano';
         if (path === '/admin' || path.startsWith('/admin/')) return '/admin';
         return null;
     }
@@ -85,6 +86,7 @@
             { href: '/configuracoes', rota: '/configuracoes', icone: 'configuracoes', texto: 'Configurações' },
         ];
         if (admin) {
+            links.push({ href: '/plano', rota: '/plano', icone: 'dashboard', texto: '🧭 Plano M.A Tech' });
             links.push({ href: '/admin/dashboard', rota: '/admin/dashboard', icone: 'dashboard', texto: 'Dashboard' });
             links.push({ href: '/admin/leads', rota: '/admin/leads', icone: 'leads', texto: 'Leads' });
             links.push({ href: '/admin', rota: '/admin', icone: 'admin', texto: 'Admin' });

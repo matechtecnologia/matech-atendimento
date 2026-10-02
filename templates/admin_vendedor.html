@@ -40,6 +40,18 @@
         .secao-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin: 32px 0 12px 0; }
         .secao-head h2 { margin: 0; font-size: 16px; color: #a8a8a8; }
         @media (max-width: 700px) { .linha-2 { grid-template-columns: 1fr; } }
+        .menu-hamburguer { display: none; background: transparent; border: 1px solid #00d97e; color: #00d97e; font-size: 22px; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; }
+        .menu-mobile-painel { display: none; position: fixed; top: 0; right: 0; width: 260px; height: 100vh; background: #0f1a15; border-left: 1px solid #00d97e33; padding: 20px; z-index: 9999; box-shadow: -8px 0 24px rgba(0,0,0,0.5); flex-direction: column; gap: 16px; }
+        .menu-mobile-painel.aberto { display: flex; }
+        .menu-mobile-painel a { color: #e8e8e8; text-decoration: none; font-size: 15px; padding: 12px; border-radius: 6px; background: #141414; border: 1px solid #2a2a2a; }
+        .menu-mobile-painel a:hover { border-color: #00d97e; color: #00d97e; }
+        .menu-mobile-painel .fechar { align-self: flex-end; background: transparent; border: none; color: #8a8a8a; font-size: 22px; cursor: pointer; margin-bottom: 8px; }
+        .menu-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9998; }
+        .menu-overlay.aberto { display: block; }
+        @media (max-width: 800px) {
+            .menu-hamburguer { display: inline-block; }
+            .usuario-info { display: none !important; }
+        }
     </style>
     <link rel="stylesheet" href="/static/app.min.css?v=99">
 </head>
@@ -53,12 +65,13 @@
     <div class="container-atendimento">
         <div class="topo">
             <h1>M.A Tech — Admin</h1>
+            <button class="menu-hamburguer" onclick="abrirMenuMobile()">☰</button>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
                 <a href="/planos" data-rota="/planos">Planos</a>
                 {% if usuario_tipo == 'admin' %}<a href="/admin" data-rota="/admin">Admin</a>{% endif %}
                 <a href="/plano" data-rota="/plano">🧭 Plano M.A Tech</a>
-             <a href="/logout">Sair</a>
+                <a href="/logout">Sair</a>
             </div>
         </div>
 
@@ -319,6 +332,17 @@
         {% endfor %}
 
     </div>
+
+    <div class="menu-overlay" id="menuOverlay" onclick="fecharMenuMobile()"></div>
+    <div class="menu-mobile-painel" id="menuMobile">
+        <button class="fechar" onclick="fecharMenuMobile()">✕</button>
+        <a href="/admin/dashboard">📊 Dashboard</a>
+        <a href="/admin/leads">📥 Leads</a>
+        <a href="/admin">👥 Vendedores</a>
+        <a href="/plano">🧭 Plano M.A Tech</a>
+        <a href="/logout">🚪 Sair</a>
+    </div>
+
     <script>
     function toggleForm(id) {
         const el = document.getElementById('form-' + id);
@@ -326,6 +350,14 @@
         const abrir = el.style.display === 'none' || el.style.display === '';
         el.style.display = abrir ? 'block' : 'none';
         if (abrir) el.scrollIntoView({behavior: 'smooth', block: 'center'});
+    }
+    function abrirMenuMobile() {
+        document.getElementById('menuMobile').classList.add('aberto');
+        document.getElementById('menuOverlay').classList.add('aberto');
+    }
+    function fecharMenuMobile() {
+        document.getElementById('menuMobile').classList.remove('aberto');
+        document.getElementById('menuOverlay').classList.remove('aberto');
     }
     </script>
     <script src="/static/app.min.js?v=99"></script>

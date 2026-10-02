@@ -12,222 +12,41 @@
     <link rel="icon" type="image/png" href="/static/favicon-32.png">
     <title>M.A Tech - Dashboard</title>
     <style>
-        .linha-numeros {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        .numero-card {
-            background: linear-gradient(135deg, #141414 0%, #0f1a15 100%);
-            border: 1px solid #222222;
-            border-radius: 14px;
-            padding: 22px 24px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .numero-card:hover {
-            transform: translateY(-3px);
-            border-color: #00d97e;
-            box-shadow: 0 16px 40px rgba(0,217,126,0.15);
-        }
-        .numero-card .titulo {
-            font-size: 12px;
-            color: #8a8a8a;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-        .numero-card .num {
-            font-size: 42px;
-            font-weight: 800;
-            font-family: 'SF Mono', Consolas, monospace;
-            letter-spacing: -0.04em;
-            line-height: 1;
-            color: #fff;
-            margin-bottom: 12px;
-        }
+        .linha-numeros { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+        .numero-card { background: linear-gradient(135deg, #141414 0%, #0f1a15 100%); border: 1px solid #222222; border-radius: 14px; padding: 22px 24px; position: relative; overflow: hidden; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+        .numero-card:hover { transform: translateY(-3px); border-color: #00d97e; box-shadow: 0 16px 40px rgba(0,217,126,0.15); }
+        .numero-card .titulo { font-size: 12px; color: #8a8a8a; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 12px; }
+        .numero-card .num { font-size: 42px; font-weight: 800; font-family: 'SF Mono', Consolas, monospace; letter-spacing: -0.04em; line-height: 1; color: #fff; margin-bottom: 12px; }
         .numero-card.vend .num { color: #00d97e; }
         .numero-card.leads .num { color: #a855f7; }
         .numero-card.clientes .num { color: #f59e0b; }
-        .numero-card .info {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: #8a8a8a;
-        }
-        .variacao {
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            font-weight: 800;
-            font-family: monospace;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-        }
+        .numero-card .info { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #8a8a8a; }
+        .variacao { display: inline-flex; align-items: center; gap: 4px; font-weight: 800; font-family: monospace; padding: 3px 8px; border-radius: 6px; font-size: 12px; }
         .variacao.positiva { background: rgba(0,217,126,0.12); color: #00d97e; }
         .variacao.negativa { background: rgba(255,59,59,0.12); color: #ff3b3b; }
         .variacao.neutra { background: #1a1a1a; color: #5a5a5a; }
-
-        /* GRÁFICO */
-        .card-grafico {
-            background: #141414;
-            border: 1px solid #222222;
-            border-radius: 14px;
-            padding: 28px 28px 24px;
-            margin-bottom: 24px;
-        }
-        .card-grafico h3 {
-            margin: 0 0 4px 0;
-            font-size: 17px;
-            color: #fff;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-        }
-        .card-grafico .sub {
-            font-size: 13px;
-            color: #8a8a8a;
-            margin-bottom: 28px;
-        }
-        .grafico {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            height: 200px;
-            gap: 12px;
-            padding: 0 8px;
-            border-bottom: 2px solid #222222;
-        }
-        .col-mes {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 8px;
-            height: 100%;
-            position: relative;
-        }
-        .col-mes .barra {
-            width: 100%;
-            max-width: 60px;
-            background: linear-gradient(180deg, #00d97e, #00b368);
-            border-radius: 8px 8px 0 0;
-            min-height: 4px;
-            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            box-shadow: 0 0 20px rgba(0,217,126,0.25);
-        }
-        .col-mes .barra .num {
-            position: absolute;
-            top: -24px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 13px;
-            font-family: monospace;
-            font-weight: 800;
-            color: #00d97e;
-            white-space: nowrap;
-        }
-        .col-mes.atual .barra {
-            background: linear-gradient(180deg, #00d97e, #00b368);
-            box-shadow: 0 0 32px rgba(0,217,126,0.5);
-        }
-        .col-mes.atual .barra .num {
-            font-size: 15px;
-        }
-        .col-mes .nome-mes {
-            font-size: 12px;
-            color: #8a8a8a;
-            font-family: monospace;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            font-weight: 700;
-            padding-top: 12px;
-            border-top: 1px solid #1a1a1a;
-            width: 100%;
-            text-align: center;
-        }
-        .col-mes.atual .nome-mes {
-            color: #00d97e;
-        }
-        .legenda-grafico {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin-top: 20px;
-            font-size: 13px;
-            color: #8a8a8a;
-        }
-        .legenda-grafico .ponto {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 3px;
-            background: #00d97e;
-            margin-right: 8px;
-            vertical-align: middle;
-        }
-
-        /* PLANOS */
-        .card-planos {
-            background: #141414;
-            border: 1px solid #222222;
-            border-radius: 14px;
-            padding: 24px 28px;
-            margin-bottom: 20px;
-        }
-        .card-planos h3 {
-            margin: 0 0 4px 0;
-            font-size: 17px;
-            color: #fff;
-            font-weight: 700;
-        }
-        .card-planos .sub {
-            font-size: 13px;
-            color: #8a8a8a;
-            margin-bottom: 20px;
-        }
-        .planos-linha {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-        .plano-item {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .plano-item .nome {
-            width: 110px;
-            font-size: 13px;
-            color: #a8a8a8;
-            font-weight: 700;
-        }
-        .plano-item .barra-wrap {
-            flex: 1;
-            height: 10px;
-            background: #0a0a0a;
-            border-radius: 100px;
-            overflow: hidden;
-        }
-        .plano-item .barra-plan {
-            height: 100%;
-            border-radius: 100px;
-            transition: width 0.5s ease;
-        }
-        .plano-item .qtd {
-            font-size: 18px;
-            font-family: monospace;
-            font-weight: 800;
-            min-width: 40px;
-            text-align: right;
-        }
-
+        .card-grafico { background: #141414; border: 1px solid #222222; border-radius: 14px; padding: 28px 28px 24px; margin-bottom: 24px; }
+        .card-grafico h3 { margin: 0 0 4px 0; font-size: 17px; color: #fff; font-weight: 700; letter-spacing: -0.01em; }
+        .card-grafico .sub { font-size: 13px; color: #8a8a8a; margin-bottom: 28px; }
+        .grafico { display: flex; align-items: flex-end; justify-content: space-between; height: 200px; gap: 12px; padding: 0 8px; border-bottom: 2px solid #222222; }
+        .col-mes { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 8px; height: 100%; position: relative; }
+        .col-mes .barra { width: 100%; max-width: 60px; background: linear-gradient(180deg, #00d97e, #00b368); border-radius: 8px 8px 0 0; min-height: 4px; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); position: relative; box-shadow: 0 0 20px rgba(0,217,126,0.25); }
+        .col-mes .barra .num { position: absolute; top: -24px; left: 50%; transform: translateX(-50%); font-size: 13px; font-family: monospace; font-weight: 800; color: #00d97e; white-space: nowrap; }
+        .col-mes.atual .barra { background: linear-gradient(180deg, #00d97e, #00b368); box-shadow: 0 0 32px rgba(0,217,126,0.5); }
+        .col-mes.atual .barra .num { font-size: 15px; }
+        .col-mes .nome-mes { font-size: 12px; color: #8a8a8a; font-family: monospace; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; padding-top: 12px; border-top: 1px solid #1a1a1a; width: 100%; text-align: center; }
+        .col-mes.atual .nome-mes { color: #00d97e; }
+        .legenda-grafico { display: flex; justify-content: center; gap: 24px; margin-top: 20px; font-size: 13px; color: #8a8a8a; }
+        .legenda-grafico .ponto { display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: #00d97e; margin-right: 8px; vertical-align: middle; }
+        .card-planos { background: #141414; border: 1px solid #222222; border-radius: 14px; padding: 24px 28px; margin-bottom: 20px; }
+        .card-planos h3 { margin: 0 0 4px 0; font-size: 17px; color: #fff; font-weight: 700; }
+        .card-planos .sub { font-size: 13px; color: #8a8a8a; margin-bottom: 20px; }
+        .planos-linha { display: flex; flex-direction: column; gap: 12px; }
+        .plano-item { display: flex; align-items: center; gap: 16px; }
+        .plano-item .nome { width: 110px; font-size: 13px; color: #a8a8a8; font-weight: 700; }
+        .plano-item .barra-wrap { flex: 1; height: 10px; background: #0a0a0a; border-radius: 100px; overflow: hidden; }
+        .plano-item .barra-plan { height: 100%; border-radius: 100px; transition: width 0.5s ease; }
+        .plano-item .qtd { font-size: 18px; font-family: monospace; font-weight: 800; min-width: 40px; text-align: right; }
         @media (max-width: 800px) {
             .linha-numeros { grid-template-columns: 1fr; }
             .numero-card .num { font-size: 36px; }
@@ -235,6 +54,18 @@
             .col-mes .barra { max-width: 40px; }
             .col-mes .barra .num { font-size: 11px; top: -20px; }
             .col-mes .nome-mes { font-size: 10px; }
+        }
+        .menu-hamburguer { display: none; background: transparent; border: 1px solid #00d97e; color: #00d97e; font-size: 22px; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; }
+        .menu-mobile-painel { display: none; position: fixed; top: 0; right: 0; width: 260px; height: 100vh; background: #0f1a15; border-left: 1px solid #00d97e33; padding: 20px; z-index: 9999; box-shadow: -8px 0 24px rgba(0,0,0,0.5); flex-direction: column; gap: 16px; }
+        .menu-mobile-painel.aberto { display: flex; }
+        .menu-mobile-painel a { color: #e8e8e8; text-decoration: none; font-size: 15px; padding: 12px; border-radius: 6px; background: #141414; border: 1px solid #2a2a2a; }
+        .menu-mobile-painel a:hover { border-color: #00d97e; color: #00d97e; }
+        .menu-mobile-painel .fechar { align-self: flex-end; background: transparent; border: none; color: #8a8a8a; font-size: 22px; cursor: pointer; margin-bottom: 8px; }
+        .menu-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9998; }
+        .menu-overlay.aberto { display: block; }
+        @media (max-width: 800px) {
+            .menu-hamburguer { display: inline-block; }
+            .usuario-info { display: none !important; }
         }
     </style>
     <link rel="stylesheet" href="/static/app.min.css?v=99">
@@ -249,6 +80,7 @@
     <div class="container-atendimento">
         <div class="topo">
             <h1>M.A Tech — Admin</h1>
+            <button class="menu-hamburguer" onclick="abrirMenuMobile()">☰</button>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
                 <a href="/admin/dashboard" data-rota="/admin/dashboard">📊 Dashboard</a>
@@ -269,7 +101,6 @@
             </p>
         </div>
 
-        <!-- NÚMEROS ATUAIS -->
         <div class="linha-numeros">
             <div class="numero-card vend">
                 <div class="titulo">👥 Vendedores</div>
@@ -287,7 +118,6 @@
                     {% endif %}
                 </div>
             </div>
-
             <div class="numero-card leads">
                 <div class="titulo">📥 Leads capturados</div>
                 <div class="num">{{ total_leads }}</div>
@@ -300,7 +130,6 @@
                     {% endif %}
                 </div>
             </div>
-
             <div class="numero-card clientes">
                 <div class="titulo">🎯 Clientes ativos</div>
                 <div class="num">{{ total_clientes }}</div>
@@ -315,11 +144,9 @@
             </div>
         </div>
 
-        <!-- GRÁFICO DE EVOLUÇÃO -->
         <div class="card-grafico">
             <h3>📈 Vendedores por mês</h3>
             <p class="sub">Quantos novos vendedores entraram em cada mês</p>
-
             <div class="grafico">
                 {% for m in meses %}
                 <div class="col-mes {% if loop.last %}atual{% endif %}">
@@ -336,45 +163,34 @@
                 </div>
                 {% endfor %}
             </div>
-
             <div class="legenda-grafico">
                 <span><span class="ponto"></span>Vendedores cadastrados</span>
             </div>
         </div>
 
-        <!-- PLANOS -->
         <div class="card-planos">
             <h3>💳 Distribuição por plano</h3>
             <p class="sub">Como estão divididos os {{ total_vend }} vendedores</p>
-
             {% set max_plano = [por_plano.get('gratis', 0), por_plano.get('basico', 0), por_plano.get('pro', 0), por_plano.get('empresarial', 0), 1]|max %}
             <div class="planos-linha">
                 <div class="plano-item">
                     <span class="nome">Grátis</span>
-                    <div class="barra-wrap">
-                        <div class="barra-plan" style="width: {{ (por_plano.get('gratis', 0) / max_plano * 100) }}%; background: #5a5a5a;"></div>
-                    </div>
+                    <div class="barra-wrap"><div class="barra-plan" style="width: {{ (por_plano.get('gratis', 0) / max_plano * 100) }}%; background: #5a5a5a;"></div></div>
                     <span class="qtd" style="color: #8a8a8a;">{{ por_plano.get('gratis', 0) }}</span>
                 </div>
                 <div class="plano-item">
                     <span class="nome">Básico</span>
-                    <div class="barra-wrap">
-                        <div class="barra-plan" style="width: {{ (por_plano.get('basico', 0) / max_plano * 100) }}%; background: #00d97e;"></div>
-                    </div>
+                    <div class="barra-wrap"><div class="barra-plan" style="width: {{ (por_plano.get('basico', 0) / max_plano * 100) }}%; background: #00d97e;"></div></div>
                     <span class="qtd" style="color: #00d97e;">{{ por_plano.get('basico', 0) }}</span>
                 </div>
                 <div class="plano-item">
                     <span class="nome">Pro</span>
-                    <div class="barra-wrap">
-                        <div class="barra-plan" style="width: {{ (por_plano.get('pro', 0) / max_plano * 100) }}%; background: #f59e0b;"></div>
-                    </div>
+                    <div class="barra-wrap"><div class="barra-plan" style="width: {{ (por_plano.get('pro', 0) / max_plano * 100) }}%; background: #f59e0b;"></div></div>
                     <span class="qtd" style="color: #f59e0b;">{{ por_plano.get('pro', 0) }}</span>
                 </div>
                 <div class="plano-item">
                     <span class="nome">Empresarial</span>
-                    <div class="barra-wrap">
-                        <div class="barra-plan" style="width: {{ (por_plano.get('empresarial', 0) / max_plano * 100) }}%; background: #a855f7;"></div>
-                    </div>
+                    <div class="barra-wrap"><div class="barra-plan" style="width: {{ (por_plano.get('empresarial', 0) / max_plano * 100) }}%; background: #a855f7;"></div></div>
                     <span class="qtd" style="color: #a855f7;">{{ por_plano.get('empresarial', 0) }}</span>
                 </div>
             </div>
@@ -383,8 +199,28 @@
         <p style="margin-top:24px; text-align:center;">
             <a href="/admin" style="color:#00d97e; text-decoration:none;">← Voltar pros vendedores</a>
         </p>
-
     </div>
+
+    <div class="menu-overlay" id="menuOverlay" onclick="fecharMenuMobile()"></div>
+    <div class="menu-mobile-painel" id="menuMobile">
+        <button class="fechar" onclick="fecharMenuMobile()">✕</button>
+        <a href="/admin/dashboard">📊 Dashboard</a>
+        <a href="/admin/leads">📥 Leads</a>
+        <a href="/admin">👥 Vendedores</a>
+        <a href="/plano">🧭 Plano M.A Tech</a>
+        <a href="/logout">🚪 Sair</a>
+    </div>
+
+    <script>
+        function abrirMenuMobile() {
+            document.getElementById('menuMobile').classList.add('aberto');
+            document.getElementById('menuOverlay').classList.add('aberto');
+        }
+        function fecharMenuMobile() {
+            document.getElementById('menuMobile').classList.remove('aberto');
+            document.getElementById('menuOverlay').classList.remove('aberto');
+        }
+    </script>
     <script src="/static/app.min.js?v=99"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>

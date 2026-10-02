@@ -6,66 +6,29 @@
     <title>Admin - Histórico {{ cliente.nome }}</title>
     <link rel="stylesheet" href="/static/style.css">
     <style>
-        .msg {
-            background: #0f0f0f;
-            border: 1px solid #1a1a1a;
-            border-radius: 8px;
-            padding: 14px 16px;
-            margin-bottom: 10px;
-            position: relative;
-        }
+        .msg { background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; position: relative; }
         .msg.cliente { border-left: 4px solid #00d97e; }
         .msg.ia { border-left: 4px solid #a855f7; }
-        .msg-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 8px;
-            flex-wrap: wrap;
-        }
-        .msg-head strong {
-            font-size: 13px;
-            letter-spacing: 0.5px;
-        }
+        .msg-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 8px; flex-wrap: wrap; }
+        .msg-head strong { font-size: 13px; letter-spacing: 0.5px; }
         .msg.cliente .msg-head strong { color: #00d97e; }
         .msg.ia .msg-head strong { color: #a855f7; }
-        .msg-corpo {
-            white-space: pre-wrap;
-            color: #e8e8e8;
-            font-size: 14px;
-            line-height: 1.6;
-            font-family: inherit;
-            margin: 0;
-        }
-        .atend {
-            background: #0f0f0f;
-            border: 1px solid #1a1a1a;
-            border-radius: 8px;
-            padding: 14px 16px;
-            margin-bottom: 10px;
-        }
-        .btn-mini {
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 700;
-            cursor: pointer;
-            font-family: inherit;
-            border: 1px solid;
-            transition: all 0.2s ease;
-            white-space: nowrap;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-mini.excluir {
-            background: transparent;
-            color: #ff3b3b;
-            border-color: rgba(255,59,59,0.3);
-        }
-        .btn-mini.excluir:hover {
-            background: rgba(255,59,59,0.1);
-            border-color: #ff3b3b;
+        .msg-corpo { white-space: pre-wrap; color: #e8e8e8; font-size: 14px; line-height: 1.6; font-family: inherit; margin: 0; }
+        .atend { background: #0f0f0f; border: 1px solid #1a1a1a; border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; }
+        .btn-mini { padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; cursor: pointer; font-family: inherit; border: 1px solid; transition: all 0.2s ease; white-space: nowrap; text-decoration: none; display: inline-block; }
+        .btn-mini.excluir { background: transparent; color: #ff3b3b; border-color: rgba(255,59,59,0.3); }
+        .btn-mini.excluir:hover { background: rgba(255,59,59,0.1); border-color: #ff3b3b; }
+        .menu-hamburguer { display: none; background: transparent; border: 1px solid #00d97e; color: #00d97e; font-size: 22px; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: inherit; }
+        .menu-mobile-painel { display: none; position: fixed; top: 0; right: 0; width: 260px; height: 100vh; background: #0f1a15; border-left: 1px solid #00d97e33; padding: 20px; z-index: 9999; box-shadow: -8px 0 24px rgba(0,0,0,0.5); flex-direction: column; gap: 16px; }
+        .menu-mobile-painel.aberto { display: flex; }
+        .menu-mobile-painel a { color: #e8e8e8; text-decoration: none; font-size: 15px; padding: 12px; border-radius: 6px; background: #141414; border: 1px solid #2a2a2a; }
+        .menu-mobile-painel a:hover { border-color: #00d97e; color: #00d97e; }
+        .menu-mobile-painel .fechar { align-self: flex-end; background: transparent; border: none; color: #8a8a8a; font-size: 22px; cursor: pointer; margin-bottom: 8px; }
+        .menu-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 9998; }
+        .menu-overlay.aberto { display: block; }
+        @media (max-width: 800px) {
+            .menu-hamburguer { display: inline-block; }
+            .usuario-info { display: none !important; }
         }
     </style>
 </head>
@@ -73,6 +36,7 @@
     <div class="container-atendimento">
         <div class="topo">
             <h1>M.A Tech — Admin</h1>
+            <button class="menu-hamburguer" onclick="abrirMenuMobile()">☰</button>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
                 <a href="/admin/vendedor/{{ v.vendedor_id }}">← {{ v.nome }}</a>
@@ -149,19 +113,38 @@
         </p>
 
     </div>
-    <script src="/static/app.js"></script>
+
+    <div class="menu-overlay" id="menuOverlay" onclick="fecharMenuMobile()"></div>
+    <div class="menu-mobile-painel" id="menuMobile">
+        <button class="fechar" onclick="fecharMenuMobile()">✕</button>
+        <a href="/admin/dashboard">📊 Dashboard</a>
+        <a href="/admin/leads">📥 Leads</a>
+        <a href="/admin">👥 Vendedores</a>
+        <a href="/plano">🧭 Plano M.A Tech</a>
+        <a href="/logout">🚪 Sair</a>
+    </div>
+
     <script>
-    function excluirMsg(id, vid) {
-        if (!confirm('Apagar esta mensagem?')) return;
-        fetch('/admin/vendedor/' + vid + '/historico/' + id + '/excluir', {method: 'POST'})
-            .then(() => { document.getElementById('msg-' + id).remove(); toast('Mensagem apagada', 'sucesso'); });
-    }
-    function excluirAtend(id, vid) {
-        if (!confirm('Apagar este atendimento?')) return;
-        fetch('/admin/vendedor/' + vid + '/atendimento/' + id + '/excluir', {method: 'POST'})
-            .then(() => { document.getElementById('atend-' + id).remove(); toast('Atendimento apagado', 'sucesso'); });
-    }
+        function abrirMenuMobile() {
+            document.getElementById('menuMobile').classList.add('aberto');
+            document.getElementById('menuOverlay').classList.add('aberto');
+        }
+        function fecharMenuMobile() {
+            document.getElementById('menuMobile').classList.remove('aberto');
+            document.getElementById('menuOverlay').classList.remove('aberto');
+        }
+        function excluirMsg(id, vid) {
+            if (!confirm('Apagar esta mensagem?')) return;
+            fetch('/admin/vendedor/' + vid + '/historico/' + id + '/excluir', {method: 'POST'})
+                .then(() => { document.getElementById('msg-' + id).remove(); toast('Mensagem apagada', 'sucesso'); });
+        }
+        function excluirAtend(id, vid) {
+            if (!confirm('Apagar este atendimento?')) return;
+            fetch('/admin/vendedor/' + vid + '/atendimento/' + id + '/excluir', {method: 'POST'})
+                .then(() => { document.getElementById('atend-' + id).remove(); toast('Atendimento apagado', 'sucesso'); });
+        }
     </script>
+    <script src="/static/app.js"></script>
     <script src="/static/app-badge-plano.js"></script>
 </body>
 </html>
