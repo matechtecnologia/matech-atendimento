@@ -337,11 +337,16 @@ def executar_sync(app, get_conn, close_conn):
     except Exception as e:
         resultado["erros"].append(str(e))
 
-    # ---------- REGISTRAR NO DIARIO ----------
-    resumo = f"Sync automático: {len(resultado['tarefas_concluidas'])} tarefas concluídas, "
-    resumo += f"{len(resultado['tarefas_criadas'])} criadas, "
-    resumo += f"{len(resultado['metas_atualizadas'])} metas atualizadas, "
-    resumo += f"{len(resultado['fases_atualizadas'])} fases atualizadas."
-    _registrar_diario(get_conn, close_conn, "Sync automático rodou", resumo, "produto", "OK")
+    # ---------- REGISTRAR NO DIARIO (apenas se houve mudanca) ----------
+    total_mudancas = (len(resultado["tarefas_concluidas"]) +
+                      len(resultado["tarefas_criadas"]) +
+                      len(resultado["metas_atualizadas"]) +
+                      len(resultado["fases_atualizadas"]))
+    if total_mudancas > 0:
+        resumo = f"Sync: {len(resultado['tarefas_concluidas'])} tarefas concluidas, "
+        resumo += f"{len(resultado['tarefas_criadas'])} criadas, "
+        resumo += f"{len(resultado['metas_atualizadas'])} metas atualizadas, "
+        resumo += f"{len(resultado['fases_atualizadas'])} fases atualizadas."
+        _registrar_diario(get_conn, close_conn, "Sync automatico rodou", resumo, "produto", "OK")
 
     return resultado

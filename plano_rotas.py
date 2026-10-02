@@ -380,7 +380,7 @@ def registrar_rotas_plano(app, get_conn, close_conn, templates, Cookie, Redirect
             cur = conn.cursor()
             cur.execute(
                 "INSERT INTO journal_entries (titulo, conteudo, categoria) VALUES (%s, %s, %s)",
-                ("# log duplicado removido",
+                ("Sync manual",
                  f"Tarefas: {len(resumo['tarefas_concluidas'])} concluidas, {len(resumo['tarefas_criadas'])} criadas. "
                  f"Metas: {len(resumo['metas_atualizadas'])}. Fases: {len(resumo['fases_atualizadas'])}.",
                  "produto")
