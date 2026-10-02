@@ -654,14 +654,48 @@ def salvar_onboarding(nome_nicho: str = Form(...), produto: str = Form(...), pub
 
 
 @app.get("/clientes", response_class=HTMLResponse)
-def tela_clientes(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+def tela_clientes(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None), nicho_id: int = None, nicho_cookie: str = Cookie(None)):
     if not usuario_id:
         return RedirectResponse(url="/login")
     v = buscar_vendedor(usuario_id)
     if not v:
         return RedirectResponse(url="/onboarding")
-    cli = listar_clientes(v["id"])
-    return templates.TemplateResponse(request=request, name="clientes.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id), "clientes": [dict(c) for c in cli]})
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT id, nome FROM nichos WHERE vendedor_id = %s AND ativo = TRUE ORDER BY id", (v["id"],))
+    nichos = [dict(n) for n in cur.fetchall()]
+    if not nichos:
+        cur.close()
+        close_conn(conn)
+        return RedirectResponse(url="/onboarding")
+    ids_ok = [n["id"] for n in nichos]
+    nicho_atual = None
+    if nicho_id and nicho_id in ids_ok:
+        nicho_atual = nicho_id
+    elif nicho_cookie:
+        try:
+            ci = int(nicho_cookie)
+            if ci in ids_ok:
+                nicho_atual = ci
+        except Exception:
+            pass
+    if not nicho_atual:
+        nicho_atual = nichos[0]["id"]
+    cur.execute("SELECT * FROM clientes WHERE vendedor_id = %s AND nicho_id = %s ORDER BY atualizado_em DESC", (v["id"], nicho_atual))
+    clientes = [dict(c) for c in cur.fetchall()]
+    cur.close()
+    close_conn(conn)
+    resp = templates.TemplateResponse(request=request, name="clientes.html", context={
+        "usuario_nome": usuario_nome,
+        "usuario_tipo": usuario_tipo,
+        "total_followups": _total_followups_para_template(usuario_id),
+        "clientes": clientes,
+        "nichos": nichos,
+        "nicho_atual": nicho_atual,
+    })
+    resp.set_cookie(key="nicho_cookie", value=str(nicho_atual), max_age=60*60*24*30, samesite="lax")
+    resp.set_cookie(key="nicho_js", value=str(nicho_atual), max_age=60*60*24*30, samesite="lax")
+    return resp
 
 
 @app.post("/salvar_cliente_manual")
@@ -673,6 +707,66 @@ def salvar_cliente_manual(whatsapp: str = Form(...), nome: str = Form(...), emai
         return RedirectResponse(url="/onboarding")
     salvar_cliente(v["id"], whatsapp, nome, email, origem, status, observacoes)
     return RedirectResponse(url="/clientes", status_code=303)
+
+
+@app.get("/cliente/novo", response_class=HTMLResponse)
+def tela_novo_cliente(request: Request, nicho_id: int = None, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None), erro: str = None):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+    if not nicho_id:
+        return RedirectResponse(url="/clientes")
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT id, nome FROM nichos WHERE id = %s AND vendedor_id = %s AND ativo = TRUE", (nicho_id, v["id"]))
+    nicho = cur.fetchone()
+    cur.close()
+    close_conn(conn)
+    if not nicho:
+        return RedirectResponse(url="/clientes")
+    return templates.TemplateResponse(request=request, name="novo_cliente.html", context={
+        "usuario_nome": usuario_nome,
+        "usuario_tipo": usuario_tipo,
+        "total_followups": _total_followups_para_template(usuario_id),
+        "nicho": dict(nicho),
+        "erro": erro,
+    })
+
+
+@app.post("/cliente/novo")
+def salvar_novo_cliente(nicho_id: int = Form(...), whatsapp: str = Form(...), nome: str = Form(...), email: str = Form(""), origem: str = Form(""), status: str = Form("novo lead"), observacoes: str = Form(""), usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM nichos WHERE id = %s AND vendedor_id = %s AND ativo = TRUE", (nicho_id, v["id"]))
+    if not cur.fetchone():
+        cur.close()
+        close_conn(conn)
+        return RedirectResponse(url="/clientes", status_code=303)
+    cur.close()
+    close_conn(conn)
+    wpp_limpo, err = validar_whatsapp(whatsapp)
+    if err:
+        from urllib.parse import quote
+        return RedirectResponse(url="/cliente/novo?nicho_id=" + str(nicho_id) + "&erro=" + quote(err), status_code=303)
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM clientes WHERE whatsapp = %s AND vendedor_id = %s", (wpp_limpo, v["id"]))
+    if cur.fetchone():
+        cur.close()
+        close_conn(conn)
+        from urllib.parse import quote
+        return RedirectResponse(url="/cliente/novo?nicho_id=" + str(nicho_id) + "&erro=" + quote("WhatsApp ja cadastrado"), status_code=303)
+    cur.close()
+    close_conn(conn)
+    salvar_cliente(v["id"], wpp_limpo, nome, email, origem, status, observacoes, "", nicho_id)
+    return RedirectResponse(url="/clientes?nicho_id=" + str(nicho_id), status_code=303)
 
 
 @app.get("/cliente/{cliente_id}/atender", response_class=HTMLResponse)
@@ -690,8 +784,17 @@ def atender_cliente(request: Request, cliente_id: int, usuario_id: str = Cookie(
     close_conn(conn)
     if not cli:
         return RedirectResponse(url="/clientes")
-    ns = listar_nichos(v["id"])
-    return templates.TemplateResponse(request=request, name="atendimento_cliente.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id), "cliente": dict(cli), "nichos": [dict(n) for n in ns]})
+    if not cli["nicho_id"]:
+        return RedirectResponse(url="/clientes")
+    conn2 = get_conn()
+    cur2 = conn2.cursor(cursor_factory=RealDictCursor)
+    cur2.execute("SELECT * FROM nichos WHERE id = %s AND vendedor_id = %s AND ativo = TRUE", (cli["nicho_id"], v["id"]))
+    nicho = cur2.fetchone()
+    cur2.close()
+    close_conn(conn2)
+    if not nicho:
+        return RedirectResponse(url="/clientes")
+    return templates.TemplateResponse(request=request, name="atendimento_cliente.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id), "cliente": dict(cli), "nicho": dict(nicho)})
 
 
 @app.get("/cliente/{cliente_id}", response_class=HTMLResponse)

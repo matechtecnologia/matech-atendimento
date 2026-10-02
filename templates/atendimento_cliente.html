@@ -59,6 +59,7 @@
             </div>
             <p style="color:#e8e8e8; font-size:16px; font-weight:700; margin-top:10px;">{{ cliente.nome or "Cliente" }}</p>
             <p style="color:#8a8a8a; font-size:13px; margin-top:4px;" class="mono">📱 {{ cliente.whatsapp }}</p>
+            <p style="color:#00d97e; font-size:13px; margin-top:8px; font-weight:700;">🎯 Nicho: {{ nicho.nome }}</p>
         </div>
 
         {% if request.query_params.get('erro') %}
@@ -72,14 +73,7 @@
             <input type="hidden" name="whatsapp" value="{{ cliente.whatsapp }}">
             <input type="hidden" name="cliente_id" value="{{ cliente.id }}">
 
-            <div class="campo">
-                <label>🎯 Nicho (qual produto/serviço você está usando)</label>
-                <select name="nicho_id" required>
-                    {% for n in nichos %}
-                    <option value="{{ n.id }}" {% if cliente.nicho_id == n.id %}selected{% endif %}>{{ n.nome }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+            <input type="hidden" name="nicho_id" value="{{ nicho.id }}">
 
             <div class="campo">
                 <label>💬 O que o cliente falou agora (ou instrução)</label>

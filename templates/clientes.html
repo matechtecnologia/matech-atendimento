@@ -152,9 +152,18 @@
             </div>
         </div>
 
-        <button type="button" onclick="abrirNovo()" style="display:block;width:100%;padding:14px;margin-bottom:14px;background:#00d97e;color:#0a0a0a;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;">
+        <div style="background:#0f1a15;border:1px solid #00d97e33;border-radius:12px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+            <label style="color:#8a8a8a;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;">NICHO</label>
+            <select onchange="if(this.value) window.location.href='/clientes?nicho_id='+this.value;" style="flex:1;min-width:200px;background:#0a0a0a;color:#00d97e;border:1px solid #00d97e;padding:12px 14px;border-radius:8px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;">
+                {% for n in nichos %}
+                    <option value="{{ n.id }}" {% if n.id == nicho_atual %}selected{% endif %}>{{ n.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <a href="/cliente/novo?nicho_id={{ nicho_atual }}" style="display:block;width:100%;padding:14px;margin-bottom:14px;background:#00d97e;color:#0a0a0a;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;text-align:center;text-decoration:none;box-sizing:border-box;">
             + Novo Cliente
-        </button>
+        </a>
 
         <input type="text" id="busca" class="busca-input" placeholder="Buscar cliente..." oninput="filtrar()">
         <button type="button" class="filtro-btn" id="btn-filtros" onclick="togglePainel()">Filtros</button>
