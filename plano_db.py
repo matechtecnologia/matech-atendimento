@@ -12,14 +12,16 @@ def inicializar_plano(get_conn, close_conn):
     # ============================================================
     # LIMPEZA (apaga versao antiga se existir)
     # ============================================================
-    for t in ["tasks", "goals", "roadmap_phases", "strategic_plans",
-              "products", "projects", "metrics", "decisions", "blockers",
-              "journal_entries", "weekly_reports", "monthly_reports",
-              "revenue_records", "plan_modules"]:
-        try:
-            cur.execute(f"DROP TABLE IF EXISTS {t} CASCADE")
-        except Exception:
-            pass
+    # NAO apaga tabelas. Usa CREATE TABLE IF NOT EXISTS.
+    # Se quiser resetar, descomente o bloco abaixo manualmente.
+    # for t in ["tasks", "goals", "roadmap_phases", "strategic_plans",
+    #           "products", "projects", "metrics", "decisions", "blockers",
+    #           "journal_entries", "weekly_reports", "monthly_reports",
+    #           "revenue_records", "plan_modules"]:
+    #     try:
+    #         cur.execute(f"DROP TABLE IF EXISTS {t} CASCADE")
+    #     except Exception:
+    #         pass
 
     # ============================================================
     # 1. PLANO ESTRATEGICO (missao, visao, fase atual)

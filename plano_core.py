@@ -127,6 +127,13 @@ def carregar_dashboard(get_conn, close_conn):
     except Exception:
         d["fases_concluidas"] = 0
 
+    # Progresso real das fases: media do percentual de todas
+    try:
+        cur.execute("SELECT AVG(percentual) FROM roadmap_phases")
+        d["fases_progresso_medio"] = int(cur.fetchone()[0] or 0)
+    except Exception:
+        d["fases_progresso_medio"] = 0
+
     try:
         cur.execute("SELECT COUNT(*) FROM tasks")
         d["total_tarefas"] = cur.fetchone()[0] or 0
@@ -163,7 +170,7 @@ def calcular_execucao(d):
     """Calcula o % de execucao do plano com base em varios fatores."""
     fases_pct = 0
     if d.get("total_fases"):
-        fases_pct = int((d.get("fases_concluidas", 0) / d["total_fases"]) * 100)
+        fases_pct = d.get("fases_progresso_medio", 0)
 
     tarefas_pct = 0
     if d.get("total_tarefas"):

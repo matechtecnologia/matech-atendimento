@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#00d97e">
+    <link rel="manifest" href="/manifest.json">
+    <title>M.A Tech - Áreas</title>
+    <link rel="stylesheet" href="/static/app.min.css?v=99">
+    <style>
+        body { background:#0a0a0a; color:#e8e8e8; font-family:-apple-system,BlinkMacSystemFont,sans-serif; margin:0; }
+        .topo { background:#0f1a15; padding:14px 24px; border-bottom:1px solid #00d97e33; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+        .topo h1 { color:#00d97e; font-size:18px; margin:0; }
+        .topo .usuario-info { display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+        .topo .usuario-info a { color:#8a8a8a; text-decoration:none; font-size:13px; }
+        .topo .usuario-info a:hover { color:#00d97e; }
+        .container { max-width:1100px; margin:24px auto; padding:0 20px; }
+        .saudacao { text-align:center; margin-bottom:32px; }
+        .saudacao h2 { font-size:26px; margin:0 0 8px 0; color:#e8e8e8; }
+        .saudacao p { color:#8a8a8a; font-size:14px; margin:0; }
+        .area-principal { background:linear-gradient(135deg,#0f1a15 0%,#141414 100%); border:2px solid #00d97e; border-radius:16px; padding:32px; margin-bottom:24px; position:relative; box-shadow:0 0 40px rgba(0,217,126,0.15); }
+        .area-principal .badge-ativa { position:absolute; top:-12px; left:24px; background:#00d97e; color:#0a0a0a; padding:5px 14px; border-radius:100px; font-size:11px; font-weight:800; letter-spacing:.05em; font-family:monospace; }
+        .area-principal .icone { font-size:44px; margin-bottom:12px; }
+        .area-principal h3 { font-size:22px; margin:0 0 8px 0; color:#00d97e; }
+        .area-principal p { color:#a8a8a8; font-size:14px; margin:0 0 20px 0; max-width:600px; }
+        .area-principal .btn-grande { display:inline-block; background:#00d97e; color:#0a0a0a; padding:14px 32px; border-radius:8px; font-weight:800; font-size:15px; text-decoration:none; }
+        .area-principal .btn-grande:hover { background:#00b368; }
+        .titulo-secundario { font-size:13px; color:#8a8a8a; text-transform:uppercase; letter-spacing:.08em; font-weight:800; margin:32px 0 16px 0; }
+        .grid-areas { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+        .card-area { background:#141414; border:1px solid #222; border-radius:12px; padding:22px; opacity:0.55; transition:.25s; position:relative; }
+        .card-area:hover { opacity:0.9; border-color:#a855f7; transform:translateY(-2px); }
+        .card-area .icone { font-size:32px; margin-bottom:10px; }
+        .card-area h4 { font-size:16px; margin:0 0 6px 0; color:#e8e8e8; }
+        .card-area p { color:#8a8a8a; font-size:13px; margin:0 0 14px 0; min-height:36px; }
+        .card-area .status { display:inline-block; padding:3px 10px; border-radius:100px; font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; margin-bottom:12px; }
+        .status-breve { background:#1a1a1a; color:#8a8a8a; border:1px solid #3a3a3a; }
+        .status-teste { background:#1f0a2a; color:#c084fc; border:1px solid #a855f7; }
+        .card-area .btn-mini { display:block; width:100%; padding:10px; border-radius:6px; font-weight:700; font-size:13px; text-decoration:none; text-align:center; box-sizing:border-box; font-family:inherit; border:1px solid #a855f7; background:transparent; color:#c084fc; }
+        .card-area .btn-mini:hover { background:#a855f7; color:#fff; }
+        .card-area .btn-mini.desabilitado { border-color:#3a3a3a; color:#5a5a5a; cursor:not-allowed; }
+    </style>
+</head>
+<body>
+    <div class="topo">
+        <h1>M.A <span style="color:#fff">Tech</span></h1>
+        <div class="usuario-info">
+            <span style="color:#8a8a8a;font-size:13px;">{{ usuario_nome }}</span>
+            {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
+            <a href="/logout">Sair</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="saudacao">
+            <h2>Bem-vindo de volta, {{ usuario_nome.split()[0] if usuario_nome else "vendedor" }} 👋</h2>
+            <p>Escolha uma área da M.A Tech pra trabalhar agora</p>
+        </div>
+
+        <!-- ÁREA PRINCIPAL: o que o cliente já tem -->
+        <div class="area-principal">
+            <div class="badge-ativa">SUA ÁREA ATIVA</div>
+            <div class="icone">🤖</div>
+            <h3>Atendimento com IA</h3>
+            <p>Cole a mensagem do cliente no WhatsApp. A IA analisa o histórico, gera a resposta ideal e atualiza o estágio do lead automaticamente.</p>
+            <a href="{{ area_ativa_url }}" class="btn-grande">ACESSAR →</a>
+        </div>
+
+        <!-- ÁREAS SECUNDÁRIAS: pra testar -->
+        <div class="titulo-secundario">outras áreas da m.a tech</div>
+        <div class="grid-areas">
+            <div class="card-area">
+                <div class="icone">📊</div>
+                <h4>Consultoria Empresarial</h4>
+                <p>Diagnóstico profissional da sua empresa, com plano de ação e indicadores.</p>
+                <span class="status status-teste">Teste grátis</span>
+                <a href="#" class="btn-mini" onclick="alert('Em breve! Fale com a M.A Tech pra saber mais.');return false;">TESTAR GRÁTIS</a>
+            </div>
+
+            <div class="card-area">
+                <div class="icone">🎯</div>
+                <h4>Gestão Empresarial</h4>
+                <p>Acompanhamento contínuo das metas, indicadores e execução da empresa.</p>
+                <span class="status status-breve">Em breve</span>
+                <a href="#" class="btn-mini desabilitado" onclick="return false;">EM BREVE</a>
+            </div>
+
+            <div class="card-area">
+                <div class="icone">📈</div>
+                <h4>Tráfego Pago</h4>
+                <p>Gestão profissional de campanhas pra atrair clientes com previsibilidade.</p>
+                <span class="status status-breve">Em breve</span>
+                <a href="#" class="btn-mini desabilitado" onclick="return false;">EM BREVE</a>
+            </div>
+
+            <div class="card-area">
+                <div class="icone">⚙️</div>
+                <h4>Automação</h4>
+                <p>Elimine tarefas manuais e repetitivas do seu negócio com automações.</p>
+                <span class="status status-breve">Em breve</span>
+                <a href="#" class="btn-mini desabilitado" onclick="return false;">EM BREVE</a>
+            </div>
+
+            <div class="card-area">
+                <div class="icone">💼</div>
+                <h4>CRM / Estrutura Comercial</h4>
+                <p>Organize seu processo comercial com pipeline, follow-up e relatórios.</p>
+                <span class="status status-breve">Em breve</span>
+                <a href="#" class="btn-mini desabilitado" onclick="return false;">EM BREVE</a>
+            </div>
+
+            <div class="card-area">
+                <div class="icone">🧠</div>
+                <h4>Inteligência Artificial</h4>
+                <p>Soluções sob medida de IA para atender, analisar ou produzir conteúdo.</p>
+                <span class="status status-breve">Em breve</span>
+                <a href="#" class="btn-mini desabilitado" onclick="return false;">EM BREVE</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/app.min.js?v=99"></script>
+    <script src="/static/splash.js"></script>
+    <script src="/static/sw-register.js"></script>
+</body>
+</html>

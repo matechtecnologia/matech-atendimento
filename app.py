@@ -340,10 +340,12 @@ except Exception as e:
     print(f'Erro ao instalar plano: {e}')
 
 
-try:
-    inicializar_plano_estrategico(get_conn, close_conn)
-except Exception as e:
-    print(f"Erro ao inicializar plano estrategico: {e}")
+# inicializar_plano_estrategico DESATIVADO (apagava as tabelas a cada restart)
+# Quem cria as tabelas agora e o plano_db.py via plano_install.py
+# try:
+#     inicializar_plano_estrategico(get_conn, close_conn)
+# except Exception as e:
+#     print(f"Erro ao inicializar plano estrategico: {e}")
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -647,11 +649,30 @@ def fazer_login(request: Request, email: str = Form(...), senha: str = Form(...)
         destino = "/admin"
     else:
         v = buscar_vendedor(u["id"])
-        destino = "/onboarding" if (not v or not v["onboarding_completo"]) else "/clientes"
+        destino = "/hub"
     r = RedirectResponse(url=destino, status_code=303)
     r.set_cookie(key="usuario_nome", value=u["nome"], httponly=True, samesite="lax", secure=_COOKIE_SECURE)
     r.set_cookie(key="sessao", value=assinar_sessao(u["id"], u["tipo"]), httponly=True, samesite="lax", secure=_COOKIE_SECURE, max_age=_SESSAO_DURACAO)
     return r
+
+
+@app.get("/hub", response_class=HTMLResponse)
+def tela_hub(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    v = buscar_vendedor(usuario_id)
+    if not v:
+        return RedirectResponse(url="/onboarding")
+    # Destino da area ativa
+    if not v["onboarding_completo"]:
+        area_url = "/onboarding"
+    else:
+        area_url = "/clientes"
+    return templates.TemplateResponse(request=request, name="hub.html", context={
+        "usuario_nome": usuario_nome,
+        "usuario_tipo": usuario_tipo,
+        "area_ativa_url": area_url,
+    })
 
 
 @app.get("/admin", response_class=HTMLResponse)
