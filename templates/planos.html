@@ -119,8 +119,33 @@
                 {% endif %}
             {% elif plano_atual == 'gratis' %}
                 <p style="color:#8a8a8a; margin-top:14px; font-size:14px;">
-                    Você está no plano Grátis. Faça upgrade pra adicionar mais nichos.
+                    Você está no plano Grátis. Faça upgrade pra adicionar mais nichos e mais respostas por mês.
                 </p>
+            {% endif %}
+
+            {% if respostas_usadas is defined and respostas_limite is defined %}
+            <div style="margin-top:16px; padding-top:16px; border-top:1px solid #222;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="color:#8a8a8a; font-size:12px; text-transform:uppercase; font-weight:700; letter-spacing:0.05em;">Respostas da IA neste mês</span>
+                    <span style="color:{{ 'red' if respostas_usadas > respostas_limite else '#a855f7' }}; font-size:13px; font-weight:700; font-family:monospace;">
+                        {{ respostas_usadas }} / {{ respostas_limite }}
+                    </span>
+                </div>
+                <div style="height:8px; background:#0a0a0a; border-radius:100px; overflow:hidden;">
+                    {% set pct = (respostas_usadas / respostas_limite * 100) if respostas_limite > 0 else 0 %}
+                    {% set pct_cap = 100 if pct > 100 else pct %}
+                    <div style="height:100%; width:{{ pct_cap }}%; background:{{ 'linear-gradient(90deg,#ff3b3b,#ff5555)' if respostas_usadas > respostas_limite else 'linear-gradient(90deg,#a855f7,#c084fc)' }}; border-radius:100px; transition:width 0.4s;"></div>
+                </div>
+                {% if respostas_usadas > respostas_limite %}
+                <p style="color:#ff3b3b; font-size:12px; margin-top:8px;">
+                    ⚠️ Você passou do limite. O excedente será cobrado na próxima fatura.
+                </p>
+                {% elif pct_cap >= 80 %}
+                <p style="color:#f59e0b; font-size:12px; margin-top:8px;">
+                    ⏳ Você está próximo do limite mensal. Considere fazer upgrade.
+                </p>
+                {% endif %}
+            </div>
             {% endif %}
         </div>
 
@@ -138,8 +163,9 @@
                     <span style="color:#8a8a8a; font-size:14px;">/mês</span>
                 </div>
                 <p style="color:#00d97e; font-size:13px; font-weight:700; margin-top:8px; font-family:monospace;">1 NICHO</p>
+                <p style="color:#a855f7; font-size:13px; font-weight:700; margin-top:4px; font-family:monospace;">300 RESPOSTAS/MÊS</p>
                 <ul style="list-style:none; margin-top:16px; padding:0;">
-                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ IA ilimitada</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ IA ilimitada no nicho</li>
                     <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Clientes ilimitados</li>
                     <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ CRM automático</li>
                 </ul>
@@ -160,10 +186,12 @@
                     <span style="color:#8a8a8a; font-size:14px;">/mês</span>
                 </div>
                 <p style="color:#00d97e; font-size:13px; font-weight:700; margin-top:8px; font-family:monospace;">3 NICHOS</p>
+                <p style="color:#a855f7; font-size:13px; font-weight:700; margin-top:4px; font-family:monospace;">3.000 RESPOSTAS/MÊS</p>
                 <ul style="list-style:none; margin-top:16px; padding:0;">
                     <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Tudo do Grátis</li>
                     <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Até 3 produtos/serviços</li>
                     <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Suporte por email</li>
+                    <li style="padding:5px 0; color:#8a8a8a; font-size:12px;">+ Excedente: R$ 0,05/resposta</li>
                 </ul>
                 {% if plano_atual == 'basico' %}
                 <p style="color:#00d97e; font-size:13px; margin-top:16px; text-align:center; font-weight:600;">
@@ -193,10 +221,12 @@
                     <span style="color:#8a8a8a; font-size:14px;">/mês</span>
                 </div>
                 <p style="color:#00d97e; font-size:13px; font-weight:700; margin-top:8px; font-family:monospace;">10 NICHOS</p>
+                <p style="color:#a855f7; font-size:13px; font-weight:700; margin-top:4px; font-family:monospace;">10.000 RESPOSTAS/MÊS</p>
                 <ul style="list-style:none; margin-top:16px; padding:0;">
                     <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Tudo do Básico</li>
                     <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Até 10 produtos/serviços</li>
                     <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Suporte prioritário</li>
+                    <li style="padding:5px 0; color:#8a8a8a; font-size:12px;">+ Excedente: R$ 0,04/resposta</li>
                 </ul>
                 {% if plano_atual == 'pro' %}
                 <p style="color:#00d97e; font-size:13px; margin-top:16px; text-align:center; font-weight:600;">
@@ -225,10 +255,12 @@
                     <span style="color:#8a8a8a; font-size:14px;">/mês</span>
                 </div>
                 <p style="color:#00d97e; font-size:13px; font-weight:700; margin-top:8px; font-family:monospace;">25 NICHOS</p>
+                <p style="color:#a855f7; font-size:13px; font-weight:700; margin-top:4px; font-family:monospace;">30.000 RESPOSTAS/MÊS</p>
                 <ul style="list-style:none; margin-top:16px; padding:0;">
                     <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Tudo do Pro</li>
                     <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Até 25 produtos/serviços</li>
                     <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Suporte dedicado</li>
+                    <li style="padding:5px 0; color:#8a8a8a; font-size:12px;">+ Excedente: R$ 0,03/resposta</li>
                 </ul>
                 {% if plano_atual == 'empresarial' %}
                 <p style="color:#00d97e; font-size:13px; margin-top:16px; text-align:center; font-weight:600;">
@@ -255,6 +287,16 @@
                 3. Pague o PIX pelo QR Code<br>
                 4. Plano ativa em segundos após a confirmação<br>
                 5. Renovação mensal — cancele quando quiser
+            </p>
+        </div>
+
+        <div class="bloco bloco-crm" style="background:#111725; border-left:4px solid #a855f7; margin-top:16px;">
+            <div class="bloco-topo">
+                <h2>📊 O QUE É UMA "RESPOSTA"?</h2>
+            </div>
+            <p style="color:#8a8a8a; font-size:13px; line-height:1.6; margin-top:8px;">
+                Cada vez que você cola uma mensagem do cliente e a IA devolve os 3 blocos (o que falar, o que enviar e o estágio), conta como <strong style="color:#a855f7;">1 resposta</strong>. O limite é mensal e protege você (uso abusivo) e nós (custo da IA).<br><br>
+                <strong style="color:#e8e8e8;">Passou do limite?</strong> Nada trava. Cobramos um valor pequeno por resposta excedente na próxima fatura.
             </p>
         </div>
 

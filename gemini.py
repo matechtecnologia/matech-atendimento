@@ -301,7 +301,7 @@ def gerar_resposta(linha_crm, mensagem_cliente, prompt_vendedor=None, historico=
             ],
             timeout=60,
             temperature=0.7,
-            max_tokens=2000
+            max_tokens=3000
         )
         return separar_resposta(r.choices[0].message.content)
     except Exception as e:
@@ -330,7 +330,7 @@ def gerar_resposta_stream(linha_crm, mensagem_cliente, prompt_vendedor=None, his
             ],
             timeout=60,
             temperature=0.7,
-            max_tokens=2000,
+            max_tokens=3000,
             stream=True
         )
         for chunk in r:
@@ -396,7 +396,7 @@ def gerar_prompt_personalizado(nome_nicho, produto, publico, preco, dor, objecao
                 {"role": "user", "content": dados},
             ],
             temperature=0.7,
-            max_tokens=2000,
+            max_tokens=3000,
             timeout=60,
         )
         texto = r.choices[0].message.content.strip()

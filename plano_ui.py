@@ -82,6 +82,7 @@ def _topo(ativo):
         ("/plano/lab", "Lab", "lab"),
         ("/plano/decisoes", "Decisoes", "decisoes"),
         ("/plano/financeiro", "Financeiro", "financeiro"),
+        ("/plano/roi", "ROI", "roi"),
         ("/plano/relatorios", "Relatorios", "relatorios"),
         ("/plano/bloqueios", "Bloqueios", "bloqueios"),
         ("/plano/diario", "Diario", "diario"),

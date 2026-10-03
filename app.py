@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from passlib.context import CryptContext
 from dotenv import load_dotenv
-from gemini import gerar_resposta, gerar_prompt_vendedor, validar_nicho_ia, gerar_prompt_personalizado, gerar_prompt_personalizado
+from gemini import gerar_resposta, gerar_prompt_vendedor, validar_nicho_ia, gerar_prompt_personalizado
 from plano_install import instalar_plano
 from asaas import criar_cliente, criar_cobranca_pix, obter_qr_code, consultar_pagamento
 from plano_rotas import registrar_rotas_plano
@@ -107,6 +107,8 @@ pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 LIMITES = {"gratis": 1, "basico": 3, "pro": 10, "empresarial": 25}
 PLANOS_PRECO = {"basico": 97.0, "pro": 297.0, "empresarial": 597.0}
+LIMITES_RESPOSTAS = {"gratis": 300, "basico": 3000, "pro": 10000, "empresarial": 30000}
+EXCEDENTE_PRECO = {"gratis": 0.0, "basico": 0.05, "pro": 0.04, "empresarial": 0.03}
 from psycopg2 import pool as pg_pool
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -300,6 +302,18 @@ def inicializar_banco():
     cur.execute("CREATE INDEX IF NOT EXISTS idx_tentativas_login ON tentativas_login(email, criado_em DESC)")
 
     cur.execute("CREATE INDEX IF NOT EXISTS idx_clientes_vendedor ON clientes(vendedor_id)")
+
+    cur.execute('''CREATE TABLE IF NOT EXISTS respostas_ia (
+        id SERIAL PRIMARY KEY,
+        vendedor_id INTEGER NOT NULL,
+        mes_ano TEXT NOT NULL,
+        total INTEGER DEFAULT 0,
+        criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        atualizado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(vendedor_id, mes_ano)
+    )''')
+
+    cur.execute("CREATE INDEX IF NOT EXISTS idx_respostas_ia_vendedor ON respostas_ia(vendedor_id, mes_ano)")
 
     _adm_email = os.getenv("ADMIN_EMAIL")
     _adm_senha = os.getenv("ADMIN_SENHA_INICIAL")
@@ -506,10 +520,45 @@ def salvar_historico(whatsapp, vid, direcao, mensagem):
     close_conn(conn)
 
 
+
+
+def _mes_ano_atual():
+    from datetime import datetime as _dt
+    return _dt.now().strftime("%Y-%m")
+
+
+def contar_respostas_mes(vendedor_id):
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("SELECT total FROM respostas_ia WHERE vendedor_id = %s AND mes_ano = %s", (vendedor_id, _mes_ano_atual()))
+    r = cur.fetchone()
+    cur.close()
+    close_conn(conn)
+    return r[0] if r else 0
+
+
+def incrementar_resposta(vendedor_id):
+    conn = get_conn()
+    cur = conn.cursor()
+    mes = _mes_ano_atual()
+    cur.execute("""INSERT INTO respostas_ia (vendedor_id, mes_ano, total)
+                   VALUES (%s, %s, 1)
+                   ON CONFLICT (vendedor_id, mes_ano)
+                   DO UPDATE SET total = respostas_ia.total + 1, atualizado_em = CURRENT_TIMESTAMP""",
+                (vendedor_id, mes))
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+
+
 def processar_atendimento(aid, linha_crm, mensagem, prompt, hist, whatsapp, uid, cid=None, nicho_dict=None):
     try:
         r = gerar_resposta(linha_crm, mensagem, prompt, hist, nicho_dict=nicho_dict)
         salvar_historico(whatsapp, uid, "ia", r.get("o_que_falar", ""))
+        try:
+            incrementar_resposta(uid)
+        except Exception as _e:
+            print("Erro incrementar resposta:", _e)
         conn = get_conn()
         cur = conn.cursor()
         cur.execute("UPDATE atendimentos SET o_que_falar=%s, texto_para_enviar=%s, acao_crm=%s, linha_crm_gerada=%s, status='pronto' WHERE id=%s", (r.get("o_que_falar", ""), r.get("texto_para_enviar", ""), r.get("estagio", "Em Atendimento"), r.get("linha_crm", ""), aid))
@@ -911,6 +960,15 @@ INSTRUCAO A EXECUTAR:
     cur.close()
     close_conn(conn)
 
+    # Verifica limite mensal de respostas
+    try:
+        usadas = contar_respostas_mes(vid_real)
+        limite = LIMITES_RESPOSTAS.get(vendedor_atual["plano"], 300)
+        if usadas >= limite:
+            return RedirectResponse(url="/planos?erro=Limite+de+respostas+atingido.+Faca+upgrade", status_code=303)
+    except Exception as _e:
+        print("Erro verificar limite:", _e)
+
     threading.Thread(target=processar_atendimento, args=(aid, linha_crm, mensagem_cliente, prompt_atualizado, hist, whatsapp, vid_real, cliente_id), kwargs={"nicho_dict": dict(n)}).start()
     return RedirectResponse(url=f"/resultado/{aid}", status_code=303)
 
@@ -1036,7 +1094,9 @@ def tela_planos(request: Request, usuario_id: str = Cookie(None), usuario_nome: 
     verificar_expiracao(v["id"])
     v = buscar_vendedor(usuario_id)
     d = dias_restantes(v["id"])
-    return templates.TemplateResponse(request=request, name="planos.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id), "plano_atual": v["plano"], "dias_restantes": d})
+    respostas_usadas = contar_respostas_mes(v["id"])
+    respostas_limite = LIMITES_RESPOSTAS.get(v["plano"], 300)
+    return templates.TemplateResponse(request=request, name="planos.html", context={"usuario_nome": usuario_nome, "usuario_tipo": usuario_tipo, "total_followups": _total_followups_para_template(usuario_id), "plano_atual": v["plano"], "dias_restantes": d, "respostas_usadas": respostas_usadas, "respostas_limite": respostas_limite})
 
 
 @app.post("/assinar")
@@ -1559,7 +1619,7 @@ def admin_editar_nicho(vendedor_id: int, nicho_id: int, nome: str = Form(...), p
         cur.close()
         close_conn(conn)
         return RedirectResponse(url=f"/admin/vendedor/{vendedor_id}")
-    pg = gerar_prompt_personalizado(nome_nicho, produto, publico, preco, dor, objecao, diferencial, tom)
+    pg = gerar_prompt_personalizado(nome, produto, publico, preco, dor, objecao, diferencial, tom)
     cur.execute("UPDATE nichos SET nome=%s, produto=%s, publico=%s, preco=%s, dor=%s, objecao=%s, diferencial=%s, tom=%s, prompt_gerado=%s WHERE id=%s",
                 (nome, produto, publico, preco, dor, objecao, diferencial, tom, pg, nicho_id))
     conn.commit()
@@ -1820,7 +1880,7 @@ def criar_vendedor_v2(nome, email, senha, whatsapp):
 def admin_criar_nicho(vendedor_id: int, nome: str = Form(...), produto: str = Form(""), publico: str = Form(""), preco: str = Form(""), dor: str = Form(""), objecao: str = Form(""), diferencial: str = Form(""), tom: str = Form(""), usuario_id: str = Cookie(None), usuario_tipo: str = Cookie(None)):
     if not usuario_id or usuario_tipo != "admin":
         return RedirectResponse(url="/login")
-    pg = gerar_prompt_personalizado(nome_nicho, produto, publico, preco, dor, objecao, diferencial, tom)
+    pg = gerar_prompt_personalizado(nome, produto, publico, preco, dor, objecao, diferencial, tom)
     conn = get_conn()
     cur = conn.cursor()
     cur.execute("INSERT INTO nichos (vendedor_id, nome, produto, publico, preco, dor, objecao, diferencial, tom, prompt_gerado) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",

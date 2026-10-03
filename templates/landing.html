@@ -51,7 +51,8 @@
   .plan h3{font-size:18px;margin-bottom:12px;font-weight:700}
   .plan .price{font-size:32px;font-weight:800;margin-bottom:4px;color:#fff}
   .plan .price small{font-size:14px;color:#8a8a8a;font-weight:500}
-  .plan .nichos{color:#00d97e;font-size:13px;font-weight:700;margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid #222222;font-family:'SF Mono',Consolas,monospace}
+  .plan .nichos{color:#00d97e;font-size:13px;font-weight:700;margin-bottom:6px;font-family:'SF Mono',Consolas,monospace}
+  .plan .respostas{color:#a855f7;font-size:13px;font-weight:700;margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid #222222;font-family:'SF Mono',Consolas,monospace}
   .plan ul{list-style:none;margin-bottom:24px;flex:1}
   .plan ul li{padding:7px 0;color:#a8a8a8;font-size:14px;display:flex;gap:10px;align-items:flex-start}
   .plan ul li:before{content:"✓";color:#00d97e;font-weight:800;flex-shrink:0}
@@ -146,12 +147,13 @@
 <section id="planos">
   <div class="container">
     <h2>Planos simples</h2>
-    <p class="sub">Pague só quando precisar de mais nichos. Cancele quando quiser.</p>
+    <p class="sub">Pague só quando precisar de mais nichos ou mais respostas. Cancele quando quiser.</p>
     <div class="plans">
       <div class="plan">
         <h3>Grátis</h3>
         <div class="price">R$ 0<small>/mês</small></div>
         <div class="nichos">1 NICHO</div>
+        <div class="respostas">300 RESPOSTAS/MÊS</div>
         <ul>
           <li>IA ilimitada no 1º nicho</li>
           <li>Clientes ilimitados</li>
@@ -164,10 +166,12 @@
         <h3>Básico</h3>
         <div class="price">R$ 97<small>/mês</small></div>
         <div class="nichos">3 NICHOS</div>
+        <div class="respostas">3.000 RESPOSTAS/MÊS</div>
         <ul>
           <li>Tudo do Grátis</li>
           <li>Até 3 produtos/serviços</li>
           <li>Suporte por email</li>
+          <li>Excedente: R$ 0,05/resposta</li>
         </ul>
         <a href="/signup" class="btn btn-ghost">Assinar</a>
       </div>
@@ -176,10 +180,12 @@
         <h3>Pro</h3>
         <div class="price">R$ 297<small>/mês</small></div>
         <div class="nichos">10 NICHOS</div>
+        <div class="respostas">10.000 RESPOSTAS/MÊS</div>
         <ul>
           <li>Tudo do Básico</li>
           <li>Até 10 produtos/serviços</li>
           <li>Suporte prioritário</li>
+          <li>Excedente: R$ 0,04/resposta</li>
         </ul>
         <a href="/signup" class="btn btn-primary">Assinar Pro</a>
       </div>
@@ -187,14 +193,19 @@
         <h3>Empresarial</h3>
         <div class="price">R$ 597<small>/mês</small></div>
         <div class="nichos">25 NICHOS</div>
+        <div class="respostas">30.000 RESPOSTAS/MÊS</div>
         <ul>
           <li>Tudo do Pro</li>
           <li>Até 25 produtos/serviços</li>
           <li>Suporte dedicado</li>
+          <li>Excedente: R$ 0,03/resposta</li>
         </ul>
         <a href="/signup" class="btn btn-ghost">Falar com vendas</a>
       </div>
     </div>
+    <p style="text-align:center; color:#5a5a5a; font-size:13px; margin-top:24px; font-family:'SF Mono',Consolas,monospace;">
+      💡 Cada "resposta" = 1 sugestão completa da IA (o que falar + o que enviar + estágio).
+    </p>
   </div>
 </section>
 
@@ -206,6 +217,9 @@
       <details><summary>Preciso instalar algo?</summary><p>Não. É 100% web. Você abre no navegador do computador ou do celular e usa na hora.</p></details>
       <details><summary>A IA fala do meu produto específico?</summary><p>Sim. No cadastro você responde 7 perguntas sobre o seu negócio e a IA gera um prompt único pra você. Ela fala do seu produto, do seu jeito, com o seu tom.</p></details>
       <details><summary>O que é um "nicho"?</summary><p>É cada produto ou serviço diferente que você vende. Se você vende curso de inglês e mentoria de carreira, são 2 nichos. Se vende um só produto, é 1 nicho.</p></details>
+      <details><summary>O que é uma "resposta"?</summary><p>É cada sugestão completa da IA. Quando você cola uma mensagem do cliente e a IA devolve os 3 blocos (o que falar, o que enviar, estágio), isso conta como <strong>1 resposta</strong>. Todo plano tem um limite mensal pra proteger sua conta e a nossa.</p></details>
+      <details><summary>E se eu passar do limite de respostas do meu plano?</summary><p>Nada trava. Você continua usando, e cobramos um valor pequeno por resposta excedente: R$ 0,05 no Básico, R$ 0,04 no Pro, R$ 0,03 no Empresarial. O valor aparece na próxima fatura, sem surpresa.</p></details>
+      <details><summary>Posso mudar de plano no meio do mês?</summary><p>Sim. Se você fizer upgrade, o novo limite entra imediatamente. Se fizer downgrade, o novo limite entra na próxima renovação.</p></details>
       <details><summary>Funciona com WhatsApp Business?</summary><p>Sim. Você copia a mensagem que a IA gerou e cola direto no WhatsApp, como faz hoje. Nenhum bloqueio, nenhuma integração complicada.</p></details>
       <details><summary>Como funciona o pagamento?</summary><p>PIX via Asaas. Você assina, recebe o QR Code, paga e o plano ativa na hora. Renovação mensal, cancelamento livre.</p></details>
       <details><summary>Meus dados ficam seguros?</summary><p>Sim. Senhas criptografadas, banco PostgreSQL gerenciado, cada vendedor só vê os próprios dados. Ninguém mais acessa suas conversas.</p></details>
@@ -275,6 +289,6 @@
   </div>
 </footer>
 
-    <script src="/static/app-badge-plano.js"></script>
+<script src="/static/app-badge-plano.js"></script>
 </body>
 </html>

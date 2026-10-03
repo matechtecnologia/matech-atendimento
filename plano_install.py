@@ -29,6 +29,14 @@ def instalar_plano(app, get_conn, close_conn, Cookie, Request):
     except Exception as e:
         print(f"Plano rotas extras erro: {e}")
 
+    # 5. Registra rotas de ROI (receita x custos)
+    try:
+        import plano_roi
+        plano_roi.registrar_rotas_roi(app, get_conn, close_conn, Cookie, Request)
+        print("Plano: rotas ROI registradas")
+    except Exception as e:
+        print(f"Plano rotas ROI erro: {e}")
+
     # 4. Registra rotas comerciais, gestao, lab, relatorios
     try:
         import plano_ui3
@@ -36,6 +44,14 @@ def instalar_plano(app, get_conn, close_conn, Cookie, Request):
         print("Plano: rotas comerciais registradas")
     except Exception as e:
         print(f"Plano rotas comerciais erro: {e}")
+
+    # 5. Registra rotas de ROI (receita x custos)
+    try:
+        import plano_roi
+        plano_roi.registrar_rotas_roi(app, get_conn, close_conn, Cookie, Request)
+        print("Plano: rotas ROI registradas")
+    except Exception as e:
+        print(f"Plano rotas ROI erro: {e}")
 
     # 4. Registra rotas comerciais, gestao, lab, relatorios
     try:
