@@ -209,18 +209,18 @@ def _normalizar_estagio(txt):
 
 
 def separar_resposta(texto):
-    blocos = {"o_que_falar": "", "texto_para_enviar": "", "estagio": "Em Atendimento", "linha_crm": ""}
+    blocos = {"o_que_falar": "", "texto_para_enviar": "NENHUM", "estagio": "Em Atendimento", "linha_crm": ""}
     if not texto:
         return blocos
     texto = texto.strip()
 
-    pf = r"^\s*={0,3}\s*O QUE FALAR\s*={0,3}\s*$"
-    pt = r"^\s*={0,3}\s*TEXTO PARA ENVIAR\s*={0,3}\s*$"
-    pe = r"^\s*={0,3}\s*(?:EST[\u00c1A]GIO|A[\u00c7C][\u00c3A]O CRM|STAGE)\s*={0,3}\s*$"
-    pc = r"^\s*={0,3}\s*LINHA CRM\s*={0,3}\s*$"
+    pf = r"={0,3}\s*O QUE FALAR\s*={0,3}"
+    pt = r"={0,3}\s*TEXTO PARA ENVIAR\s*={0,3}"
+    pe = r"={0,3}\s*(?:EST[ÁA]GIO|A[ÇC][ÃA]O CRM|STAGE)\s*={0,3}"
+    pc = r"={0,3}\s*LINHA CRM\s*={0,3}"
 
     try:
-        partes = re.split(f"({pf}|{pt}|{pe}|{pc})", texto, flags=re.IGNORECASE | re.MULTILINE)
+        partes = re.split(f"({pf}|{pt}|{pe}|{pc})", texto, flags=re.IGNORECASE)
         atual = None
         for parte in partes:
             p = parte.strip()

@@ -934,7 +934,7 @@ INSTRUCAO A EXECUTAR:
 
 ### FIM DA INSTRUCAO ###"""
         # Marca no historico como INSTRUCAO, nao como fala do cliente
-        salvar_historico(whatsapp, vid_real, "instrucao", f"[INSTRUCAO] {mensagem_cliente}")
+        salvar_historico(whatsapp, vid_real, "instrucao", f"[INSTRUCAO] {mensagem_cliente[:200]}")
 
     n = buscar_nicho(nicho_id)
     if not n or n["vendedor_id"] != vid_real:

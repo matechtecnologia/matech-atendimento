@@ -101,8 +101,8 @@
                 </div>
             </div>
             <div style="margin-top:10px; font-size:13px; color:#e8e8e8;">
-                <p style="margin:0 0 6px 0;"><strong style="color:#8a8a8a;">Cliente disse:</strong> {{ a.mensagem_cliente or '' }}</p>
-                {% if a.texto_para_enviar %}<p style="margin:0 0 6px 0;"><strong style="color:#8a8a8a;">Texto enviado:</strong> {{ a.texto_para_enviar or '' }}</p>{% endif %}
+                <p style="margin:0 0 6px 0;"><strong style="color:#8a8a8a;">Cliente disse:</strong> {{ (a.mensagem_cliente or '')[:200] }}{% if a.mensagem_cliente and a.mensagem_cliente|length > 200 %}...{% endif %}</p>
+                {% if a.texto_para_enviar %}<p style="margin:0 0 6px 0;"><strong style="color:#8a8a8a;">Texto enviado:</strong> {{ a.texto_para_enviar[:200] }}{% if a.texto_para_enviar|length > 200 %}...{% endif %}</p>{% endif %}
                 {% if a.acao_crm %}<p style="margin:0;"><strong style="color:#8a8a8a;">Estágio:</strong> <span class="badge-status status-em-atendimento">{{ a.acao_crm|upper }}</span></p>{% endif %}
             </div>
         </div>
