@@ -169,13 +169,28 @@ Responda EXATAMENTE com os 4 marcadores abaixo, cada um em uma linha sozinha. Na
 (roteiro do audio, natural, 10-30s, terminando com UMA pergunta util OU proximo passo)
 
 === TEXTO PARA ENVIAR ===
-REGRA CRITICA: O padrao e a palavra NENHUM.
-Voce SO preenche este bloco em 3 casos:
-1) Preco/pagamento (ex: 'R$ 120')
-2) Link/endereco (ex: 'Instagram: @x')
-3) Info tecnica copiavel (ex: 'PIX 123456')
-PROIBIDO copiar o roteiro do audio aqui.
-Se for conversa normal, escreva: NENHUM
+REGRA: O padrao e a palavra NENHUM.
+
+Voce SO preenche este bloco quando a informacao NAO PUDER ser transmitida por audio.
+Ou seja: quando o cliente PRECISA VER escrito pra entender, consultar ou usar.
+
+Casos onde VOCE DEVE gerar texto:
+- Preco, valor, condicao de pagamento
+- Link, endereco, Instagram, site, chave PIX
+- Dados tecnicos copiaveis (CNPJ, codigo, numero, chave)
+- Lista de itens, catalogo, passo a passo com multiplos passos
+- Horario, data, agendamento especifico
+- Qualquer info que o cliente vai precisar COPIAR, CONSULTAR ou COMPARTILHAR
+
+Casos onde NAO deve gerar texto (retorne NENHUM):
+- Conversa normal, saudacao, pergunta ou resposta
+- Apresentacao do produto ou servico
+- Quebra de objecao
+- Fechamento verbal
+- Follow-up
+- Qualquer coisa que soe natural em audio
+
+Se o audio der conta da mensagem, retorne: NENHUM
 
 === ESTAGIO ===
 (APENAS UM: Novo Lead, Em Atendimento, Negociacao, Cliente, Perdido)
