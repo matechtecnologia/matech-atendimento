@@ -223,6 +223,28 @@ def _normalizar_estagio(txt):
     return "Em Atendimento"
 
 
+def _limpar_caracteres_unicode(txt):
+    """Troca caracteres Unicode invisiveis/problematicos por espaco normal.
+    Cobre narrow no-break space, no-break space, thin space, zero-width, etc."""
+    if not txt:
+        return txt
+    mapa = {
+        "\u202f": " ",  # narrow no-break space (o que a IA gera: R$ 34,90)
+        "\u00a0": " ",  # no-break space
+        "\u2009": " ",  # thin space
+        "\u200a": " ",  # hair space
+        "\u2007": " ",  # figure space
+        "\u2008": " ",  # punctuation space
+        "\u200b": "",   # zero-width space
+        "\u200c": "",   # zero-width non-joiner
+        "\u200d": "",   # zero-width joiner
+        "\ufeff": "",   # BOM
+    }
+    for k, v in mapa.items():
+        txt = txt.replace(k, v)
+    return txt
+
+
 def separar_resposta(texto):
     blocos = {"o_que_falar": "", "texto_para_enviar": "", "estagio": "Em Atendimento", "linha_crm": ""}
     if not texto:
@@ -258,6 +280,11 @@ def separar_resposta(texto):
             blocos["texto_para_enviar"] = "NENHUM"
     except Exception as e:
         blocos["o_que_falar"] = "ERRO: " + str(e) + "\n" + texto
+
+    # Limpa caracteres Unicode invisiveis (narrow no-break space, etc)
+    for k in blocos:
+        if isinstance(blocos[k], str):
+            blocos[k] = _limpar_caracteres_unicode(blocos[k])
 
     return blocos
 
