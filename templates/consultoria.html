@@ -2,102 +2,762 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#00d97e">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="M.A Tech">
     <link rel="manifest" href="/manifest.json">
     <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
     <link rel="icon" type="image/png" href="/static/favicon-32.png">
     <title>M.A Tech - Consultoria Empresarial</title>
-    <link rel="stylesheet" href="/static/app.min.css?v=310930">
+    <link rel="stylesheet" href="/static/app.min.css?v=310934">
     <style>
-        .consult-hero { text-align: center; padding: 60px 20px 40px; }
-        .consult-icone {
-            width: 96px; height: 96px; margin: 0 auto 24px;
-            background: linear-gradient(135deg, #00d97e 0%, #00b368 100%);
-            border-radius: 28px; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 20px 50px rgba(0,217,126,0.35);
-            color: #0a0a0a;
+        * { box-sizing: border-box; }
+
+        body {
+            background: #0a0a0a; color: #e8e8e8;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
         }
-        .consult-icone svg { width: 48px; height: 48px; }
+
+        /* ====== HEADER ====== */
+        .topo {
+            background: #0f1a15; padding: 14px 24px;
+            border-bottom: 1px solid #00d97e33;
+            display: flex; justify-content: space-between; align-items: center;
+            flex-wrap: wrap; gap: 12px;
+        }
+        .topo h1 { color: #00d97e; font-size: 18px; margin: 0; font-weight: 800; letter-spacing: -0.02em; }
+        .topo h1 span { color: #fff; }
+        .topo .usuario-info { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+        .topo .usuario-info a { color: #8a8a8a; text-decoration: none; font-size: 13px; transition: color .15s; }
+        .topo .usuario-info a:hover { color: #00d97e; }
+        .topo .usuario-info span { color: #8a8a8a; font-size: 13px; }
+
+        .container-atendimento { max-width: 780px; margin: 0 auto; padding: 0 16px; }
+
+        /* ====== MODO INICIO ====== */
+        .consult-hero { text-align: center; padding: 48px 20px 32px; }
+
+        .consult-icone {
+            width: 108px; height: 108px; margin: 0 auto 24px;
+            background: linear-gradient(135deg, #00d97e 0%, #00b368 100%);
+            border-radius: 32px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 24px 60px rgba(0,217,126,0.4), inset 0 -4px 12px rgba(0,0,0,0.15);
+            position: relative;
+        }
+        .consult-icone::after {
+            content: ""; position: absolute; inset: -6px;
+            border-radius: 38px; border: 1px solid rgba(0,217,126,0.25);
+            animation: pulse-ring 2.5s ease-out infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(1); opacity: 0.6; }
+            100% { transform: scale(1.15); opacity: 0; }
+        }
+        .consult-icone svg { width: 52px; height: 52px; color: #0a0a0a; }
+
         .consult-badge {
             display: inline-block; padding: 6px 16px; border-radius: 100px;
             background: rgba(0,217,126,0.12); color: #00d97e;
-            font-size: 11px; font-weight: 800; letter-spacing: 0.15em;
-            text-transform: uppercase; margin-bottom: 20px;
+            font-size: 10px; font-weight: 800; letter-spacing: 0.18em;
+            text-transform: uppercase; margin-bottom: 18px;
             border: 1px solid rgba(0,217,126,0.3);
+            font-family: 'SF Mono', Consolas, monospace;
         }
-        .consult-titulo { font-size: 32px; font-weight: 800; color: #fff; margin: 0 0 12px; letter-spacing: -0.02em; }
-        .consult-sub { font-size: 16px; color: #8a8a8a; max-width: 480px; margin: 0 auto; line-height: 1.6; }
+        .consult-titulo {
+            font-size: 34px; font-weight: 800; color: #fff;
+            margin: 0 0 12px; letter-spacing: -0.03em; line-height: 1.15;
+        }
+        .consult-titulo em { color: #00d97e; font-style: normal; }
+        .consult-sub {
+            font-size: 15px; color: #8a8a8a; max-width: 480px;
+            margin: 0 auto; line-height: 1.65;
+        }
+
+        /* ====== CARD ====== */
         .consult-card {
-            background: linear-gradient(135deg, #141414 0%, #0f1a15 100%);
-            border: 1px solid #222222; border-radius: 16px;
-            padding: 28px 24px; margin: 40px 0 24px;
+            background: #141414; border: 1px solid #222;
+            border-left: 4px solid #00d97e;
+            border-radius: 12px; padding: 20px 22px;
+            margin: 32px 0 24px;
         }
-        .consult-card h3 { font-size: 13px; color: #00d97e; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 18px; font-weight: 800; }
+        .consult-card h3 {
+            font-size: 11px; color: #00d97e; text-transform: uppercase;
+            letter-spacing: 0.12em; margin: 0 0 16px; font-weight: 800;
+            font-family: 'SF Mono', Consolas, monospace;
+        }
         .consult-lista { list-style: none; padding: 0; margin: 0; }
         .consult-lista li {
             display: flex; align-items: flex-start; gap: 12px;
             padding: 12px 0; border-bottom: 1px solid #1a1a1a;
-            color: #e8e8e8; font-size: 14px; line-height: 1.5;
+            color: #e8e8e8; font-size: 14px; line-height: 1.55;
         }
         .consult-lista li:last-child { border-bottom: none; }
         .consult-lista .check {
-            flex-shrink: 0; width: 20px; height: 20px;
+            flex-shrink: 0; width: 22px; height: 22px;
             background: rgba(0,217,126,0.15); border-radius: 6px;
             display: flex; align-items: center; justify-content: center;
-            color: #00d97e; font-size: 12px; font-weight: 800; margin-top: 1px;
+            color: #00d97e; font-size: 11px; font-weight: 800;
+            margin-top: 1px; font-family: 'SF Mono', Consolas, monospace;
         }
+        .consult-lista strong { color: #fff; font-weight: 700; }
+
+        /* ====== BOTAO INICIAR ====== */
+        .consult-btn-iniciar {
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+            padding: 18px 48px; margin-top: 28px;
+            background: #00d97e; color: #0a0a0a;
+            border: none; border-radius: 12px; cursor: pointer;
+            font-size: 15px; font-weight: 800; letter-spacing: 0.02em;
+            font-family: inherit;
+            box-shadow: 0 12px 32px rgba(0,217,126,0.4);
+            transition: transform .15s, box-shadow .15s;
+        }
+        .consult-btn-iniciar:hover { transform: translateY(-2px); box-shadow: 0 18px 44px rgba(0,217,126,0.5); }
+        .consult-btn-iniciar:disabled { opacity: 0.7; cursor: wait; transform: none; }
+        .consult-btn-iniciar svg { width: 18px; height: 18px; }
+
         .consult-voltar { display: block; text-align: center; margin: 32px 0 40px; }
-        .consult-voltar a { color: #00d97e; text-decoration: none; font-size: 14px; font-weight: 600; }
-        .consult-voltar a:hover { text-decoration: underline; }
-        @media (max-width: 600px) {
+        .consult-voltar a { color: #8a8a8a; text-decoration: none; font-size: 13px; font-weight: 600; }
+        .consult-voltar a:hover { color: #00d97e; }
+
+        /* ====== CHAT WRAP ====== */
+        .consult-chat-wrap {
+            display: flex; flex-direction: column;
+            height: calc(100vh - 62px); min-height: 500px;
+            max-height: 900px;
+        }
+
+        /* ====== TOPO DO CHAT ====== */
+        .consult-chat-top {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 14px 4px; margin-top: 8px;
+            border-bottom: 1px solid #1a1a1a;
+            gap: 12px; flex-wrap: wrap;
+        }
+        .consult-chat-id { display: flex; align-items: center; gap: 12px; }
+
+        /* Avatar principal — DESENHO SOFISTICADO */
+                .consult-avatar-principal {
+            width: 48px; height: 48px; border-radius: 50%;
+            background: linear-gradient(135deg, #00d97e 0%, #00a85a 100%);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 0 3px rgba(0,217,126,0.15), 0 8px 20px rgba(0,217,126,0.3);
+            position: relative; flex-shrink: 0;
+            /* SEM overflow:hidden aqui -- a bolinha online precisa sair do circulo */
+        }
+        .consult-avatar-principal svg { width: 28px; height: 28px; color: #0a0a0a; }
+        .consult-avatar-principal img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+            border-radius: 50%;
+        }
+        .consult-avatar-principal::after {
+            content: ""; position: absolute; bottom: -1px; right: -1px;
+            width: 14px; height: 14px; border-radius: 50%;
+            background: #00d97e; border: 2.5px solid #0a0a0a;
+            box-shadow: 0 0 8px #00d97e;
+            animation: pulse-online 2s ease-in-out infinite;
+            z-index: 2;
+        }
+        @keyframes pulse-online {
+            0%, 100% { box-shadow: 0 0 8px #00d97e; }
+            50% { box-shadow: 0 0 14px #00d97e, 0 0 20px rgba(0,217,126,0.5); }
+        }
+
+        .consult-chat-nome { font-size: 15px; font-weight: 800; color: #fff; margin: 0; line-height: 1.2; }
+        .consult-chat-status {
+            font-size: 11px; color: #00d97e; font-weight: 600; margin: 2px 0 0 0;
+            letter-spacing: 0.02em; display: flex; align-items: center; gap: 5px;
+        }
+        .consult-chat-status::before {
+            content: ""; width: 5px; height: 5px; border-radius: 50%;
+            background: #00d97e; box-shadow: 0 0 6px #00d97e;
+        }
+
+        /* ====== BOTAO NOVA CONSULTORIA (bonito de verdade) ====== */
+        .consult-btn-nova {
+            position: relative;
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 18px 10px 14px;
+            background: rgba(0,217,126,0.06);
+            border: 1px solid rgba(0,217,126,0.35);
+            color: #00d97e;
+            border-radius: 100px;
+            cursor: pointer;
+            font-size: 12.5px; font-weight: 800; font-family: inherit;
+            letter-spacing: 0.02em;
+            overflow: hidden;
+            transition: all .25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .consult-btn-nova::before {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(135deg, #00d97e 0%, #00b368 100%);
+            opacity: 0;
+            transition: opacity .25s;
+        }
+        .consult-btn-nova:hover:not(:disabled) {
+            color: #0a0a0a;
+            border-color: #00d97e;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 22px rgba(0,217,126,0.4);
+        }
+        .consult-btn-nova:hover:not(:disabled)::before { opacity: 1; }
+        .consult-btn-nova:active:not(:disabled) { transform: translateY(0); }
+        .consult-btn-nova:disabled { opacity: 0.5; cursor: wait; }
+        .consult-btn-nova .icon-wrap {
+            position: relative; z-index: 1;
+            display: flex; align-items: center; justify-content: center;
+            width: 22px; height: 22px; border-radius: 50%;
+            background: rgba(0,217,126,0.15);
+            transition: background .25s, transform .4s;
+        }
+        .consult-btn-nova:hover:not(:disabled) .icon-wrap {
+            background: rgba(0,0,0,0.15);
+            transform: rotate(90deg);
+        }
+        .consult-btn-nova .icon-wrap svg {
+            width: 12px; height: 12px;
+            transition: transform .25s;
+        }
+        .consult-btn-nova .texto { position: relative; z-index: 1; }
+
+        /* ====== LISTA DE MENSAGENS ====== */
+        .consult-chat-mensagens {
+            flex: 1; overflow-y: auto;
+            padding: 24px 4px 12px;
+            display: flex; flex-direction: column; gap: 18px;
+            scroll-behavior: smooth;
+        }
+        .consult-chat-mensagens::-webkit-scrollbar { width: 8px; }
+        .consult-chat-mensagens::-webkit-scrollbar-track { background: transparent; }
+        .consult-chat-mensagens::-webkit-scrollbar-thumb { background: #222; border-radius: 4px; }
+        .consult-chat-mensagens::-webkit-scrollbar-thumb:hover { background: #333; }
+
+        .consult-linha {
+            display: flex; gap: 10px; align-items: flex-end;
+            animation: msg-in .25s ease-out;
+            max-width: 100%;
+        }
+        .consult-linha.cliente { flex-direction: row-reverse; }
+        @keyframes msg-in {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Avatar mini — LOGO M.A TECH (monograma cortado) */
+        .consult-avatar-mini {
+            width: 32px; height: 32px; border-radius: 50%;
+            flex-shrink: 0;
+            overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+        .consult-avatar-mini.ia {
+            background: #0a0a0a;
+            border: 1.5px solid rgba(0,217,126,0.4);
+            box-shadow: 0 0 8px rgba(0,217,126,0.2);
+        }
+        .consult-avatar-mini.ia img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            object-position: center 30%;
+            display: block;
+        }
+        .consult-avatar-mini.user {
+            background: #1e1e1e; border: 1px solid #2a2a2a;
+            color: #8a8a8a; font-size: 12px; font-weight: 800;
+        }
+
+        .consult-msg {
+            max-width: 78%; padding: 13px 17px; border-radius: 18px;
+            line-height: 1.6; font-size: 14.5px;
+            white-space: pre-wrap; word-wrap: break-word;
+        }
+        .consult-msg.consultor {
+            background: #141414; border: 1px solid #222; color: #e8e8e8;
+            border-bottom-left-radius: 6px;
+        }
+        .consult-msg.cliente {
+            background: #00d97e; color: #0a0a0a;
+            border-bottom-right-radius: 6px;
+            font-weight: 600;
+        }
+
+        .consult-typing {
+            display: flex; align-items: center; gap: 5px;
+            padding: 16px 18px;
+        }
+        .consult-typing span {
+            width: 7px; height: 7px; border-radius: 50%;
+            background: #00d97e; opacity: 0.4;
+            animation: typing-bounce 1.3s infinite ease-in-out;
+        }
+        .consult-typing span:nth-child(2) { animation-delay: 0.15s; }
+        .consult-typing span:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes typing-bounce {
+            0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+            30% { opacity: 1; transform: translateY(-4px); }
+        }
+
+        .consult-separador-nova {
+            display: flex; align-items: center; gap: 14px;
+            margin: 12px 0 4px;
+            color: #00d97e; font-size: 10px; font-weight: 800;
+            letter-spacing: 0.16em; text-transform: uppercase;
+            font-family: 'SF Mono', Consolas, monospace;
+        }
+        .consult-separador-nova::before,
+        .consult-separador-nova::after {
+            content: ""; flex: 1; height: 1px;
+            background: linear-gradient(to right, transparent, #00d97e44, transparent);
+        }
+
+        /* ====== INPUT ====== */
+        .consult-chat-input {
+            display: flex; gap: 10px; padding: 16px 0 20px;
+            border-top: 1px solid #1a1a1a;
+            background: #0a0a0a;
+            align-items: flex-end;
+        }
+        .consult-chat-input textarea {
+            flex: 1; resize: none;
+            background: #141414; border: 1px solid #222; color: #fff;
+            padding: 14px 18px; border-radius: 14px;
+            font-family: inherit; font-size: 14.5px; line-height: 1.5;
+            outline: none; max-height: 140px; min-height: 52px;
+            transition: border-color .18s;
+        }
+        .consult-chat-input textarea:focus { border-color: #00d97e; box-shadow: 0 0 0 3px rgba(0,217,126,0.1); }
+        .consult-chat-input textarea:disabled { opacity: 0.5; cursor: not-allowed; }
+        .consult-chat-input textarea::placeholder { color: #5a5a5a; }
+
+        .consult-btn-enviar {
+            width: 52px; height: 52px; flex-shrink: 0;
+            background: #00d97e; color: #0a0a0a;
+            border: none; border-radius: 14px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform .15s, box-shadow .15s, opacity .15s;
+            box-shadow: 0 6px 18px rgba(0,217,126,0.35);
+        }
+        .consult-btn-enviar:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(0,217,126,0.45); }
+        .consult-btn-enviar:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .consult-btn-enviar svg { width: 22px; height: 22px; }
+
+        /* ====== CONTADOR ====== */
+        .consult-contador {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 7px 14px;
+            background: rgba(0,217,126,0.08); border: 1px solid rgba(0,217,126,0.25);
+            border-radius: 100px; font-size: 11px; font-weight: 800;
+            color: #00d97e; letter-spacing: 0.04em;
+            font-family: 'SF Mono', Consolas, monospace;
+            white-space: nowrap;
+        }
+        .consult-contador::before {
+            content: ""; width: 6px; height: 6px; border-radius: 50%;
+            background: #00d97e; box-shadow: 0 0 8px #00d97e;
+        }
+        .consult-contador.aviso { background: rgba(245,158,11,0.08); border-color: rgba(245,158,11,0.3); color: #f59e0b; }
+        .consult-contador.aviso::before { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
+        .consult-contador.limite { background: rgba(255,60,60,0.08); border-color: rgba(255,60,60,0.3); color: #ff5050; }
+        .consult-contador.limite::before { background: #ff5050; box-shadow: 0 0 8px #ff5050; animation: pulse-dot 1.2s infinite; }
+        @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* ====== ERRO ====== */
+        .consult-erro {
+            background: rgba(255,60,60,0.08); border: 1px solid rgba(255,60,60,0.25);
+            color: #ff5050; padding: 12px 16px; border-radius: 10px;
+            margin: 12px 4px; font-size: 13px; font-weight: 600;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .consult-erro::before {
+            content: "!"; width: 18px; height: 18px; border-radius: 50%;
+            background: rgba(255,60,60,0.2); color: #ff5050;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 12px; flex-shrink: 0;
+        }
+
+        @media (max-width: 640px) {
+            .container-atendimento { padding: 0 12px; }
+            .topo { padding: 12px 16px; }
             .consult-titulo { font-size: 26px; }
-            .consult-hero { padding: 40px 16px 24px; }
+            .consult-hero { padding: 32px 12px 24px; }
+            .consult-icone { width: 88px; height: 88px; border-radius: 26px; }
+            .consult-icone svg { width: 42px; height: 42px; }
+            .consult-msg { max-width: 82%; font-size: 14px; }
+            .consult-chat-wrap { height: calc(100vh - 58px); }
+            .consult-chat-top { padding: 12px 0; }
+            .consult-chat-nome { font-size: 14px; }
+            .consult-btn-nova { padding: 9px 14px 9px 10px; font-size: 11.5px; }
+            .consult-avatar-principal { width: 42px; height: 42px; }
+            .consult-avatar-principal svg { width: 24px; height: 24px; }
         }
     </style>
 </head>
 <body>
-    <div class="container-atendimento">
-        <div class="topo">
-            <h1>M.A Tech &mdash; Consultoria</h1>
-            <div class="usuario-info">
-                <span>{{ usuario_nome }}</span>
-                <a href="/clientes">Clientes</a>
-                <a href="/logout">Sair</a>
-            </div>
-        </div>
 
-        <div class="consult-hero">
-            <div class="consult-icone">{{ icone_briefcase|safe }}</div>
-            <div class="consult-badge">EM BREVE</div>
-            <h1 class="consult-titulo">Consultoria Empresarial</h1>
-            <p class="consult-sub">
-                Estamos preparando uma area exclusiva de consultoria empresarial.
-                Em breve voce vai poder contar com analise, planejamento e
-                acompanhamento estrategico direto pelo M.A Tech.
-            </p>
-        </div>
+<div class="topo">
+    <h1>M.A <span>Tech</span> &mdash; Consultoria</h1>
+    <div class="usuario-info">
+        <span>{{ usuario_nome }}</span>
+        <a href="/clientes">Clientes</a>
+        <a href="/logout">Sair</a>
+    </div>
+</div>
 
-        <div class="consult-card">
-            <h3>O que vem por ai</h3>
-            <ul class="consult-lista">
-                <li><span class="check">1</span><span><strong style="color:#fff;">Diagnostico do negocio</strong> &mdash; analise guiada dos principais pontos do seu comercial, gestao e processos.</span></li>
-                <li><span class="check">2</span><span><strong style="color:#fff;">Plano de acao personalizado</strong> &mdash; metas, tarefas e acompanhamento da execucao.</span></li>
-                <li><span class="check">3</span><span><strong style="color:#fff;">IA consultora</strong> &mdash; analise de cenarios, prioridades e proximos passos com base nos seus dados.</span></li>
-                <li><span class="check">4</span><span><strong style="color:#fff;">Recursos por plano</strong> &mdash; funcionalidades exclusivas conforme o seu nivel de assinatura.</span></li>
-            </ul>
-        </div>
+<div class="container-atendimento">
 
-        <div class="consult-voltar">
-            <a href="/clientes">&larr; Voltar para o atendimento</a>
+{% if modo == "inicio" %}
+<!-- ============ MODO INICIO ============ -->
+<div class="consult-hero">
+    <div class="consult-icone">{{ icone_briefcase|safe }}</div>
+    <div class="consult-badge">NOVO</div>
+    <h1 class="consult-titulo">Consultoria<br><em>Empresarial</em></h1>
+    <p class="consult-sub">
+        Vamos analisar seu negocio, achar o gargalo que esta travando
+        o crescimento e indicar o proximo passo concreto.
+    </p>
+
+    <div style="margin-top: 28px;">
+        <div class="consult-contador" id="contador-inicio">
+            <span id="contador-texto">Interacoes hoje: {{ usado }} / {{ limite }}</span>
         </div>
     </div>
 
-    <script src="/static/app.min.js?v=310930"></script>
-    <script src="/static/splash.js"></script>
-    <script src="/static/sw-register.js"></script>
+    <button id="btn-iniciar" class="consult-btn-iniciar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L3 9v6l9 7 9-7V9z"/>
+            <path d="M12 7v5l3 3"/>
+        </svg>
+        Iniciar consultoria
+    </button>
+</div>
+
+<div class="consult-card">
+    <h3>O que voce vai receber</h3>
+    <ul class="consult-lista">
+        <li><span class="check">1</span><span><strong>Analise do seu negocio</strong> &mdash; o consultor IA le seus dados reais e comeca dali.</span></li>
+        <li><span class="check">2</span><span><strong>Deteccao do gargalo</strong> &mdash; conversa curta pra achar o que esta travando de verdade.</span></li>
+        <li><span class="check">3</span><span><strong>Indicacao do servico certo</strong> &mdash; sem empurrar, aponta o que faz sentido pro seu caso.</span></li>
+        <li><span class="check">4</span><span><strong>Historico salvo</strong> &mdash; voce pode sair e voltar de onde parou.</span></li>
+    </ul>
+</div>
+
+<div class="consult-voltar">
+    <a href="/clientes">&larr; Voltar para o atendimento</a>
+</div>
+
+{% else %}
+<!-- ============ MODO CHAT ============ -->
+<div class="consult-chat-wrap">
+
+    <div class="consult-chat-top">
+        <div class="consult-chat-id">
+            <!-- Avatar principal: desenho sofisticado (consultor IA) -->
+                        <div class="consult-avatar-principal">
+                <img src="/static/consultor.jpg" alt="Consultor M.A Tech">
+            </div>
+            <div>
+                <h3 class="consult-chat-nome">Consultor M.A Tech</h3>
+                <p class="consult-chat-status">online agora</p>
+            </div>
+        </div>
+
+        <!-- Botao Nova Consultoria (premium) -->
+        <button id="btn-nova" class="consult-btn-nova" title="Iniciar uma nova consultoria">
+            <span class="icon-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+            </span>
+            <span class="texto">Nova consultoria</span>
+        </button>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;padding:10px 0;">
+        <div class="consult-contador" id="contador-chat">
+            <span id="contador-texto-chat">{{ usado }} / {{ limite }} hoje</span>
+        </div>
+    </div>
+
+    <div class="consult-chat-mensagens" id="chat-mensagens">
+        {% if nova %}
+            <div class="consult-separador-nova"><span>Nova consultoria iniciada</span></div>
+        {% endif %}
+        {% for m in mensagens %}
+            <div class="consult-linha {{ 'cliente' if m.direcao == 'cliente' else '' }}">
+                {% if m.direcao == 'cliente' %}
+                    <div class="consult-avatar-mini user">{{ (usuario_nome or 'V')[0]|upper }}</div>
+                {% else %}
+                    <div class="consult-avatar-mini ia">
+                        <img src="/static/logo.png" alt="M.A Tech">
+                    </div>
+                {% endif %}
+                <div class="consult-msg {{ 'cliente' if m.direcao == 'cliente' else 'consultor' }}">{{ m.mensagem }}</div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div id="chat-erro" class="consult-erro" style="display:none;"></div>
+
+    <div class="consult-chat-input">
+        <textarea id="input-msg" placeholder="Escreva sua mensagem..." rows="1"></textarea>
+        <button id="btn-enviar" class="consult-btn-enviar" title="Enviar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 2L11 13"/>
+                <path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+        </button>
+    </div>
+</div>
+{% endif %}
+
+</div>
+
+<script>
+// ============================================================
+// CONFIG
+// ============================================================
+const MODO = "{{ modo }}";
+const USUARIO_INICIAL = "{{ (usuario_nome or 'V')[0]|upper }}";
+let usado = {{ usado }};
+let limite = {{ limite }};
+let enviando = false;
+
+const LOGO_URL = '/static/logo.png';
+
+// ============================================================
+// CONTADOR
+// ============================================================
+function atualizarContador() {
+    const restantes = Math.max(0, limite - usado);
+    const el1 = document.getElementById('contador-texto');
+    const el2 = document.getElementById('contador-texto-chat');
+    const wrap1 = document.getElementById('contador-inicio');
+    const wrap2 = document.getElementById('contador-chat');
+
+    if (el1) el1.textContent = `Interacoes hoje: ${usado} / ${limite}`;
+    if (el2) el2.textContent = `${usado} / ${limite} hoje`;
+
+    [wrap1, wrap2].forEach(el => {
+        if (!el) return;
+        el.classList.remove('aviso','limite');
+        if (restantes === 0) el.classList.add('limite');
+        else if (restantes <= 2) el.classList.add('aviso');
+    });
+}
+
+// ============================================================
+// ADICIONAR MENSAGEM
+// ============================================================
+function adicionarMensagem(texto, quem) {
+    const box = document.getElementById('chat-mensagens');
+    if (!box) return;
+
+    const linha = document.createElement('div');
+    linha.className = 'consult-linha ' + quem;
+
+    const avatar = document.createElement('div');
+    if (quem === 'cliente') {
+        avatar.className = 'consult-avatar-mini user';
+        avatar.textContent = USUARIO_INICIAL;
+    } else {
+        avatar.className = 'consult-avatar-mini ia';
+        const img = document.createElement('img');
+        img.src = LOGO_URL;
+        img.alt = 'M.A Tech';
+        avatar.appendChild(img);
+    }
+
+    const bolha = document.createElement('div');
+    bolha.className = 'consult-msg ' + (quem === 'cliente' ? 'cliente' : 'consultor');
+    bolha.textContent = texto;
+
+    linha.appendChild(avatar);
+    linha.appendChild(bolha);
+    box.appendChild(linha);
+    box.scrollTop = box.scrollHeight;
+}
+
+function adicionarTyping() {
+    const box = document.getElementById('chat-mensagens');
+    if (!box) return;
+
+    const linha = document.createElement('div');
+    linha.className = 'consult-linha';
+    linha.id = 'typing-indicator';
+
+    const avatar = document.createElement('div');
+    avatar.className = 'consult-avatar-mini ia';
+    const img = document.createElement('img');
+    img.src = LOGO_URL;
+    img.alt = 'M.A Tech';
+    avatar.appendChild(img);
+
+    const bolha = document.createElement('div');
+    bolha.className = 'consult-msg consultor consult-typing';
+    bolha.innerHTML = '<span></span><span></span><span></span>';
+
+    linha.appendChild(avatar);
+    linha.appendChild(bolha);
+    box.appendChild(linha);
+    box.scrollTop = box.scrollHeight;
+}
+
+function removerTyping() {
+    const t = document.getElementById('typing-indicator');
+    if (t) t.remove();
+}
+
+function mostrarErro(texto) {
+    const el = document.getElementById('chat-erro');
+    if (!el) { alert(texto); return; }
+    el.textContent = texto;
+    el.style.display = 'flex';
+    setTimeout(() => { el.style.display = 'none'; }, 7000);
+}
+
+// ============================================================
+// INICIAR
+// ============================================================
+const btnIniciar = document.getElementById('btn-iniciar');
+if (btnIniciar) {
+    btnIniciar.addEventListener('click', async () => {
+        btnIniciar.disabled = true;
+        btnIniciar.textContent = 'Preparando consultor... (5s)';
+        try {
+            const r = await fetch('/consultoria/iniciar', { method: 'POST' });
+            const j = await r.json();
+            if (j.ok) window.location.reload();
+            else {
+                btnIniciar.disabled = false;
+                btnIniciar.textContent = 'Iniciar consultoria';
+                alert('Erro: ' + (j.erro || 'falha'));
+            }
+        } catch (e) {
+            btnIniciar.disabled = false;
+            btnIniciar.textContent = 'Iniciar consultoria';
+            alert('Erro de rede: ' + e.message);
+        }
+    });
+}
+
+// ============================================================
+// CHAT
+// ============================================================
+const inputMsg = document.getElementById('input-msg');
+const btnEnviar = document.getElementById('btn-enviar');
+
+if (inputMsg && btnEnviar) {
+    inputMsg.addEventListener('input', () => {
+        inputMsg.style.height = 'auto';
+        inputMsg.style.height = Math.min(inputMsg.scrollHeight, 140) + 'px';
+    });
+
+    inputMsg.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            enviarMensagem();
+        }
+    });
+
+    btnEnviar.addEventListener('click', enviarMensagem);
+    inputMsg.focus();
+
+    const box = document.getElementById('chat-mensagens');
+    if (box) box.scrollTop = box.scrollHeight;
+}
+
+async function enviarMensagem() {
+    if (enviando) return;
+    const texto = (inputMsg.value || '').trim();
+    if (!texto) return;
+
+    if (usado >= limite) {
+        mostrarErro('Voce atingiu o limite de hoje. Volta amanha ou faz upgrade.');
+        return;
+    }
+
+    enviando = true;
+    btnEnviar.disabled = true;
+    inputMsg.disabled = true;
+    inputMsg.value = '';
+    inputMsg.style.height = '52px';
+
+    adicionarMensagem(texto, 'cliente');
+    adicionarTyping();
+
+    try {
+        const r = await fetch('/consultoria/mensagem', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mensagem: texto })
+        });
+        removerTyping();
+        const j = await r.json();
+
+        if (j.ok) {
+            adicionarMensagem(j.resposta, 'consultor');
+            usado = j.usado;
+            limite = j.limite;
+            atualizarContador();
+        } else if (j.erro === 'limite_diario') {
+            mostrarErro(j.mensagem);
+        } else {
+            mostrarErro('Erro: ' + (j.erro || 'falha'));
+            adicionarMensagem('[Erro ao gerar resposta. Tenta de novo.]', 'consultor');
+        }
+    } catch (e) {
+        removerTyping();
+        mostrarErro('Erro de rede: ' + e.message);
+    } finally {
+        enviando = false;
+        btnEnviar.disabled = false;
+        inputMsg.disabled = false;
+        inputMsg.focus();
+    }
+}
+
+// ============================================================
+// NOVA CONSULTORIA
+// ============================================================
+const btnNova = document.getElementById('btn-nova');
+if (btnNova) {
+    btnNova.addEventListener('click', async () => {
+        if (!confirm('Encerrar a consultoria atual e comecar uma nova? O historico atual nao sera apagado, mas voce nao vai mais ver ele aqui.')) return;
+        btnNova.disabled = true;
+        const texto = btnNova.querySelector('.texto');
+        if (texto) texto.textContent = 'Preparando...';
+        try {
+            const r = await fetch('/consultoria/nova', { method: 'POST' });
+            const j = await r.json();
+            if (j.ok) window.location.reload();
+            else {
+                btnNova.disabled = false;
+                if (texto) texto.textContent = 'Nova consultoria';
+                alert('Erro: ' + (j.erro || 'falha'));
+            }
+        } catch (e) {
+            btnNova.disabled = false;
+            if (texto) texto.textContent = 'Nova consultoria';
+            alert('Erro de rede: ' + e.message);
+        }
+    });
+}
+
+atualizarContador();
+</script>
+
+<script src="/static/app.min.js?v=310934"></script>
+<script src="/static/splash.js"></script>
+<script src="/static/sw-register.js"></script>
 </body>
 </html>
