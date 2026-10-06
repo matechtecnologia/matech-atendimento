@@ -11,6 +11,7 @@ from passlib.context import CryptContext
 from dotenv import load_dotenv
 from gemini import gerar_resposta, gerar_prompt_vendedor, validar_nicho_ia, gerar_prompt_personalizado
 from plano_install import instalar_plano
+from consultor_install import instalar_consultor
 from asaas import criar_cliente, criar_cobranca_pix, obter_qr_code, consultar_pagamento
 from plano_rotas import registrar_rotas_plano
 from plano_estrategico import inicializar_plano_estrategico
@@ -338,6 +339,11 @@ try:
     instalar_plano(app, get_conn, close_conn, Cookie, Request)
 except Exception as e:
     print(f'Erro ao instalar plano: {e}')
+
+try:
+    instalar_consultor(app, get_conn, close_conn, Cookie, Request)
+except Exception as e:
+    print(f'Erro ao instalar consultor: {e}')
 
 
 # inicializar_plano_estrategico DESATIVADO (apagava as tabelas a cada restart)
