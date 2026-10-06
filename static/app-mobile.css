@@ -24,18 +24,15 @@
 
     /* Esconde cabeçalho antigo */
     .topo { display: none !important; }
+    .container-atendimento { padding-top: calc(70px + var(--safe-top, 0px)) !important; }
 
     /* Espaço pro header fixo */
-    body {
-        padding-top: calc(var(--app-header-h) + var(--safe-top)) !important;
+    body { padding-top: 0 !important;
         padding-bottom: var(--safe-bottom) !important;
         background: var(--bg);
     }
 
-    .container-atendimento {
-        padding: 12px !important;
-        max-width: 100% !important;
-    }
+    .container-atendimento{padding-right:12px !important;padding-bottom:12px !important;padding-left:12px !important;padding-top:90px !important;max-width:100% !important;}
 
     /* ===== HEADER FIXO ===== */
     .app-header {
@@ -43,30 +40,37 @@
         top: 0;
         left: 0;
         right: 0;
-        height: calc(var(--app-header-h) + var(--safe-top));
-        padding-top: var(--safe-top);
-        background: rgba(10, 10, 10, 0.85);
+        height: auto;
+        padding: 12px 16px;
+        padding-top: calc(12px + var(--safe-top, 0px));
+        background: linear-gradient(180deg, rgba(15,15,15,0.98) 0%, rgba(15,15,15,0.88) 100%);
         backdrop-filter: blur(20px) saturate(180%);
         -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border-bottom: 1px solid rgba(34, 34, 34, 0.6);
-        display: flex;
+        border-bottom: 1px solid rgba(0,217,126,0.12);
+        box-shadow: 0 2px 20px rgba(0,0,0,0.5);
+        display: grid;
+        grid-template-columns: 44px 1fr 44px;
         align-items: center;
-        justify-content: space-between;
-        padding-left: 14px;
-        padding-right: 14px;
-        z-index: 9998;
-        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        gap: 10px;
+        z-index: 9996;
+    }
+    html[data-tema="claro"] .app-header {
+        background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.88) 100%);
+        border-bottom-color: rgba(0,217,126,0.2);
     }
 
     .app-header .logo-app {
         font-size: 18px;
         font-weight: 800;
-        color: #fff;
+        color: #ffffff;
         text-decoration: none;
-        letter-spacing: -0.03em;
-        display: flex;
+        letter-spacing: -0.02em;
+        display: inline-flex;
         align-items: center;
-        gap: 8px;
+        justify-content: center;
+        gap: 9px;
+        white-space: nowrap;
+        margin: 0 auto;
     }
 
     .app-header .logo-app em {
@@ -369,8 +373,6 @@
 /* ===== Evita scroll quando drawer aberto ===== */
 body.drawer-aberto {
     overflow: hidden;
-    position: fixed;
-    width: 100%;
 }
 
 
@@ -541,25 +543,36 @@ body.drawer-aberto {
 
 /* ===== BOTÃO AJUDA NO HEADER (pequeno) ===== */
 @media (max-width: 768px) {
-    .app-header .app-help-btn {
-        width: 30px !important;
-        height: 30px !important;
-        border-radius: 50% !important;
-        background: rgba(255,255,255,0.06) !important;
-        border: 1px solid rgba(255,255,255,0.08) !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        cursor: pointer !important;
-        color: #8a8a8a !important;
-        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        padding: 0 !important;
-        margin: 0 !important;
+    .app-header .app-help-btn,
+    .app-header .app-menu-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        background: rgba(0,217,126,0.08);
+        border: 1px solid rgba(0,217,126,0.25);
+        color: #00d97e;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .app-header .app-help-btn:hover,
+    .app-header .app-menu-btn:hover {
+        border-color: rgba(0,217,126,0.6);
+        box-shadow: 0 0 20px rgba(0,217,126,0.2);
+    }
+    .app-header .app-help-btn:active,
+    .app-header .app-menu-btn:active {
+        transform: scale(0.92);
     }
 
-    .app-header .app-help-btn svg {
-        width: 14px !important;
-        height: 14px !important;
+    .app-header .app-help-btn svg,
+    .app-header .app-menu-btn svg {
+        width: 20px;
+        height: 20px;
     }
 
     .app-header .app-help-btn:hover,
@@ -683,4 +696,5 @@ body.drawer-aberto {
         margin-bottom: 10px;
     }
 }
+
 

@@ -36,12 +36,124 @@
         return null;
     }
 
+    // ===== CSS INLINE ? HEADER PREMIUM =====
+    function injetarCSSHeader() {
+        if (document.getElementById('app-header-premium')) return;
+        const st = document.createElement('style');
+        st.id = 'app-header-premium';
+        st.textContent = `
+            .app-header {
+                display: grid !important;
+                grid-template-columns: 44px 1fr 44px !important;
+                align-items: center !important;
+                gap: 10px !important;
+                padding: 12px 16px !important;
+                padding-top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+                background: linear-gradient(180deg, rgba(15,15,15,0.98) 0%, rgba(15,15,15,0.88) 100%) !important;
+                backdrop-filter: blur(20px) saturate(180%) !important;
+                -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+                border-bottom: 1px solid rgba(0,217,126,0.12) !important;
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 9996 !important;
+                box-shadow: 0 2px 20px rgba(0,0,0,0.5) !important;
+            }
+            html[data-tema="claro"] .app-header {
+                background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.88) 100%) !important;
+                border-bottom-color: rgba(0,217,126,0.2) !important;
+            }
+            .app-header .app-menu-btn,
+            .app-header .app-help-btn {
+                width: 42px !important;
+                height: 42px !important;
+                padding: 0 !important;
+                border-radius: 12px !important;
+                background: rgba(0,217,126,0.08) !important;
+                border: 1px solid rgba(0,217,126,0.25) !important;
+                color: #00d97e !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                cursor: pointer !important;
+                transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            }
+            .app-header .app-menu-btn:hover,
+            .app-header .app-help-btn:hover {
+                border-color: rgba(0,217,126,0.6) !important;
+                box-shadow: 0 0 20px rgba(0,217,126,0.2) !important;
+            }
+            .app-header .app-menu-btn:active,
+            .app-header .app-help-btn:active {
+                transform: scale(0.92) !important;
+            }
+            .app-header .app-menu-btn svg,
+            .app-header .app-help-btn svg {
+                width: 20px !important;
+                height: 20px !important;
+            }
+            .app-header .logo-app {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 9px !important;
+                font-size: 18px !important;
+                font-weight: 800 !important;
+                color: #ffffff !important;
+                text-decoration: none !important;
+                letter-spacing: -0.02em !important;
+                white-space: nowrap !important;
+                margin: 0 auto !important;
+            }
+            .app-header .logo-app em {
+                font-style: normal !important;
+                color: #00d97e !important;
+                text-shadow: 0 0 20px rgba(0,217,126,0.35) !important;
+            }
+            .app-header .logo-app .dot {
+                display: inline-block !important;
+                width: 8px !important;
+                height: 8px !important;
+                background: #00d97e !important;
+                border-radius: 50% !important;
+                box-shadow: 0 0 10px #00d97e, 0 0 20px rgba(0,217,126,0.5) !important;
+                animation: pulso-logo 2s ease-in-out infinite !important;
+            }
+            @keyframes pulso-logo {
+                0%, 100% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.7; transform: scale(0.85); }
+            }
+            html[data-tema="claro"] .app-header .logo-app { color: #0a0a0a !important; }
+        `;
+        document.head.appendChild(st);
+
+        // CSS adicional: forca container a descer (vence qualquer coisa)
+        if (!document.getElementById('app-container-pad')) {
+            const st2 = document.createElement('style');
+            st2.id = 'app-container-pad';
+            st2.textContent = `
+                @media (max-width: 768px) {
+                    html body .container-atendimento,
+                    html body div.container-atendimento,
+                    body > .container-atendimento {
+                        padding-top: 90px !important;
+                    }
+                }
+            `;
+            document.head.appendChild(st2);
+        }
+    }
+
     // ===== HEADER =====
     function criarHeader() {
+        injetarCSSHeader();
+        injetarCSSHeader();
         if (document.querySelector('.app-header')) return;
         const header = document.createElement('header');
         header.className = 'app-header';
         header.innerHTML = `
+            <button class="app-menu-btn" id="app-menu-btn" aria-label="Menu" title="Menu">
+                ${window.ICONE ? window.ICONE('menu', { tamanho: 22 }) : '?'}
+            </button>
             <a href="/clientes" class="logo-app">
                 <span class="dot"></span>
                 M.A <em>Tech</em>
@@ -50,13 +162,33 @@
                 ${window.ICONE ? window.ICONE('ajuda', { tamanho: 22 }) : '?'}
             </button>
         `;
-        document.body.appendChild(header);
+        // INSERIR ANTES do container-atendimento (nao no final do body)
+        const containerAtual = document.querySelector('.container-atendimento');
+        if (containerAtual && containerAtual.parentNode) {
+            containerAtual.parentNode.insertBefore(header, containerAtual);
+        } else {
+            document.body.insertBefore(header, document.body.firstChild);
+        }
+
+        // FORCA o container a descer pra nao ficar embaixo do header
+        const container = document.querySelector('.container-atendimento');
+        if (container) {
+        }
 
         const btn = document.getElementById('app-help-btn');
         if (btn) {
             btn.addEventListener('click', () => {
                 if (typeof window.abrirPainelAjuda === 'function') {
                     window.abrirPainelAjuda();
+                }
+            });
+        }
+
+        const menuBtn = document.getElementById('app-menu-btn');
+        if (menuBtn) {
+            menuBtn.addEventListener('click', () => {
+                if (typeof window.abrirDrawerApp === 'function') {
+                    window.abrirDrawerApp();
                 }
             });
         }

@@ -3,6 +3,7 @@
 // ============================================
 
 (function() {
+
     'use strict';
 
     const PREF_HAPTIC = () => localStorage.getItem('matech_haptic') !== 'off';
@@ -10,8 +11,8 @@
 
     // ===== RESET de segurança (caso algo trave) =====
     window.addEventListener('pageshow', () => {
-        document.body.style.opacity = '1';
-        document.body.style.transform = 'translateX(0)';
+        document.body.style = '1';
+        // document.body.style = 'translateX(0)'; // DESATIVADO: quebra position:fixed
         document.body.classList.remove('drawer-aberto');
     });
 
@@ -56,8 +57,8 @@
             document.body.classList.remove('drawer-aberto');
 
             // Animação leve (não trava a tela)
-            document.body.style.transition = 'opacity 0.15s ease';
-            document.body.style.opacity = '0.7';
+            document.body.style = 'opacity 0.15s ease';
+            document.body.style = '0.7';
 
             setTimeout(() => {
                 window.location.href = href;
@@ -65,10 +66,10 @@
         });
 
         // Entrada suave
-        document.body.style.opacity = '0';
-        document.body.style.transition = 'opacity 0.2s ease';
+        document.body.style = '0';
+        document.body.style = 'opacity 0.2s ease';
         requestAnimationFrame(() => {
-            document.body.style.opacity = '1';
+            document.body.style = '1';
         });
     }
 

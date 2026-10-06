@@ -23,6 +23,7 @@
         if (path === '/relatorios') return 'relatorios';
         if (path === '/meus_nichos' || path === '/novo_nicho') return 'nichos';
         if (path === '/configuracoes' || path === '/planos' || path === '/indicar') return 'menu';
+        if (path === '/consultoria') return 'consultoria';
         return null;
     }
 
@@ -75,40 +76,43 @@
         const nav = document.createElement('nav');
         nav.className = 'app-bottom-nav';
         nav.innerHTML = `
-            <a href="javascript:void(0)" class="nav-item ${ativa === 'menu' ? 'ativo' : ''}" id="nav-menu-btn">
-                <span class="icone-nav">${icone('menu')}</span>
-                <span class="txt-nav">Menu</span>
+            <a href="/consultoria" class="nav-item ${ativa === 'consultoria' ? 'ativo' : ''}">
+                <span class="icone-nav">${icone('briefcase')}</span>
+                <span class="txt-nav">Consultoria</span>
             </a>
             <a href="/relatorios" class="nav-item ${ativa === 'relatorios' ? 'ativo' : ''}">
                 <span class="icone-nav">${icone('relatorios')}</span>
-                <span class="txt-nav">Relatórios</span>
+                <span class="txt-nav">Relatorios</span>
             </a>
-            <a href="/clientes" class="nav-item destaque" title="Clientes">
+            <a href="/clientes" class="nav-item destaque" title="Atendimento">
                 <span class="icone-nav">${icone('raio', 26)}</span>
-            </a>
-            <a href="/meus_nichos" class="nav-item ${ativa === 'nichos' ? 'ativo' : ''}">
-                <span class="icone-nav">${icone('nichos')}</span>
-                <span class="txt-nav">Nichos</span>
             </a>
             <a href="/followups" class="nav-item ${ativa === 'followups' ? 'ativo' : ''}" id="nav-followups-btn">
                 <span class="icone-nav">${icone('followups')}${badge}</span>
                 <span class="txt-nav">Follow-ups</span>
             </a>
+            <a href="/meus_nichos" class="nav-item ${ativa === 'nichos' ? 'ativo' : ''}">
+                <span class="icone-nav">${icone('nichos')}</span>
+                <span class="txt-nav">Nichos</span>
+            </a>
         `;
 
         document.body.appendChild(nav);
 
-                document.getElementById('nav-menu-btn').addEventListener('click', () => {
-            if (window.abrirDrawerApp) {
-                window.abrirDrawerApp();
-            } else {
-                const drawer = document.getElementById('app-drawer');
-                const overlay = document.getElementById('app-overlay');
-                if (drawer) drawer.classList.add('aberto');
-                if (overlay) overlay.classList.add('aberto');
-                document.body.classList.add('drawer-aberto');
-            }
-        });
+                const menuBtn = document.getElementById('nav-menu-btn');
+        if (menuBtn) {
+            menuBtn.addEventListener('click', () => {
+                if (window.abrirDrawerApp) {
+                    window.abrirDrawerApp();
+                } else {
+                    const drawer = document.getElementById('app-drawer');
+                    const overlay = document.getElementById('app-overlay');
+                    if (drawer) drawer.classList.add('aberto');
+                    if (overlay) overlay.classList.add('aberto');
+                    document.body.classList.add('drawer-aberto');
+                }
+            });
+        }
 
         // Busca o total real da API (e atualiza o badge)
         setTimeout(carregarTotal, 150);

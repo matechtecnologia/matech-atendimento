@@ -723,6 +723,17 @@ def salvar_onboarding(nome_nicho: str = Form(...), produto: str = Form(...), pub
     return RedirectResponse(url="/bem-vindo", status_code=303)
 
 
+@app.get("/consultoria", response_class=HTMLResponse)
+def tela_consultoria(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None)):
+    if not usuario_id:
+        return RedirectResponse(url="/login")
+    icone = '<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>'
+    return templates.TemplateResponse(request, "consultoria.html", {
+        "usuario_nome": usuario_nome or "",
+        "usuario_tipo": usuario_tipo or "",
+        "icone_briefcase": icone
+    })
+
 @app.get("/clientes", response_class=HTMLResponse)
 def tela_clientes(request: Request, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None), usuario_tipo: str = Cookie(None), nicho_id: int = None, nicho_cookie: str = Cookie(None)):
     if not usuario_id:

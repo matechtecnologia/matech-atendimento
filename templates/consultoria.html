@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#00d97e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="M.A Tech">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/static/favicon-32.png">
+    <title>M.A Tech - Consultoria Empresarial</title>
+    <link rel="stylesheet" href="/static/app.min.css?v=309804">
+    <style>
+        .consult-hero { text-align: center; padding: 60px 20px 40px; }
+        .consult-icone {
+            width: 96px; height: 96px; margin: 0 auto 24px;
+            background: linear-gradient(135deg, #00d97e 0%, #00b368 100%);
+            border-radius: 28px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 20px 50px rgba(0,217,126,0.35);
+            color: #0a0a0a;
+        }
+        .consult-icone svg { width: 48px; height: 48px; }
+        .consult-badge {
+            display: inline-block; padding: 6px 16px; border-radius: 100px;
+            background: rgba(0,217,126,0.12); color: #00d97e;
+            font-size: 11px; font-weight: 800; letter-spacing: 0.15em;
+            text-transform: uppercase; margin-bottom: 20px;
+            border: 1px solid rgba(0,217,126,0.3);
+        }
+        .consult-titulo { font-size: 32px; font-weight: 800; color: #fff; margin: 0 0 12px; letter-spacing: -0.02em; }
+        .consult-sub { font-size: 16px; color: #8a8a8a; max-width: 480px; margin: 0 auto; line-height: 1.6; }
+        .consult-card {
+            background: linear-gradient(135deg, #141414 0%, #0f1a15 100%);
+            border: 1px solid #222222; border-radius: 16px;
+            padding: 28px 24px; margin: 40px 0 24px;
+        }
+        .consult-card h3 { font-size: 13px; color: #00d97e; text-transform: uppercase; letter-spacing: 0.1em; margin: 0 0 18px; font-weight: 800; }
+        .consult-lista { list-style: none; padding: 0; margin: 0; }
+        .consult-lista li {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 12px 0; border-bottom: 1px solid #1a1a1a;
+            color: #e8e8e8; font-size: 14px; line-height: 1.5;
+        }
+        .consult-lista li:last-child { border-bottom: none; }
+        .consult-lista .check {
+            flex-shrink: 0; width: 20px; height: 20px;
+            background: rgba(0,217,126,0.15); border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            color: #00d97e; font-size: 12px; font-weight: 800; margin-top: 1px;
+        }
+        .consult-voltar { display: block; text-align: center; margin: 32px 0 40px; }
+        .consult-voltar a { color: #00d97e; text-decoration: none; font-size: 14px; font-weight: 600; }
+        .consult-voltar a:hover { text-decoration: underline; }
+        @media (max-width: 600px) {
+            .consult-titulo { font-size: 26px; }
+            .consult-hero { padding: 40px 16px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-atendimento">
+        <div class="topo">
+            <h1>M.A Tech &mdash; Consultoria</h1>
+            <div class="usuario-info">
+                <span>{{ usuario_nome }}</span>
+                <a href="/clientes">Clientes</a>
+                <a href="/logout">Sair</a>
+            </div>
+        </div>
+
+        <div class="consult-hero">
+            <div class="consult-icone">{{ icone_briefcase|safe }}</div>
+            <div class="consult-badge">EM BREVE</div>
+            <h1 class="consult-titulo">Consultoria Empresarial</h1>
+            <p class="consult-sub">
+                Estamos preparando uma area exclusiva de consultoria empresarial.
+                Em breve voce vai poder contar com analise, planejamento e
+                acompanhamento estrategico direto pelo M.A Tech.
+            </p>
+        </div>
+
+        <div class="consult-card">
+            <h3>O que vem por ai</h3>
+            <ul class="consult-lista">
+                <li><span class="check">1</span><span><strong style="color:#fff;">Diagnostico do negocio</strong> &mdash; analise guiada dos principais pontos do seu comercial, gestao e processos.</span></li>
+                <li><span class="check">2</span><span><strong style="color:#fff;">Plano de acao personalizado</strong> &mdash; metas, tarefas e acompanhamento da execucao.</span></li>
+                <li><span class="check">3</span><span><strong style="color:#fff;">IA consultora</strong> &mdash; analise de cenarios, prioridades e proximos passos com base nos seus dados.</span></li>
+                <li><span class="check">4</span><span><strong style="color:#fff;">Recursos por plano</strong> &mdash; funcionalidades exclusivas conforme o seu nivel de assinatura.</span></li>
+            </ul>
+        </div>
+
+        <div class="consult-voltar">
+            <a href="/clientes">&larr; Voltar para o atendimento</a>
+        </div>
+    </div>
+
+    <script src="/static/app.min.js?v=309804"></script>
+    <script src="/static/splash.js"></script>
+    <script src="/static/sw-register.js"></script>
+</body>
+</html>
