@@ -213,15 +213,9 @@
         if (container) {
         }
 
-            const btn = document.getElementById('app-help-btn');
+                const btn = document.getElementById('app-help-btn');
     if (btn) {
         btn.addEventListener('click', () => {
-            // Se estiver na tela da Consultoria, abre o modal especifico
-            if (window.location.pathname === '/consultoria' && typeof window.abrirModalAjudaConsultoria === 'function') {
-                window.abrirModalAjudaConsultoria();
-                return;
-            }
-            // Senao, painel generico
             if (typeof window.abrirPainelAjuda === 'function') {
                 window.abrirPainelAjuda();
             }

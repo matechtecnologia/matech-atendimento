@@ -153,6 +153,27 @@ const AJUDA = {
             'Cole a mensagem do WhatsApp — a IA responde em segundos',
             'Use <b>Follow-ups</b> pra ver quem precisa de atenção'
         ]
+    },
+    '/consultoria': {
+        titulo: 'Consultoria Empresarial',
+        descricao: 'Um consultor de IA que analisa seu negócio e aponta o próximo passo concreto.',
+        dicas: [
+            '<b>Análise do seu negócio</b> — o consultor lê seus dados reais e começa dali',
+            '<b>Detecção do gargalo</b> — conversa curta pra achar o que está travando',
+            '<b>Indicação do próximo passo</b> — aponta a solução certa, sem empurrar serviço',
+            '<b>Histórico salvo</b> — sai quando quiser e volta de onde parou',
+            'Você tem um <b>limite diário</b> de interações conforme seu plano'
+        ]
+    },
+    '/hub': {
+        titulo: 'Áreas da M.A Tech',
+        descricao: 'Vitrine de todos os serviços da plataforma. Escolha por onde começar.',
+        dicas: [
+            '<b>Atendimento com IA</b> — sua área ativa, onde você atende clientes',
+            '<b>Consultoria Empresarial</b> — diagnóstico do seu negócio com IA',
+            'As outras áreas estão <b>em breve</b> — fique de olho',
+            'Clique em qualquer card pra acessar a área'
+        ]
     }
 };
 
