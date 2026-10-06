@@ -6,11 +6,12 @@
     <meta name="theme-color" content="#00d97e">
     <link rel="manifest" href="/manifest.json">
     <title>M.A Tech - Áreas</title>
-    <link rel="stylesheet" href="/static/app.min.css?v=310936">
+    <link rel="stylesheet" href="/static/app.min.css?v=310939">
     <style>
         body { background:#0a0a0a; color:#e8e8e8; font-family:-apple-system,BlinkMacSystemFont,sans-serif; margin:0; }
         .topo { background:#0f1a15; padding:14px 24px; border-bottom:1px solid #00d97e33; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
         .topo h1 { color:#00d97e; font-size:18px; margin:0; }
+        .topo h1 span { color:#fff; }
         .topo .usuario-info { display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
         .topo .usuario-info a { color:#8a8a8a; text-decoration:none; font-size:13px; }
         .topo .usuario-info a:hover { color:#00d97e; }
@@ -29,25 +30,22 @@
         .grid-areas { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
         .card-area { background:#141414; border:1px solid #222; border-radius:12px; padding:22px; opacity:0.55; transition:.25s; position:relative; }
         .card-area:hover { opacity:0.9; border-color:#a855f7; transform:translateY(-2px); }
-        .card-area.destaque { opacity:1; border:1px solid #00d97e33; }
-        .card-area.destaque:hover { border-color:#00d97e; box-shadow:0 0 30px rgba(0,217,126,0.15); }
+        .card-area.destaque { opacity:1; border:1px solid rgba(168,85,247,0.35); box-shadow:0 0 30px rgba(168,85,247,0.1); }
+        .card-area.destaque:hover { border-color:#a855f7; box-shadow:0 0 40px rgba(168,85,247,0.2); transform:translateY(-3px); }
         .card-area .icone { font-size:32px; margin-bottom:10px; }
         .card-area h4 { font-size:16px; margin:0 0 6px 0; color:#e8e8e8; }
         .card-area p { color:#8a8a8a; font-size:13px; margin:0 0 14px 0; min-height:36px; }
         .card-area .status { display:inline-block; padding:3px 10px; border-radius:100px; font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; margin-bottom:12px; }
         .status-breve { background:#1a1a1a; color:#8a8a8a; border:1px solid #3a3a3a; }
         .status-teste { background:#1f0a2a; color:#c084fc; border:1px solid #a855f7; }
-        .status-disponivel { background:rgba(0,217,126,0.12); color:#00d97e; border:1px solid rgba(0,217,126,0.4); }
         .card-area .btn-mini { display:block; width:100%; padding:10px; border-radius:6px; font-weight:700; font-size:13px; text-decoration:none; text-align:center; box-sizing:border-box; font-family:inherit; border:1px solid #a855f7; background:transparent; color:#c084fc; }
         .card-area .btn-mini:hover { background:#a855f7; color:#fff; }
         .card-area .btn-mini.desabilitado { border-color:#3a3a3a; color:#5a5a5a; cursor:not-allowed; }
-        .card-area .btn-mini.btn-verde { border-color:#00d97e; color:#00d97e; }
-        .card-area .btn-mini.btn-verde:hover { background:#00d97e; color:#0a0a0a; }
     </style>
 </head>
 <body>
     <div class="topo">
-        <h1>M.A <span style="color:#fff">Tech</span></h1>
+        <h1>M.A <span>Tech</span></h1>
         <div class="usuario-info">
             <span style="color:#8a8a8a;font-size:13px;">{{ usuario_nome }}</span>
             {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
@@ -78,8 +76,8 @@
                 <div class="icone">📊</div>
                 <h4>Consultoria Empresarial</h4>
                 <p>Diagnóstico profissional da sua empresa, com plano de ação e indicadores.</p>
-                <span class="status status-disponivel">Disponível agora</span>
-                <a href="/consultoria" class="btn-mini btn-verde">ACESSAR CONSULTORIA</a>
+                <span class="status status-teste">Disponível agora</span>
+                <a href="/consultoria" class="btn-mini">TESTAR AGORA</a>
             </div>
 
             <div class="card-area">
@@ -124,7 +122,7 @@
         </div>
     </div>
 
-    <script src="/static/app.min.js?v=310936"></script>
+    <script src="/static/app.min.js?v=310939"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
 </body>
