@@ -20,22 +20,20 @@ LIMITES_DIARIOS = {
 
 
 # ============================================================
-# LIMPEZA DE UNICODE (mesmo bug do gemini.py)
+# LIMPEZA DE UNICODE
 # ============================================================
 def _limpar_unicode(texto):
-    """Remove caracteres unicode invisiveis que quebram copy/paste
-    no WhatsApp e em outros apps (mesmo problema do \\u202f nos precos)."""
     if not texto:
         return texto
     problematicos = {
-        "\u202f": " ",  # narrow no-break space
-        "\u00a0": " ",  # no-break space
-        "\u2009": " ",  # thin space
-        "\u200a": " ",  # hair space
-        "\u200b": "",   # zero-width space
-        "\u200c": "",   # zero-width non-joiner
-        "\u200d": "",   # zero-width joiner
-        "\ufeff": "",   # BOM
+        "\u202f": " ",
+        "\u00a0": " ",
+        "\u2009": " ",
+        "\u200a": " ",
+        "\u200b": "",
+        "\u200c": "",
+        "\u200d": "",
+        "\ufeff": "",
     }
     for antigo, novo in problematicos.items():
         texto = texto.replace(antigo, novo)
@@ -43,10 +41,9 @@ def _limpar_unicode(texto):
 
 
 # ============================================================
-# HELPERS INTERNOS
+# HELPERS
 # ============================================================
 def _get_vendedor_id(usuario_id, get_conn, close_conn):
-    """Converte usuario_id -> vendedor_id. Mesmo padrao do app.py:717."""
     if not usuario_id:
         return None
     try:
@@ -67,7 +64,6 @@ def _get_vendedor_id(usuario_id, get_conn, close_conn):
 
 
 def _get_plano(vendedor_id, get_conn, close_conn):
-    """Retorna o plano do vendedor (lowercase). Default: gratis."""
     try:
         conn = get_conn()
         cur = conn.cursor()
@@ -85,7 +81,6 @@ def _get_plano(vendedor_id, get_conn, close_conn):
 
 
 def _uso_hoje(vendedor_id, get_conn, close_conn):
-    """Retorna quantas interacoes o vendedor ja usou hoje."""
     try:
         conn = get_conn()
         cur = conn.cursor()
@@ -106,7 +101,6 @@ def _uso_hoje(vendedor_id, get_conn, close_conn):
 
 
 def _incrementar_uso(vendedor_id, get_conn, close_conn):
-    """Soma +1 no uso de hoje (cria a linha se nao existir)."""
     try:
         conn = get_conn()
         cur = conn.cursor()
@@ -130,7 +124,6 @@ def _incrementar_uso(vendedor_id, get_conn, close_conn):
 
 
 def _get_consultoria_ativa(vendedor_id, get_conn, close_conn):
-    """Retorna o id da consultoria ativa (ou None)."""
     try:
         conn = get_conn()
         cur = conn.cursor()
@@ -152,7 +145,6 @@ def _get_consultoria_ativa(vendedor_id, get_conn, close_conn):
 
 
 def _get_mensagens(consultoria_id, get_conn, close_conn):
-    """Retorna lista de mensagens da consultoria, em ordem cronologica."""
     try:
         conn = get_conn()
         cur = conn.cursor()
@@ -176,7 +168,6 @@ def _get_mensagens(consultoria_id, get_conn, close_conn):
 
 
 def _salvar_mensagem(consultoria_id, direcao, mensagem, get_conn, close_conn):
-    """Salva 1 mensagem (consultor ou cliente)."""
     try:
         conn = get_conn()
         cur = conn.cursor()
@@ -198,8 +189,6 @@ def _salvar_mensagem(consultoria_id, direcao, mensagem, get_conn, close_conn):
 
 
 def _consultoria_e_nova(consultoria_id, get_conn, close_conn):
-    """Retorna True se a consultoria foi criada nos ultimos 60 segundos.
-    Usado pra mostrar o separador 'Nova consultoria iniciada' no chat."""
     try:
         conn = get_conn()
         cur = conn.cursor()
@@ -220,8 +209,6 @@ def _consultoria_e_nova(consultoria_id, get_conn, close_conn):
 
 
 def _gerar_msg_inicial(vendedor_id, consultoria_id, get_conn, close_conn):
-    """Gera a 1a mensagem da IA ao criar uma consultoria.
-    NAO conta no limite diario. Se falhar, nao quebra o fluxo."""
     try:
         from consultor_core import montar_dossie, formatar_dossie_para_prompt
         from consultor import gerar_resposta_consultor
@@ -249,8 +236,7 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
     from consultor import gerar_resposta_consultor, formatar_historico
 
     # --------------------------------------------------------
-    # GET /consultoria — tela inicial
-    # Decide se mostra botao "iniciar" ou chat existente
+    # GET /consultoria — se nao tem ativa, CRIA e abre o chat
     # --------------------------------------------------------
     @app.get("/consultoria", response_class=HTMLResponse)
     def tela_consultoria(request: Request,
@@ -268,22 +254,35 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         usado = _uso_hoje(vendedor_id, get_conn, close_conn)
         consultoria_id = _get_consultoria_ativa(vendedor_id, get_conn, close_conn)
 
+        # Se nao tem consultoria ativa, CRIA automaticamente
+        if not consultoria_id:
+            try:
+                conn = get_conn()
+                cur = conn.cursor()
+                cur.execute("""
+                    INSERT INTO consultorias (vendedor_id, status)
+                    VALUES (%s, 'ativa') RETURNING id
+                """, (vendedor_id,))
+                consultoria_id = cur.fetchone()[0]
+                conn.commit()
+                cur.close()
+                close_conn(conn)
+
+                # Gera a 1a mensagem da IA
+                _gerar_msg_inicial(vendedor_id, consultoria_id, get_conn, close_conn)
+            except Exception as e:
+                print(f"Consultor: erro ao auto-criar consultoria - {e}")
+                try:
+                    close_conn(conn)
+                except Exception:
+                    pass
+                return RedirectResponse(url="/hub")
+
         from fastapi.templating import Jinja2Templates
         import os
         templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
 
-        # Se nao tem consultoria ativa, mostra tela de boas-vindas
-        if not consultoria_id:
-            return templates.TemplateResponse(request, "consultoria.html", {
-                "usuario_nome": usuario_nome or "",
-                "modo": "inicio",
-                "plano": plano,
-                "limite": limite,
-                "usado": usado,
-                "restantes": max(0, limite - usado),
-            })
-
-        # Se tem, carrega o chat com o historico
+        # Carrega o chat
         mensagens = _get_mensagens(consultoria_id, get_conn, close_conn)
         nova = _consultoria_e_nova(consultoria_id, get_conn, close_conn)
         return templates.TemplateResponse(request, "consultoria.html", {
@@ -300,7 +299,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
 
     # --------------------------------------------------------
     # POST /consultoria/iniciar — cria consultoria nova
-    # Tambem gera a 1a mensagem da IA (nao conta no limite)
     # --------------------------------------------------------
     @app.post("/consultoria/iniciar")
     def consultoria_iniciar(usuario_id: str = Cookie(None)):
@@ -311,12 +309,10 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         if not vendedor_id:
             return JSONResponse({"erro": "vendedor nao encontrado"}, status_code=404)
 
-        # Ja tem uma ativa? Retorna ela (nao gera msg nova).
         existente = _get_consultoria_ativa(vendedor_id, get_conn, close_conn)
         if existente:
             return JSONResponse({"ok": True, "consultoria_id": existente, "reaproveitada": True})
 
-        # Cria nova
         try:
             conn = get_conn()
             cur = conn.cursor()
@@ -336,13 +332,11 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
                 pass
             return JSONResponse({"erro": "falha ao criar consultoria"}, status_code=500)
 
-        # Gera a 1a mensagem da IA
         _gerar_msg_inicial(vendedor_id, novo_id, get_conn, close_conn)
-
         return JSONResponse({"ok": True, "consultoria_id": novo_id, "reaproveitada": False})
 
     # --------------------------------------------------------
-    # POST /consultoria/mensagem — envia msg e recebe resposta
+    # POST /consultoria/mensagem
     # --------------------------------------------------------
     @app.post("/consultoria/mensagem")
     async def consultoria_mensagem(request: Request, usuario_id: str = Cookie(None)):
@@ -353,7 +347,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         if not vendedor_id:
             return JSONResponse({"erro": "vendedor nao encontrado"}, status_code=404)
 
-        # Le JSON do body
         try:
             body = await request.json()
         except Exception:
@@ -363,7 +356,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         if not texto:
             return JSONResponse({"erro": "mensagem vazia"}, status_code=400)
 
-        # Verifica limite diario
         plano = _get_plano(vendedor_id, get_conn, close_conn)
         limite = LIMITES_DIARIOS.get(plano, 5)
         usado = _uso_hoje(vendedor_id, get_conn, close_conn)
@@ -377,37 +369,27 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
                 "usado": usado,
             }, status_code=429)
 
-        # Pega consultoria ativa (cria se nao existir)
         consultoria_id = _get_consultoria_ativa(vendedor_id, get_conn, close_conn)
         if not consultoria_id:
             return JSONResponse({"erro": "nenhuma consultoria ativa. clique em iniciar."}, status_code=400)
 
-        # Salva mensagem do cliente
         _salvar_mensagem(consultoria_id, "cliente", texto, get_conn, close_conn)
 
-        # Monta o dossie
         dossie = montar_dossie(vendedor_id, get_conn, close_conn)
         dossie_txt = formatar_dossie_para_prompt(dossie)
 
-        # Pega historico (ultimas 20)
         mensagens = _get_mensagens(consultoria_id, get_conn, close_conn)
         historico_recente = mensagens[-20:]
-        historico_txt = formatar_historico(historico_recente[:-1])  # tudo menos a que acabou de salvar
+        historico_txt = formatar_historico(historico_recente[:-1])
 
-        # Chama a IA
         resposta = gerar_resposta_consultor(
             mensagem_usuario=texto,
             dossie_texto=dossie_txt,
             historico_texto=historico_txt,
         )
 
-        # Limpa unicode problematico
         resposta = _limpar_unicode(resposta)
-
-        # Salva a resposta
         _salvar_mensagem(consultoria_id, "consultor", resposta, get_conn, close_conn)
-
-        # Incrementa o uso do dia
         _incrementar_uso(vendedor_id, get_conn, close_conn)
 
         usado_novo = usado + 1
@@ -420,8 +402,7 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         })
 
     # --------------------------------------------------------
-    # POST /consultoria/nova — encerra atual e comeca outra
-    # Tambem gera a 1a mensagem da IA (nao conta no limite)
+    # POST /consultoria/nova
     # --------------------------------------------------------
     @app.post("/consultoria/nova")
     def consultoria_nova(usuario_id: str = Cookie(None)):
@@ -435,12 +416,10 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         try:
             conn = get_conn()
             cur = conn.cursor()
-            # Encerra todas as ativas
             cur.execute("""
                 UPDATE consultorias SET status = 'encerrada', atualizado_em = NOW()
                 WHERE vendedor_id = %s AND status = 'ativa'
             """, (vendedor_id,))
-            # Cria nova
             cur.execute("""
                 INSERT INTO consultorias (vendedor_id, status)
                 VALUES (%s, 'ativa') RETURNING id
@@ -457,14 +436,12 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
                 pass
             return JSONResponse({"erro": "falha ao criar nova"}, status_code=500)
 
-        # Gera a 1a mensagem da IA
         _gerar_msg_inicial(vendedor_id, novo_id, get_conn, close_conn)
-
         return JSONResponse({"ok": True, "consultoria_id": novo_id})
 
     # --------------------------------------------------------
-    # GET /consultoria/ping — mantido pra debug
+    # GET /consultoria/ping
     # --------------------------------------------------------
     @app.get("/consultoria/ping")
     def consultoria_ping():
-        return {"status": "ok", "area": "consultoria", "versao": "0.3"}
+        return {"status": "ok", "area": "consultoria", "versao": "0.4"}
