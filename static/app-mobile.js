@@ -55,7 +55,7 @@
                 border-bottom: 1px solid rgba(0,217,126,0.12) !important;
                 position: sticky !important;
                 top: 0 !important;
-                z-index: 9996 !important;
+                z-index: 9900 !important;
                 box-shadow: 0 2px 20px rgba(0,0,0,0.5) !important;
             }
             html[data-tema="claro"] .app-header {

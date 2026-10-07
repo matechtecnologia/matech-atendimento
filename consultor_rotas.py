@@ -1,6 +1,6 @@
 # consultor_rotas.py
 # M.A Tech — Rotas da Consultoria Empresarial
-# API JSON + tela inicial.
+# API JSON + tela inicial + painel de status + historico.
 # Chamado por consultor_install.py no boot do app.
 
 
@@ -16,6 +16,15 @@ LIMITES_DIARIOS = {
     "basico": 20,
     "pro": 60,
     "empresarial": 200,
+}
+
+# Nomes amigaveis dos servicos (pra exibir no painel e no historico)
+NOMES_SERVICOS = {
+    "atendimento_ia": "M.A Tech Atendimento com IA",
+    "gestao": "M.A Tech Gestão",
+    "trafego": "M.A Tech Tráfego Pago",
+    "crm": "M.A Tech CRM",
+    "automacao": "M.A Tech Automação",
 }
 
 
@@ -208,6 +217,109 @@ def _consultoria_e_nova(consultoria_id, get_conn, close_conn):
         return False
 
 
+def _get_status_completo(vendedor_id, consultoria_id, get_conn, close_conn):
+    """Devolve um dict com todo o status da consultoria atual."""
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, status, gargalo_detectado, servico_indicado,
+                   criado_em, atualizado_em
+            FROM consultorias WHERE id = %s
+        """, (consultoria_id,))
+        r = cur.fetchone()
+        if not r:
+            cur.close()
+            close_conn(conn)
+            return None
+
+        cur.execute("""
+            SELECT COUNT(*) FROM consultoria_mensagens
+            WHERE consultoria_id = %s
+        """, (consultoria_id,))
+        total_msgs = cur.fetchone()[0] or 0
+
+        cur.close()
+        close_conn(conn)
+
+        plano = _get_plano(vendedor_id, get_conn, close_conn)
+        limite = LIMITES_DIARIOS.get(plano, 5)
+        usado = _uso_hoje(vendedor_id, get_conn, close_conn)
+
+        servico_raw = (r[3] or "").strip().lower()
+        servico_nome = NOMES_SERVICOS.get(servico_raw, servico_raw or "")
+
+        return {
+            "id": r[0],
+            "status": r[1] or "ativa",
+            "gargalo_detectado": r[2] or "",
+            "servico_indicado": servico_raw,
+            "servico_nome": servico_nome,
+            "criado_em": r[4].isoformat() if r[4] else None,
+            "atualizado_em": r[5].isoformat() if r[5] else None,
+            "total_mensagens": int(total_msgs),
+            "plano": plano,
+            "limite": limite,
+            "usado": usado,
+            "restantes": max(0, limite - usado),
+        }
+    except Exception as e:
+        print(f"Consultor: erro ao montar status - {e}")
+        try:
+            close_conn(conn)
+        except Exception:
+            pass
+        return None
+
+
+def _get_historico(vendedor_id, get_conn, close_conn, excluir_id=None):
+    """Lista consultorias encerradas que tem pelo menos 1 mensagem."""
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        sql = """
+            SELECT c.id, c.gargalo_detectado, c.servico_indicado,
+                   c.criado_em, c.atualizado_em,
+                   (SELECT COUNT(*) FROM consultoria_mensagens m
+                    WHERE m.consultoria_id = c.id) AS total_msgs
+            FROM consultorias c
+            WHERE c.vendedor_id = %s AND c.status = 'encerrada'
+        """
+        params = [vendedor_id]
+        if excluir_id:
+            sql += " AND c.id <> %s"
+            params.append(excluir_id)
+        sql += " ORDER BY c.id DESC LIMIT 30"
+
+        cur.execute(sql, tuple(params))
+        linhas = cur.fetchall()
+        cur.close()
+        close_conn(conn)
+
+        itens = []
+        for r in linhas:
+            if (r[5] or 0) == 0:
+                continue  # ignora consultorias sem mensagem
+            servico_raw = (r[2] or "").strip().lower()
+            itens.append({
+                "id": r[0],
+                "gargalo": (r[1] or "").strip(),
+                "servico": servico_raw,
+                "servico_nome": NOMES_SERVICOS.get(servico_raw, servico_raw or ""),
+                "criado_em": r[3].isoformat() if r[3] else None,
+                "atualizado_em": r[4].isoformat() if r[4] else None,
+                "total_mensagens": int(r[5] or 0),
+            })
+        return itens
+    except Exception as e:
+        print(f"Consultor: erro ao buscar historico - {e}")
+        try:
+            close_conn(conn)
+        except Exception:
+            pass
+        return []
+
+
 def _gerar_msg_inicial(vendedor_id, consultoria_id, get_conn, close_conn):
     try:
         from consultor_core import montar_dossie, formatar_dossie_para_prompt
@@ -300,7 +412,6 @@ JSON:"""
         conteudo = (resp.choices[0].message.content or "").strip()
         print(f"Consultor: resposta bruta da 2a chamada = {conteudo[:200]!r}")
 
-        # Extrai JSON com regex (defensivo)
         m = _re.search(r'\{.*\}', conteudo, _re.DOTALL)
         if not m:
             print("Consultor: nenhum JSON encontrado na resposta.")
@@ -315,7 +426,6 @@ JSON:"""
         gargalo = (dados.get("gargalo") or "").strip()
         servico = (dados.get("servico") or "").strip().lower()
 
-        # Valida servico
         validos = {"atendimento_ia", "gestao", "trafego", "crm", "automacao"}
         if servico not in validos:
             servico = None
@@ -326,7 +436,6 @@ JSON:"""
             print("Consultor: nada util pra salvar (gargalo e servico vazios).")
             return
 
-        # Salva no banco (so o que foi detectado, sem sobrescrever o que ja existe)
         conn = get_conn()
         cur = conn.cursor()
         campos = []
@@ -411,6 +520,7 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
 
         mensagens = _get_mensagens(consultoria_id, get_conn, close_conn)
         nova = _consultoria_e_nova(consultoria_id, get_conn, close_conn)
+        status = _get_status_completo(vendedor_id, consultoria_id, get_conn, close_conn)
         return templates.TemplateResponse(request, "consultoria.html", {
             "usuario_nome": usuario_nome or "",
             "modo": "chat",
@@ -421,6 +531,98 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
             "limite": limite,
             "usado": usado,
             "restantes": max(0, limite - usado),
+            "status": status,
+        })
+
+    # --------------------------------------------------------
+    # GET /consultoria/status — status completo da consultoria ativa (JSON)
+    # --------------------------------------------------------
+    @app.get("/consultoria/status")
+    def consultoria_status(usuario_id: str = Cookie(None)):
+        if not usuario_id:
+            return JSONResponse({"erro": "nao logado"}, status_code=401)
+
+        vendedor_id = _get_vendedor_id(usuario_id, get_conn, close_conn)
+        if not vendedor_id:
+            return JSONResponse({"erro": "vendedor nao encontrado"}, status_code=404)
+
+        consultoria_id = _get_consultoria_ativa(vendedor_id, get_conn, close_conn)
+        if not consultoria_id:
+            return JSONResponse({"erro": "sem consultoria ativa"}, status_code=404)
+
+        status = _get_status_completo(vendedor_id, consultoria_id, get_conn, close_conn)
+        if not status:
+            return JSONResponse({"erro": "falha ao montar status"}, status_code=500)
+
+        return JSONResponse({"ok": True, "status": status})
+
+    # --------------------------------------------------------
+    # GET /consultoria/historico — lista de consultorias encerradas
+    # --------------------------------------------------------
+    @app.get("/consultoria/historico")
+    def consultoria_historico(usuario_id: str = Cookie(None)):
+        if not usuario_id:
+            return JSONResponse({"erro": "nao logado"}, status_code=401)
+
+        vendedor_id = _get_vendedor_id(usuario_id, get_conn, close_conn)
+        if not vendedor_id:
+            return JSONResponse({"erro": "vendedor nao encontrado"}, status_code=404)
+
+        ativa = _get_consultoria_ativa(vendedor_id, get_conn, close_conn)
+        itens = _get_historico(vendedor_id, get_conn, close_conn, excluir_id=ativa)
+        return JSONResponse({"ok": True, "historico": itens})
+
+    # --------------------------------------------------------
+    # GET /consultoria/historico/{cid} — detalhe read-only de uma encerrada
+    # --------------------------------------------------------
+    @app.get("/consultoria/historico/{cid}")
+    def consultoria_historico_detalhe(cid: int, usuario_id: str = Cookie(None)):
+        if not usuario_id:
+            return JSONResponse({"erro": "nao logado"}, status_code=401)
+
+        vendedor_id = _get_vendedor_id(usuario_id, get_conn, close_conn)
+        if not vendedor_id:
+            return JSONResponse({"erro": "vendedor nao encontrado"}, status_code=404)
+
+        # Confirma que essa consultoria pertence ao vendedor
+        try:
+            conn = get_conn()
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT id, status, gargalo_detectado, servico_indicado,
+                       criado_em, atualizado_em
+                FROM consultorias WHERE id = %s AND vendedor_id = %s
+            """, (cid, vendedor_id))
+            r = cur.fetchone()
+            cur.close()
+            close_conn(conn)
+        except Exception as e:
+            print(f"Consultor: erro ao buscar detalhe historico - {e}")
+            try:
+                close_conn(conn)
+            except Exception:
+                pass
+            return JSONResponse({"erro": "falha ao buscar"}, status_code=500)
+
+        if not r:
+            return JSONResponse({"erro": "consultoria nao encontrada"}, status_code=404)
+
+        mensagens = _get_mensagens(cid, get_conn, close_conn)
+        servico_raw = (r[3] or "").strip().lower()
+
+        return JSONResponse({
+            "ok": True,
+            "consultoria": {
+                "id": r[0],
+                "status": r[1] or "encerrada",
+                "gargalo": (r[2] or "").strip(),
+                "servico": servico_raw,
+                "servico_nome": NOMES_SERVICOS.get(servico_raw, servico_raw or ""),
+                "criado_em": r[4].isoformat() if r[4] else None,
+                "atualizado_em": r[5].isoformat() if r[5] else None,
+                "total_mensagens": len(mensagens),
+            },
+            "mensagens": mensagens,
         })
 
     # --------------------------------------------------------
@@ -526,6 +728,9 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         except Exception as e:
             print(f"Consultor: erro no pos-analise - {e}")
 
+        # Devolve o status atualizado pro painel atualizar em tempo real
+        status = _get_status_completo(vendedor_id, consultoria_id, get_conn, close_conn)
+
         usado_novo = usado + 1
         return JSONResponse({
             "ok": True,
@@ -533,6 +738,7 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
             "usado": usado_novo,
             "limite": limite,
             "restantes": max(0, limite - usado_novo),
+            "status": status,
         })
 
     # --------------------------------------------------------
@@ -578,4 +784,4 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
     # --------------------------------------------------------
     @app.get("/consultoria/ping")
     def consultoria_ping():
-        return {"status": "ok", "area": "consultoria", "versao": "0.5"}
+        return {"status": "ok", "area": "consultoria", "versao": "0.6"}

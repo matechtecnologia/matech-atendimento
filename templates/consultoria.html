@@ -13,6 +13,7 @@
     <link rel="icon" type="image/png" href="/static/favicon-32.png">
     <title>M.A Tech - Consultoria Empresarial</title>
     <link rel="stylesheet" href="/static/app.min.css?v=310935">
+    <link rel="stylesheet" href="/static/consultor_painel.css?v=1">
     <style>
         * { box-sizing: border-box; }
 
@@ -55,7 +56,6 @@
         }
         .consult-chat-id { display: flex; align-items: center; gap: 12px; }
 
-        /* Avatar principal — SUA FOTO */
         .consult-avatar-principal {
             width: 48px; height: 48px; border-radius: 50%;
             background: #141414;
@@ -93,7 +93,11 @@
             background: #00d97e; box-shadow: 0 0 6px #00d97e;
         }
 
-        /* ====== BOTAO NOVA CONSULTORIA ====== */
+        /* ====== BOTOES DO TOPO DO CHAT ====== */
+        .consult-chat-acoes {
+            display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+        }
+
         .consult-btn-nova {
             position: relative;
             display: inline-flex; align-items: center; gap: 8px;
@@ -305,6 +309,7 @@
             .consult-chat-nome { font-size: 14px; }
             .consult-btn-nova { padding: 9px 14px 9px 10px; font-size: 11.5px; }
             .consult-avatar-principal { width: 42px; height: 42px; }
+       	
         }
     </style>
 </head>
@@ -334,15 +339,27 @@
                 </div>
             </div>
 
-            <button id="btn-nova" class="consult-btn-nova" title="Iniciar uma nova consultoria">
-                <span class="icon-wrap">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
+            <div class="consult-chat-acoes">
+                <button id="btn-status-painel" class="consult-btn-status" title="Ver status da consultoria">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 3v18h18"/>
+                        <rect x="7" y="12" width="3" height="6"/>
+                        <rect x="12" y="8" width="3" height="10"/>
+                        <rect x="17" y="5" width="3" height="13"/>
                     </svg>
-                </span>
-                <span class="texto">Nova consultoria</span>
-            </button>
+                    <span class="texto">STATUS</span>
+                </button>
+
+                <button id="btn-nova" class="consult-btn-nova" title="Iniciar uma nova consultoria">
+                    <span class="icon-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                    </span>
+                    <span class="texto">Nova consultoria</span>
+                </button>
+            </div>
         </div>
 
         <div class="consult-contador-wrap">
@@ -384,8 +401,169 @@
 
 </div>
 
+<!-- ============================================================
+     PAINEL LATERAL (DRAWER ROXO)
+     ============================================================ -->
+<div id="consult-painel-overlay" class="consult-painel-overlay"></div>
+
+<aside id="consult-painel-drawer" class="consult-painel-drawer" aria-hidden="true">
+    <div class="consult-painel-header">
+        <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 3v18h18"/>
+                <rect x="7" y="12" width="3" height="6"/>
+                <rect x="12" y="8" width="3" height="10"/>
+                <rect x="17" y="5" width="3" height="13"/>
+            </svg>
+            Status da Consultoria
+        </h2>
+        <button id="painel-fechar-btn" class="consult-painel-fechar" title="Fechar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        </button>
+    </div>
+
+    <div class="consult-painel-corpo">
+
+        <!-- Bloco: Gargalo -->
+        <div class="consult-bloco">
+            <p class="consult-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"/>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                Gargalo Detectado
+            </p>
+            <div id="painel-gargalo" class="consult-bloco-conteudo vazio">
+                <span class="consult-spinner"></span> ainda analisando...
+            </div>
+        </div>
+
+        <!-- Bloco: Serviço -->
+        <div class="consult-bloco">
+            <p class="consult-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <circle cx="12" cy="12" r="6"/>
+                    <circle cx="12" cy="12" r="2"/>
+                </svg>
+                Serviço Indicado
+            </p>
+            <div id="painel-servico" class="consult-bloco-conteudo vazio">
+                <span class="consult-spinner"></span> ainda analisando...
+            </div>
+        </div>
+
+        <!-- Bloco: Uso hoje -->
+        <div class="consult-bloco">
+            <p class="consult-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2v20M2 12h20"/>
+                </svg>
+                Uso Hoje
+            </p>
+            <div class="consult-uso-wrap">
+                <div class="consult-uso-barra">
+                    <div id="painel-uso-barra" class="consult-uso-preenchido" style="width:0%"></div>
+                </div>
+                <div class="consult-uso-texto">
+                    <span id="painel-uso-texto">0 / 5</span>
+                    <span class="plano" id="painel-uso-plano">gratis</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bloco: Esta consultoria -->
+        <div class="consult-bloco">
+            <p class="consult-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                </svg>
+                Esta Consultoria
+            </p>
+            <div class="consult-meta-linha">
+                <span class="label">Iniciada em</span>
+                <span class="valor" id="painel-meta-criada">—</span>
+            </div>
+            <div class="consult-meta-linha">
+                <span class="label">Atualizada em</span>
+                <span class="valor" id="painel-meta-atualizada">—</span>
+            </div>
+            <div class="consult-meta-linha">
+                <span class="label">Mensagens</span>
+                <span class="valor" id="painel-meta-msgs">0</span>
+            </div>
+            <div class="consult-meta-linha">
+                <span class="label">Status</span>
+                <span class="valor status-ativa" id="painel-meta-status">ativa</span>
+            </div>
+        </div>
+
+        <!-- Bloco: Histórico -->
+        <div class="consult-bloco">
+            <div class="consult-hist-toggle" id="painel-hist-toggle">
+                <p class="consult-bloco-titulo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 7h18M3 12h18M3 17h18"/>
+                    </svg>
+                    Consultorias Anteriores
+                </p>
+                <svg class="consult-hist-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"/>
+                </svg>
+            </div>
+            <div id="painel-hist-lista" class="consult-hist-lista"></div>
+        </div>
+
+    </div>
+</aside>
+
+<!-- ============================================================
+     MODAL DO HISTORICO (READ-ONLY)
+     ============================================================ -->
+<div id="consult-hist-modal" class="consult-modal">
+    <div class="consult-modal-box">
+        <div class="consult-modal-header">
+            <div>
+                <h3>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 7h18M3 12h18M3 17h18"/>
+                    </svg>
+                    <span id="hist-modal-titulo">Consultoria</span>
+                </h3>
+                <span class="data" id="hist-modal-data">—</span>
+            </div>
+            <button id="hist-modal-fechar" class="consult-painel-fechar" title="Fechar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+        </div>
+
+        <div class="consult-modal-corpo">
+            <div class="consult-modal-diagnostico">
+                <div class="linha">
+                    <span class="label">Gargalo detectado</span>
+                    <span class="valor" id="hist-modal-gargalo">—</span>
+                </div>
+                <div class="linha">
+                    <span class="label">Serviço indicado</span>
+                    <span class="valor servico" id="hist-modal-servico">—</span>
+                </div>
+            </div>
+
+            <div class="consult-modal-header-info" id="hist-modal-info">—</div>
+            <div class="consult-modal-msgs" id="hist-modal-msgs"></div>
+        </div>
+    </div>
+</div>
+
 <script>
 const USUARIO_INICIAL = "{{ (usuario_nome or 'V')[0]|upper }}";
+window.USUARIO_INICIAL = USUARIO_INICIAL;
 let usado = {{ usado|default(0) }};
 let limite = {{ limite|default(5) }};
 let enviando = false;
@@ -525,6 +703,10 @@ async function enviarMensagem() {
             usado = j.usado;
             limite = j.limite;
             atualizarContador();
+            // Atualiza o painel em tempo real (se estiver aberto)
+            if (window.ConsultorPainel && j.status) {
+                window.ConsultorPainel.atualizarStatus(j.status);
+            }
         } else if (j.erro === 'limite_diario') {
             mostrarErro(j.mensagem);
         } else {
@@ -535,7 +717,6 @@ async function enviarMensagem() {
         removerTyping();
         mostrarErro('Erro de rede: ' + e.message);
     } finally {
-        enviando = false;
         btnEnviar.disabled = false;
         inputMsg.disabled = false;
         inputMsg.focus();
@@ -570,6 +751,7 @@ atualizarContador();
 </script>
 
 <script src="/static/app.min.js?v=310936"></script>
+<script src="/static/consultor_painel.js?v=1"></script>
 <script src="/static/consultor.js?v=310936"></script>
 <script src="/static/splash.js"></script>
 <script src="/static/sw-register.js"></script>
