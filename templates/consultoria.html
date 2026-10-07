@@ -13,7 +13,7 @@
     <link rel="icon" type="image/png" href="/static/favicon-32.png">
     <title>M.A Tech - Consultoria Empresarial</title>
     <link rel="stylesheet" href="/static/app.min.css?v=310935">
-    <link rel="stylesheet" href="/static/consultor_painel.css?v=1">
+    <link rel="stylesheet" href="/static/consultor_painel.css?v=2">
     <style>
         * { box-sizing: border-box; }
 
@@ -24,7 +24,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* ====== HEADER ====== */
         .topo {
             background: #0f1a15; padding: 14px 24px;
             border-bottom: 1px solid #00d97e33;
@@ -40,14 +39,12 @@
 
         .container-atendimento { max-width: 780px; margin: 0 auto; padding: 0 16px; }
 
-        /* ====== CHAT WRAP ====== */
         .consult-chat-wrap {
             display: flex; flex-direction: column;
             height: calc(100vh - 62px); min-height: 500px;
             max-height: 900px;
         }
 
-        /* ====== TOPO DO CHAT ====== */
         .consult-chat-top {
             display: flex; justify-content: space-between; align-items: center;
             padding: 14px 4px; margin-top: 8px;
@@ -93,7 +90,6 @@
             background: #00d97e; box-shadow: 0 0 6px #00d97e;
         }
 
-        /* ====== BOTOES DO TOPO DO CHAT ====== */
         .consult-chat-acoes {
             display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
         }
@@ -141,7 +137,6 @@
         .consult-btn-nova .icon-wrap svg { width: 12px; height: 12px; }
         .consult-btn-nova .texto { position: relative; z-index: 1; }
 
-        /* ====== LISTA DE MENSAGENS ====== */
         .consult-chat-mensagens {
             flex: 1; overflow-y: auto;
             padding: 24px 4px 12px;
@@ -231,7 +226,6 @@
             background: linear-gradient(to right, transparent, #00d97e44, transparent);
         }
 
-        /* ====== INPUT ====== */
         .consult-chat-input {
             display: flex; gap: 10px; padding: 16px 0 20px;
             border-top: 1px solid #1a1a1a;
@@ -262,7 +256,6 @@
         .consult-btn-enviar:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
         .consult-btn-enviar svg { width: 22px; height: 22px; }
 
-        /* ====== CONTADOR ====== */
         .consult-contador-wrap {
             display: flex; justify-content: flex-end;
             padding: 10px 0;
@@ -286,7 +279,6 @@
         .consult-contador.limite::before { background: #ff5050; box-shadow: 0 0 8px #ff5050; animation: pulse-dot 1.2s infinite; }
         @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-        /* ====== ERRO ====== */
         .consult-erro {
             background: rgba(255,60,60,0.08); border: 1px solid rgba(255,60,60,0.25);
             color: #ff5050; padding: 12px 16px; border-radius: 10px;
@@ -309,7 +301,6 @@
             .consult-chat-nome { font-size: 14px; }
             .consult-btn-nova { padding: 9px 14px 9px 10px; font-size: 11.5px; }
             .consult-avatar-principal { width: 42px; height: 42px; }
-       	
         }
     </style>
 </head>
@@ -427,7 +418,6 @@
 
     <div class="consult-painel-corpo">
 
-        <!-- Bloco: Gargalo -->
         <div class="consult-bloco">
             <p class="consult-bloco-titulo">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -441,7 +431,6 @@
             </div>
         </div>
 
-        <!-- Bloco: Serviço -->
         <div class="consult-bloco">
             <p class="consult-bloco-titulo">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -456,7 +445,23 @@
             </div>
         </div>
 
-        <!-- Bloco: Uso hoje -->
+        <div class="consult-bloco">
+            <p class="consult-bloco-titulo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 11l3 3L22 4"/>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+                Plano de Ação
+            </p>
+            <div id="painel-passos-progresso" class="consult-passos-progresso" style="display:none;">
+                <span class="consult-passos-numero">0 / 0</span>
+                <div class="barra-mini"><div class="barra-mini-preenchida" style="width:0%"></div></div>
+            </div>
+            <div id="painel-passos-lista">
+                <div class="consult-passos-vazio"><span class="consult-spinner"></span> ainda gerando plano...</div>
+            </div>
+        </div>
+
         <div class="consult-bloco">
             <p class="consult-bloco-titulo">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -475,7 +480,6 @@
             </div>
         </div>
 
-        <!-- Bloco: Esta consultoria -->
         <div class="consult-bloco">
             <p class="consult-bloco-titulo">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -501,7 +505,6 @@
             </div>
         </div>
 
-        <!-- Bloco: Histórico -->
         <div class="consult-bloco">
             <div class="consult-hist-toggle" id="painel-hist-toggle">
                 <p class="consult-bloco-titulo">
@@ -554,6 +557,8 @@
                     <span class="valor servico" id="hist-modal-servico">—</span>
                 </div>
             </div>
+
+            <div id="hist-modal-passos" style="display:none;"></div>
 
             <div class="consult-modal-header-info" id="hist-modal-info">—</div>
             <div class="consult-modal-msgs" id="hist-modal-msgs"></div>
@@ -703,7 +708,6 @@ async function enviarMensagem() {
             usado = j.usado;
             limite = j.limite;
             atualizarContador();
-            // Atualiza o painel em tempo real (se estiver aberto)
             if (window.ConsultorPainel && j.status) {
                 window.ConsultorPainel.atualizarStatus(j.status);
             }
@@ -751,7 +755,7 @@ atualizarContador();
 </script>
 
 <script src="/static/app.min.js?v=310936"></script>
-<script src="/static/consultor_painel.js?v=1"></script>
+<script src="/static/consultor_painel.js?v=2"></script>
 <script src="/static/consultor.js?v=310936"></script>
 <script src="/static/splash.js"></script>
 <script src="/static/sw-register.js"></script>

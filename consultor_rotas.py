@@ -1,6 +1,6 @@
 # consultor_rotas.py
 # M.A Tech — Rotas da Consultoria Empresarial
-# API JSON + tela inicial + painel de status + historico.
+# API JSON + tela inicial + painel de status + historico + passos.
 # Chamado por consultor_install.py no boot do app.
 
 
@@ -21,10 +21,10 @@ LIMITES_DIARIOS = {
 # Nomes amigaveis dos servicos (pra exibir no painel e no historico)
 NOMES_SERVICOS = {
     "atendimento_ia": "M.A Tech Atendimento com IA",
-    "gestao": "M.A Tech Gestão",
-    "trafego": "M.A Tech Tráfego Pago",
+    "gestao": "M.A Tech Gestao",
+    "trafego": "M.A Tech Trafego Pago",
     "crm": "M.A Tech CRM",
-    "automacao": "M.A Tech Automação",
+    "automacao": "M.A Tech Automacao",
 }
 
 
@@ -217,6 +217,87 @@ def _consultoria_e_nova(consultoria_id, get_conn, close_conn):
         return False
 
 
+def _get_passos(consultoria_id, get_conn, close_conn):
+    """Devolve a lista de passos do plano de acao."""
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT id, ordem, titulo, acao, prazo, concluido, concluido_em
+            FROM consultoria_passos
+            WHERE consultoria_id = %s
+            ORDER BY ordem ASC, id ASC
+        """, (consultoria_id,))
+        linhas = cur.fetchall()
+        cur.close()
+        close_conn(conn)
+        return [
+            {
+                "id": r[0],
+                "ordem": r[1],
+                "titulo": r[2] or "",
+                "acao": r[3] or "",
+                "prazo": r[4] or "essa semana",
+                "concluido": bool(r[5]),
+                "concluido_em": r[6].isoformat() if r[6] else None,
+            }
+            for r in linhas
+        ]
+    except Exception as e:
+        print(f"Consultor: erro ao buscar passos - {e}")
+        try:
+            close_conn(conn)
+        except Exception:
+            pass
+        return []
+
+
+def _salvar_passos(consultoria_id, passos, get_conn, close_conn):
+    """Substitui todos os passos da consultoria pelos novos.
+    Apaga os antigos e insere os novos. Mantem concluidos se titulo for igual."""
+    if not passos:
+        return False
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+
+        cur.execute("""
+            SELECT titulo, concluido, concluido_em
+            FROM consultoria_passos
+            WHERE consultoria_id = %s AND concluido = TRUE
+        """, (consultoria_id,))
+        concluidos_antigos = {r[0]: (r[1], r[2]) for r in cur.fetchall()}
+
+        cur.execute("DELETE FROM consultoria_passos WHERE consultoria_id = %s", (consultoria_id,))
+
+        for i, p in enumerate(passos):
+            titulo = _limpar_unicode(str(p.get("titulo") or "").strip())[:120]
+            acao = _limpar_unicode(str(p.get("acao") or "").strip())[:300]
+            prazo = _limpar_unicode(str(p.get("prazo") or "essa semana").strip())[:30]
+            if not titulo or not acao:
+                continue
+            ordem = i + 1
+            ja_concluido = titulo in concluidos_antigos
+            concluido_em = concluidos_antigos[titulo][1] if ja_concluido else None
+            cur.execute("""
+                INSERT INTO consultoria_passos
+                    (consultoria_id, ordem, titulo, acao, prazo, concluido, concluido_em)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (consultoria_id, ordem, titulo, acao, prazo, ja_concluido, concluido_em))
+
+        conn.commit()
+        cur.close()
+        close_conn(conn)
+        return True
+    except Exception as e:
+        print(f"Consultor: erro ao salvar passos - {e}")
+        try:
+            close_conn(conn)
+        except Exception:
+            pass
+        return False
+
+
 def _get_status_completo(vendedor_id, consultoria_id, get_conn, close_conn):
     """Devolve um dict com todo o status da consultoria atual."""
     try:
@@ -249,6 +330,10 @@ def _get_status_completo(vendedor_id, consultoria_id, get_conn, close_conn):
         servico_raw = (r[3] or "").strip().lower()
         servico_nome = NOMES_SERVICOS.get(servico_raw, servico_raw or "")
 
+        passos = _get_passos(consultoria_id, get_conn, close_conn)
+        total_passos = len(passos)
+        concluidos = sum(1 for p in passos if p["concluido"])
+
         return {
             "id": r[0],
             "status": r[1] or "ativa",
@@ -262,6 +347,9 @@ def _get_status_completo(vendedor_id, consultoria_id, get_conn, close_conn):
             "limite": limite,
             "usado": usado,
             "restantes": max(0, limite - usado),
+            "passos": passos,
+            "passos_total": total_passos,
+            "passos_concluidos": concluidos,
         }
     except Exception as e:
         print(f"Consultor: erro ao montar status - {e}")
@@ -299,7 +387,7 @@ def _get_historico(vendedor_id, get_conn, close_conn, excluir_id=None):
         itens = []
         for r in linhas:
             if (r[5] or 0) == 0:
-                continue  # ignora consultorias sem mensagem
+                continue
             servico_raw = (r[2] or "").strip().lower()
             itens.append({
                 "id": r[0],
@@ -340,12 +428,10 @@ def _gerar_msg_inicial(vendedor_id, consultoria_id, get_conn, close_conn):
 
 
 # ============================================================
-# ETAPA 3 — ANALISE AUTOMATICA (2a chamada de IA)
+# ETAPA 3 + 4A — ANALISE AUTOMATICA (2a chamada de IA)
+# Extrai: gargalo + servico + plano de acao (passos)
 # ============================================================
 def _analisar_e_salvar(vendedor_id, consultoria_id, historico_txt, get_conn, close_conn):
-    """Faz uma 2a chamada curta ao Groq pra extrair gargalo + servico
-    da conversa. Salva em consultorias se detectar. Nao quebra o fluxo
-    se falhar."""
     try:
         from groq import Groq
         import os as _os
@@ -357,16 +443,17 @@ def _analisar_e_salvar(vendedor_id, consultoria_id, historico_txt, get_conn, clo
             print("Consultor: GROQ_API_KEY ausente na analise.")
             return
 
-        # Se ja tem gargalo salvo, nao refaz (otimizacao)
         try:
             _c = get_conn()
             _cu = _c.cursor()
             _cu.execute("SELECT gargalo_detectado, servico_indicado FROM consultorias WHERE id = %s", (consultoria_id,))
             _r = _cu.fetchone()
+            _cu.execute("SELECT COUNT(*) FROM consultoria_passos WHERE consultoria_id = %s", (consultoria_id,))
+            _n_passos = _cu.fetchone()[0] or 0
             _cu.close()
             close_conn(_c)
-            if _r and _r[0] and _r[1]:
-                print(f"Consultor: analise pulada (consultoria #{consultoria_id} ja tem gargalo+servico).")
+            if _r and _r[0] and _r[1] and _n_passos > 0:
+                print(f"Consultor: analise pulada (consultoria #{consultoria_id} ja tem gargalo+servico+passos).")
                 return
         except Exception:
             try:
@@ -376,17 +463,84 @@ def _analisar_e_salvar(vendedor_id, consultoria_id, historico_txt, get_conn, clo
 
         prompt = f"""Analise a conversa abaixo entre um CONSULTOR da M.A Tech e um VENDEDOR.
 
-Sua tarefa: extrair 2 informacoes em formato JSON.
-Se ainda nao houver informacao suficiente, retorne null nos campos.
+============================================================
+COMO O M.A TECH FUNCIONA (leia ANTES de gerar os passos)
+============================================================
+
+DIVISAO DE RESPONSABILIDADE:
+
+O VENDEDOR (manual):
+- Recebe a mensagem no canal dele (WhatsApp, Instagram, email)
+- COPIA a mensagem e COLA dentro do M.A Tech
+- COPIA o texto pronto que a IA devolve e ENVIA no canal dele
+- Confere a aba "Follow-ups" pra ver quem precisa de atencao
+
+A IA (automatico - o cliente NAO faz nada):
+- Le o historico do cliente e o nicho
+- Devolve: O QUE FALAR + TEXTO PRONTO + ESTAGIO + LINHA CRM
+- REGISTRA o lead automaticamente no funil
+- AGENDA o follow-up sozinha, com a data sugerida
+- MOSTRA na aba Follow-ups quem esta atrasado
+
+============================================================
+O QUE NAO EXISTE (nunca sugira)
+============================================================
+
+NAO existe:
+- Conectar WhatsApp / Instagram / email na plataforma
+- Ler conversas automaticamente
+- Responder cliente sozinho (bot/chatbot)
+- Enviar mensagem automatica
+- API do WhatsApp Business
+- Disparo em massa
+- Ajustar data e hora do follow-up (a IA agenda sozinha)
+- Cadastrar lead manualmente (a IA faz automatico)
+- Configurar integracao, API, webhook, token
+
+============================================================
+REGRA DOS PASSOS
+============================================================
+
+Cada passo = UMA acao MANUAL do vendedor dentro do M.A Tech.
+
+NUNCA crie passo sobre o que a IA faz sozinha (registrar lead,
+agendar follow-up, ler historico). Isso NAO e tarefa do vendedor.
+
+NUNCA crie passo sobre configurar integracao, API, canal, etc.
+
+BONS EXEMPLOS de passo:
+- Colar a primeira mensagem no M.A Tech
+- Testar a IA com um lead real
+- Cadastrar um nicho (produto + cliente ideal)
+- Abrir a aba Follow-ups todo dia pela manha
+- Revisar o estagio dos leads abertos
+
+MAUS EXEMPLOS de passo (NUNCA gere assim):
+- Ajustar data e hora do follow-up (IA faz automatico)
+- Cadastrar lead manualmente (IA faz automatico)
+- Configurar integracao com WhatsApp (nao existe)
+- Ativar envio automatico de mensagem (nao existe)
+
+============================================================
+SUA TAREFA
+============================================================
+
+Extrair 3 informacoes em formato JSON.
+Se ainda nao houver informacao suficiente, retorne null nos campos e lista vazia nos passos.
 
 - "gargalo": o problema principal do negocio do vendedor (frase curta, ate 60 chars)
 - "servico": qual servico M.A Tech o consultor indicou ou esta indicando
-  (valores aceitos: "atendimento_ia", "gestao", "trafego", "crm", "automacao", "nenhum")
+  (valores aceitos: atendimento_ia, gestao, trafego, crm, automacao, nenhum)
+- "passos": lista de 3 a 5 acoes MANUAIS do vendedor dentro do M.A Tech
+  Cada passo tem:
+    - "titulo": frase curta (ate 40 chars) - o que fazer
+    - "acao": explicacao pratica em 1-2 frases (ate 200 chars)
+    - "prazo": hoje, essa semana ou esse mes
 
 Responda APENAS com JSON valido, sem texto extra, sem crase, sem markdown.
 
 Formato exato:
-{{"gargalo": "...", "servico": "..."}}
+{{"gargalo": "...", "servico": "...", "passos": [{{"titulo": "...", "acao": "...", "prazo": "..."}}]}}
 
 CONVERSA:
 {historico_txt}
@@ -410,7 +564,7 @@ JSON:"""
             )
 
         conteudo = (resp.choices[0].message.content or "").strip()
-        print(f"Consultor: resposta bruta da 2a chamada = {conteudo[:200]!r}")
+        print(f"Consultor: resposta bruta da 2a chamada = {conteudo[:300]!r}")
 
         m = _re.search(r'\{.*\}', conteudo, _re.DOTALL)
         if not m:
@@ -425,6 +579,7 @@ JSON:"""
 
         gargalo = (dados.get("gargalo") or "").strip()
         servico = (dados.get("servico") or "").strip().lower()
+        passos = dados.get("passos") or []
 
         validos = {"atendimento_ia", "gestao", "trafego", "crm", "automacao"}
         if servico not in validos:
@@ -432,8 +587,8 @@ JSON:"""
 
         if gargalo:
             gargalo = _limpar_unicode(gargalo)[:200]
-        if not gargalo and not servico:
-            print("Consultor: nada util pra salvar (gargalo e servico vazios).")
+        if not gargalo and not servico and not passos:
+            print("Consultor: nada util pra salvar.")
             return
 
         conn = get_conn()
@@ -455,6 +610,10 @@ JSON:"""
         cur.close()
         close_conn(conn)
 
+        if passos and isinstance(passos, list):
+            _salvar_passos(consultoria_id, passos, get_conn, close_conn)
+            print(f"Consultor: {len(passos)} passos salvos (consultoria #{consultoria_id})")
+
         print(f"Consultor: gargalo='{gargalo}' servico='{servico}' (consultoria #{consultoria_id})")
 
     except Exception as e:
@@ -473,9 +632,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
     from consultor_core import montar_dossie, formatar_dossie_para_prompt
     from consultor import gerar_resposta_consultor, formatar_historico
 
-    # --------------------------------------------------------
-    # GET /consultoria — abre direto o chat (auto-cria se nao existir)
-    # --------------------------------------------------------
     @app.get("/consultoria", response_class=HTMLResponse)
     def tela_consultoria(request: Request,
                          usuario_id: str = Cookie(None),
@@ -534,9 +690,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
             "status": status,
         })
 
-    # --------------------------------------------------------
-    # GET /consultoria/status — status completo da consultoria ativa (JSON)
-    # --------------------------------------------------------
     @app.get("/consultoria/status")
     def consultoria_status(usuario_id: str = Cookie(None)):
         if not usuario_id:
@@ -556,9 +709,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
 
         return JSONResponse({"ok": True, "status": status})
 
-    # --------------------------------------------------------
-    # GET /consultoria/historico — lista de consultorias encerradas
-    # --------------------------------------------------------
     @app.get("/consultoria/historico")
     def consultoria_historico(usuario_id: str = Cookie(None)):
         if not usuario_id:
@@ -572,9 +722,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         itens = _get_historico(vendedor_id, get_conn, close_conn, excluir_id=ativa)
         return JSONResponse({"ok": True, "historico": itens})
 
-    # --------------------------------------------------------
-    # GET /consultoria/historico/{cid} — detalhe read-only de uma encerrada
-    # --------------------------------------------------------
     @app.get("/consultoria/historico/{cid}")
     def consultoria_historico_detalhe(cid: int, usuario_id: str = Cookie(None)):
         if not usuario_id:
@@ -584,7 +731,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         if not vendedor_id:
             return JSONResponse({"erro": "vendedor nao encontrado"}, status_code=404)
 
-        # Confirma que essa consultoria pertence ao vendedor
         try:
             conn = get_conn()
             cur = conn.cursor()
@@ -608,6 +754,7 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
             return JSONResponse({"erro": "consultoria nao encontrada"}, status_code=404)
 
         mensagens = _get_mensagens(cid, get_conn, close_conn)
+        passos = _get_passos(cid, get_conn, close_conn)
         servico_raw = (r[3] or "").strip().lower()
 
         return JSONResponse({
@@ -621,13 +768,60 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
                 "criado_em": r[4].isoformat() if r[4] else None,
                 "atualizado_em": r[5].isoformat() if r[5] else None,
                 "total_mensagens": len(mensagens),
+                "passos": passos,
             },
             "mensagens": mensagens,
         })
 
-    # --------------------------------------------------------
-    # POST /consultoria/iniciar
-    # --------------------------------------------------------
+    @app.post("/consultoria/passo/{pid}/toggle")
+    def consultoria_passo_toggle(pid: int, usuario_id: str = Cookie(None)):
+        if not usuario_id:
+            return JSONResponse({"erro": "nao logado"}, status_code=401)
+
+        vendedor_id = _get_vendedor_id(usuario_id, get_conn, close_conn)
+        if not vendedor_id:
+            return JSONResponse({"erro": "vendedor nao encontrado"}, status_code=404)
+
+        try:
+            conn = get_conn()
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT p.id, p.concluido
+                FROM consultoria_passos p
+                JOIN consultorias c ON c.id = p.consultoria_id
+                WHERE p.id = %s AND c.vendedor_id = %s
+            """, (pid, vendedor_id))
+            r = cur.fetchone()
+            if not r:
+                cur.close()
+                close_conn(conn)
+                return JSONResponse({"erro": "passo nao encontrado"}, status_code=404)
+
+            novo_valor = not bool(r[1])
+            if novo_valor:
+                cur.execute("""
+                    UPDATE consultoria_passos
+                    SET concluido = TRUE, concluido_em = NOW()
+                    WHERE id = %s
+                """, (pid,))
+            else:
+                cur.execute("""
+                    UPDATE consultoria_passos
+                    SET concluido = FALSE, concluido_em = NULL
+                    WHERE id = %s
+                """, (pid,))
+            conn.commit()
+            cur.close()
+            close_conn(conn)
+            return JSONResponse({"ok": True, "concluido": novo_valor})
+        except Exception as e:
+            print(f"Consultor: erro ao toggle passo - {e}")
+            try:
+                close_conn(conn)
+            except Exception:
+                pass
+            return JSONResponse({"erro": "falha ao atualizar"}, status_code=500)
+
     @app.post("/consultoria/iniciar")
     def consultoria_iniciar(usuario_id: str = Cookie(None)):
         if not usuario_id:
@@ -663,9 +857,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         _gerar_msg_inicial(vendedor_id, novo_id, get_conn, close_conn)
         return JSONResponse({"ok": True, "consultoria_id": novo_id, "reaproveitada": False})
 
-    # --------------------------------------------------------
-    # POST /consultoria/mensagem
-    # --------------------------------------------------------
     @app.post("/consultoria/mensagem")
     async def consultoria_mensagem(request: Request, usuario_id: str = Cookie(None)):
         if not usuario_id:
@@ -720,7 +911,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         _salvar_mensagem(consultoria_id, "consultor", resposta, get_conn, close_conn)
         _incrementar_uso(vendedor_id, get_conn, close_conn)
 
-        # ETAPA 3: 2a chamada pra extrair gargalo + servico
         try:
             mensagens_pos = _get_mensagens(consultoria_id, get_conn, close_conn)
             historico_pos = formatar_historico(mensagens_pos[-20:])
@@ -728,7 +918,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         except Exception as e:
             print(f"Consultor: erro no pos-analise - {e}")
 
-        # Devolve o status atualizado pro painel atualizar em tempo real
         status = _get_status_completo(vendedor_id, consultoria_id, get_conn, close_conn)
 
         usado_novo = usado + 1
@@ -741,9 +930,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
             "status": status,
         })
 
-    # --------------------------------------------------------
-    # POST /consultoria/nova
-    # --------------------------------------------------------
     @app.post("/consultoria/nova")
     def consultoria_nova(usuario_id: str = Cookie(None)):
         if not usuario_id:
@@ -779,9 +965,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         _gerar_msg_inicial(vendedor_id, novo_id, get_conn, close_conn)
         return JSONResponse({"ok": True, "consultoria_id": novo_id})
 
-    # --------------------------------------------------------
-    # GET /consultoria/ping
-    # --------------------------------------------------------
     @app.get("/consultoria/ping")
     def consultoria_ping():
-        return {"status": "ok", "area": "consultoria", "versao": "0.6"}
+        return {"status": "ok", "area": "consultoria", "versao": "0.9"}

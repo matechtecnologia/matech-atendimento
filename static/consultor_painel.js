@@ -1,7 +1,6 @@
 /* ============================================================
    M.A Tech — Painel da Consultoria
-   Drawer roxo com status + historico
-   Carregado direto pelo consultoria.html
+   Drawer roxo com status + historico + passos
    ============================================================ */
 
 (function () {
@@ -14,7 +13,6 @@
     let historicoAberto = false;
     let painelAberto = false;
 
-    // ---------- HELPERS ----------
     function el(id) { return document.getElementById(id); }
 
     function fmtData(iso) {
@@ -39,6 +37,14 @@
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;');
+    }
+
+    function classePrazo(prazo) {
+        const p = (prazo || '').toLowerCase().trim();
+        if (p.indexOf('hoje') >= 0) return 'hoje';
+        if (p.indexOf('semana') >= 0) return 'essa-semana';
+        if (p.indexOf('mes') >= 0 || p.indexOf('mês') >= 0) return 'esse-mes';
+        return '';
     }
 
     // ---------- ABRIR / FECHAR ----------
@@ -116,9 +122,68 @@
         stEl.textContent = s.status || 'ativa';
         stEl.classList.remove('status-ativa', 'status-encerrada');
         stEl.classList.add('status-' + (s.status || 'ativa'));
+
+        // Passos
+        renderPassos(s.passos || [], s.passos_total || 0, s.passos_concluidos || 0);
     }
 
-    // ---------- CARREGAR HISTORICO ----------
+    function renderPassos(passos, total, concluidos) {
+        const box = el('painel-passos-lista');
+        const prog = el('painel-passos-progresso');
+        if (!box || !prog) return;
+
+        if (!passos || passos.length === 0) {
+            prog.style.display = 'none';
+            box.innerHTML = '<div class="consult-passos-vazio"><span class="consult-spinner"></span> ainda gerando plano...</div>';
+            return;
+        }
+
+        prog.style.display = 'flex';
+        const pct = Math.round((concluidos / Math.max(1, total)) * 100);
+        prog.querySelector('.consult-passos-numero').textContent = `${concluidos} / ${total}`;
+        prog.querySelector('.barra-mini-preenchida').style.width = pct + '%';
+
+        box.innerHTML = passos.map(function (p) {
+            const cls = p.concluido ? 'concluido' : '';
+            const prazoCls = classePrazo(p.prazo);
+            const checkSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+            return `
+                <div class="consult-passo ${cls}" data-id="${p.id}">
+                    <button class="consult-passo-check" data-id="${p.id}" title="${p.concluido ? 'Desmarcar' : 'Marcar como concluído'}">
+                        ${checkSvg}
+                    </button>
+                    <div class="consult-passo-corpo">
+                        <div class="consult-passo-titulo">${escapar(p.titulo)}</div>
+                        <div class="consult-passo-acao">${escapar(p.acao)}</div>
+                        <span class="consult-passo-prazo ${prazoCls}">${escapar(p.prazo || 'essa semana')}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        box.querySelectorAll('.consult-passo-check').forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                const pid = btn.getAttribute('data-id');
+                togglePasso(pid);
+            });
+        });
+    }
+
+    async function togglePasso(pid) {
+        try {
+            const r = await fetch('/consultoria/passo/' + pid + '/toggle', { method: 'POST' });
+            const j = await r.json();
+            if (j.ok) {
+                // Atualiza o estado local sem refetch
+                carregarStatus();
+            }
+        } catch (e) {
+            console.warn('Painel: falha ao toggle passo', e);
+        }
+    }
+
+    // ---------- HISTORICO ----------
     async function carregarHistorico() {
         try {
             const r = await fetch(API_HIST);
@@ -195,6 +260,29 @@
         el('hist-modal-info').textContent =
             `${c.total_mensagens} mensagem(ns) · status: ${c.status}`;
 
+        // Passos (read-only) — se tiver
+        const passosBox = el('hist-modal-passos');
+        if (passosBox) {
+            if (c.passos && c.passos.length) {
+                passosBox.style.display = 'block';
+                passosBox.innerHTML = '<div class="consult-modal-passos-titulo">Plano de ação que foi gerado</div>' +
+                    c.passos.map(function (p) {
+                        const prazoCls = classePrazo(p.prazo);
+                        const check = p.concluido ? '✓ ' : '• ';
+                        return `<div class="consult-passo ${p.concluido ? 'concluido' : ''}" style="cursor:default;">
+                            <div class="consult-passo-corpo">
+                                <div class="consult-passo-titulo">${escapar(p.titulo)}</div>
+                                <div class="consult-passo-acao">${escapar(p.acao)}</div>
+                                <span class="consult-passo-prazo ${prazoCls}">${escapar(p.prazo || 'essa semana')}</span>
+                            </div>
+                        </div>`;
+                    }).join('');
+            } else {
+                passosBox.style.display = 'none';
+                passosBox.innerHTML = '';
+            }
+        }
+
         const usuarioInicial = (window.USUARIO_INICIAL || 'V');
         const box = el('hist-modal-msgs');
         if (!msgs.length) {
@@ -262,7 +350,6 @@
         });
     });
 
-    // ---------- API PUBLICA (o chat chama quando chega resposta) ----------
     window.ConsultorPainel = {
         atualizarStatus: function (novoStatus) {
             if (!novoStatus) return;

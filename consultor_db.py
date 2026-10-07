@@ -3,10 +3,11 @@
 # Cria as tabelas da area de Consultoria.
 # Chamado por consultor_install.py
 #
-# 3 tabelas:
+# 4 tabelas:
 #   1. consultorias          — uma por vendedor (sessao ativa)
 #   2. consultoria_mensagens — historico da conversa (IA <-> cliente)
 #   3. consultoria_uso       — contador diario (limite por plano)
+#   4. consultoria_passos    — plano de acao gerado pela IA
 
 
 def inicializar_consultor(get_conn, close_conn):
@@ -51,6 +52,21 @@ def inicializar_consultor(get_conn, close_conn):
     )""")
 
     # ============================================================
+    # 4. CONSULTORIA_PASSOS — plano de acao gerado pela IA
+    # ============================================================
+    cur.execute("""CREATE TABLE IF NOT EXISTS consultoria_passos (
+        id SERIAL PRIMARY KEY,
+        consultoria_id INTEGER NOT NULL REFERENCES consultorias(id) ON DELETE CASCADE,
+        ordem INTEGER NOT NULL DEFAULT 1,
+        titulo TEXT NOT NULL,
+        acao TEXT NOT NULL,
+        prazo TEXT DEFAULT 'essa semana',
+        concluido BOOLEAN DEFAULT FALSE,
+        criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        concluido_em TIMESTAMP WITH TIME ZONE
+    )""")
+
+    # ============================================================
     # INDICES (aceleram as buscas mais comuns)
     # ============================================================
     cur.execute("""CREATE INDEX IF NOT EXISTS idx_consultorias_vendedor
@@ -61,6 +77,9 @@ def inicializar_consultor(get_conn, close_conn):
 
     cur.execute("""CREATE INDEX IF NOT EXISTS idx_consultoria_uso_vendedor_data
         ON consultoria_uso(vendedor_id, data)""")
+
+    cur.execute("""CREATE INDEX IF NOT EXISTS idx_consultoria_passos_consultoria
+        ON consultoria_passos(consultoria_id)""")
 
     conn.commit()
     cur.close()
