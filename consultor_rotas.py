@@ -41,7 +41,7 @@ def _limpar_unicode(texto):
 
 
 # ============================================================
-# HELPERS
+# HELPERS INTERNOS
 # ============================================================
 def _get_vendedor_id(usuario_id, get_conn, close_conn):
     if not usuario_id:
@@ -228,6 +228,135 @@ def _gerar_msg_inicial(vendedor_id, consultoria_id, get_conn, close_conn):
 
 
 # ============================================================
+# ETAPA 3 — ANALISE AUTOMATICA (2a chamada de IA)
+# ============================================================
+def _analisar_e_salvar(vendedor_id, consultoria_id, historico_txt, get_conn, close_conn):
+    """Faz uma 2a chamada curta ao Groq pra extrair gargalo + servico
+    da conversa. Salva em consultorias se detectar. Nao quebra o fluxo
+    se falhar."""
+    try:
+        from groq import Groq
+        import os as _os
+        import json as _json
+        import re as _re
+
+        api_key = _os.getenv("GROQ_API_KEY")
+        if not api_key:
+            print("Consultor: GROQ_API_KEY ausente na analise.")
+            return
+
+        # Se ja tem gargalo salvo, nao refaz (otimizacao)
+        try:
+            _c = get_conn()
+            _cu = _c.cursor()
+            _cu.execute("SELECT gargalo_detectado, servico_indicado FROM consultorias WHERE id = %s", (consultoria_id,))
+            _r = _cu.fetchone()
+            _cu.close()
+            close_conn(_c)
+            if _r and _r[0] and _r[1]:
+                print(f"Consultor: analise pulada (consultoria #{consultoria_id} ja tem gargalo+servico).")
+                return
+        except Exception:
+            try:
+                close_conn(_c)
+            except Exception:
+                pass
+
+        prompt = f"""Analise a conversa abaixo entre um CONSULTOR da M.A Tech e um VENDEDOR.
+
+Sua tarefa: extrair 2 informacoes em formato JSON.
+Se ainda nao houver informacao suficiente, retorne null nos campos.
+
+- "gargalo": o problema principal do negocio do vendedor (frase curta, ate 60 chars)
+- "servico": qual servico M.A Tech o consultor indicou ou esta indicando
+  (valores aceitos: "atendimento_ia", "gestao", "trafego", "crm", "automacao", "nenhum")
+
+Responda APENAS com JSON valido, sem texto extra, sem crase, sem markdown.
+
+Formato exato:
+{{"gargalo": "...", "servico": "..."}}
+
+CONVERSA:
+{historico_txt}
+
+JSON:"""
+
+        cliente = Groq(api_key=api_key)
+        try:
+            resp = cliente.chat.completions.create(
+                model="openai/gpt-oss-120b",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1500,
+                temperature=0.2,
+            )
+        except Exception:
+            resp = cliente.chat.completions.create(
+                model="qwen/qwen3.8-27b",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1500,
+                temperature=0.2,
+            )
+
+        conteudo = (resp.choices[0].message.content or "").strip()
+        print(f"Consultor: resposta bruta da 2a chamada = {conteudo[:200]!r}")
+
+        # Extrai JSON com regex (defensivo)
+        m = _re.search(r'\{.*\}', conteudo, _re.DOTALL)
+        if not m:
+            print("Consultor: nenhum JSON encontrado na resposta.")
+            return
+
+        try:
+            dados = _json.loads(m.group(0))
+        except Exception as e:
+            print(f"Consultor: JSON invalido - {e}")
+            return
+
+        gargalo = (dados.get("gargalo") or "").strip()
+        servico = (dados.get("servico") or "").strip().lower()
+
+        # Valida servico
+        validos = {"atendimento_ia", "gestao", "trafego", "crm", "automacao"}
+        if servico not in validos:
+            servico = None
+
+        if gargalo:
+            gargalo = _limpar_unicode(gargalo)[:200]
+        if not gargalo and not servico:
+            print("Consultor: nada util pra salvar (gargalo e servico vazios).")
+            return
+
+        # Salva no banco (so o que foi detectado, sem sobrescrever o que ja existe)
+        conn = get_conn()
+        cur = conn.cursor()
+        campos = []
+        valores = []
+        if gargalo:
+            campos.append("gargalo_detectado = %s")
+            valores.append(gargalo)
+        if servico:
+            campos.append("servico_indicado = %s")
+            valores.append(servico)
+        campos.append("atualizado_em = NOW()")
+        valores.append(consultoria_id)
+
+        sql = f"UPDATE consultorias SET {', '.join(campos)} WHERE id = %s"
+        cur.execute(sql, tuple(valores))
+        conn.commit()
+        cur.close()
+        close_conn(conn)
+
+        print(f"Consultor: gargalo='{gargalo}' servico='{servico}' (consultoria #{consultoria_id})")
+
+    except Exception as e:
+        print(f"Consultor: erro na analise automatica - {e}")
+        try:
+            close_conn(conn)
+        except Exception:
+            pass
+
+
+# ============================================================
 # REGISTRO DAS ROTAS
 # ============================================================
 def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
@@ -236,7 +365,7 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
     from consultor import gerar_resposta_consultor, formatar_historico
 
     # --------------------------------------------------------
-    # GET /consultoria — se nao tem ativa, CRIA e abre o chat
+    # GET /consultoria — abre direto o chat (auto-cria se nao existir)
     # --------------------------------------------------------
     @app.get("/consultoria", response_class=HTMLResponse)
     def tela_consultoria(request: Request,
@@ -254,7 +383,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         usado = _uso_hoje(vendedor_id, get_conn, close_conn)
         consultoria_id = _get_consultoria_ativa(vendedor_id, get_conn, close_conn)
 
-        # Se nao tem consultoria ativa, CRIA automaticamente
         if not consultoria_id:
             try:
                 conn = get_conn()
@@ -268,7 +396,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
                 cur.close()
                 close_conn(conn)
 
-                # Gera a 1a mensagem da IA
                 _gerar_msg_inicial(vendedor_id, consultoria_id, get_conn, close_conn)
             except Exception as e:
                 print(f"Consultor: erro ao auto-criar consultoria - {e}")
@@ -282,7 +409,6 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         import os
         templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
 
-        # Carrega o chat
         mensagens = _get_mensagens(consultoria_id, get_conn, close_conn)
         nova = _consultoria_e_nova(consultoria_id, get_conn, close_conn)
         return templates.TemplateResponse(request, "consultoria.html", {
@@ -298,7 +424,7 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         })
 
     # --------------------------------------------------------
-    # POST /consultoria/iniciar — cria consultoria nova
+    # POST /consultoria/iniciar
     # --------------------------------------------------------
     @app.post("/consultoria/iniciar")
     def consultoria_iniciar(usuario_id: str = Cookie(None)):
@@ -392,6 +518,14 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         _salvar_mensagem(consultoria_id, "consultor", resposta, get_conn, close_conn)
         _incrementar_uso(vendedor_id, get_conn, close_conn)
 
+        # ETAPA 3: 2a chamada pra extrair gargalo + servico
+        try:
+            mensagens_pos = _get_mensagens(consultoria_id, get_conn, close_conn)
+            historico_pos = formatar_historico(mensagens_pos[-20:])
+            _analisar_e_salvar(vendedor_id, consultoria_id, historico_pos, get_conn, close_conn)
+        except Exception as e:
+            print(f"Consultor: erro no pos-analise - {e}")
+
         usado_novo = usado + 1
         return JSONResponse({
             "ok": True,
@@ -444,4 +578,4 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
     # --------------------------------------------------------
     @app.get("/consultoria/ping")
     def consultoria_ping():
-        return {"status": "ok", "area": "consultoria", "versao": "0.4"}
+        return {"status": "ok", "area": "consultoria", "versao": "0.5"}
