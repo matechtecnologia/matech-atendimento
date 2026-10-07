@@ -26,8 +26,15 @@ def inicializar_consultor(get_conn, close_conn):
         gargalo_detectado TEXT,
         servico_indicado TEXT,
         criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-        atualizado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+        atualizado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        vista_em TIMESTAMP WITH TIME ZONE
     )""")
+
+    # Coluna vista_em em tabelas antigas (migracao suave)
+    try:
+        cur.execute("ALTER TABLE consultorias ADD COLUMN IF NOT EXISTS vista_em TIMESTAMP WITH TIME ZONE")
+    except Exception as e:
+        print(f"Consultor DB: aviso ao adicionar vista_em - {e}")
 
     # ============================================================
     # 2. CONSULTORIA_MENSAGENS — historico da conversa
@@ -67,7 +74,7 @@ def inicializar_consultor(get_conn, close_conn):
     )""")
 
     # ============================================================
-    # INDICES (aceleram as buscas mais comuns)
+    # INDICES
     # ============================================================
     cur.execute("""CREATE INDEX IF NOT EXISTS idx_consultorias_vendedor
         ON consultorias(vendedor_id)""")

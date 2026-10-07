@@ -31,7 +31,7 @@
         return window.__followups_total_cache || 0;
     }
 
-    // Busca o total via API e atualiza o badge
+    // Busca o total de follow-ups e atualiza o badge
     function carregarTotal() {
         fetch('/api/total-followups')
             .then(r => r.json())
@@ -56,6 +56,39 @@
                     }
                     if (badge) {
                         badge.textContent = total > 99 ? '99+' : total;
+                    }
+                } else if (badge) {
+                    badge.remove();
+                }
+            })
+            .catch(() => {});
+    }
+
+    // Busca o total de Consultorias pendentes e atualiza o badge
+    function carregarConsultoria() {
+        fetch('/api/consultoria-pendente')
+            .then(r => r.json())
+            .then(d => {
+                const total = d.pendente || 0;
+                window.__consultoria_pendente_cache = total;
+
+                const nav = document.querySelector('.app-bottom-nav');
+                if (!nav) return;
+
+                const link = nav.querySelector('a[href="/consultoria"]');
+                if (!link) return;
+
+                let badge = link.querySelector('.badge-nav');
+                const iconeEl = link.querySelector('.icone-nav');
+
+                if (total > 0) {
+                    if (!badge && iconeEl) {
+                        badge = document.createElement('span');
+                        badge.className = 'badge-nav';
+                        iconeEl.appendChild(badge);
+                    }
+                    if (badge) {
+                        badge.textContent = total > 9 ? '9+' : total;
                     }
                 } else if (badge) {
                     badge.remove();
@@ -99,7 +132,7 @@
 
         document.body.appendChild(nav);
 
-                const menuBtn = document.getElementById('nav-menu-btn');
+        const menuBtn = document.getElementById('nav-menu-btn');
         if (menuBtn) {
             menuBtn.addEventListener('click', () => {
                 if (window.abrirDrawerApp) {
@@ -114,9 +147,9 @@
             });
         }
 
-        // Busca o total real da API (e atualiza o badge)
+        // Busca os totais e atualiza os badges
         setTimeout(carregarTotal, 150);
-        
+        setTimeout(carregarConsultoria, 300);
     }
 
     function init() {

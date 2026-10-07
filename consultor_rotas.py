@@ -1,6 +1,6 @@
 # consultor_rotas.py
 # M.A Tech — Rotas da Consultoria Empresarial
-# API JSON + tela inicial + painel de status + historico + passos.
+# API JSON + tela inicial + painel + historico + passos + badge.
 # Chamado por consultor_install.py no boot do app.
 
 
@@ -18,7 +18,6 @@ LIMITES_DIARIOS = {
     "empresarial": 200,
 }
 
-# Nomes amigaveis dos servicos (pra exibir no painel e no historico)
 NOMES_SERVICOS = {
     "atendimento_ia": "M.A Tech Atendimento com IA",
     "gestao": "M.A Tech Gestao",
@@ -50,7 +49,7 @@ def _limpar_unicode(texto):
 
 
 # ============================================================
-# HELPERS INTERNOS
+# HELPERS
 # ============================================================
 def _get_vendedor_id(usuario_id, get_conn, close_conn):
     if not usuario_id:
@@ -153,6 +152,28 @@ def _get_consultoria_ativa(vendedor_id, get_conn, close_conn):
         return None
 
 
+def _marcar_vista(consultoria_id, get_conn, close_conn):
+    """Marca a consultoria como vista (zera badge)."""
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE consultorias SET vista_em = NOW()
+            WHERE id = %s
+        """, (consultoria_id,))
+        conn.commit()
+        cur.close()
+        close_conn(conn)
+        return True
+    except Exception as e:
+        print(f"Consultor: erro ao marcar vista - {e}")
+        try:
+            close_conn(conn)
+        except Exception:
+            pass
+        return False
+
+
 def _get_mensagens(consultoria_id, get_conn, close_conn):
     try:
         conn = get_conn()
@@ -218,7 +239,6 @@ def _consultoria_e_nova(consultoria_id, get_conn, close_conn):
 
 
 def _get_passos(consultoria_id, get_conn, close_conn):
-    """Devolve a lista de passos do plano de acao."""
     try:
         conn = get_conn()
         cur = conn.cursor()
@@ -253,8 +273,6 @@ def _get_passos(consultoria_id, get_conn, close_conn):
 
 
 def _salvar_passos(consultoria_id, passos, get_conn, close_conn):
-    """Substitui todos os passos da consultoria pelos novos.
-    Apaga os antigos e insere os novos. Mantem concluidos se titulo for igual."""
     if not passos:
         return False
     try:
@@ -299,7 +317,6 @@ def _salvar_passos(consultoria_id, passos, get_conn, close_conn):
 
 
 def _get_status_completo(vendedor_id, consultoria_id, get_conn, close_conn):
-    """Devolve um dict com todo o status da consultoria atual."""
     try:
         conn = get_conn()
         cur = conn.cursor()
@@ -361,7 +378,6 @@ def _get_status_completo(vendedor_id, consultoria_id, get_conn, close_conn):
 
 
 def _get_historico(vendedor_id, get_conn, close_conn, excluir_id=None):
-    """Lista consultorias encerradas que tem pelo menos 1 mensagem."""
     try:
         conn = get_conn()
         cur = conn.cursor()
@@ -428,8 +444,7 @@ def _gerar_msg_inicial(vendedor_id, consultoria_id, get_conn, close_conn):
 
 
 # ============================================================
-# ETAPA 3 + 4A — ANALISE AUTOMATICA (2a chamada de IA)
-# Extrai: gargalo + servico + plano de acao (passos)
+# ANALISE AUTOMATICA (2a chamada de IA)
 # ============================================================
 def _analisar_e_salvar(vendedor_id, consultoria_id, historico_txt, get_conn, close_conn):
     try:
@@ -453,7 +468,7 @@ def _analisar_e_salvar(vendedor_id, consultoria_id, historico_txt, get_conn, clo
             _cu.close()
             close_conn(_c)
             if _r and _r[0] and _r[1] and _n_passos > 0:
-                print(f"Consultor: analise pulada (consultoria #{consultoria_id} ja tem gargalo+servico+passos).")
+                print(f"Consultor: analise pulada (consultoria #{consultoria_id} ja tem tudo).")
                 return
         except Exception:
             try:
@@ -503,10 +518,8 @@ REGRA DOS PASSOS
 
 Cada passo = UMA acao MANUAL do vendedor dentro do M.A Tech.
 
-NUNCA crie passo sobre o que a IA faz sozinha (registrar lead,
-agendar follow-up, ler historico). Isso NAO e tarefa do vendedor.
-
-NUNCA crie passo sobre configurar integracao, API, canal, etc.
+NUNCA crie passo sobre o que a IA faz sozinha. NUNCA crie passo
+sobre configurar integracao, API, canal.
 
 BONS EXEMPLOS de passo:
 - Colar a primeira mensagem no M.A Tech
@@ -515,7 +528,7 @@ BONS EXEMPLOS de passo:
 - Abrir a aba Follow-ups todo dia pela manha
 - Revisar o estagio dos leads abertos
 
-MAUS EXEMPLOS de passo (NUNCA gere assim):
+MAUS EXEMPLOS (NUNCA gere assim):
 - Ajustar data e hora do follow-up (IA faz automatico)
 - Cadastrar lead manualmente (IA faz automatico)
 - Configurar integracao com WhatsApp (nao existe)
@@ -526,16 +539,11 @@ SUA TAREFA
 ============================================================
 
 Extrair 3 informacoes em formato JSON.
-Se ainda nao houver informacao suficiente, retorne null nos campos e lista vazia nos passos.
 
 - "gargalo": o problema principal do negocio do vendedor (frase curta, ate 60 chars)
-- "servico": qual servico M.A Tech o consultor indicou ou esta indicando
-  (valores aceitos: atendimento_ia, gestao, trafego, crm, automacao, nenhum)
+- "servico": atendimento_ia, gestao, trafego, crm, automacao, ou nenhum
 - "passos": lista de 3 a 5 acoes MANUAIS do vendedor dentro do M.A Tech
-  Cada passo tem:
-    - "titulo": frase curta (ate 40 chars) - o que fazer
-    - "acao": explicacao pratica em 1-2 frases (ate 200 chars)
-    - "prazo": hoje, essa semana ou esse mes
+  Cada passo: "titulo" (ate 40 chars), "acao" (ate 200 chars), "prazo" (hoje/essa semana/esse mes)
 
 Responda APENAS com JSON valido, sem texto extra, sem crase, sem markdown.
 
@@ -670,6 +678,9 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
                     pass
                 return RedirectResponse(url="/hub")
 
+        # Marca como vista (zera o badge)
+        _marcar_vista(consultoria_id, get_conn, close_conn)
+
         from fastapi.templating import Jinja2Templates
         import os
         templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
@@ -737,7 +748,7 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
             cur.execute("""
                 SELECT id, status, gargalo_detectado, servico_indicado,
                        criado_em, atualizado_em
-                FROM consultorias WHERE id = %s AND vendedor_id = %s
+                FROM consultorias WHERE id = %s
             """, (cid, vendedor_id))
             r = cur.fetchone()
             cur.close()
@@ -918,6 +929,9 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         except Exception as e:
             print(f"Consultor: erro no pos-analise - {e}")
 
+        # Se esta respondendo, ele esta vendo - marca como vista
+        _marcar_vista(consultoria_id, get_conn, close_conn)
+
         status = _get_status_completo(vendedor_id, consultoria_id, get_conn, close_conn)
 
         usado_novo = usado + 1
@@ -963,8 +977,47 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
             return JSONResponse({"erro": "falha ao criar nova"}, status_code=500)
 
         _gerar_msg_inicial(vendedor_id, novo_id, get_conn, close_conn)
+        _marcar_vista(novo_id, get_conn, close_conn)
         return JSONResponse({"ok": True, "consultoria_id": novo_id})
+
+    # --------------------------------------------------------
+    # GET /api/consultoria-pendente — badge do hub
+    # Conta consultorias com novidade:
+    #   - tem gargalo + servico salvos (foi diagnosticada)
+    #   - atualizado_em > vista_em (ou vista_em IS NULL)
+    # --------------------------------------------------------
+    @app.get("/api/consultoria-pendente")
+    def api_consultoria_pendente(usuario_id: str = Cookie(None)):
+        if not usuario_id:
+            return JSONResponse({"pendente": 0})
+
+        vendedor_id = _get_vendedor_id(usuario_id, get_conn, close_conn)
+        if not vendedor_id:
+            return JSONResponse({"pendente": 0})
+
+        try:
+            conn = get_conn()
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT COUNT(*) FROM consultorias
+                WHERE vendedor_id = %s
+                  AND status = 'ativa'
+                  AND gargalo_detectado IS NOT NULL
+                  AND servico_indicado IS NOT NULL
+                  AND (vista_em IS NULL OR atualizado_em > vista_em)
+            """, (vendedor_id,))
+            n = cur.fetchone()[0] or 0
+            cur.close()
+            close_conn(conn)
+            return JSONResponse({"pendente": int(n)})
+        except Exception as e:
+            print(f"Consultor: erro no api_consultoria_pendente - {e}")
+            try:
+                close_conn(conn)
+            except Exception:
+                pass
+            return JSONResponse({"pendente": 0})
 
     @app.get("/consultoria/ping")
     def consultoria_ping():
-        return {"status": "ok", "area": "consultoria", "versao": "0.9"}
+        return {"status": "ok", "area": "consultoria", "versao": "1.0"}
