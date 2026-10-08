@@ -6,7 +6,6 @@ HTML = """<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Preparando Consultoria - M.A Tech</title>
-<link rel="stylesheet" href="/static/app.min.css?v=310935">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -16,9 +15,7 @@ body {
     display: flex; align-items: center; justify-content: center;
     padding: 24px;
 }
-.loading-box {
-    max-width: 420px; width: 100%; text-align: center;
-}
+.loading-box { max-width: 420px; width: 100%; text-align: center; }
 .loading-avatar {
     width: 96px; height: 96px; border-radius: 50%;
     background: linear-gradient(135deg, #7c3aed 0%, #00d97e 100%);
@@ -32,17 +29,9 @@ body {
     0%, 100% { transform: scale(1); box-shadow: 0 0 0 4px rgba(124,58,237,0.15), 0 0 40px rgba(124,58,237,0.4); }
     50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(124,58,237,0.1), 0 0 60px rgba(124,58,237,0.6); }
 }
-h1 {
-    font-size: 20px; font-weight: 700; color: #fff;
-    margin-bottom: 8px; letter-spacing: -0.02em;
-}
-.sub {
-    font-size: 14px; color: #8a8a8a; margin-bottom: 32px;
-}
-.frases {
-    display: flex; flex-direction: column; gap: 10px;
-    margin-bottom: 32px;
-}
+h1 { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 8px; letter-spacing: -0.02em; }
+.sub { font-size: 14px; color: #8a8a8a; margin-bottom: 32px; }
+.frases { display: flex; flex-direction: column; gap: 10px; margin-bottom: 32px; }
 .frase {
     display: flex; align-items: center; gap: 10px;
     padding: 12px 16px;
@@ -53,36 +42,13 @@ h1 {
     transition: all 0.4s ease;
     text-align: left;
 }
-.frase.ativa {
-    opacity: 1; transform: translateY(0);
-    border-color: #7c3aed55;
-    color: #e8e8e8;
-    background: #1a1620;
-}
-.frase.ok {
-    opacity: 1; transform: translateY(0);
-    border-color: #00d97e55;
-    color: #00d97e;
-    background: #0f1a15;
-}
-.frase .icon {
-    width: 20px; height: 20px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
-}
+.frase.ativa { opacity: 1; transform: translateY(0); border-color: #7c3aed55; color: #e8e8e8; background: #1a1620; }
+.frase.ok { opacity: 1; transform: translateY(0); border-color: #00d97e55; color: #00d97e; background: #0f1a15; }
+.frase .icon { width: 20px; height: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; }
 .frase.ok .icon { color: #00d97e; }
-.frase.ativa .icon {
-    border: 2px solid #7c3aed55;
-    border-top-color: #7c3aed;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
+.frase.ativa .icon { border: 2px solid #7c3aed55; border-top-color: #7c3aed; border-radius: 50%; animation: spin 0.8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.aviso {
-    font-size: 12px; color: #5a5a5a;
-    padding: 12px;
-    border-top: 1px solid #1a1a1a;
-}
+.aviso { font-size: 12px; color: #5a5a5a; padding: 12px; border-top: 1px solid #1a1a1a; }
 </style>
 </head>
 <body>
@@ -99,14 +65,16 @@ h1 {
         <div class="frase" id="f5"><div class="icon">○</div> Calculando uso da IA</div>
     </div>
 
-    <div class="aviso">Isso leva apenas alguns segundos</div>
+    <div class="aviso" id="aviso">Aguarde, carregando o chat...</div>
 </div>
 
 <script>
 const etapas = ["f1","f2","f3","f4","f5"];
 let i = 0;
+let chatPronto = false;
 
-function proxima() {
+// Anima as frases (rapido, 300ms cada)
+function animarFrases() {
     if (i < etapas.length) {
         const el = document.getElementById(etapas[i]);
         el.className = "frase ativa";
@@ -114,17 +82,32 @@ function proxima() {
             el.className = "frase ok";
             el.querySelector(".icon").textContent = "✓";
             i++;
-            proxima();
-        }, 600);
+            animarFrases();
+        }, 300);
     } else {
-        // Tudo pronto - redireciona pro chat
-        setTimeout(() => {
-            window.location.href = "/consultoria";
-        }, 400);
+        // Terminou as frases, muda o aviso
+        document.getElementById("aviso").textContent = "Finalizando...";
     }
 }
+setTimeout(animarFrases, 200);
 
-setTimeout(proxima, 300);
+// Pre-carrega o chat em background
+fetch("/consultoria", { credentials: "same-origin" })
+    .then(r => r.text())
+    .then(html => {
+        chatPronto = true;
+        // Quando as frases acabarem E o chat estiver pronto, redireciona
+        const check = setInterval(() => {
+            if (i >= etapas.length) {
+                clearInterval(check);
+                window.location.href = "/consultoria";
+            }
+        }, 100);
+    })
+    .catch(() => {
+        // Se falhar, redireciona mesmo assim
+        window.location.href = "/consultoria";
+    });
 </script>
 </body>
 </html>"""
