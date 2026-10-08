@@ -16,6 +16,7 @@ LIMITES_DIARIOS = {
     "basico": 20,
     "pro": 60,
     "empresarial": 200,
+    "admin": 99999,
 }
 
 NOMES_SERVICOS = {
@@ -75,6 +76,15 @@ def _get_plano(vendedor_id, get_conn, close_conn):
     try:
         conn = get_conn()
         cur = conn.cursor()
+        # Admin tem plano ilimitado
+        cur.execute("""SELECT u.tipo FROM usuarios u 
+                       JOIN vendedores v ON v.usuario_id = u.id 
+                       WHERE v.id = %s""", (vendedor_id,))
+        r = cur.fetchone()
+        if r and r[0] == "admin":
+            cur.close()
+            close_conn(conn)
+            return "admin"
         cur.execute("SELECT plano FROM vendedores WHERE id = %s", (vendedor_id,))
         r = cur.fetchone()
         cur.close()
