@@ -598,9 +598,14 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
     @app.get("/consultoria", response_class=HTMLResponse)
     def tela_consultoria(request: Request,
                          usuario_id: str = Cookie(None),
-                         usuario_nome: str = Cookie(None)):
+                         usuario_nome: str = Cookie(None),
+                         usuario_tipo: str = Cookie(None)):
         if not usuario_id:
             return RedirectResponse(url="/login")
+
+        # Cliente comum -> tela em desenvolvimento
+        if usuario_tipo != "admin":
+            return RedirectResponse(url="/consultoria-premium")
 
         vendedor_id = _get_vendedor_id(usuario_id, get_conn, close_conn)
         if not vendedor_id:
@@ -887,6 +892,7 @@ def registrar_rotas_consultor(app, get_conn, close_conn, Cookie, Request):
         # Se esta respondendo, ele esta vendo - marca como vista
         _marcar_vista(consultoria_id, get_conn, close_conn)
 
+        # Status DEPOIS da analise (pra incluir gargalo/servico/passos novos)
         status = _get_status_completo(vendedor_id, consultoria_id, get_conn, close_conn)
 
         usado_novo = usado + 1
