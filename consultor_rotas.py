@@ -475,10 +475,13 @@ def _analisar_e_salvar(vendedor_id, consultoria_id, historico_txt, get_conn, clo
             _r = _cu.fetchone()
             _cu.execute("SELECT COUNT(*) FROM consultoria_passos WHERE consultoria_id = %s", (consultoria_id,))
             _n_passos = _cu.fetchone()[0] or 0
+            # Reanalisar a cada 5 mensagens (para atualizar gargalo se mudar)
+            _cu.execute("SELECT COUNT(*) FROM consultoria_mensagens WHERE consultoria_id = %s", (consultoria_id,))
+            _n_msgs = _cu.fetchone()[0] or 0
             _cu.close()
             close_conn(_c)
-            if _r and _r[0] and _r[1] and _n_passos > 0:
-                print(f"Consultor: analise pulada (consultoria #{consultoria_id} ja tem tudo).")
+            if _r and _r[0] and _r[1] and _n_passos > 0 and _n_msgs % 5 != 0:
+                print(f"Consultor: analise pulada (consultoria #{consultoria_id} ja tem tudo, {_n_msgs} msgs).")
                 return
         except Exception:
             try:
