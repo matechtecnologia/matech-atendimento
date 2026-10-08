@@ -12,7 +12,6 @@
         ("plano_ui2", "registrar_rotas_plano_ui2"),
         ("plano_ui3", "registrar_rotas_plano_ui3"),
         ("plano_ui4", "registrar_rotas_plano_ui4"),
-        ("plano_gestao", "registrar_rotas_gestao"),
         ("plano_roi", "registrar_rotas_roi"),
     ]:
         try:
