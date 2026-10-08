@@ -85,6 +85,8 @@ def _topo(ativo):
         ("/plano/roi", "ROI", "roi"),
         ("/plano/relatorios", "Relatorios", "relatorios"),
         ("/plano/bloqueios", "Bloqueios", "bloqueios"),
+        ("/plano/pendencias", "Pendencias", "pendencias"),
+        ("/plano/proximos", "Proximos", "proximos"),
         ("/plano/diario", "Diario", "diario"),
     ]
     menu = "".join(
