@@ -13,7 +13,6 @@ from gemini import gerar_resposta, gerar_prompt_vendedor, validar_nicho_ia, gera
 from plano_install import instalar_plano
 from consultor_install import instalar_consultor
 from asaas import criar_cliente, criar_cobranca_pix, obter_qr_code, consultar_pagamento
-from plano_rotas import registrar_rotas_plano
 from plano_estrategico import inicializar_plano_estrategico
 
 load_dotenv()
