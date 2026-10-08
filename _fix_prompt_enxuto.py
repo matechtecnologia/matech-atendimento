@@ -1,15 +1,17 @@
-﻿# consultor.py v3
-# M.A Tech - IA da Consultoria Empresarial (Prompt 2 profissional)
-# 80 partes do prompt profissional + dossie + nicho + clientes
+﻿with open("consultor.py", "r", encoding="utf-8") as f:
+    c = f.read()
 
-import os
-from groq import Groq
+# Encontra o prompt e substitui por versao enxuta
+import re
 
-MODELO_PRINCIPAL = "openai/gpt-oss-120b"
-MODELO_FALLBACK = "qwen/qwen3.8-27b"
+# Pega tudo entre PROMPT_CONSULTOR = """ e o """ antes de def gerar_resposta
+inicio = c.find('PROMPT_CONSULTOR = """')
+fim = c.find('"""\n\n\ndef gerar_resposta_consultor', inicio)
 
-
-PROMPT_CONSULTOR = """Voce e o CONSULTOR EMPRESARIAL da M.A Tech.
+if inicio == -1 or fim == -1:
+    print("ERRO - nao achei o bloco")
+else:
+    novo_prompt = '''PROMPT_CONSULTOR = """Voce e o CONSULTOR EMPRESARIAL da M.A Tech.
 
 Sua funcao: realizar consultoria empresarial real. Compreender a empresa, identificar problemas, analisar numeros, calcular indicadores, achar gargalos, definir prioridades, orientar o cliente sobre o que fazer.
 
@@ -226,56 +228,9 @@ HISTORICO:
 MENSAGEM DO USUARIO AGORA:
 {mensagem}
 
-Sua resposta como consultor:"""
-
-
-def gerar_resposta_consultor(mensagem_usuario, dossie_texto, historico_texto=""):
-    """Recebe a mensagem do vendedor + o dossie formatado + historico,
-    chama o Groq e devolve a resposta em texto puro."""
-    api_key = os.getenv("GROQ_API_KEY")
-    if not api_key:
-        return "[ERRO] GROQ_API_KEY nao configurada no ambiente."
-
-    cliente = Groq(api_key=api_key)
-
-    prompt = PROMPT_CONSULTOR.format(
-        dossie=dossie_texto or "(sem dossie disponivel)",
-        historico=historico_texto or "(primeira mensagem)",
-        mensagem=mensagem_usuario or "(mensagem vazia)",
-    )
-
-    try:
-        resp = cliente.chat.completions.create(
-            model=MODELO_PRINCIPAL,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=1500,
-            temperature=0.7,
-        )
-        return resp.choices[0].message.content.strip()
-    except Exception as e:
-        print(f"Consultor: modelo principal falhou ({e}). Tentando fallback...")
-        try:
-            resp = cliente.chat.completions.create(
-                model=MODELO_FALLBACK,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1500,
-                temperature=0.7,
-            )
-            return resp.choices[0].message.content.strip()
-        except Exception as e2:
-            print(f"Consultor: fallback tambem falhou ({e2}).")
-            return "[ERRO] Consultor indisponivel agora. Tenta de novo em 1 minuto."
-
-
-def formatar_historico(mensagens):
-    """Recebe lista de dicts [{direcao, mensagem, criado_em}, ...]
-    e devolve string legivel pro prompt."""
-    if not mensagens:
-        return ""
-    linhas = []
-    for m in mensagens:
-        papel = "CLIENTE" if m.get("direcao") == "cliente" else "CONSULTOR"
-        msg = (m.get("mensagem") or "").strip()
-        if msg:
-            linhas.append(f"{papel}: {msg}")
-    return "\n".join(linhas)
+Sua resposta como consultor:"""'''
+    
+    c = c[:inicio] + novo_prompt + c[fim+3:]
+    with open("consultor.py", "w", encoding="utf-8") as f:
+        f.write(c)
+    print("OK - prompt enxuto")
