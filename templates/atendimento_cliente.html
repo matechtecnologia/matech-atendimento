@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -38,9 +38,9 @@
         {% elif s in ['em atendimento', 'negociando'] %}
             {% set badge_class = 'status-em-atendimento' %}
             {% set badge_text = 'Em Atendimento' %}
-        {% elif s in ['negociaÃ§Ã£o', 'negociacao'] %}
+        {% elif s in ['negociação', 'negociacao'] %}
             {% set badge_class = 'status-negociacao' %}
-            {% set badge_text = 'NegociaÃ§Ã£o' %}
+            {% set badge_text = 'Negociação' %}
         {% elif s == 'cliente' %}
             {% set badge_class = 'status-cliente' %}
             {% set badge_text = 'Cliente' %}
@@ -54,17 +54,17 @@
 
         <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
             <div class="bloco-topo">
-                <h2>âš¡ ATENDENDO AGORA</h2>
+                <h2>⚡ ATENDENDO AGORA</h2>
                 <span class="badge-status {{ badge_class }}">{{ badge_text }}</span>
             </div>
             <p style="color:#e8e8e8; font-size:16px; font-weight:700; margin-top:10px;">{{ cliente.nome or "Cliente" }}</p>
-            <p style="color:#8a8a8a; font-size:13px; margin-top:4px;" class="mono">ðŸ“± {{ cliente.whatsapp }}</p>
-            <p style="color:#00d97e; font-size:13px; margin-top:8px; font-weight:700;">ðŸŽ¯ Nicho: {{ nicho.nome }}</p>
+            <p style="color:#8a8a8a; font-size:13px; margin-top:4px;" class="mono">📱 {{ cliente.whatsapp }}</p>
+            <p style="color:#00d97e; font-size:13px; margin-top:8px; font-weight:700;">🎯 Nicho: {{ nicho.nome }}</p>
         </div>
 
         {% if request.query_params.get('erro') %}
         <div class="erro" style="margin-bottom:16px; padding:16px; background:#1f0a0a; border:1px solid #ff3b3b; border-left:4px solid #ff3b3b; border-radius:10px;">
-            <div style="color:#ff3b3b; font-weight:800; font-size:13px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">âš ï¸ Erro</div>
+            <div style="color:#ff3b3b; font-weight:800; font-size:13px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">⚠️ Erro</div>
             <div style="color:#e8e8e8; font-size:14px; line-height:1.5;">{{ request.query_params.get('erro') }}</div>
         </div>
         {% endif %}
@@ -76,10 +76,10 @@
             <input type="hidden" name="nicho_id" value="{{ nicho.id }}">
 
             <div class="campo">
-                <label>ðŸ’¬ O que o cliente falou agora (ou instruÃ§Ã£o)</label>
+                <label>💬 O que o cliente falou agora (ou instrução)</label>
                 <textarea name="mensagem_cliente" rows="5" placeholder="Cole aqui a mensagem que o cliente enviou no WhatsApp..." required autofocus style="min-height:120px; font-size:15px;"></textarea>
                 <p style="color:#5a5a5a; font-size:12px; margin-top:6px;">
-                    ðŸ’¡ Dica: cole exatamente como ele escreveu, com erros e tudo. A IA entende.
+                    💡 Dica: cole exatamente como ele escreveu, com erros e tudo. A IA entende.
                 </p>
             </div>
 
@@ -87,22 +87,22 @@
                 <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; margin:0;">
                     <input type="checkbox" name="modo_instrucao" value="1" style="width:auto; margin:4px 0 0 0; accent-color:#00d97e; cursor:pointer;">
                     <div>
-                        <strong style="color:#e8e8e8; font-size:14px; display:block; margin-bottom:4px;">ðŸŽ›ï¸ Modo instruÃ§Ã£o</strong>
+                        <strong style="color:#e8e8e8; font-size:14px; display:block; margin-bottom:4px;">🎛️ Modo instrução</strong>
                         <span style="color:#8a8a8a; font-size:13px; line-height:1.5; display:block;">
-                            Marque se em vez de responder ao cliente, vocÃª quer <strong style="color:#00d97e;">dar uma ordem pra IA</strong>. Ex: "cria uma proposta de desconto de 10%".
+                            Marque se em vez de responder ao cliente, você quer <strong style="color:#00d97e;">dar uma ordem pra IA</strong>. Ex: "cria uma proposta de desconto de 10%".
                         </span>
                     </div>
                 </label>
             </div>
 
-            <button type="submit" class="btn-gerar">ðŸ¤– GERAR RESPOSTA COM IA</button>
+            <button type="submit" class="btn-gerar">🤖 GERAR RESPOSTA COM IA</button>
 
             <p style="color:#5a5a5a; font-size:12px; text-align:center; margin-top:12px;">
-                âš¡ A IA leva de 2 a 4 segundos. VocÃª pode continuar navegando.
+                ⚡ A IA leva de 2 a 4 segundos. Você pode continuar navegando.
             </p>
         </form>
     </div>
-    <script src="/static/app.min.js?v=999999"></script>
+    <script src="/static/app.min.js?v=310930"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
     <script src="/static/app-badge-plano.js"></script>

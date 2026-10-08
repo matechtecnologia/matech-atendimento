@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -42,10 +42,10 @@
             <div class="aviso-vence-texto">
                 <div class="aviso-vence-titulo">
                     {% if aviso_dias == 0 %}Seu plano expira <strong>hoje</strong>
-                    {% elif aviso_dias == 1 %}Seu plano expira <strong>amanhÃ£</strong>
+                    {% elif aviso_dias == 1 %}Seu plano expira <strong>amanhã</strong>
                     {% else %}Seu plano expira em <strong>{{ aviso_dias }} dias</strong>{% endif %}
                 </div>
-                <div class="aviso-vence-desc">Vence em {{ aviso_data }} â€” renove abaixo pra continuar</div>
+                <div class="aviso-vence-desc">Vence em {{ aviso_data }} — renove abaixo pra continuar</div>
             </div>
         </div>
         <style>
@@ -98,7 +98,7 @@
 
         <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
             <div class="bloco-topo">
-                <h2>ðŸ’³ SEU PLANO</h2>
+                <h2>💳 SEU PLANO</h2>
                 <span class="badge-status status-em-atendimento">{{ plano_atual|upper }}</span>
             </div>
 
@@ -106,27 +106,27 @@
                 {% if dias_restantes <= 5 %}
                     <div style="margin-top:14px; padding:12px 16px; background:#1f0a0a; border:1px solid #ff3b3b; border-radius:8px;">
                         <p style="color:#ff3b3b; font-size:14px; font-weight:700;">
-                            âš ï¸ Apenas {{ dias_restantes }} dias restantes
+                            ⚠️ Apenas {{ dias_restantes }} dias restantes
                         </p>
                         <p style="color:#ff3b3b; font-size:13px; margin-top:4px; opacity:0.85;">
-                            Renove agora pra nÃ£o perder o acesso.
+                            Renove agora pra não perder o acesso.
                         </p>
                     </div>
                 {% else %}
                     <p style="color:#f59e0b; margin-top:14px; font-size:14px;">
-                        â³ {{ dias_restantes }} dias restantes no plano
+                        ⏳ {{ dias_restantes }} dias restantes no plano
                     </p>
                 {% endif %}
             {% elif plano_atual == 'gratis' %}
                 <p style="color:#8a8a8a; margin-top:14px; font-size:14px;">
-                    VocÃª estÃ¡ no plano GrÃ¡tis. FaÃ§a upgrade pra adicionar mais nichos e mais respostas por mÃªs.
+                    Você está no plano Grátis. Faça upgrade pra adicionar mais nichos e mais respostas por mês.
                 </p>
             {% endif %}
 
             {% if respostas_usadas is defined and respostas_limite is defined %}
             <div style="margin-top:16px; padding-top:16px; border-top:1px solid #222;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                    <span style="color:#8a8a8a; font-size:12px; text-transform:uppercase; font-weight:700; letter-spacing:0.05em;">Respostas da IA neste mÃªs</span>
+                    <span style="color:#8a8a8a; font-size:12px; text-transform:uppercase; font-weight:700; letter-spacing:0.05em;">Respostas da IA neste mês</span>
                     <span style="color:{{ 'red' if respostas_usadas > respostas_limite else '#a855f7' }}; font-size:13px; font-weight:700; font-family:monospace;">
                         {{ respostas_usadas }} / {{ respostas_limite }}
                     </span>
@@ -138,64 +138,64 @@
                 </div>
                 {% if respostas_usadas > respostas_limite %}
                 <p style="color:#ff3b3b; font-size:12px; margin-top:8px;">
-                    âš ï¸ VocÃª passou do limite. O excedente serÃ¡ cobrado na prÃ³xima fatura.
+                    ⚠️ Você passou do limite. O excedente será cobrado na próxima fatura.
                 </p>
                 {% elif pct_cap >= 80 %}
                 <p style="color:#f59e0b; font-size:12px; margin-top:8px;">
-                    â³ VocÃª estÃ¡ prÃ³ximo do limite mensal. Considere fazer upgrade.
+                    ⏳ Você está próximo do limite mensal. Considere fazer upgrade.
                 </p>
                 {% endif %}
             </div>
             {% endif %}
         </div>
 
-        <h2 style="margin-top:28px; margin-bottom:16px; font-size:20px; letter-spacing:-0.01em;">ðŸ“Š Comparar planos</h2>
+        <h2 style="margin-top:28px; margin-bottom:16px; font-size:20px; letter-spacing:-0.01em;">📊 Comparar planos</h2>
 
         <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-bottom:8px;">
 
             <div class="bloco card-hover" style="border-left:4px solid #5a5a5a; margin-bottom:0;">
                 <div class="bloco-topo">
-                    <h2>GRÃTIS</h2>
+                    <h2>GRÁTIS</h2>
                     {% if plano_atual == 'gratis' %}<span class="badge-status status-cliente">ATUAL</span>{% endif %}
                 </div>
                 <div style="margin-top:12px;">
                     <span style="font-size:32px; font-weight:800; color:#e8e8e8; font-family:monospace;">R$ 0</span>
-                    <span style="color:#8a8a8a; font-size:14px;">/mÃªs</span>
+                    <span style="color:#8a8a8a; font-size:14px;">/mês</span>
                 </div>
                 <p style="color:#00d97e; font-size:13px; font-weight:700; margin-top:8px; font-family:monospace;">1 NICHO</p>
-                <p style="color:#a855f7; font-size:13px; font-weight:700; margin-top:4px; font-family:monospace;">300 RESPOSTAS/MÃŠS</p>
+                <p style="color:#a855f7; font-size:13px; font-weight:700; margin-top:4px; font-family:monospace;">300 RESPOSTAS/MÊS</p>
                 <ul style="list-style:none; margin-top:16px; padding:0;">
-                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">âœ“ IA ilimitada no nicho</li>
-                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">âœ“ Clientes ilimitados</li>
-                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">âœ“ CRM automÃ¡tico</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ IA ilimitada no nicho</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Clientes ilimitados</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ CRM automático</li>
                 </ul>
                 {% if plano_atual != 'gratis' %}
                 <p style="color:#5a5a5a; font-size:12px; margin-top:16px; text-align:center;">
-                    VocÃª jÃ¡ passou desse plano
+                    Você já passou desse plano
                 </p>
                 {% endif %}
             </div>
 
             <div class="bloco card-hover" style="border-left:4px solid #00d97e; margin-bottom:0;">
                 <div class="bloco-topo">
-                    <h2>BÃSICO</h2>
+                    <h2>BÁSICO</h2>
                     {% if plano_atual == 'basico' %}<span class="badge-status status-cliente">ATUAL</span>{% endif %}
                 </div>
                 <div style="margin-top:12px;">
                     <span style="font-size:32px; font-weight:800; color:#e8e8e8; font-family:monospace;">R$ 97</span>
-                    <span style="color:#8a8a8a; font-size:14px;">/mÃªs</span>
+                    <span style="color:#8a8a8a; font-size:14px;">/mês</span>
                 </div>
                 <p style="color:#00d97e; font-size:13px; font-weight:700; margin-top:8px; font-family:monospace;">3 NICHOS</p>
-                <p style="color:#a855f7; font-size:13px; font-weight:700; margin-top:4px; font-family:monospace;">3.000 RESPOSTAS/MÃŠS</p>
+                <p style="color:#a855f7; font-size:13px; font-weight:700; margin-top:4px; font-family:monospace;">3.000 RESPOSTAS/MÊS</p>
                 <ul style="list-style:none; margin-top:16px; padding:0;">
-                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">âœ“ Tudo do GrÃ¡tis</li>
-                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">âœ“ AtÃ© 3 produtos/serviÃ§os</li>
-                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">âœ“ Suporte por email</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Tudo do Grátis</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Até 3 produtos/serviços</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Suporte por email</li>
                     <li style="padding:5px 0; color:#8a8a8a; font-size:12px;">+ Excedente: R$ 0,05/resposta</li>
                 </ul>
                 {% if plano_atual == 'basico' %}
                 <p style="color:#00d97e; font-size:13px; margin-top:16px; text-align:center; font-weight:600;">
-                    âœ“ Plano ativo
+                    ✓ Plano ativo
                 </p>
                 {% elif plano_atual == 'gratis' %}
                 <form method="POST" action="/assinar" style="margin-top:16px;">
@@ -218,19 +218,19 @@
                 </div>
                 <div style="margin-top:12px;">
                     <span style="font-size:32px; font-weight:800; color:#e8e8e8; font-family:monospace;">R$ 297</span>
-                    <span style="color:#8a8a8a; font-size:14px;">/mÃªs</span>
+                    <span style="color:#8a8a8a; font-size:14px;">/mês</span>
                 </div>
                 <p style="color:#00d97e; font-size:13px; font-weight:700; margin-top:8px; font-family:monospace;">10 NICHOS</p>
-                <p style="color:#a855f7; font-size:13px; font-weight:700; margin-top:4px; font-family:monospace;">10.000 RESPOSTAS/MÃŠS</p>
+                <p style="color:#a855f7; font-size:13px; font-weight:700; margin-top:4px; font-family:monospace;">10.000 RESPOSTAS/MÊS</p>
                 <ul style="list-style:none; margin-top:16px; padding:0;">
-                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">âœ“ Tudo do BÃ¡sico</li>
-                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">âœ“ AtÃ© 10 produtos/serviÃ§os</li>
-                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">âœ“ Suporte prioritÃ¡rio</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Tudo do Básico</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Até 10 produtos/serviços</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Suporte prioritário</li>
                     <li style="padding:5px 0; color:#8a8a8a; font-size:12px;">+ Excedente: R$ 0,04/resposta</li>
                 </ul>
                 {% if plano_atual == 'pro' %}
                 <p style="color:#00d97e; font-size:13px; margin-top:16px; text-align:center; font-weight:600;">
-                    âœ“ Plano ativo
+                    ✓ Plano ativo
                 </p>
                 {% elif plano_atual in ['gratis', 'basico'] %}
                 <form method="POST" action="/assinar" style="margin-top:16px;">
@@ -252,19 +252,19 @@
                 </div>
                 <div style="margin-top:12px;">
                     <span style="font-size:32px; font-weight:800; color:#e8e8e8; font-family:monospace;">R$ 597</span>
-                    <span style="color:#8a8a8a; font-size:14px;">/mÃªs</span>
+                    <span style="color:#8a8a8a; font-size:14px;">/mês</span>
                 </div>
                 <p style="color:#00d97e; font-size:13px; font-weight:700; margin-top:8px; font-family:monospace;">25 NICHOS</p>
-                <p style="color:#a855f7; font-size:13px; font-weight:700; margin-top:4px; font-family:monospace;">30.000 RESPOSTAS/MÃŠS</p>
+                <p style="color:#a855f7; font-size:13px; font-weight:700; margin-top:4px; font-family:monospace;">30.000 RESPOSTAS/MÊS</p>
                 <ul style="list-style:none; margin-top:16px; padding:0;">
-                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">âœ“ Tudo do Pro</li>
-                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">âœ“ AtÃ© 25 produtos/serviÃ§os</li>
-                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">âœ“ Suporte dedicado</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Tudo do Pro</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Até 25 produtos/serviços</li>
+                    <li style="padding:5px 0; color:#a8a8a8; font-size:13px;">✓ Suporte dedicado</li>
                     <li style="padding:5px 0; color:#8a8a8a; font-size:12px;">+ Excedente: R$ 0,03/resposta</li>
                 </ul>
                 {% if plano_atual == 'empresarial' %}
                 <p style="color:#00d97e; font-size:13px; margin-top:16px; text-align:center; font-weight:600;">
-                    âœ“ Plano ativo
+                    ✓ Plano ativo
                 </p>
                 {% else %}
                 <form method="POST" action="/assinar" style="margin-top:16px;">
@@ -279,29 +279,29 @@
 
         <div class="bloco bloco-crm" style="background:#111725; border-left:4px solid #a855f7; margin-top:24px;">
             <div class="bloco-topo">
-                <h2>ðŸ’¡ COMO FUNCIONA O PAGAMENTO</h2>
+                <h2>💡 COMO FUNCIONA O PAGAMENTO</h2>
             </div>
             <p style="color:#8a8a8a; font-size:13px; line-height:1.6; margin-top:8px;">
                 1. Clique em <strong style="color:#00d97e;">ASSINAR</strong> no plano escolhido<br>
-                2. Informe seu CPF (sÃ³ pra emitir a cobranÃ§a)<br>
+                2. Informe seu CPF (só pra emitir a cobrança)<br>
                 3. Pague o PIX pelo QR Code<br>
-                4. Plano ativa em segundos apÃ³s a confirmaÃ§Ã£o<br>
-                5. RenovaÃ§Ã£o mensal â€” cancele quando quiser
+                4. Plano ativa em segundos após a confirmação<br>
+                5. Renovação mensal — cancele quando quiser
             </p>
         </div>
 
         <div class="bloco bloco-crm" style="background:#111725; border-left:4px solid #a855f7; margin-top:16px;">
             <div class="bloco-topo">
-                <h2>ðŸ“Š O QUE Ã‰ UMA "RESPOSTA"?</h2>
+                <h2>📊 O QUE É UMA "RESPOSTA"?</h2>
             </div>
             <p style="color:#8a8a8a; font-size:13px; line-height:1.6; margin-top:8px;">
-                Cada vez que vocÃª cola uma mensagem do cliente e a IA devolve os 3 blocos (o que falar, o que enviar e o estÃ¡gio), conta como <strong style="color:#a855f7;">1 resposta</strong>. O limite Ã© mensal e protege vocÃª (uso abusivo) e nÃ³s (custo da IA).<br><br>
-                <strong style="color:#e8e8e8;">Passou do limite?</strong> Nada trava. Cobramos um valor pequeno por resposta excedente na prÃ³xima fatura.
+                Cada vez que você cola uma mensagem do cliente e a IA devolve os 3 blocos (o que falar, o que enviar e o estágio), conta como <strong style="color:#a855f7;">1 resposta</strong>. O limite é mensal e protege você (uso abusivo) e nós (custo da IA).<br><br>
+                <strong style="color:#e8e8e8;">Passou do limite?</strong> Nada trava. Cobramos um valor pequeno por resposta excedente na próxima fatura.
             </p>
         </div>
 
     </div>
-    <script src="/static/app.min.js?v=999999"></script>
+    <script src="/static/app.min.js?v=310930"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
     <script src="/static/app-badge-plano.js"></script>

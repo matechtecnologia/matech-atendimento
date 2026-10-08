@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -16,12 +16,12 @@
         <p class="subtitulo" style="text-align:center;">Entrar na sua conta</p>
 
         {% if erro %}
-        <div class="erro">âš ï¸ {{ erro }}</div>
+        <div class="erro">⚠️ {{ erro }}</div>
         {% endif %}
 
         {% if request.query_params.get('criado') %}
         <div style="background:#0a1f15; border:1px solid #00d97e; color:#00d97e; padding:12px; border-radius:6px; font-size:14px; margin-bottom:16px; border-left:3px solid #00d97e;">
-            âœ“ Conta criada com sucesso! FaÃ§a login pra continuar.
+            ✓ Conta criada com sucesso! Faça login pra continuar.
         </div>
         {% endif %}
 
@@ -30,17 +30,17 @@
             <input type="email" name="email" required autofocus placeholder="voce@email.com">
 
             <label>Senha</label>
-            <input type="password" name="senha" required placeholder="â€¢â€¢â€¢â€¢â€¢â€¢">
+            <input type="password" name="senha" required placeholder="••••••">
 
-            <button type="submit">ENTRAR â†’</button>
+            <button type="submit">ENTRAR →</button>
         </form>
 
         <p style="color:#8a8a8a; text-align:center; margin-top:24px; font-size:14px;">
-            NÃ£o tem conta? <a href="/signup" style="color:#00d97e; text-decoration:none; font-weight:600;">Criar grÃ¡tis</a>
+            Não tem conta? <a href="/signup" style="color:#00d97e; text-decoration:none; font-weight:600;">Criar grátis</a>
         </p>
 
         <p style="color:#5a5a5a; text-align:center; margin-top:20px; font-size:12px;">
-            <a href="/" style="color:#5a5a5a; text-decoration:none;">â† Voltar pro site</a>
+            <a href="/" style="color:#5a5a5a; text-decoration:none;">← Voltar pro site</a>
         </p>
     </div>
     <script src="/static/app.js"></script>

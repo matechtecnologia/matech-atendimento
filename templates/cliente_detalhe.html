@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -33,11 +33,11 @@
 
         {% if request.query_params.get('ok') %}
         <div style="background:#0a1f15; border:1px solid #00d97e; color:#00d97e; padding:12px; border-radius:6px; font-size:14px; margin-bottom:16px; border-left:3px solid #00d97e;">
-            âœ“ AlteraÃ§Ãµes salvas
+            ✓ Alterações salvas
         </div>
         {% endif %}
         {% if request.query_params.get('erro') %}
-        <div class="erro">âš ï¸ {{ request.query_params.get('erro') }}</div>
+        <div class="erro">⚠️ {{ request.query_params.get('erro') }}</div>
         {% endif %}
 
         {% set s = (cliente.status or 'novo lead')|lower %}
@@ -47,9 +47,9 @@
         {% elif s in ['em atendimento', 'negociando'] %}
             {% set badge_class = 'status-em-atendimento' %}
             {% set badge_text = 'Em Atendimento' %}
-        {% elif s in ['negociaÃ§Ã£o', 'negociacao'] %}
+        {% elif s in ['negociação', 'negociacao'] %}
             {% set badge_class = 'status-negociacao' %}
-            {% set badge_text = 'NegociaÃ§Ã£o' %}
+            {% set badge_text = 'Negociação' %}
         {% elif s == 'cliente' %}
             {% set badge_class = 'status-cliente' %}
             {% set badge_text = 'Cliente' %}
@@ -63,12 +63,12 @@
 
         <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%);">
             <div class="bloco-topo">
-                <h2>ðŸ‘¤ {{ cliente.nome or "Sem nome" }}</h2>
+                <h2>👤 {{ cliente.nome or "Sem nome" }}</h2>
                 <span class="badge-status {{ badge_class }}">{{ badge_text }}</span>
             </div>
-            <p style="color:#e8e8e8; font-size:14px; margin-top:10px;" class="mono">ðŸ“± {{ cliente.whatsapp }}</p>
-            {% if cliente.email %}<p style="color:#8a8a8a; font-size:13px; margin-top:6px;">âœ‰ï¸ {{ cliente.email }}</p>{% endif %}
-            {% if cliente.origem %}<p style="color:#8a8a8a; font-size:13px; margin-top:6px;">ðŸ”— Origem: {{ cliente.origem }}</p>{% endif %}
+            <p style="color:#e8e8e8; font-size:14px; margin-top:10px;" class="mono">📱 {{ cliente.whatsapp }}</p>
+            {% if cliente.email %}<p style="color:#8a8a8a; font-size:13px; margin-top:6px;">✉️ {{ cliente.email }}</p>{% endif %}
+            {% if cliente.origem %}<p style="color:#8a8a8a; font-size:13px; margin-top:6px;">🔗 Origem: {{ cliente.origem }}</p>{% endif %}
             {% if cliente.criado_em %}
             <p style="color:#5a5a5a; font-size:12px; margin-top:12px;" class="mono">
                 Cliente desde {{ cliente.criado_em.strftime('%d/%m/%Y') }}
@@ -78,14 +78,14 @@
 
         <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
             <a href="/cliente/{{ cliente.id }}/atender" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; flex:1; min-width:200px; margin-top:0;">
-                âš¡ ATENDER ESTE CLIENTE
+                ⚡ ATENDER ESTE CLIENTE
             </a>
             <button type="button" onclick="toggleEditar()" id="btn-editar" class="btn-gerar" style="background:#f59e0b; color:#0a0a0a; box-shadow:0 4px 20px rgba(245,158,11,0.3); flex:1; min-width:160px; margin-top:0;">
-                âœï¸ EDITAR
+                ✏️ EDITAR
             </button>
-            <form method="POST" action="/cliente/{{ cliente.id }}/excluir" style="flex:0;" onsubmit="return confirm('Tem certeza que quer excluir {{ cliente.nome or 'este cliente' }}?\n\nIsso apaga o histÃ³rico de conversa e os atendimentos. NÃ£o tem como desfazer.');">
+            <form method="POST" action="/cliente/{{ cliente.id }}/excluir" style="flex:0;" onsubmit="return confirm('Tem certeza que quer excluir {{ cliente.nome or 'este cliente' }}?\n\nIsso apaga o histórico de conversa e os atendimentos. Não tem como desfazer.');">
                 <button type="submit" class="btn-gerar" style="background:#1f0a0a; color:#ff3b3b; border:1px solid #ff3b3b; box-shadow:none; margin-top:0; padding:16px 24px;">
-                    ðŸ—‘ï¸ EXCLUIR
+                    🗑️ EXCLUIR
                 </button>
             </form>
         </div>
@@ -93,11 +93,11 @@
         <div id="form-editar" style="display:none;">
             <div class="bloco bloco-acao" style="background:#1f1a0a; border-left:4px solid #f59e0b; margin-bottom:16px;">
                 <div class="bloco-topo">
-                    <h2>âœï¸ EDITAR CLIENTE</h2>
+                    <h2>✏️ EDITAR CLIENTE</h2>
                 </div>
                 <form method="POST" action="/cliente/{{ cliente.id }}/editar" style="margin-top:12px;">
                     <div class="campo">
-                        <label>WhatsApp (sÃ³ nÃºmeros)</label>
+                        <label>WhatsApp (só números)</label>
                         <input type="text" name="whatsapp" required value="{{ cliente.whatsapp or '' }}" inputmode="numeric" pattern="[0-9]+" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:15px; font-family:monospace;">
                     </div>
                     <div class="campo">
@@ -117,17 +117,17 @@
                         <select name="status" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:15px;">
                             <option value="novo lead" {% if s in ['novo lead', 'lead'] %}selected{% endif %}>Novo Lead</option>
                             <option value="em atendimento" {% if s in ['em atendimento', 'negociando'] %}selected{% endif %}>Em Atendimento</option>
-                            <option value="negociaÃ§Ã£o" {% if s in ['negociaÃ§Ã£o', 'negociacao'] %}selected{% endif %}>NegociaÃ§Ã£o</option>
+                            <option value="negociação" {% if s in ['negociação', 'negociacao'] %}selected{% endif %}>Negociação</option>
                             <option value="cliente" {% if s == 'cliente' %}selected{% endif %}>Cliente</option>
                             <option value="perdido" {% if s == 'perdido' %}selected{% endif %}>Perdido</option>
                         </select>
                     </div>
                     <div class="campo">
-                        <label>ObservaÃ§Ãµes</label>
+                        <label>Observações</label>
                         <textarea name="observacoes" rows="3" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical;">{{ cliente.observacoes or '' }}</textarea>
                     </div>
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                        <button type="submit" class="btn-gerar" style="flex:1; min-width:160px;">ðŸ’¾ SALVAR ALTERAÃ‡Ã•ES</button>
+                        <button type="submit" class="btn-gerar" style="flex:1; min-width:160px;">💾 SALVAR ALTERAÇÕES</button>
                         <button type="button" onclick="toggleEditar()" class="btn-gerar" style="background:transparent; color:#8a8a8a; border:1px solid #2a2a2a; box-shadow:none; flex:0; padding:16px 24px;">Cancelar</button>
                     </div>
                 </form>
@@ -137,29 +137,29 @@
         {% if cliente.observacoes %}
         <div class="bloco bloco-texto">
             <div class="bloco-topo">
-                <h2>ðŸ“ OBSERVAÃ‡Ã•ES</h2>
+                <h2>📝 OBSERVAÇÕES</h2>
             </div>
             <pre style="white-space:pre-wrap; color:#e8e8e8; margin-top:8px; font-family:inherit; font-size:14px; line-height:1.6;">{{ cliente.observacoes }}</pre>
         </div>
         {% endif %}
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; margin-bottom:16px;">
-            <h2 style="font-size:18px; letter-spacing:-0.01em; margin:0;">ðŸ’¬ HistÃ³rico de Conversa</h2>
+            <h2 style="font-size:18px; letter-spacing:-0.01em; margin:0;">💬 Histórico de Conversa</h2>
             <span style="color:#5a5a5a; font-size:12px;" class="mono">{{ historico|length }} msg(s)</span>
         </div>
 
         {% if not historico %}
         <div class="empty-state">
-            <span class="emoji">ðŸ’¬</span>
+            <span class="emoji">💬</span>
             <h3>Nenhuma conversa registrada</h3>
-            <p>Clique em "Atender este cliente" pra IA gerar a primeira resposta. Todo o histÃ³rico fica salvo aqui.</p>
+            <p>Clique em "Atender este cliente" pra IA gerar a primeira resposta. Todo o histórico fica salvo aqui.</p>
         </div>
         {% endif %}
 
         {% for h in historico %}
         <div class="bloco {% if h.direcao == 'cliente' %}bloco-texto{% else %}bloco-fala{% endif %}" style="margin-bottom:12px;">
             <div class="bloco-topo">
-                <h2>{% if h.direcao == 'cliente' %}ðŸ‘¤ CLIENTE{% else %}ðŸ¤– VOCÃŠ (IA){% endif %}</h2>
+                <h2>{% if h.direcao == 'cliente' %}👤 CLIENTE{% else %}🤖 VOCÊ (IA){% endif %}</h2>
                 <span style="color:#5a5a5a; font-size:11px;" class="mono">
                     {% if h.criado_em %}{{ h.criado_em.strftime('%d/%m %H:%M') }}{% endif %}
                 </span>
@@ -175,11 +175,11 @@
         const b = document.getElementById('btn-editar');
         const abrir = f.style.display === 'none';
         f.style.display = abrir ? 'block' : 'none';
-        b.innerText = abrir ? 'â–² FECHAR' : 'âœï¸ EDITAR';
+        b.innerText = abrir ? '▲ FECHAR' : '✏️ EDITAR';
         if (abrir) f.scrollIntoView({behavior: 'smooth', block: 'start'});
     }
     </script>
-    <script src="/static/app.min.js?v=999999"></script>
+    <script src="/static/app.min.js?v=310930"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
     <script src="/static/app-badge-plano.js"></script>

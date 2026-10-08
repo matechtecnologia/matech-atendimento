@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -33,23 +33,23 @@
 
         <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
             <div class="bloco-topo">
-                <h2>âž• NOVO NICHO</h2>
+                <h2>➕ NOVO NICHO</h2>
                 <span class="badge-status status-em-atendimento">7 PERGUNTAS</span>
             </div>
             <p style="color:#e8e8e8; font-size:15px; margin-top:10px; line-height:1.6;">
-                VocÃª estÃ¡ criando mais um nicho. Use isso quando vende <strong style="color:#00d97e;">mais de um produto ou serviÃ§o</strong> diferente.
+                Você está criando mais um nicho. Use isso quando vende <strong style="color:#00d97e;">mais de um produto ou serviço</strong> diferente.
             </p>
         </div>
 
         <div class="bloco bloco-acao" style="background:#1f1a0a; border-left:4px solid #f59e0b; margin-bottom:24px;">
             <p style="color:#f59e0b; font-size:14px; line-height:1.6;">
-                âš ï¸ <strong>AtenÃ§Ã£o:</strong> assim como o primeiro, esse nicho <strong>nÃ£o pode ser editado nem apagado</strong> depois de criado. Confira suas respostas antes de salvar.
+                ⚠️ <strong>Atenção:</strong> assim como o primeiro, esse nicho <strong>não pode ser editado nem apagado</strong> depois de criado. Confira suas respostas antes de salvar.
             </p>
         </div>
 
         {% if request.query_params.get('erro') %}
         <div class="erro" style="margin-bottom:16px; padding:16px; background:#1f0a0a; border:1px solid #ff3b3b; border-left:4px solid #ff3b3b; border-radius:10px;">
-            <div style="color:#ff3b3b; font-weight:800; font-size:13px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">âš ï¸ Nicho invÃ¡lido</div>
+            <div style="color:#ff3b3b; font-weight:800; font-size:13px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">⚠️ Nicho inválido</div>
             <div style="color:#e8e8e8; font-size:14px; line-height:1.5;">{{ request.query_params.get('erro') }}</div>
             <div style="color:#8a8a8a; font-size:12px; margin-top:8px;">Revise as respostas e tente de novo.</div>
         </div>
@@ -59,42 +59,42 @@
 
             <div class="bloco bloco-crm" style="border-left:4px solid #a855f7; margin-bottom:16px;">
                 <div class="bloco-topo">
-                    <h2>ðŸ·ï¸ NOME DO NICHO</h2>
+                    <h2>🏷️ NOME DO NICHO</h2>
                 </div>
                 <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
-                    Um nome curto sÃ³ pra vocÃª identificar. Ex: "Seguro de Vida", "Plano de SaÃºde".
+                    Um nome curto só pra você identificar. Ex: "Seguro de Vida", "Plano de Saúde".
                 </p>
                 <input type="text" name="nome_nicho" required placeholder="Ex: Seguro de Vida" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:15px;">
             </div>
 
             <div class="bloco bloco-texto" style="margin-bottom:16px;">
                 <div class="bloco-topo">
-                    <h2><span style="color:#00d97e; font-family:monospace;">01</span> &nbsp;O QUE VOCÃŠ VENDE?</h2>
+                    <h2><span style="color:#00d97e; font-family:monospace;">01</span> &nbsp;O QUE VOCÊ VENDE?</h2>
                 </div>
                 <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
-                    Descreva o produto/serviÃ§o como se fosse pra alguÃ©m que nunca ouviu falar.
+                    Descreva o produto/serviço como se fosse pra alguém que nunca ouviu falar.
                 </p>
-                <textarea name="produto" rows="5" required placeholder="Descreva o produto ou serviÃ§o..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:100px;"></textarea>
+                <textarea name="produto" rows="5" required placeholder="Descreva o produto ou serviço..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:100px;"></textarea>
             </div>
 
             <div class="bloco bloco-texto" style="margin-bottom:16px;">
                 <div class="bloco-topo">
-                    <h2><span style="color:#00d97e; font-family:monospace;">02</span> &nbsp;PRA QUEM VOCÃŠ VENDE?</h2>
+                    <h2><span style="color:#00d97e; font-family:monospace;">02</span> &nbsp;PRA QUEM VOCÊ VENDE?</h2>
                 </div>
                 <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
-                    Perfil do cliente ideal. Idade, profissÃ£o, situaÃ§Ã£o, o que ele busca.
+                    Perfil do cliente ideal. Idade, profissão, situação, o que ele busca.
                 </p>
                 <textarea name="publico" rows="5" required placeholder="Perfil do cliente..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:100px;"></textarea>
             </div>
 
             <div class="bloco bloco-texto" style="margin-bottom:16px;">
                 <div class="bloco-topo">
-                    <h2><span style="color:#00d97e; font-family:monospace;">03</span> &nbsp;QUAL O PREÃ‡O?</h2>
+                    <h2><span style="color:#00d97e; font-family:monospace;">03</span> &nbsp;QUAL O PREÇO?</h2>
                 </div>
                 <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
-                    Como funciona o preÃ§o, formas de pagamento, parcelamento.
+                    Como funciona o preço, formas de pagamento, parcelamento.
                 </p>
-                <textarea name="preco" rows="3" required placeholder="Como funciona o preÃ§o..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:80px;"></textarea>
+                <textarea name="preco" rows="3" required placeholder="Como funciona o preço..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:80px;"></textarea>
             </div>
 
             <div class="bloco bloco-texto" style="margin-bottom:16px;">
@@ -102,19 +102,19 @@
                     <h2><span style="color:#00d97e; font-family:monospace;">04</span> &nbsp;QUAL A MAIOR DOR DO CLIENTE?</h2>
                 </div>
                 <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
-                    O que tira o sono dele. O que faz ele procurar vocÃª.
+                    O que tira o sono dele. O que faz ele procurar você.
                 </p>
                 <textarea name="dor" rows="5" required placeholder="Liste as dores do cliente..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:100px;"></textarea>
             </div>
 
             <div class="bloco bloco-texto" style="margin-bottom:16px;">
                 <div class="bloco-topo">
-                    <h2><span style="color:#00d97e; font-family:monospace;">05</span> &nbsp;QUAL A OBJEÃ‡ÃƒO MAIS COMUM?</h2>
+                    <h2><span style="color:#00d97e; font-family:monospace;">05</span> &nbsp;QUAL A OBJEÇÃO MAIS COMUM?</h2>
                 </div>
                 <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
-                    O que o cliente fala pra dizer "nÃ£o". A IA vai aprender a contornar.
+                    O que o cliente fala pra dizer "não". A IA vai aprender a contornar.
                 </p>
-                <textarea name="objecao" rows="5" required placeholder="Liste as objeÃ§Ãµes..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:100px;"></textarea>
+                <textarea name="objecao" rows="5" required placeholder="Liste as objeções..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:100px;"></textarea>
             </div>
 
             <div class="bloco bloco-texto" style="margin-bottom:16px;">
@@ -122,7 +122,7 @@
                     <h2><span style="color:#00d97e; font-family:monospace;">06</span> &nbsp;QUAL O SEU DIFERENCIAL?</h2>
                 </div>
                 <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
-                    Por que o cliente escolhe vocÃª e nÃ£o o concorrente.
+                    Por que o cliente escolhe você e não o concorrente.
                 </p>
                 <textarea name="diferencial" rows="5" required placeholder="Liste os diferenciais..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:100px;"></textarea>
             </div>
@@ -132,19 +132,19 @@
                     <h2><span style="color:#00d97e; font-family:monospace;">07</span> &nbsp;QUAL O TOM DE VOZ?</h2>
                 </div>
                 <p style="color:#8a8a8a; font-size:13px; margin-top:6px; margin-bottom:12px;">
-                    Como vocÃª quer que a IA fale com o cliente.
+                    Como você quer que a IA fale com o cliente.
                 </p>
-                <textarea name="tom" rows="3" required placeholder="Ex: Profissional mas acessÃ­vel..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:80px;"></textarea>
+                <textarea name="tom" rows="3" required placeholder="Ex: Profissional mas acessível..." style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:14px; font-family:inherit; resize:vertical; min-height:80px;"></textarea>
             </div>
 
-            <button type="submit" class="btn-gerar">ðŸš€ SALVAR NICHO E CONFIGURAR IA</button>
+            <button type="submit" class="btn-gerar">🚀 SALVAR NICHO E CONFIGURAR IA</button>
 
             <p style="color:#5a5a5a; font-size:12px; text-align:center; margin-top:12px; line-height:1.5;">
-                âš¡ A IA vai criar um novo prompt personalizado pra esse nicho.
+                ⚡ A IA vai criar um novo prompt personalizado pra esse nicho.
             </p>
         </form>
     </div>
-    <script src="/static/app.min.js?v=999999"></script>
+    <script src="/static/app.min.js?v=310930"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
     <script src="/static/app-badge-plano.js"></script>

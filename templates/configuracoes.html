@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M.A Tech - ConfiguraÃ§Ãµes</title>
+    <title>M.A Tech - Configurações</title>
     <link rel="stylesheet" href="/static/app.min.css?v=310930">
 </head>
 <body>
@@ -13,7 +13,7 @@
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
                 <a href="/planos" data-rota="/planos">Planos</a>
-                <a href="/configuracoes" data-rota="/configuracoes">ConfiguraÃ§Ãµes</a>
+                <a href="/configuracoes" data-rota="/configuracoes">Configurações</a>
                 <a href="/logout">Sair</a>
             </div>
         </div>
@@ -21,66 +21,66 @@
         <div class="config-wrap">
             <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
                 <div class="bloco-topo">
-                    <h2>âš™ï¸ CONFIGURAÃ‡Ã•ES</h2>
+                    <h2>⚙️ CONFIGURAÇÕES</h2>
                 </div>
                 <p style="color:#8a8a8a; font-size:14px; margin-top:10px;">
-                    Ajuste a aparÃªncia e o comportamento do app.
+                    Ajuste a aparência e o comportamento do app.
                 </p>
             </div>
 		
 		<!-- INDICAR -->
             <div class="config-secao" style="border-left:4px solid #00d97e;">
-                <h3>ðŸŽ INDIQUE E GANHE</h3>
+                <h3>🎁 INDIQUE E GANHE</h3>
                 <div class="config-item" style="border-bottom:none;">
                     <div class="info-config">
-                        <div class="titulo-config">Ganhe 1 mÃªs grÃ¡tis por indicaÃ§Ã£o</div>
-                        <div class="desc-config">Compartilhe seu link. Cada amigo que assinar te dÃ¡ +30 dias grÃ¡tis.</div>
+                        <div class="titulo-config">Ganhe 1 mês grátis por indicação</div>
+                        <div class="desc-config">Compartilhe seu link. Cada amigo que assinar te dá +30 dias grátis.</div>
                     </div>
-                    <a href="/indicar" class="btn-config" style="background:#00d97e; color:#0a0a0a; border-color:#00d97e;">Ver meu link â†’</a>
+                    <a href="/indicar" class="btn-config" style="background:#00d97e; color:#0a0a0a; border-color:#00d97e;">Ver meu link →</a>
                 </div>
             </div>		
 
-            <!-- APARÃŠNCIA -->
+            <!-- APARÊNCIA -->
             <div class="config-secao">
-                <h3>ðŸŽ¨ APARÃŠNCIA</h3>
+                <h3>🎨 APARÊNCIA</h3>
 
                 <div class="config-item">
                     <div class="info-config">
                         <div class="titulo-config">Tema</div>
-                        <div class="desc-config">O tema claro estÃ¡ em desenvolvimento. Em breve disponÃ­vel.</div>
+                        <div class="desc-config">O tema claro está em desenvolvimento. Em breve disponível.</div>
                     </div>
                     <span style="background: rgba(245,158,11,0.15); color: #f59e0b; padding: 6px 12px; border-radius: 100px; font-size: 11px; font-weight: 800; font-family: monospace;">EM BREVE</span>
                 </div>
 
                 <div class="config-item">
                     <div class="info-config">
-                        <div class="titulo-config">VibraÃ§Ã£o ao tocar</div>
-                        <div class="desc-config">VibraÃ§Ã£o leve quando clica em botÃµes (sÃ³ no celular)</div>
+                        <div class="titulo-config">Vibração ao tocar</div>
+                        <div class="desc-config">Vibração leve quando clica em botões (só no celular)</div>
                     </div>
                     <button type="button" class="toggle" id="toggle-haptic" onclick="toggleHaptic()"></button>
                 </div>
 
                 <div class="config-item">
                     <div class="info-config">
-                        <div class="titulo-config">AnimaÃ§Ãµes</div>
-                        <div class="desc-config">TransiÃ§Ãµes suaves entre telas e efeitos visuais</div>
+                        <div class="titulo-config">Animações</div>
+                        <div class="desc-config">Transições suaves entre telas e efeitos visuais</div>
                     </div>
                     <button type="button" class="toggle" id="toggle-animacoes" onclick="toggleAnimacoes()"></button>
                 </div>
             </div>
 
-            <!-- NOTIFICAÃ‡Ã•ES -->
+            <!-- NOTIFICAÇÕES -->
             <div class="config-secao snooze-box {% if snooze_ativo %}ativo{% endif %}">
-                <h3>ðŸ”” NOTIFICAÃ‡Ã•ES</h3>
+                <h3>🔔 NOTIFICAÇÕES</h3>
 
                 <div class="config-item" style="border-bottom: none;">
                     <div class="info-config">
                         <div class="titulo-config">Silenciar follow-ups</div>
                         <div class="desc-config" id="snooze-status-desc">
                             {% if snooze_ativo %}
-                                Silenciado atÃ© <strong style="color:#f59e0b;">{{ snooze_data }}</strong> â€” {{ snooze_dias }} dia(s) restante(s)
+                                Silenciado até <strong style="color:#f59e0b;">{{ snooze_data }}</strong> — {{ snooze_dias }} dia(s) restante(s)
                             {% else %}
-                                Pausa o badge vermelho de follow-ups por um perÃ­odo
+                                Pausa o badge vermelho de follow-ups por um período
                             {% endif %}
                         </div>
                     </div>
@@ -89,7 +89,7 @@
                 {% if snooze_ativo %}
                 <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
                     <form method="POST" action="/snooze-followups/cancelar" style="margin:0;">
-                        <button type="submit" class="btn-config" style="background:#00d97e; color:#0a0a0a; border-color:#00d97e;">â–¶ï¸ Reativar agora</button>
+                        <button type="submit" class="btn-config" style="background:#00d97e; color:#0a0a0a; border-color:#00d97e;">▶️ Reativar agora</button>
                     </form>
                 </div>
                 <div style="color:#5a5a5a; font-size:12px; margin-top:14px;">Ou mude o prazo:</div>
@@ -127,7 +127,7 @@
 
             <!-- CONTA -->
             <div class="config-secao">
-                <h3>ðŸ‘¤ CONTA</h3>
+                <h3>👤 CONTA</h3>
 
                 <div class="config-item">
                     <div class="info-config">
@@ -136,25 +136,25 @@
                             {% if usuario_tipo == 'admin' %}Administrador{% else %}Vendedor{% endif %}
                         </div>
                     </div>
-                    <a href="/logout" class="btn-config vermelho">ðŸšª Sair da conta</a>
+                    <a href="/logout" class="btn-config vermelho">🚪 Sair da conta</a>
                 </div>
             </div>
 
             <!-- SOBRE -->
             <div class="config-secao">
-                <h3>â„¹ï¸ SOBRE</h3>
+                <h3>ℹ️ SOBRE</h3>
 
                 <div class="config-item">
                     <div class="info-config">
                         <div class="titulo-config">M.A Tech</div>
-                        <div class="desc-config">Atendimento comercial com IA Â· VersÃ£o 2.0</div>
+                        <div class="desc-config">Atendimento comercial com IA · Versão 2.0</div>
                     </div>
                 </div>
 
                 <div class="config-item" style="border-bottom:none;">
                     <div class="info-config">
                         <div class="titulo-config">Instalar como app</div>
-                        <div class="desc-config">No Chrome: menu â‹® â†’ "Instalar app"</div>
+                        <div class="desc-config">No Chrome: menu ⋮ → "Instalar app"</div>
                     </div>
                 </div>
             </div>
@@ -169,7 +169,7 @@
     function setTema(t) {
         localStorage.setItem('matech_tema', t);
         document.documentElement.setAttribute('data-tema', t);
-        // Atualiza botÃµes
+        // Atualiza botões
         document.querySelectorAll('#seg-tema button').forEach(b => {
             b.classList.toggle('ativo', b.dataset.tema === t);
         });
@@ -187,7 +187,7 @@
         if (!atual && 'vibrate' in navigator) navigator.vibrate(15);
     }
 
-    // ===== ANIMAÃ‡Ã•ES =====
+    // ===== ANIMAÇÕES =====
     function getAnimacoes() {
         return localStorage.getItem('matech_animacoes') !== 'off';
     }
@@ -211,7 +211,7 @@
         atualizarToggles();
     });
     </script>
-    <script src="/static/app.min.js?v=999999"></script>
+    <script src="/static/app.min.js?v=310930"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
     <script src="/static/app-badge-plano.js"></script>

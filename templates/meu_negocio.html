@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M.A Tech - Meu NegÃ³cio</title>
+    <title>M.A Tech - Meu Negócio</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -18,23 +18,23 @@
         </div>
 
         <div class="bloco bloco-fala">
-            <h2>Meu NegÃ³cio</h2>
-            <p style="color:#aaa; margin-top:8px;">Edite as informaÃ§Ãµes. A IA vai se atualizar automaticamente.</p>
+            <h2>Meu Negócio</h2>
+            <p style="color:#aaa; margin-top:8px;">Edite as informações. A IA vai se atualizar automaticamente.</p>
         </div>
 
         <form method="POST" action="/salvar_meu_negocio">
             <div class="campo">
-                <label>1. O que vocÃª vende?</label>
+                <label>1. O que você vende?</label>
                 <textarea name="produto" rows="5" required>{{ vendedor.produto }}</textarea>
             </div>
 
             <div class="campo">
-                <label>2. Para quem vocÃª vende?</label>
+                <label>2. Para quem você vende?</label>
                 <textarea name="publico" rows="5" required>{{ vendedor.publico }}</textarea>
             </div>
 
             <div class="campo">
-                <label>3. Qual o preÃ§o?</label>
+                <label>3. Qual o preço?</label>
                 <textarea name="preco" rows="3" required>{{ vendedor.preco }}</textarea>
             </div>
 
@@ -44,7 +44,7 @@
             </div>
 
             <div class="campo">
-                <label>5. Qual a objeÃ§Ã£o mais comum?</label>
+                <label>5. Qual a objeção mais comum?</label>
                 <textarea name="objecao" rows="5" required>{{ vendedor.objecao }}</textarea>
             </div>
 

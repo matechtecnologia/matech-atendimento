@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -36,27 +36,27 @@
 <body>
     <div class="container-atendimento">
         <div class="topo">
-            <h1>M.A Tech â€” Admin</h1>
-            <button class="menu-hamburguer" onclick="abrirMenuMobile()">â˜°</button>
+            <h1>M.A Tech — Admin</h1>
+            <button class="menu-hamburguer" onclick="abrirMenuMobile()">☰</button>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
-                <a href="/admin/dashboard" data-rota="/admin/dashboard">ðŸ“Š Dashboard</a>
-                <a href="/admin/leads" data-rota="/admin/leads">ðŸ“¥ Leads</a>
-                <a href="/admin" data-rota="/admin">ðŸ‘¥ Vendedores</a>
-                <a href="/plano" data-rota="/plano">ðŸ§­ Plano M.A Tech</a>
+                <a href="/admin/dashboard" data-rota="/admin/dashboard">📊 Dashboard</a>
+                <a href="/admin/leads" data-rota="/admin/leads">📥 Leads</a>
+                <a href="/admin" data-rota="/admin">👥 Vendedores</a>
+                <a href="/plano" data-rota="/plano">🧭 Plano M.A Tech</a>
                 <a href="/logout">Sair</a>
             </div>
         </div>
 
         {% if request.query_params.get('excluido') %}
         <div style="background:#0a1f15; border:1px solid #00d97e; color:#00d97e; padding:12px; border-radius:6px; font-size:14px; margin-bottom:16px; border-left:3px solid #00d97e;">
-            âœ“ Vendedor excluÃ­do
+            ✓ Vendedor excluído
         </div>
         {% endif %}
 
         <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
             <div class="bloco-topo">
-                <h2>ðŸ‘¥ VENDEDORES</h2>
+                <h2>👥 VENDEDORES</h2>
                 <span class="badge-status status-em-atendimento">{{ vendedores|length }} cadastrado(s)</span>
             </div>
             <p style="color:#8a8a8a; font-size:14px; margin-top:10px;">
@@ -64,22 +64,22 @@
             </p>
             <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
                 <a href="/admin/criar" class="btn-gerar" style="display:inline-block; width:auto; padding:12px 24px; text-decoration:none; margin-top:0;">
-                    âž• CRIAR VENDEDOR
+                    ➕ CRIAR VENDEDOR
                 </a>
                 <a href="/admin/dashboard" style="display:inline-block; width:auto; padding:12px 24px; text-decoration:none; margin-top:0; background:#a855f7; color:#fff; border-radius:6px; font-weight:700; font-size:14px;">
-                    ðŸ“Š VER DASHBOARD
+                    📊 VER DASHBOARD
                 </a>
                 <a href="/admin/leads" style="display:inline-block; width:auto; padding:12px 24px; text-decoration:none; margin-top:0; background:transparent; color:#00d97e; border:1px solid #00d97e; border-radius:6px; font-weight:700; font-size:14px;">
-                    ðŸ“¥ VER LEADS
+                    📥 VER LEADS
                 </a>
             </div>
         </div>
 
         {% if not vendedores %}
         <div class="empty-state">
-            <span class="emoji">ðŸ‘¥</span>
+            <span class="emoji">👥</span>
             <h3>Nenhum vendedor cadastrado</h3>
-            <p>Assim que alguÃ©m criar conta na plataforma, aparece aqui.</p>
+            <p>Assim que alguém criar conta na plataforma, aparece aqui.</p>
         </div>
         {% endif %}
 
@@ -93,17 +93,17 @@
             <a href="/admin/vendedor/{{ v.vendedor_id }}" style="text-decoration:none; color:inherit; display:block;">
                 <div class="bloco bloco-crm card-hover" style="margin-bottom:12px; cursor:pointer;">
                     <div class="bloco-topo">
-                        <h2>ðŸ‘¤ {{ v.nome or "Sem nome" }}</h2>
+                        <h2>👤 {{ v.nome or "Sem nome" }}</h2>
                         <span class="badge-status {{ plano_badge }}">{{ v.plano|upper }}</span>
                     </div>
-                    <p style="color:#e8e8e8; font-size:14px; margin-top:10px;" class="mono">âœ‰ï¸ {{ v.email }}</p>
-                    {% if v.whatsapp %}<p style="color:#e8e8e8; font-size:14px; margin-top:6px;" class="mono">ðŸ“± {{ v.whatsapp }}</p>{% endif %}
+                    <p style="color:#e8e8e8; font-size:14px; margin-top:10px;" class="mono">✉️ {{ v.email }}</p>
+                    {% if v.whatsapp %}<p style="color:#e8e8e8; font-size:14px; margin-top:6px;" class="mono">📱 {{ v.whatsapp }}</p>{% endif %}
                     <div style="display:flex; gap:20px; margin-top:12px; flex-wrap:wrap;">
                         <span style="color:#8a8a8a; font-size:13px;">
-                            ðŸŽ¯ <strong style="color:#00d97e; font-family:monospace;">{{ v.total_nichos or 0 }}</strong> nichos
+                            🎯 <strong style="color:#00d97e; font-family:monospace;">{{ v.total_nichos or 0 }}</strong> nichos
                         </span>
                         <span style="color:#8a8a8a; font-size:13px;">
-                            ðŸ‘¥ <strong style="color:#00d97e; font-family:monospace;">{{ v.total_clientes or 0 }}</strong> clientes
+                            👥 <strong style="color:#00d97e; font-family:monospace;">{{ v.total_clientes or 0 }}</strong> clientes
                         </span>
                     </div>
                     {% if v.criado_em %}
@@ -111,7 +111,7 @@
                         Conta criada em {{ v.criado_em.strftime('%d/%m/%Y') }}
                     </p>
                     {% endif %}
-                    <p style="color:#00d97e; font-size:13px; margin-top:12px; font-weight:600;">Ver detalhes â†’</p>
+                    <p style="color:#00d97e; font-size:13px; margin-top:12px; font-weight:600;">Ver detalhes →</p>
                 </div>
             </a>
         {% endfor %}
@@ -120,12 +120,12 @@
 
     <div class="menu-overlay" id="menuOverlay" onclick="fecharMenuMobile()"></div>
     <div class="menu-mobile-painel" id="menuMobile">
-        <button class="fechar" onclick="fecharMenuMobile()">âœ•</button>
-        <a href="/admin/dashboard">ðŸ“Š Dashboard</a>
-        <a href="/admin/leads">ðŸ“¥ Leads</a>
-        <a href="/admin">ðŸ‘¥ Vendedores</a>
-        <a href="/plano">ðŸ§­ Plano M.A Tech</a>
-        <a href="/logout">ðŸšª Sair</a>
+        <button class="fechar" onclick="fecharMenuMobile()">✕</button>
+        <a href="/admin/dashboard">📊 Dashboard</a>
+        <a href="/admin/leads">📥 Leads</a>
+        <a href="/admin">👥 Vendedores</a>
+        <a href="/plano">🧭 Plano M.A Tech</a>
+        <a href="/logout">🚪 Sair</a>
     </div>
 
     <script>
@@ -138,7 +138,7 @@
             document.getElementById('menuOverlay').classList.remove('aberto');
         }
     </script>
-    <script src="/static/app.min.js?v=999999"></script>
+    <script src="/static/app.min.js?v=310930"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
     <script src="/static/app-badge-plano.js"></script>

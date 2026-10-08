@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -44,46 +44,46 @@
 <body>
     <div class="container-atendimento">
         <div class="topo">
-            <h1>M.A Tech â€” Admin</h1>
-            <button class="menu-hamburguer" onclick="abrirMenuMobile()">â˜°</button>
+            <h1>M.A Tech — Admin</h1>
+            <button class="menu-hamburguer" onclick="abrirMenuMobile()">☰</button>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
                 <a href="/planos" data-rota="/planos">Planos</a>
                 {% if usuario_tipo == 'admin' %}<a href="/admin" data-rota="/admin">Admin</a>{% endif %}
-                <a href="/plano" data-rota="/plano">ðŸ§­ Plano M.A Tech</a>
+                <a href="/plano" data-rota="/plano">🧭 Plano M.A Tech</a>
                 <a href="/logout">Sair</a>
             </div>
         </div>
 
         <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
             <div class="bloco-topo">
-                <h2>ðŸ“¥ LEADS DA LANDING</h2>
+                <h2>📥 LEADS DA LANDING</h2>
                 <span class="badge-status status-em-atendimento">{{ leads|length }} lead(s)</span>
             </div>
             <p style="color:#8a8a8a; font-size:14px; margin-top:10px; line-height:1.5;">
-                Visitantes que deixaram o WhatsApp no formulÃ¡rio da landing. <strong style="color:#e8e8e8;">Entre em contato pra fechar!</strong>
+                Visitantes que deixaram o WhatsApp no formulário da landing. <strong style="color:#e8e8e8;">Entre em contato pra fechar!</strong>
             </p>
         </div>
 
         {% if not leads %}
         <div class="empty-state">
-            <span class="emoji">ðŸ“¥</span>
+            <span class="emoji">📥</span>
             <h3>Nenhum lead ainda</h3>
-            <p>Assim que alguÃ©m preencher o formulÃ¡rio da landing, aparece aqui.</p>
-            <a href="/ver-landing" target="_blank" class="btn-gerar" style="display:inline-block; width:auto; padding:14px 28px; text-decoration:none; margin-top:16px;">VER LANDING â†’</a>
+            <p>Assim que alguém preencher o formulário da landing, aparece aqui.</p>
+            <a href="/ver-landing" target="_blank" class="btn-gerar" style="display:inline-block; width:auto; padding:14px 28px; text-decoration:none; margin-top:16px;">VER LANDING →</a>
         </div>
         {% endif %}
 
         {% for l in leads %}
         <div class="lead-card">
             <div class="lead-head">
-                <h4>ðŸ‘¤ {{ l.nome or "Sem nome" }}</h4>
-                <a href="https://wa.me/55{{ l.whatsapp }}" target="_blank" class="btn-wpp">ðŸ’¬ ABRIR WHATSAPP</a>
+                <h4>👤 {{ l.nome or "Sem nome" }}</h4>
+                <a href="https://wa.me/55{{ l.whatsapp }}" target="_blank" class="btn-wpp">💬 ABRIR WHATSAPP</a>
             </div>
             <div class="lead-meta">
-                <span class="wpp">ðŸ“± {{ l.whatsapp }}</span>
-                {% if l.email %}<span>âœ‰ï¸ {{ l.email }}</span>{% endif %}
-                {% if l.criado_em %}<span>ðŸ“… {{ l.criado_em.strftime('%d/%m/%Y Ã s %H:%M') }}</span>{% endif %}
+                <span class="wpp">📱 {{ l.whatsapp }}</span>
+                {% if l.email %}<span>✉️ {{ l.email }}</span>{% endif %}
+                {% if l.criado_em %}<span>📅 {{ l.criado_em.strftime('%d/%m/%Y às %H:%M') }}</span>{% endif %}
             </div>
         </div>
         {% endfor %}
@@ -92,12 +92,12 @@
 
     <div class="menu-overlay" id="menuOverlay" onclick="fecharMenuMobile()"></div>
     <div class="menu-mobile-painel" id="menuMobile">
-        <button class="fechar" onclick="fecharMenuMobile()">âœ•</button>
-        <a href="/admin/dashboard">ðŸ“Š Dashboard</a>
-        <a href="/admin/leads">ðŸ“¥ Leads</a>
-        <a href="/admin">ðŸ‘¥ Vendedores</a>
-        <a href="/plano">ðŸ§­ Plano M.A Tech</a>
-        <a href="/logout">ðŸšª Sair</a>
+        <button class="fechar" onclick="fecharMenuMobile()">✕</button>
+        <a href="/admin/dashboard">📊 Dashboard</a>
+        <a href="/admin/leads">📥 Leads</a>
+        <a href="/admin">👥 Vendedores</a>
+        <a href="/plano">🧭 Plano M.A Tech</a>
+        <a href="/logout">🚪 Sair</a>
     </div>
 
     <script>
@@ -110,7 +110,7 @@
             document.getElementById('menuOverlay').classList.remove('aberto');
         }
     </script>
-    <script src="/static/app.min.js?v=999999"></script>
+    <script src="/static/app.min.js?v=310930"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
     <script src="/static/app-badge-plano.js"></script>

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -304,40 +304,40 @@
             <h1>M.A Tech</h1>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
-                <a href="/configuracoes" data-rota="/configuracoes">ConfiguraÃ§Ãµes</a>
+                <a href="/configuracoes" data-rota="/configuracoes">Configurações</a>
                 <a href="/logout">Sair</a>
             </div>
         </div>
 
         <div class="indicar-wrap">
             <div class="hero-indicar">
-                <span class="emoji">ðŸŽ</span>
-                <h2>Indique e ganhe <em>1 mÃªs grÃ¡tis</em></h2>
-                <p>Compartilhe seu link com amigos. Quando alguÃ©m se cadastrar e pagar o primeiro PIX, vocÃª ganha <strong style="color:#00d97e;">+30 dias</strong> no seu plano automaticamente.</p>
+                <span class="emoji">🎁</span>
+                <h2>Indique e ganhe <em>1 mês grátis</em></h2>
+                <p>Compartilhe seu link com amigos. Quando alguém se cadastrar e pagar o primeiro PIX, você ganha <strong style="color:#00d97e;">+30 dias</strong> no seu plano automaticamente.</p>
             </div>
 
             <div class="regra-box">
-                <span class="icone">ðŸ’¡</span>
+                <span class="icone">💡</span>
                 <div class="texto">
-                    <strong>Como funciona:</strong> vocÃª indica â†’ a pessoa cria conta â†’ quando ela paga o primeiro PIX, seus <strong>+30 dias</strong> sÃ£o adicionados automaticamente. Sem limite de indicaÃ§Ãµes!
+                    <strong>Como funciona:</strong> você indica → a pessoa cria conta → quando ela paga o primeiro PIX, seus <strong>+30 dias</strong> são adicionados automaticamente. Sem limite de indicações!
                 </div>
             </div>
 
             <div class="codigo-box">
-                <h3>ðŸ”‘ Seu cÃ³digo Ãºnico</h3>
+                <h3>🔑 Seu código único</h3>
                 <div class="codigo-display">
                     <div class="codigo" id="codigo-txt">{{ codigo }}</div>
-                    <div class="label">cÃ³digo de indicaÃ§Ã£o</div>
+                    <div class="label">código de indicação</div>
                 </div>
 
-                <h3 style="margin-top: 20px;">ðŸ”— Seu link de convite</h3>
+                <h3 style="margin-top: 20px;">🔗 Seu link de convite</h3>
                 <div class="link-display">
                     <input type="text" id="link-txt" readonly value="https://matech-novo.onrender.com/signup?ref={{ codigo }}">
-                    <button type="button" class="btn-acao-indicar copiar" onclick="copiarLink()">ðŸ“‹ Copiar</button>
+                    <button type="button" class="btn-acao-indicar copiar" onclick="copiarLink()">📋 Copiar</button>
                 </div>
 
                 <a href="https://wa.me/?text=Ol%C3%A1!%20Conheci%20o%20M.A%20Tech%20e%20achei%20que%20voc%C3%AA%20ia%20gostar.%20%C3%89%20uma%20IA%20que%20atende%20seus%20clientes%20no%20WhatsApp.%20Crie%20sua%20conta%20gr%C3%A1tis%3A%20https%3A%2F%2Fmatech-novo.onrender.com%2Fsignup%3Fref%3D{{ codigo }}" target="_blank" class="btn-acao-indicar whatsapp">
-                    ðŸ’¬ Compartilhar no WhatsApp
+                    💬 Compartilhar no WhatsApp
                 </a>
             </div>
 
@@ -355,13 +355,13 @@
                 <div class="stat-indicar">
                     <div class="label">Dias ganhos</div>
                     <div class="valor">{{ stats.dias_ganhos }}</div>
-                    <div class="sub">grÃ¡tis acumulados</div>
+                    <div class="sub">grátis acumulados</div>
                 </div>
             </div>
 
             {% if stats.lista %}
             <div class="lista-indicados">
-                <h3>ðŸ‘¥ Quem vocÃª indicou</h3>
+                <h3>👥 Quem você indicou</h3>
                 {% for ind in stats.lista %}
                 <div class="indicado-item">
                     <div>
@@ -369,15 +369,15 @@
                         <div class="email-ind">{{ ind.email }}</div>
                     </div>
                     <span class="status-ind {% if ind.recompensado %}pago{% else %}pendente{% endif %}">
-                        {% if ind.recompensado %}âœ“ Pago{% else %}Aguardando{% endif %}
+                        {% if ind.recompensado %}✓ Pago{% else %}Aguardando{% endif %}
                     </span>
                 </div>
                 {% endfor %}
             </div>
             {% else %}
             <div class="lista-indicados">
-                <h3>ðŸ‘¥ Quem vocÃª indicou</h3>
-                <p style="color: #5a5a5a; font-size: 13px; margin: 0;">VocÃª ainda nÃ£o indicou ninguÃ©m. Compartilhe seu link pra comeÃ§ar a ganhar!</p>
+                <h3>👥 Quem você indicou</h3>
+                <p style="color: #5a5a5a; font-size: 13px; margin: 0;">Você ainda não indicou ninguém. Compartilhe seu link pra começar a ganhar!</p>
             </div>
             {% endif %}
         </div>
@@ -396,7 +396,7 @@
         });
     }
     </script>
-    <script src="/static/app.min.js?v=999999"></script>
+    <script src="/static/app.min.js?v=310930"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
     <script src="/static/app-badge-plano.js"></script>
