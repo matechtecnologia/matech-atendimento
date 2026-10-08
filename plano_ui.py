@@ -12,6 +12,11 @@ body { background:#0a0a0a; color:#e8e8e8; font-family:-apple-system,BlinkMacSyst
 .topo h1 { color:#00d97e; font-size:18px; margin:0; }
 .menu { display:flex; gap:12px; flex-wrap:wrap; }
 .menu a { color:#e8e8e8; text-decoration:none; font-size:13px; padding:6px 10px; border-radius:6px; }
+
+.grupo { display:flex; gap:6px; align-items:center; padding:2px 8px; border-right:1px solid #2a2a2a; }
+.grupo:last-child { border-right:none; }
+.grupo-label { color:#5a5a5a; font-size:9px; font-weight:700; letter-spacing:1px; margin-right:4px; text-transform:uppercase; }
+
 .menu a:hover, .menu a.ativo { background:#00d97e22; color:#00d97e; }
 .container { max-width:1100px; margin:20px auto; padding:0 20px; }
 .cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:20px; }
@@ -70,29 +75,41 @@ def _auth(usuario_id, usuario_tipo):
 
 
 def _topo(ativo):
-    itens = [
-        ("/plano", "Dashboard", "dashboard"),
-        ("/plano/fases", "Roadmap", "fases"),
-        ("/plano/metas", "Metas", "metas"),
-        ("/plano/tarefas", "Tarefas", "tarefas"),
-        ("/plano/comercial", "Comercial", "comercial"),
-        ("/plano/produtos", "Produtos", "produtos"),
-        ("/plano/projetos", "Projetos", "projetos"),
-        ("/plano/gestao", "Gestao", "gestao"),
-        ("/plano/lab", "Lab", "lab"),
-        ("/plano/decisoes", "Decisoes", "decisoes"),
-        ("/plano/financeiro", "Financeiro", "financeiro"),
-        ("/plano/roi", "ROI", "roi"),
-        ("/plano/relatorios", "Relatorios", "relatorios"),
-        ("/plano/bloqueios", "Bloqueios", "bloqueios"),
-        ("/plano/pendencias", "Pendencias", "pendencias"),
-        ("/plano/proximos", "Proximos", "proximos"),
-        ("/plano/diario", "Diario", "diario"),
+    grupos = [
+        ("PAINEL", [
+            ("/plano", "Dashboard", "dashboard"),
+            ("/plano/fases", "Roadmap", "fases"),
+            ("/plano/metas", "Metas", "metas"),
+            ("/plano/tarefas", "Tarefas", "tarefas"),
+        ]),
+        ("PRODUTO", [
+            ("/plano/produtos", "Produtos", "produtos"),
+            ("/plano/projetos", "Projetos", "projetos"),
+            ("/plano/lab", "Lab", "lab"),
+            ("/plano/decisoes", "Decisoes", "decisoes"),
+        ]),
+        ("OPERACAO", [
+            ("/plano/comercial", "Comercial", "comercial"),
+            ("/plano/gestao", "Gestao", "gestao"),
+            ("/plano/financeiro", "Financeiro", "financeiro"),
+            ("/plano/roi", "ROI", "roi"),
+            ("/plano/relatorios", "Relatorios", "relatorios"),
+        ]),
+        ("SISTEMA", [
+            ("/plano/bloqueios", "Bloqueios", "bloqueios"),
+            ("/plano/pendencias", "Pendencias", "pendencias"),
+            ("/plano/proximos", "Proximos", "proximos"),
+            ("/plano/diario", "Diario", "diario"),
+        ]),
     ]
-    menu = "".join(
-        f'<a href="{href}" class="{"ativo" if ativo==key else ""}">{nome}</a>'
-        for href, nome, key in itens
-    )
+    partes = []
+    for nome_grupo, itens in grupos:
+        links = "".join(
+            f'<a href="{href}" class="{"ativo" if ativo==key else ""}">{nome}</a>'
+            for href, nome, key in itens
+        )
+        partes.append(f'<div class="grupo"><span class="grupo-label">{nome_grupo}</span>{links}</div>')
+    menu = "".join(partes)
     return f"""
     <div class="topo">
         <h1>Plano M.A Tech</h1>
