@@ -631,12 +631,25 @@ function adicionarTyping() {
 
     const bolha = document.createElement('div');
     bolha.className = 'consult-msg consultor consult-typing';
-    bolha.innerHTML = '<span></span><span></span><span></span>';
+    bolha.innerHTML = '<span></span><span></span><span></span><span id="typing-tempo" style="margin-left:8px;color:#8a8a8a;font-size:12px;"></span>';
 
     linha.appendChild(avatar);
     linha.appendChild(bolha);
     box.appendChild(linha);
     box.scrollTop = box.scrollHeight;
+
+    // Contador de tempo
+    const inicio = Date.now();
+    const tempoEl = document.getElementById('typing-tempo');
+    if (window.typingInterval) clearInterval(window.typingInterval);
+    window.typingInterval = setInterval(() => {
+        if (!document.getElementById('typing-tempo')) {
+            clearInterval(window.typingInterval);
+            return;
+        }
+        const s = Math.floor((Date.now() - inicio) / 1000);
+        tempoEl.textContent = s + 's';
+    }, 500);
 }
 
 function removerTyping() {
