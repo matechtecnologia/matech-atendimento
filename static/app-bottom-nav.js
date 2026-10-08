@@ -1,5 +1,5 @@
-// ============================================
-// M.A TECH — Bottom Nav
+﻿// ============================================
+// M.A TECH â€” Bottom Nav
 // ============================================
 
 (function() {
@@ -109,7 +109,7 @@
         const nav = document.createElement('nav');
         nav.className = 'app-bottom-nav';
         nav.innerHTML = `
-            <a href="/consultoria" class="nav-item ${ativa === 'consultoria' ? 'ativo' : ''}">
+            <a href="/consultoria/loading" class="nav-item ${ativa === 'consultoria' ? 'ativo' : ''}">
                 <span class="icone-nav">${icone('briefcase')}</span>
                 <span class="txt-nav">Consultoria</span>
             </a>

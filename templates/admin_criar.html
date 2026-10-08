@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -8,11 +8,11 @@
 </head>
 <body>
     <div class="container-login">
-        <h1 style="text-align:center;">👑 Admin</h1>
+        <h1 style="text-align:center;">ðŸ‘‘ Admin</h1>
         <p class="subtitulo" style="text-align:center;">Criar vendedor manualmente</p>
 
         {% if erro %}
-        <div class="erro">⚠️ {{ erro }}</div>
+        <div class="erro">âš ï¸ {{ erro }}</div>
         {% endif %}
 
         <form method="POST" action="/admin/criar">
@@ -22,22 +22,22 @@
             <label>Email</label>
             <input type="email" name="email" required placeholder="vendedor@email.com">
 
-            <label>Senha (mínimo 6 caracteres)</label>
-            <input type="password" name="senha" required minlength="6" placeholder="••••••">
+            <label>Senha (mÃ­nimo 6 caracteres)</label>
+            <input type="password" name="senha" required minlength="6" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢">
 
             <label>Plano inicial</label>
             <select name="plano" style="width:100%; background:#0a0a0a; border:1px solid #2a2a2a; color:#fff; padding:12px; border-radius:6px; font-size:15px;">
-                <option value="gratis">Grátis (1 nicho)</option>
-                <option value="basico">Básico — R$ 97 (3 nichos)</option>
-                <option value="pro">Pro — R$ 297 (10 nichos)</option>
-                <option value="empresarial">Empresarial — R$ 597 (25 nichos)</option>
+                <option value="gratis">GrÃ¡tis (1 nicho)</option>
+                <option value="basico">BÃ¡sico â€” R$ 97 (3 nichos)</option>
+                <option value="pro">Pro â€” R$ 297 (10 nichos)</option>
+                <option value="empresarial">Empresarial â€” R$ 597 (25 nichos)</option>
             </select>
 
             <button type="submit">CRIAR VENDEDOR</button>
         </form>
 
         <p style="color:#8a8a8a; text-align:center; margin-top:24px; font-size:14px;">
-            <a href="/admin" style="color:#00d97e; text-decoration:none; font-weight:600;">← Voltar pro painel</a>
+            <a href="/admin" style="color:#00d97e; text-decoration:none; font-weight:600;">â† Voltar pro painel</a>
         </p>
     </div>
     <script src="/static/app.js"></script>

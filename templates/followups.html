@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -157,12 +157,12 @@
                 <h2 style="font-size:15px;color:#fff;margin:0;font-weight:800;letter-spacing:-0.01em;">Quem falar hoje</h2>
                 <span style="background:rgba(0,217,126,0.12);color:#00d97e;padding:3px 10px;border-radius:100px;font-size:11px;font-family:monospace;font-weight:800;">{{ total }} pra acompanhar</span>
             </div>
-            <p style="color:#8a8a8a;font-size:13px;margin:10px 0 0 0;line-height:1.5;">A IA analisa todos os seus clientes e mostra quem precisa de atenção.</p>
+            <p style="color:#8a8a8a;font-size:13px;margin:10px 0 0 0;line-height:1.5;">A IA analisa todos os seus clientes e mostra quem precisa de atenÃ§Ã£o.</p>
         </div>
 
         {% if total == 0 %}
         <div style="text-align:center;padding:50px 20px;">
-            <div style="font-size:52px;margin-bottom:14px;color:#00d97e;">✓</div>
+            <div style="font-size:52px;margin-bottom:14px;color:#00d97e;">âœ“</div>
             <h3 style="color:#e8e8e8;font-size:17px;margin-bottom:8px;">Tudo em dia!</h3>
             <p style="color:#8a8a8a;font-size:14px;margin-bottom:20px;">Nenhum cliente precisa de follow-up agora.</p>
             <a href="/clientes" style="display:inline-block;background:#00d97e;color:#0a0a0a;padding:12px 24px;border-radius:10px;font-weight:800;text-decoration:none;font-size:14px;">Ir para clientes</a>
@@ -173,7 +173,7 @@
         {% if urgente %}
         <div class="secao-bloco">
             <div class="secao-topo">
-                <h3 class="secao-titulo urgente"><span class="ponto"></span> Urgente · falar hoje</h3>
+                <h3 class="secao-titulo urgente"><span class="ponto"></span> Urgente Â· falar hoje</h3>
                 <span class="secao-contador">{{ urgente|length }}</span>
             </div>
             {% for f in urgente %}
@@ -203,11 +203,11 @@
         </div>
         {% endif %}
 
-        <!-- ATENÇÃO -->
+        <!-- ATENÃ‡ÃƒO -->
         {% if atencao %}
         <div class="secao-bloco">
             <div class="secao-topo">
-                <h3 class="secao-titulo atencao"><span class="ponto"></span> Atenção · próximos 2 dias</h3>
+                <h3 class="secao-titulo atencao"><span class="ponto"></span> AtenÃ§Ã£o Â· prÃ³ximos 2 dias</h3>
                 <span class="secao-contador">{{ atencao|length }}</span>
             </div>
             {% for f in atencao %}
@@ -270,6 +270,6 @@
 
     </div>
 
-    <script src="/static/app.min.js?v=310930"></script>
+    <script src="/static/app.min.js?v=999999"></script>
 </body>
 </html>

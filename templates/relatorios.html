@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M.A Tech - Relatórios</title>
+    <title>M.A Tech - RelatÃ³rios</title>
     <link rel="stylesheet" href="/static/app.min.css?v=311029">
     <style>
         .metricas {
@@ -379,10 +379,10 @@
         <!-- CABECALHO -->
         <div style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%);border:1px solid #222;border-left:4px solid #00d97e;border-radius:12px;padding:18px;margin-bottom:20px;">
             <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
-                <h2 style="font-size:15px;color:#fff;margin:0;font-weight:800;letter-spacing:-0.01em;">Visão Geral</h2>
-                <span style="background:rgba(0,217,126,0.12);color:#00d97e;padding:4px 12px;border-radius:100px;font-size:11px;font-family:monospace;font-weight:800;">{{ data_ini }} → {{ data_fim }}</span>
+                <h2 style="font-size:15px;color:#fff;margin:0;font-weight:800;letter-spacing:-0.01em;">VisÃ£o Geral</h2>
+                <span style="background:rgba(0,217,126,0.12);color:#00d97e;padding:4px 12px;border-radius:100px;font-size:11px;font-family:monospace;font-weight:800;">{{ data_ini }} â†’ {{ data_fim }}</span>
             </div>
-            <p style="color:#8a8a8a;font-size:13px;margin:10px 0 0 0;line-height:1.5;">Acompanhe o desempenho comercial no período selecionado.</p>
+            <p style="color:#8a8a8a;font-size:13px;margin:10px 0 0 0;line-height:1.5;">Acompanhe o desempenho comercial no perÃ­odo selecionado.</p>
         </div>
 
         <!-- METRICAS -->
@@ -407,11 +407,11 @@
 
         <!-- TAXA DE CONVERSAO -->
         <div class="card-secao" style="background:linear-gradient(135deg,#0f1a15 0%,#141414 100%);border-left:4px solid #00d97e;">
-            <h3 style="color:#00d97e;">Taxa de conversão</h3>
+            <h3 style="color:#00d97e;">Taxa de conversÃ£o</h3>
             <div style="font-size:44px;font-weight:800;font-family:monospace;color:#00d97e;letter-spacing:-0.04em;line-height:1;text-shadow:0 0 30px rgba(0,217,126,0.4);">{{ taxa_conversao }}%</div>
             <p style="color:#8a8a8a;font-size:13px;margin:10px 0 0 0;">
                 {% if ganhos == 0 %}
-                    Nenhum cliente fechado neste período
+                    Nenhum cliente fechado neste perÃ­odo
                 {% else %}
                     De <strong style="color:#e8e8e8;">{{ total }}</strong> clientes, <strong style="color:#00d97e;">{{ ganhos }}</strong> viraram cliente
                 {% endif %}
@@ -420,9 +420,9 @@
 
         <!-- ATIVIDADE -->
         <div class="card-secao">
-            <h3>Atividade no período</h3>
+            <h3>Atividade no perÃ­odo</h3>
             {% if total_atividade == 0 %}
-            <div class="empty-secao">Nenhum atendimento no período.</div>
+            <div class="empty-secao">Nenhum atendimento no perÃ­odo.</div>
             {% else %}
             <p style="color:#8a8a8a;font-size:12.5px;margin:0 0 16px 0;">Total: <strong style="color:#00d97e;font-family:monospace;">{{ total_atividade }}</strong> atendimento(s)</p>
             <div class="grafico">
@@ -468,9 +468,9 @@
 
         <!-- ORIGENS -->
         <div class="card-secao">
-            <h3>De onde vêm seus clientes</h3>
+            <h3>De onde vÃªm seus clientes</h3>
             {% if not top_origens %}
-            <div class="empty-secao">Nenhuma origem cadastrada no período.</div>
+            <div class="empty-secao">Nenhuma origem cadastrada no perÃ­odo.</div>
             {% else %}
             <div class="lista-ranque">
                 {% for o in top_origens %}
@@ -491,7 +491,7 @@
             <div class="card-secao">
                 <h3>Top clientes</h3>
                 {% if not top_clientes %}
-                <div class="empty-secao">Sem dados no período.</div>
+                <div class="empty-secao">Sem dados no perÃ­odo.</div>
                 {% else %}
                 <div class="lista-ranque">
                     {% for c in top_clientes %}
@@ -499,7 +499,7 @@
                         <div class="pos">{{ loop.index }}</div>
                         <div class="info">
                             <div class="nome">{{ c.nome or "Sem nome" }}</div>
-                            <div class="sub">{{ c.whatsapp }} · {{ c.qtd }} atend.</div>
+                            <div class="sub">{{ c.whatsapp }} Â· {{ c.qtd }} atend.</div>
                         </div>
                     </div>
                     {% endfor %}
@@ -509,7 +509,7 @@
             <div class="card-secao">
                 <h3>Top nichos</h3>
                 {% if not top_nichos %}
-                <div class="empty-secao">Sem dados no período.</div>
+                <div class="empty-secao">Sem dados no perÃ­odo.</div>
                 {% else %}
                 <div class="lista-ranque">
                     {% for n in top_nichos %}
@@ -530,7 +530,7 @@
         <div class="periodo-card">
             <div class="periodo-titulo">
                 <span class="ponto"></span>
-                Filtrar período
+                Filtrar perÃ­odo
             </div>
             <form method="GET" action="/relatorios" class="periodo-form" id="form-periodo">
                 <div class="periodo-input">
@@ -538,25 +538,25 @@
                     <input type="date" name="data_ini" id="data_ini" value="{{ data_ini }}">
                 </div>
                 <div class="periodo-input">
-                    <label>Até</label>
+                    <label>AtÃ©</label>
                     <input type="date" name="data_fim" id="data_fim" value="{{ data_fim }}">
                 </div>
                 <button type="submit" class="periodo-btn">Aplicar filtro</button>
             </form>
             <div class="atalhos-data">
-                <button type="button" class="atalho" onclick="atalho(7, this)">Últimos 7 dias</button>
-                <button type="button" class="atalho" onclick="atalho(30, this)">Últimos 30 dias</button>
-                <button type="button" class="atalho" onclick="atalho(90, this)">Últimos 90 dias</button>
+                <button type="button" class="atalho" onclick="atalho(7, this)">Ãšltimos 7 dias</button>
+                <button type="button" class="atalho" onclick="atalho(30, this)">Ãšltimos 30 dias</button>
+                <button type="button" class="atalho" onclick="atalho(90, this)">Ãšltimos 90 dias</button>
                 <button type="button" class="atalho" onclick="atalho(365, this)">Este ano</button>
             </div>
             <div class="periodo-info">
-                Mostrando dados de <strong>{{ data_ini }}</strong> até <strong>{{ data_fim }}</strong>
+                Mostrando dados de <strong>{{ data_ini }}</strong> atÃ© <strong>{{ data_fim }}</strong>
             </div>
         </div>
 
     </div>
 
-    <script src="/static/app.min.js?v=311029"></script>
+    <script src="/static/app.min.js?v=999999"></script>
     <script>
     function atalho(dias, btn) {
         var fim = new Date();

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -136,15 +136,15 @@
         </div>
 
         {% if request.query_params.get('ok') %}
-        <div class="aviso-ok">✓ Nicho atualizado com sucesso! A IA já está usando as novas informações.</div>
+        <div class="aviso-ok">âœ“ Nicho atualizado com sucesso! A IA jÃ¡ estÃ¡ usando as novas informaÃ§Ãµes.</div>
         {% endif %}
 
         {% if erro %}
-        <div class="erro">⚠️ {{ erro }}</div>
+        <div class="erro">âš ï¸ {{ erro }}</div>
         {% endif %}
 
         {% if request.query_params.get('erro') %}
-        <div class="erro">⚠️ {{ request.query_params.get('erro') }}</div>
+        <div class="erro">âš ï¸ {{ request.query_params.get('erro') }}</div>
         {% endif %}
 
         {% set pct = (total / limite * 100) if limite > 0 else 0 %}
@@ -154,7 +154,7 @@
 
         <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
             <div class="bloco-topo">
-                <h2>🎯 MEUS NICHOS</h2>
+                <h2>ðŸŽ¯ MEUS NICHOS</h2>
                 <span class="badge-status status-em-atendimento">{{ plano|upper }}</span>
             </div>
             <p style="color:#8a8a8a; margin-top:8px; font-size:14px;">
@@ -169,85 +169,85 @@
 
         {% if not nichos %}
         <div class="empty-state">
-            <span class="emoji">🎯</span>
+            <span class="emoji">ðŸŽ¯</span>
             <h3>Nenhum nicho cadastrado</h3>
-            <p>Cadastre seu primeiro nicho pra IA começar a atender com o contexto certo.</p>
-            <a href="/novo_nicho" class="btn-gerar">➕ CRIAR PRIMEIRO NICHO</a>
+            <p>Cadastre seu primeiro nicho pra IA comeÃ§ar a atender com o contexto certo.</p>
+            <a href="/novo_nicho" class="btn-gerar">âž• CRIAR PRIMEIRO NICHO</a>
         </div>
         {% else %}
 
         {% for n in nichos %}
         <div class="nicho-card">
             <div class="nicho-head">
-                <h3>📦 {{ n.nome }}</h3>
+                <h3>ðŸ“¦ {{ n.nome }}</h3>
                 <div class="nicho-badges">
-                    {% if loop.index == 1 %}<span class="badge-tag badge-onb">⭐ ONBOARDING</span>{% endif %}
+                    {% if loop.index == 1 %}<span class="badge-tag badge-onb">â­ ONBOARDING</span>{% endif %}
                     <span class="badge-tag badge-ativo">Ativo</span>
                 </div>
             </div>
 
             <div class="nicho-campo">
                 <span class="label">O que vende</span>
-                <span class="valor">{{ (n.produto or '—')[:200] }}{% if n.produto and n.produto|length > 200 %}...{% endif %}</span>
+                <span class="valor">{{ (n.produto or 'â€”')[:200] }}{% if n.produto and n.produto|length > 200 %}...{% endif %}</span>
             </div>
             <div class="nicho-campo">
-                <span class="label">Público</span>
-                <span class="valor">{{ n.publico or '—' }}</span>
+                <span class="label">PÃºblico</span>
+                <span class="valor">{{ n.publico or 'â€”' }}</span>
             </div>
             <div class="nicho-campo">
-                <span class="label">💰 Preço</span>
-                <span class="valor" style="color:#00d97e; font-weight:600;">{{ n.preco or '—' }}</span>
+                <span class="label">ðŸ’° PreÃ§o</span>
+                <span class="valor" style="color:#00d97e; font-weight:600;">{{ n.preco or 'â€”' }}</span>
             </div>
             <div class="nicho-campo">
                 <span class="label">Dor do cliente</span>
-                <span class="valor">{{ n.dor or '—' }}</span>
+                <span class="valor">{{ n.dor or 'â€”' }}</span>
             </div>
             <div class="nicho-campo">
-                <span class="label">Objeção</span>
-                <span class="valor">{{ n.objecao or '—' }}</span>
+                <span class="label">ObjeÃ§Ã£o</span>
+                <span class="valor">{{ n.objecao or 'â€”' }}</span>
             </div>
             <div class="nicho-campo">
                 <span class="label">Diferencial</span>
-                <span class="valor">{{ n.diferencial or '—' }}</span>
+                <span class="valor">{{ n.diferencial or 'â€”' }}</span>
             </div>
             <div class="nicho-campo">
                 <span class="label">Tom de voz</span>
-                <span class="valor">{{ n.tom or '—' }}</span>
+                <span class="valor">{{ n.tom or 'â€”' }}</span>
             </div>
 
             <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
-                <button type="button" class="btn-mini editar" onclick="toggleEdit({{ n.id }})" id="btn-{{ n.id }}">✏️ Editar informações</button>
-                <span style="color:#5a5a5a; font-size:12px; align-self:center;">Nome e "o que vende" não podem ser editados</span>
+                <button type="button" class="btn-mini editar" onclick="toggleEdit({{ n.id }})" id="btn-{{ n.id }}">âœï¸ Editar informaÃ§Ãµes</button>
+                <span style="color:#5a5a5a; font-size:12px; align-self:center;">Nome e "o que vende" nÃ£o podem ser editados</span>
             </div>
 
             <div class="form-edit" id="form-{{ n.id }}">
                 <div style="background:#1f1a0a; border-left:3px solid #f59e0b; padding:10px 14px; border-radius:6px; margin-bottom:14px;">
                     <p style="color:#f59e0b; font-size:13px; margin:0; line-height:1.5;">
-                        ⚠️ O <strong>nome</strong> e o <strong>que vende</strong> não podem ser alterados (são a identidade do nicho). Se precisar mudar, crie um novo nicho.
+                        âš ï¸ O <strong>nome</strong> e o <strong>que vende</strong> nÃ£o podem ser alterados (sÃ£o a identidade do nicho). Se precisar mudar, crie um novo nicho.
                     </p>
                 </div>
 
                 <form method="POST" action="/nicho/{{ n.id }}/editar">
-                    <label>👥 Para quem vende</label>
+                    <label>ðŸ‘¥ Para quem vende</label>
                     <textarea name="publico" rows="3" required>{{ n.publico or '' }}</textarea>
 
-                    <label>💰 Preço</label>
+                    <label>ðŸ’° PreÃ§o</label>
                     <textarea name="preco" rows="2" required>{{ n.preco or '' }}</textarea>
 
-                    <label>💔 Dor do cliente</label>
+                    <label>ðŸ’” Dor do cliente</label>
                     <textarea name="dor" rows="3" required>{{ n.dor or '' }}</textarea>
 
-                    <label>🚧 Objeção mais comum</label>
+                    <label>ðŸš§ ObjeÃ§Ã£o mais comum</label>
                     <textarea name="objecao" rows="3" required>{{ n.objecao or '' }}</textarea>
 
-                    <label>⭐ Seu diferencial</label>
+                    <label>â­ Seu diferencial</label>
                     <textarea name="diferencial" rows="3" required>{{ n.diferencial or '' }}</textarea>
 
-                    <label>🗣️ Tom de voz</label>
+                    <label>ðŸ—£ï¸ Tom de voz</label>
                     <textarea name="tom" rows="2" required>{{ n.tom or '' }}</textarea>
 
                     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
-                        <button type="submit" class="btn-mini salvar" style="padding:12px 24px; font-size:13px;">💾 SALVAR E ATUALIZAR IA</button>
+                        <button type="submit" class="btn-mini salvar" style="padding:12px 24px; font-size:13px;">ðŸ’¾ SALVAR E ATUALIZAR IA</button>
                         <button type="button" class="btn-mini cancelar" style="padding:12px 24px; font-size:13px;" onclick="toggleEdit({{ n.id }})">Cancelar</button>
                     </div>
                 </form>
@@ -257,18 +257,18 @@
 
         {% if total < limite %}
         <a href="/novo_nicho" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-top:20px;">
-            ➕ ADICIONAR NICHO
+            âž• ADICIONAR NICHO
         </a>
         {% else %}
         <div class="bloco bloco-acao" style="margin-top:20px; border-left:4px solid #f59e0b;">
             <div class="bloco-topo">
-                <h2>⚠️ LIMITE ATINGIDO</h2>
+                <h2>âš ï¸ LIMITE ATINGIDO</h2>
             </div>
             <p style="color:#e8e8e8; margin-top:8px; font-size:14px;">
-                Você usou todos os <strong class="mono">{{ limite }}</strong> nichos do plano <strong>{{ plano|upper }}</strong>.
+                VocÃª usou todos os <strong class="mono">{{ limite }}</strong> nichos do plano <strong>{{ plano|upper }}</strong>.
             </p>
             <a href="/planos" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-top:16px;">
-                ⚡ FAZER UPGRADE
+                âš¡ FAZER UPGRADE
             </a>
         </div>
         {% endif %}
@@ -277,10 +277,10 @@
 
         <div class="bloco bloco-crm" style="margin-top:20px; background:#111725; border-left:4px solid #a855f7;">
             <div class="bloco-topo">
-                <h2>💡 SOBRE NICHOS</h2>
+                <h2>ðŸ’¡ SOBRE NICHOS</h2>
             </div>
             <p style="color:#8a8a8a; margin-top:8px; font-size:13px; line-height:1.6;">
-                Cada nicho é um produto ou serviço diferente que você vende. Você pode <strong style="color:#00d97e;">editar preço, público, dor, objeção, diferencial e tom de voz</strong> quando quiser — o prompt da IA é regerado automaticamente.
+                Cada nicho Ã© um produto ou serviÃ§o diferente que vocÃª vende. VocÃª pode <strong style="color:#00d97e;">editar preÃ§o, pÃºblico, dor, objeÃ§Ã£o, diferencial e tom de voz</strong> quando quiser â€” o prompt da IA Ã© regerado automaticamente.
             </p>
         </div>
 
@@ -293,16 +293,16 @@
 
         // Fecha todos
         document.querySelectorAll('.form-edit').forEach(f => f.classList.remove('aberto'));
-        document.querySelectorAll('[id^="btn-"]').forEach(b => { if (b.tagName === 'BUTTON') b.innerText = '✏️ Editar informações'; });
+        document.querySelectorAll('[id^="btn-"]').forEach(b => { if (b.tagName === 'BUTTON') b.innerText = 'âœï¸ Editar informaÃ§Ãµes'; });
 
         if (!aberto) {
             form.classList.add('aberto');
-            btn.innerText = '▲ Fechar';
+            btn.innerText = 'â–² Fechar';
             form.scrollIntoView({behavior: 'smooth', block: 'center'});
         }
     }
     </script>
-    <script src="/static/app.min.js?v=310930"></script>
+    <script src="/static/app.min.js?v=999999"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
     <script src="/static/app-badge-plano.js"></script>

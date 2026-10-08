@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -102,7 +102,7 @@
         .chip:hover { border-color: #00d97e; color: #00d97e; }
         .chip.ativo { background: #00d97e; color: #0a0a0a; border-color: #00d97e; }
 
-        /* Modal histórico */
+        /* Modal histÃ³rico */
         .hist-modal {
             display: none; position: fixed; inset: 0;
             background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
@@ -174,7 +174,7 @@
                 <button type="button" class="chip" data-status="" onclick="setStatus('',this)">Todos</button>
                 <button type="button" class="chip" data-status="novo lead" onclick="setStatus('novo lead',this)">Novo Lead</button>
                 <button type="button" class="chip" data-status="em atendimento" onclick="setStatus('em atendimento',this)">Em Atendimento</button>
-                <button type="button" class="chip" data-status="negociação" onclick="setStatus('negociação',this)">Negociação</button>
+                <button type="button" class="chip" data-status="negociaÃ§Ã£o" onclick="setStatus('negociaÃ§Ã£o',this)">NegociaÃ§Ã£o</button>
                 <button type="button" class="chip" data-status="cliente" onclick="setStatus('cliente',this)">Cliente</button>
                 <button type="button" class="chip" data-status="perdido" onclick="setStatus('perdido',this)">Perdido</button>
             </div>
@@ -201,11 +201,11 @@
                 <select name="status" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:12px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:12px;">
                     <option value="novo lead">Novo Lead</option>
                     <option value="em atendimento">Em Atendimento</option>
-                    <option value="negociação">Negociação</option>
+                    <option value="negociaÃ§Ã£o">NegociaÃ§Ã£o</option>
                     <option value="cliente">Cliente</option>
                     <option value="perdido">Perdido</option>
                 </select>
-                <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">Observações</label>
+                <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">ObservaÃ§Ãµes</label>
                 <textarea name="observacoes" rows="2" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:12px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;resize:vertical;margin-bottom:14px;"></textarea>
                 <button type="submit" style="width:100%;padding:12px;background:#00d97e;color:#0a0a0a;border:none;border-radius:8px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;">Salvar</button>
                 <button type="button" onclick="abrirNovo()" style="width:100%;padding:10px;margin-top:8px;background:transparent;color:#8a8a8a;border:1px solid #2a2a2a;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Cancelar</button>
@@ -221,8 +221,8 @@
                 {% set bc = 'status-novo-lead' %}{% set bt = 'Novo Lead' %}{% set cls = 's-novo' %}
             {% elif s in ['em atendimento','negociando'] %}
                 {% set bc = 'status-em-atendimento' %}{% set bt = 'Em Atendimento' %}{% set cls = 's-atend' %}
-            {% elif s in ['negociação','negociacao'] %}
-                {% set bc = 'status-negociacao' %}{% set bt = 'Negociação' %}{% set cls = 's-negoc' %}
+            {% elif s in ['negociaÃ§Ã£o','negociacao'] %}
+                {% set bc = 'status-negociacao' %}{% set bt = 'NegociaÃ§Ã£o' %}{% set cls = 's-negoc' %}
             {% elif s == 'cliente' %}
                 {% set bc = 'status-cliente' %}{% set bt = 'Cliente' %}{% set cls = 's-cliente' %}
             {% elif s == 'perdido' %}
@@ -249,7 +249,7 @@
                     </div>
                 </div>
                 <div class="acoes">
-                    <button type="button" onclick="verHistorico({{ c.id }}, '{{ (c.nome or "Cliente")|replace("'", "\\'") }}')" class="btn-icone historico" title="Histórico">
+                    <button type="button" onclick="verHistorico({{ c.id }}, '{{ (c.nome or "Cliente")|replace("'", "\\'") }}')" class="btn-icone historico" title="HistÃ³rico">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     </button>
                     <a href="/cliente/{{ c.id }}/atender" class="btn-icone atender" title="Atender">
@@ -275,11 +275,11 @@
                     <select name="status" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:10px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box;margin-bottom:10px;">
                         <option value="novo lead" {% if s in ['novo lead','lead'] %}selected{% endif %}>Novo Lead</option>
                         <option value="em atendimento" {% if s in ['em atendimento','negociando'] %}selected{% endif %}>Em Atendimento</option>
-                        <option value="negociação" {% if s in ['negociação','negociacao'] %}selected{% endif %}>Negociação</option>
+                        <option value="negociaÃ§Ã£o" {% if s in ['negociaÃ§Ã£o','negociacao'] %}selected{% endif %}>NegociaÃ§Ã£o</option>
                         <option value="cliente" {% if s == 'cliente' %}selected{% endif %}>Cliente</option>
                         <option value="perdido" {% if s == 'perdido' %}selected{% endif %}>Perdido</option>
                     </select>
-                    <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">Observações</label>
+                    <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;">ObservaÃ§Ãµes</label>
                     <textarea name="observacoes" rows="2" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:10px;border-radius:8px;font-size:13px;font-family:inherit;box-sizing:border-box;resize:vertical;margin-bottom:12px;">{{ c.observacoes or '' }}</textarea>
                     <button type="submit" style="width:100%;padding:12px;background:#00d97e;color:#0a0a0a;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;">Salvar</button>
                 </form>
@@ -292,18 +292,18 @@
         </div>
     </div>
 
-    <!-- MODAL HISTÓRICO -->
+    <!-- MODAL HISTÃ“RICO -->
     <div class="hist-modal" id="hist-modal" onclick="if(event.target===this)fecharHistorico()">
         <div class="hist-modal-inner">
             <div class="hist-modal-topo">
-                <h3 id="hist-modal-titulo">Histórico</h3>
-                <button type="button" class="hist-modal-fechar" onclick="fecharHistorico()">✕</button>
+                <h3 id="hist-modal-titulo">HistÃ³rico</h3>
+                <button type="button" class="hist-modal-fechar" onclick="fecharHistorico()">âœ•</button>
             </div>
             <div class="hist-modal-lista" id="hist-modal-lista"></div>
         </div>
     </div>
 
-    <script src="/static/app.min.js?v=310930"></script>
+    <script src="/static/app.min.js?v=999999"></script>
     <script>
     var filtroStatus = '';
     var ordemAtual = 'recente';
@@ -349,7 +349,7 @@
         var lista = document.getElementById('hist-modal-lista');
         var titulo = document.getElementById('hist-modal-titulo');
         modal.classList.add('aberto');
-        titulo.innerText = 'Histórico · ' + (nome || 'Cliente');
+        titulo.innerText = 'HistÃ³rico Â· ' + (nome || 'Cliente');
         lista.innerHTML = '<p style="color:#8a8a8a;font-size:13px;text-align:center;padding:20px;">Carregando...</p>';
 
         fetch('/api/cliente/' + id + '/historico')
@@ -363,13 +363,13 @@
                 var html = '';
                 h.forEach(function(m) {
                     var cls = m.direcao === 'cliente' ? '' : ' ia';
-                    var quem = m.direcao === 'cliente' ? 'Cliente' : 'Você (IA)';
-                    html += '<div class="hist-modal-item' + cls + '"><span class="hist-modal-data">' + quem + ' · ' + m.data + '</span>' + m.mensagem + '</div>';
+                    var quem = m.direcao === 'cliente' ? 'Cliente' : 'VocÃª (IA)';
+                    html += '<div class="hist-modal-item' + cls + '"><span class="hist-modal-data">' + quem + ' Â· ' + m.data + '</span>' + m.mensagem + '</div>';
                 });
                 lista.innerHTML = html;
             })
             .catch(function() {
-                lista.innerHTML = '<p style="color:#ff3b3b;font-size:13px;text-align:center;padding:20px;">Erro ao carregar histórico.</p>';
+                lista.innerHTML = '<p style="color:#ff3b3b;font-size:13px;text-align:center;padding:20px;">Erro ao carregar histÃ³rico.</p>';
             });
     }
 
@@ -381,7 +381,7 @@
         s = (s || '').toLowerCase();
         if (s === 'lead') return 'novo lead';
         if (s === 'negociando') return 'em atendimento';
-        if (s === 'negociacao') return 'negociação';
+        if (s === 'negociacao') return 'negociaÃ§Ã£o';
         return s;
     }
 

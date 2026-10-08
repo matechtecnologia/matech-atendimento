@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -43,7 +43,7 @@
             transition: color 0.2s ease;
         }
         .requisitos li:before {
-            content: "○";
+            content: "â—‹";
             position: absolute;
             left: 0;
             font-weight: 800;
@@ -52,7 +52,7 @@
             color: #00d97e;
         }
         .requisitos li.ok:before {
-            content: "✓";
+            content: "âœ“";
         }
         html[data-tema="claro"] .requisitos li {
             color: #8a8a8a;
@@ -71,23 +71,23 @@
 <body>
     <div class="container-login">
         <div style="text-align:center; margin-bottom:8px;">
-            <span class="badge-status status-em-atendimento" style="font-size:11px;">🎁 1 NICHO GRÁTIS</span>
+            <span class="badge-status status-em-atendimento" style="font-size:11px;">ðŸŽ 1 NICHO GRÃTIS</span>
         </div>
         <div style="text-align:center; margin-bottom:10px;">
             <img src="/static/logo.png" alt="M.A Tech" style="height:68px;width:auto;filter:drop-shadow(0 0 16px rgba(0,217,126,0.35));">
         </div>
         <h1 style="text-align:center; margin-bottom:4px;">M.A Tech</h1>
         <p style="text-align:center; color:#8a8a8a; font-size:10px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; margin-bottom:22px;">Tecnologia e Solu&ccedil;&atilde;o</p>
-        <p class="subtitulo" style="text-align:center;">Criar conta grátis — sem cartão</p>
+        <p class="subtitulo" style="text-align:center;">Criar conta grÃ¡tis â€” sem cartÃ£o</p>
 
         {% if request.query_params.get('ref') %}
         <div style="background:#0f1a15; border:1px solid #00d97e; border-left:3px solid #00d97e; color:#00d97e; padding:14px; border-radius:8px; font-size:13px; margin-bottom:16px; text-align:center;">
-            🎁 Você foi <strong>indicado por um amigo</strong>! Ganhe acesso completo desde o início.
+            ðŸŽ VocÃª foi <strong>indicado por um amigo</strong>! Ganhe acesso completo desde o inÃ­cio.
         </div>
         {% endif %}
 
         {% if erro %}
-        <div class="erro">⚠️ {{ erro }}</div>
+        <div class="erro">âš ï¸ {{ erro }}</div>
         {% endif %}
 
         <form method="POST" action="/signup">
@@ -101,26 +101,26 @@
             <label>Email</label>
             <input type="email" name="email" required placeholder="voce@email.com">
 
-            <label>WhatsApp (só números, com DDD)</label>
+            <label>WhatsApp (sÃ³ nÃºmeros, com DDD)</label>
             <input type="text" name="whatsapp" required placeholder="11987654321" inputmode="numeric" pattern="[0-9]+" style="font-family:monospace;">
             <p style="color:#5a5a5a; font-size:12px; margin-top:6px;">Aceita com ou sem o 9 na frente.</p>
 
             <label>Senha</label>
-            <input type="password" name="senha" id="input-senha" required placeholder="••••••••" minlength="8" oninput="validarSenha()">
+            <input type="password" name="senha" id="input-senha" required placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" minlength="8" oninput="validarSenha()">
             <div class="forca-senha" id="forca-barra"><div class="barra"></div></div>
             <div class="forca-texto" id="forca-texto">Digite uma senha</div>
 
             <ul class="requisitos">
                 <li id="req-8">Pelo menos 8 caracteres</li>
                 <li id="req-letra">Pelo menos 1 letra</li>
-                <li id="req-num">Pelo menos 1 número</li>
+                <li id="req-num">Pelo menos 1 nÃºmero</li>
             </ul>
 
-            <button type="submit" id="btn-criar" disabled style="opacity:0.5; cursor:not-allowed;">CRIAR CONTA GRÁTIS →</button>
+            <button type="submit" id="btn-criar" disabled style="opacity:0.5; cursor:not-allowed;">CRIAR CONTA GRÃTIS â†’</button>
         </form>
 
         <p style="color:#8a8a8a; text-align:center; margin-top:24px; font-size:14px;">
-            Já tem conta? <a href="/login" style="color:#00d97e; text-decoration:none; font-weight:600;">Entrar</a>
+            JÃ¡ tem conta? <a href="/login" style="color:#00d97e; text-decoration:none; font-weight:600;">Entrar</a>
         </p>
     </div>
 
@@ -150,16 +150,16 @@
             texto.textContent = 'Senha fraca';
         } else if (pontos === 2) {
             nivel = 'media';
-            texto.textContent = 'Senha média';
+            texto.textContent = 'Senha mÃ©dia';
         } else {
             nivel = 'forte';
-            texto.textContent = '✓ Senha forte';
+            texto.textContent = 'âœ“ Senha forte';
         }
 
         barra.className = 'forca-senha ' + nivel;
         texto.className = 'forca-texto ' + nivel;
 
-        // Habilita botão só se senha forte
+        // Habilita botÃ£o sÃ³ se senha forte
         const valido = ok8 && okLetra && okNum;
         btn.disabled = !valido;
         btn.style.opacity = valido ? '1' : '0.5';

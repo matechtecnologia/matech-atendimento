@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -64,23 +64,23 @@
 <body>
     <div class="container-atendimento">
         <div class="topo">
-            <h1>M.A Tech — Admin</h1>
-            <button class="menu-hamburguer" onclick="abrirMenuMobile()">☰</button>
+            <h1>M.A Tech â€” Admin</h1>
+            <button class="menu-hamburguer" onclick="abrirMenuMobile()">â˜°</button>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
                 <a href="/planos" data-rota="/planos">Planos</a>
                 {% if usuario_tipo == 'admin' %}<a href="/admin" data-rota="/admin">Admin</a>{% endif %}
-                <a href="/plano" data-rota="/plano">🧭 Plano M.A Tech</a>
+                <a href="/plano" data-rota="/plano">ðŸ§­ Plano M.A Tech</a>
                 <a href="/logout">Sair</a>
             </div>
         </div>
 
-        {% if ok %}<div class="aviso-admin">✓ Alteração salva</div>{% endif %}
-        {% if erro %}<div class="erro">⚠️ {{ erro }}</div>{% endif %}
+        {% if ok %}<div class="aviso-admin">âœ“ AlteraÃ§Ã£o salva</div>{% endif %}
+        {% if erro %}<div class="erro">âš ï¸ {{ erro }}</div>{% endif %}
 
         {% if not v.ativo %}
         <div class="bloco bloco-acao" style="background:#1f0a0a; border-left:4px solid #ff3b3b; margin-bottom:16px;">
-            <p style="color:#ff3b3b; font-size:14px; font-weight:700;">🚫 ESTE VENDEDOR ESTÁ BLOQUEADO</p>
+            <p style="color:#ff3b3b; font-size:14px; font-weight:700;">ðŸš« ESTE VENDEDOR ESTÃ BLOQUEADO</p>
         </div>
         {% endif %}
 
@@ -91,12 +91,12 @@
 
         <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:16px;">
             <div class="bloco-topo">
-                <h2>👤 {{ v.nome }}</h2>
+                <h2>ðŸ‘¤ {{ v.nome }}</h2>
                 <span class="badge-status {{ plano_badge }}">{{ v.plano|upper }}</span>
             </div>
-            <p style="color:#e8e8e8; font-size:14px; margin-top:10px;" class="mono">✉️ {{ v.email }}</p>
-            {% if v.whatsapp %}<p style="color:#e8e8e8; font-size:14px; margin-top:6px;" class="mono">📱 {{ v.whatsapp }}</p>{% endif %}
-            {% if v.plano_expira_em %}<p style="color:#f59e0b; font-size:13px; margin-top:6px;" class="mono">⏳ Expira em {{ v.plano_expira_em.strftime('%d/%m/%Y') }}</p>{% endif %}
+            <p style="color:#e8e8e8; font-size:14px; margin-top:10px;" class="mono">âœ‰ï¸ {{ v.email }}</p>
+            {% if v.whatsapp %}<p style="color:#e8e8e8; font-size:14px; margin-top:6px;" class="mono">ðŸ“± {{ v.whatsapp }}</p>{% endif %}
+            {% if v.plano_expira_em %}<p style="color:#f59e0b; font-size:13px; margin-top:6px;" class="mono">â³ Expira em {{ v.plano_expira_em.strftime('%d/%m/%Y') }}</p>{% endif %}
             {% if v.u_criado_em %}<p style="color:#5a5a5a; font-size:12px; margin-top:12px;" class="mono">Conta criada em {{ v.u_criado_em.strftime('%d/%m/%Y') }}</p>{% endif %}
         </div>
 
@@ -107,50 +107,50 @@
             <div class="stat-card"><div class="stat-label">Status</div><div class="stat-valor" style="font-size:18px; color:{% if v.ativo %}#00d97e{% else %}#ff3b3b{% endif %};">{% if v.ativo %}ATIVO{% else %}BLOQ.{% endif %}</div></div>
         </div>
 
-        <h2 style="margin-top:24px; margin-bottom:12px; font-size:16px;">⚙️ AÇÕES DA CONTA</h2>
+        <h2 style="margin-top:24px; margin-bottom:12px; font-size:16px;">âš™ï¸ AÃ‡Ã•ES DA CONTA</h2>
 
         <div class="card-admin">
-            <h3>✏️ EDITAR DADOS</h3>
+            <h3>âœï¸ EDITAR DADOS</h3>
             <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/editar">
                 <div class="linha-2">
                     <div><label>Nome</label><input type="text" name="nome" required value="{{ v.nome }}"></div>
                     <div><label>Email</label><input type="email" name="email" required value="{{ v.email }}"></div>
                 </div>
-                <button type="submit" class="btn-acao salvar">💾 SALVAR DADOS</button>
+                <button type="submit" class="btn-acao salvar">ðŸ’¾ SALVAR DADOS</button>
             </form>
         </div>
 
         <div class="card-admin" style="border-left-color: #00d97e;">
-            <h3>📱 WHATSAPP DO VENDEDOR</h3>
+            <h3>ðŸ“± WHATSAPP DO VENDEDOR</h3>
             <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/editar-whatsapp">
                 <div class="linha-2">
-                    <div><label>WhatsApp (só números, com DDD)</label><input type="text" name="whatsapp" required value="{{ v.whatsapp or '' }}" inputmode="numeric" pattern="[0-9]+" style="font-family:monospace;"></div>
-                    <div style="display:flex; align-items:flex-end;"><button type="submit" class="btn-acao salvar" style="padding:12px 20px;">💾 SALVAR WHATSAPP</button></div>
+                    <div><label>WhatsApp (sÃ³ nÃºmeros, com DDD)</label><input type="text" name="whatsapp" required value="{{ v.whatsapp or '' }}" inputmode="numeric" pattern="[0-9]+" style="font-family:monospace;"></div>
+                    <div style="display:flex; align-items:flex-end;"><button type="submit" class="btn-acao salvar" style="padding:12px 20px;">ðŸ’¾ SALVAR WHATSAPP</button></div>
                 </div>
             </form>
         </div>
 
         <div class="card-admin" style="border-left-color: #a855f7;">
-            <h3>🔑 RESETAR SENHA</h3>
+            <h3>ðŸ”‘ RESETAR SENHA</h3>
             <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/reset-senha">
                 <div class="linha-2">
-                    <div><label>Nova senha (mín. 6 caracteres)</label><input type="text" name="nova_senha" required minlength="6"></div>
-                    <div style="display:flex; align-items:flex-end;"><button type="submit" class="btn-acao salvar" style="padding:12px 20px; background:#a855f7; border-color:#a855f7; color:#fff;" onclick="return confirm('Trocar a senha?');">🔑 RESETAR SENHA</button></div>
+                    <div><label>Nova senha (mÃ­n. 6 caracteres)</label><input type="text" name="nova_senha" required minlength="6"></div>
+                    <div style="display:flex; align-items:flex-end;"><button type="submit" class="btn-acao salvar" style="padding:12px 20px; background:#a855f7; border-color:#a855f7; color:#fff;" onclick="return confirm('Trocar a senha?');">ðŸ”‘ RESETAR SENHA</button></div>
                 </div>
             </form>
         </div>
 
         <div class="card-admin" style="border-left-color: #f59e0b;">
-            <h3>📊 MUDAR PLANO</h3>
+            <h3>ðŸ“Š MUDAR PLANO</h3>
             <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/plano">
                 <div class="linha-2">
                     <div>
                         <label>Plano</label>
                         <select name="plano">
-                            <option value="gratis" {% if v.plano == 'gratis' %}selected{% endif %}>Grátis (1 nicho)</option>
-                            <option value="basico" {% if v.plano == 'basico' %}selected{% endif %}>Básico — R$ 97 (3 nichos)</option>
-                            <option value="pro" {% if v.plano == 'pro' %}selected{% endif %}>Pro — R$ 297 (10 nichos)</option>
-                            <option value="empresarial" {% if v.plano == 'empresarial' %}selected{% endif %}>Empresarial — R$ 597 (25 nichos)</option>
+                            <option value="gratis" {% if v.plano == 'gratis' %}selected{% endif %}>GrÃ¡tis (1 nicho)</option>
+                            <option value="basico" {% if v.plano == 'basico' %}selected{% endif %}>BÃ¡sico â€” R$ 97 (3 nichos)</option>
+                            <option value="pro" {% if v.plano == 'pro' %}selected{% endif %}>Pro â€” R$ 297 (10 nichos)</option>
+                            <option value="empresarial" {% if v.plano == 'empresarial' %}selected{% endif %}>Empresarial â€” R$ 597 (25 nichos)</option>
                         </select>
                     </div>
                     <div style="display:flex; align-items:flex-end;"><button type="submit" class="btn-acao salvar" style="padding:12px 20px; background:#f59e0b; border-color:#f59e0b;">APLICAR</button></div>
@@ -159,62 +159,62 @@
         </div>
 
         <div class="card-admin" style="border-left-color: #ff3b3b;">
-            <h3>⚠️ ZONA DE PERIGO</h3>
+            <h3>âš ï¸ ZONA DE PERIGO</h3>
             <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
                 <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/bloquear" onsubmit="return confirm('{% if v.ativo %}Bloquear {{ v.nome }}?{% else %}Desbloquear {{ v.nome }}?{% endif %}');" style="flex:1; min-width:180px;">
                     <button type="submit" class="btn-acao" style="width:100%; padding:12px; {% if v.ativo %}background:#1f0a0a; color:#ff3b3b; border-color:#ff3b3b;{% else %}background:#0a1f15; color:#00d97e; border-color:#00d97e;{% endif %}">
-                        {% if v.ativo %}🚫 BLOQUEAR ACESSO{% else %}✅ DESBLOQUEAR{% endif %}
+                        {% if v.ativo %}ðŸš« BLOQUEAR ACESSO{% else %}âœ… DESBLOQUEAR{% endif %}
                     </button>
                 </form>
-                <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/reset-onboarding" onsubmit="return confirm('Resetar onboarding? No próximo login ele refaz as 7 perguntas.');" style="flex:1; min-width:180px;">
-                    <button type="submit" class="btn-acao" style="width:100%; padding:12px; background:#1f1a0a; color:#f59e0b; border-color:#f59e0b;">🔄 RESETAR ONBOARDING</button>
+                <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/reset-onboarding" onsubmit="return confirm('Resetar onboarding? No prÃ³ximo login ele refaz as 7 perguntas.');" style="flex:1; min-width:180px;">
+                    <button type="submit" class="btn-acao" style="width:100%; padding:12px; background:#1f1a0a; color:#f59e0b; border-color:#f59e0b;">ðŸ”„ RESETAR ONBOARDING</button>
                 </form>
             </div>
-            <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/excluir" onsubmit="return confirm('TEM CERTEZA?\n\nApaga {{ v.nome }} e TUDO dele.\n\nNão tem como desfazer.');">
-                <button type="submit" class="btn-acao" style="width:100%; padding:14px; background:#ff3b3b; color:#fff; border-color:#ff3b3b;">🗑️ EXCLUIR VENDEDOR COMPLETO</button>
+            <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/excluir" onsubmit="return confirm('TEM CERTEZA?\n\nApaga {{ v.nome }} e TUDO dele.\n\nNÃ£o tem como desfazer.');">
+                <button type="submit" class="btn-acao" style="width:100%; padding:14px; background:#ff3b3b; color:#fff; border-color:#ff3b3b;">ðŸ—‘ï¸ EXCLUIR VENDEDOR COMPLETO</button>
             </form>
         </div>
 
         <div class="secao-head">
-            <h2>🎯 NICHOS ({{ nichos|length }})</h2>
-            <button type="button" class="btn-acao add" onclick="toggleForm('novo-nicho')">➕ ADICIONAR NICHO</button>
+            <h2>ðŸŽ¯ NICHOS ({{ nichos|length }})</h2>
+            <button type="button" class="btn-acao add" onclick="toggleForm('novo-nicho')">âž• ADICIONAR NICHO</button>
         </div>
 
         <div class="form-edit" id="form-novo-nicho" style="margin-bottom:14px; padding:18px; background:#0f1a15; border:1px solid #00d97e; border-radius:8px; display:none;">
-            <h3 style="font-size:13px; color:#00d97e; margin:0 0 14px 0;">➕ CRIAR NICHO PARA ESTE VENDEDOR</h3>
+            <h3 style="font-size:13px; color:#00d97e; margin:0 0 14px 0;">âž• CRIAR NICHO PARA ESTE VENDEDOR</h3>
             <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/nicho/criar">
                 <div class="linha-2">
-                    <div><label>Nome do nicho *</label><input type="text" name="nome" required placeholder="Ex: Consórcio, Seguro de Vida..."></div>
-                    <div><label>Tom de voz</label><input type="text" name="tom" placeholder="Ex: Profissional e acessível"></div>
+                    <div><label>Nome do nicho *</label><input type="text" name="nome" required placeholder="Ex: ConsÃ³rcio, Seguro de Vida..."></div>
+                    <div><label>Tom de voz</label><input type="text" name="tom" placeholder="Ex: Profissional e acessÃ­vel"></div>
                 </div>
                 <div style="margin-bottom:12px;"><label>1. O que vende *</label><textarea name="produto" rows="2" required></textarea></div>
-                <div style="margin-bottom:12px;"><label>2. Público</label><textarea name="publico" rows="2"></textarea></div>
-                <div style="margin-bottom:12px;"><label>3. Preço</label><textarea name="preco" rows="2"></textarea></div>
+                <div style="margin-bottom:12px;"><label>2. PÃºblico</label><textarea name="publico" rows="2"></textarea></div>
+                <div style="margin-bottom:12px;"><label>3. PreÃ§o</label><textarea name="preco" rows="2"></textarea></div>
                 <div style="margin-bottom:12px;"><label>4. Dor</label><textarea name="dor" rows="2"></textarea></div>
-                <div style="margin-bottom:12px;"><label>5. Objeção</label><textarea name="objecao" rows="2"></textarea></div>
+                <div style="margin-bottom:12px;"><label>5. ObjeÃ§Ã£o</label><textarea name="objecao" rows="2"></textarea></div>
                 <div style="margin-bottom:12px;"><label>6. Diferencial</label><textarea name="diferencial" rows="2"></textarea></div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <button type="submit" class="btn-acao salvar" style="padding:12px 24px;">💾 CRIAR NICHO</button>
+                    <button type="submit" class="btn-acao salvar" style="padding:12px 24px;">ðŸ’¾ CRIAR NICHO</button>
                     <button type="button" class="btn-acao cancelar" style="padding:12px 24px;" onclick="toggleForm('novo-nicho')">Cancelar</button>
                 </div>
             </form>
         </div>
 
         {% if not nichos %}
-        <div class="empty-state"><span class="emoji">🎯</span><h3>Nenhum nicho ainda</h3><p>Clique em "➕ ADICIONAR NICHO" acima pra criar um.</p></div>
+        <div class="empty-state"><span class="emoji">ðŸŽ¯</span><h3>Nenhum nicho ainda</h3><p>Clique em "âž• ADICIONAR NICHO" acima pra criar um.</p></div>
         {% endif %}
 
         {% for n in nichos %}
         <div class="item-admin">
             <div class="item-admin-head">
                 <div>
-                    <h4>📦 {{ n.nome }}</h4>
-                    {% if loop.index == 1 %}<span style="font-size:11px; color:#a855f7; font-weight:700; letter-spacing:0.05em; font-family:monospace;">⭐ ONBOARDING</span>{% endif %}
+                    <h4>ðŸ“¦ {{ n.nome }}</h4>
+                    {% if loop.index == 1 %}<span style="font-size:11px; color:#a855f7; font-weight:700; letter-spacing:0.05em; font-family:monospace;">â­ ONBOARDING</span>{% endif %}
                 </div>
                 <div class="item-actions">
-                    <button type="button" class="btn-acao editar" onclick="toggleForm('nicho-{{ n.id }}')">✏️ Editar</button>
+                    <button type="button" class="btn-acao editar" onclick="toggleForm('nicho-{{ n.id }}')">âœï¸ Editar</button>
                     <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/nicho/{{ n.id }}/excluir" onsubmit="return confirm('Excluir o nicho {{ n.nome }}?');" style="display:inline;">
-                        <button type="submit" class="btn-acao excluir">🗑️ Excluir</button>
+                        <button type="submit" class="btn-acao excluir">ðŸ—‘ï¸ Excluir</button>
                     </form>
                 </div>
             </div>
@@ -227,13 +227,13 @@
                         <div><label>Tom de voz</label><input type="text" name="tom" value="{{ n.tom or '' }}"></div>
                     </div>
                     <div style="margin-bottom:12px;"><label>1. O que vende</label><textarea name="produto" rows="3">{{ n.produto or '' }}</textarea></div>
-                    <div style="margin-bottom:12px;"><label>2. Público</label><textarea name="publico" rows="3">{{ n.publico or '' }}</textarea></div>
-                    <div style="margin-bottom:12px;"><label>3. Preço</label><textarea name="preco" rows="2">{{ n.preco or '' }}</textarea></div>
+                    <div style="margin-bottom:12px;"><label>2. PÃºblico</label><textarea name="publico" rows="3">{{ n.publico or '' }}</textarea></div>
+                    <div style="margin-bottom:12px;"><label>3. PreÃ§o</label><textarea name="preco" rows="2">{{ n.preco or '' }}</textarea></div>
                     <div style="margin-bottom:12px;"><label>4. Dor</label><textarea name="dor" rows="3">{{ n.dor or '' }}</textarea></div>
-                    <div style="margin-bottom:12px;"><label>5. Objeção</label><textarea name="objecao" rows="3">{{ n.objecao or '' }}</textarea></div>
+                    <div style="margin-bottom:12px;"><label>5. ObjeÃ§Ã£o</label><textarea name="objecao" rows="3">{{ n.objecao or '' }}</textarea></div>
                     <div style="margin-bottom:12px;"><label>6. Diferencial</label><textarea name="diferencial" rows="3">{{ n.diferencial or '' }}</textarea></div>
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                        <button type="submit" class="btn-acao salvar" style="padding:12px 24px;">💾 SALVAR NICHO</button>
+                        <button type="submit" class="btn-acao salvar" style="padding:12px 24px;">ðŸ’¾ SALVAR NICHO</button>
                         <button type="button" class="btn-acao cancelar" style="padding:12px 24px;" onclick="toggleForm('nicho-{{ n.id }}')">Cancelar</button>
                     </div>
                 </form>
@@ -242,12 +242,12 @@
         {% endfor %}
 
         <div class="secao-head">
-            <h2>👥 CLIENTES ({{ clientes|length }})</h2>
-            <button type="button" class="btn-acao add" onclick="toggleForm('novo-cliente')">➕ ADICIONAR CLIENTE</button>
+            <h2>ðŸ‘¥ CLIENTES ({{ clientes|length }})</h2>
+            <button type="button" class="btn-acao add" onclick="toggleForm('novo-cliente')">âž• ADICIONAR CLIENTE</button>
         </div>
 
         <div class="form-edit" id="form-novo-cliente" style="margin-bottom:14px; padding:18px; background:#0f1a15; border:1px solid #00d97e; border-radius:8px; display:none;">
-            <h3 style="font-size:13px; color:#00d97e; margin:0 0 14px 0;">➕ CRIAR CLIENTE PARA ESTE VENDEDOR</h3>
+            <h3 style="font-size:13px; color:#00d97e; margin:0 0 14px 0;">âž• CRIAR CLIENTE PARA ESTE VENDEDOR</h3>
             <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/cliente/criar">
                 <div class="linha-2">
                     <div><label>WhatsApp *</label><input type="text" name="whatsapp" required placeholder="11987654321" inputmode="numeric" pattern="[0-9]+" style="font-family:monospace;"></div>
@@ -255,7 +255,7 @@
                 </div>
                 <div class="linha-2">
                     <div><label>Email</label><input type="email" name="email"></div>
-                    <div><label>Origem</label><input type="text" name="origem" placeholder="Instagram, indicação..."></div>
+                    <div><label>Origem</label><input type="text" name="origem" placeholder="Instagram, indicaÃ§Ã£o..."></div>
                 </div>
                 <div class="linha-2">
                     <div>
@@ -263,37 +263,37 @@
                         <select name="status">
                             <option value="novo lead">Novo Lead</option>
                             <option value="em atendimento">Em Atendimento</option>
-                            <option value="negociação">Negociação</option>
+                            <option value="negociaÃ§Ã£o">NegociaÃ§Ã£o</option>
                             <option value="cliente">Cliente</option>
                             <option value="perdido">Perdido</option>
                         </select>
                     </div>
                     <div></div>
                 </div>
-                <div style="margin-bottom:12px;"><label>Observações</label><textarea name="observacoes" rows="2"></textarea></div>
+                <div style="margin-bottom:12px;"><label>ObservaÃ§Ãµes</label><textarea name="observacoes" rows="2"></textarea></div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                    <button type="submit" class="btn-acao salvar" style="padding:12px 24px;">💾 CRIAR CLIENTE</button>
+                    <button type="submit" class="btn-acao salvar" style="padding:12px 24px;">ðŸ’¾ CRIAR CLIENTE</button>
                     <button type="button" class="btn-acao cancelar" style="padding:12px 24px;" onclick="toggleForm('novo-cliente')">Cancelar</button>
                 </div>
             </form>
         </div>
 
         {% if not clientes %}
-        <div class="empty-state"><span class="emoji">👥</span><h3>Nenhum cliente ainda</h3><p>Clique em "➕ ADICIONAR CLIENTE" acima pra criar um.</p></div>
+        <div class="empty-state"><span class="emoji">ðŸ‘¥</span><h3>Nenhum cliente ainda</h3><p>Clique em "âž• ADICIONAR CLIENTE" acima pra criar um.</p></div>
         {% endif %}
 
         {% for c in clientes %}
         <div class="item-admin cliente">
             <div class="item-admin-head">
                 <div>
-                    <h4>👤 {{ c.nome or "Sem nome" }}</h4>
-                    <p style="color:#8a8a8a; font-size:12px; margin-top:4px; font-family:monospace;">📱 {{ c.whatsapp }} · {{ c.status|upper }}</p>
+                    <h4>ðŸ‘¤ {{ c.nome or "Sem nome" }}</h4>
+                    <p style="color:#8a8a8a; font-size:12px; margin-top:4px; font-family:monospace;">ðŸ“± {{ c.whatsapp }} Â· {{ c.status|upper }}</p>
                 </div>
                 <div class="item-actions">
-                    <a href="/admin/vendedor/{{ v.vendedor_id }}/cliente/{{ c.id }}/historico" class="btn-acao ver">💬 Histórico</a>
-                    <button type="button" class="btn-acao editar" onclick="toggleForm('cliente-{{ c.id }}')">✏️ Editar</button>
+                    <a href="/admin/vendedor/{{ v.vendedor_id }}/cliente/{{ c.id }}/historico" class="btn-acao ver">ðŸ’¬ HistÃ³rico</a>
+                    <button type="button" class="btn-acao editar" onclick="toggleForm('cliente-{{ c.id }}')">âœï¸ Editar</button>
                     <form method="POST" action="/admin/vendedor/{{ v.vendedor_id }}/cliente/{{ c.id }}/excluir" onsubmit="return confirm('Excluir o cliente {{ (c.nome or 'este cliente')|replace("'", "\\'") }}?');" style="display:inline;">
-                        <button type="submit" class="btn-acao excluir">🗑️ Excluir</button>
+                        <button type="submit" class="btn-acao excluir">ðŸ—‘ï¸ Excluir</button>
                     </form>
                 </div>
             </div>
@@ -314,16 +314,16 @@
                             <select name="status">
                                 <option value="novo lead" {% if c.status == 'novo lead' %}selected{% endif %}>Novo Lead</option>
                                 <option value="em atendimento" {% if c.status == 'em atendimento' %}selected{% endif %}>Em Atendimento</option>
-                                <option value="negociação" {% if c.status == 'negociação' %}selected{% endif %}>Negociação</option>
+                                <option value="negociaÃ§Ã£o" {% if c.status == 'negociaÃ§Ã£o' %}selected{% endif %}>NegociaÃ§Ã£o</option>
                                 <option value="cliente" {% if c.status == 'cliente' %}selected{% endif %}>Cliente</option>
                                 <option value="perdido" {% if c.status == 'perdido' %}selected{% endif %}>Perdido</option>
                             </select>
                         </div>
                         <div></div>
                     </div>
-                    <div style="margin-bottom:12px;"><label>Observações</label><textarea name="observacoes" rows="3">{{ c.observacoes or '' }}</textarea></div>
+                    <div style="margin-bottom:12px;"><label>ObservaÃ§Ãµes</label><textarea name="observacoes" rows="3">{{ c.observacoes or '' }}</textarea></div>
                     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                        <button type="submit" class="btn-acao salvar" style="padding:12px 24px;">💾 SALVAR CLIENTE</button>
+                        <button type="submit" class="btn-acao salvar" style="padding:12px 24px;">ðŸ’¾ SALVAR CLIENTE</button>
                         <button type="button" class="btn-acao cancelar" style="padding:12px 24px;" onclick="toggleForm('cliente-{{ c.id }}')">Cancelar</button>
                     </div>
                 </form>
@@ -335,12 +335,12 @@
 
     <div class="menu-overlay" id="menuOverlay" onclick="fecharMenuMobile()"></div>
     <div class="menu-mobile-painel" id="menuMobile">
-        <button class="fechar" onclick="fecharMenuMobile()">✕</button>
-        <a href="/admin/dashboard">📊 Dashboard</a>
-        <a href="/admin/leads">📥 Leads</a>
-        <a href="/admin">👥 Vendedores</a>
-        <a href="/plano">🧭 Plano M.A Tech</a>
-        <a href="/logout">🚪 Sair</a>
+        <button class="fechar" onclick="fecharMenuMobile()">âœ•</button>
+        <a href="/admin/dashboard">ðŸ“Š Dashboard</a>
+        <a href="/admin/leads">ðŸ“¥ Leads</a>
+        <a href="/admin">ðŸ‘¥ Vendedores</a>
+        <a href="/plano">ðŸ§­ Plano M.A Tech</a>
+        <a href="/logout">ðŸšª Sair</a>
     </div>
 
     <script>
@@ -360,7 +360,7 @@
         document.getElementById('menuOverlay').classList.remove('aberto');
     }
     </script>
-    <script src="/static/app.min.js?v=310930"></script>
+    <script src="/static/app.min.js?v=999999"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
     <script src="/static/app-badge-plano.js"></script>

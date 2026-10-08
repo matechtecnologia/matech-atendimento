@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -36,7 +36,7 @@
 
         <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
             <div class="bloco-topo">
-                <h2>💳 PAGAMENTO PIX</h2>
+                <h2>ðŸ’³ PAGAMENTO PIX</h2>
                 <span class="badge-status status-em-atendimento">{{ plano|upper }}</span>
             </div>
             <div style="display:flex; align-items:baseline; gap:8px; margin-top:14px;">
@@ -47,16 +47,16 @@
         {% if pago %}
 
         <div class="bloco bloco-texto" style="background:linear-gradient(135deg,#0f1a15 0%,#141414 100%); border-left:4px solid #00d97e; text-align:center; padding:40px 24px;">
-            <div style="font-size:64px; margin-bottom:16px;">✅</div>
+            <div style="font-size:64px; margin-bottom:16px;">âœ…</div>
             <h2 style="font-size:24px; color:#00d97e; letter-spacing:-0.02em;">Pagamento confirmado!</h2>
             <p style="color:#e8e8e8; font-size:15px; margin-top:12px; line-height:1.6;">
-                Seu plano <strong style="color:#00d97e;">{{ plano|upper }}</strong> já está ativo.
+                Seu plano <strong style="color:#00d97e;">{{ plano|upper }}</strong> jÃ¡ estÃ¡ ativo.
             </p>
             <p style="color:#8a8a8a; font-size:13px; margin-top:8px;">
-                Os nichos extras já estão liberados. Bora vender mais.
+                Os nichos extras jÃ¡ estÃ£o liberados. Bora vender mais.
             </p>
             <a href="/planos" class="btn-gerar" style="display:inline-block; width:auto; padding:14px 32px; text-decoration:none; margin-top:24px;">
-                VER MEUS PLANOS →
+                VER MEUS PLANOS â†’
             </a>
         </div>
 
@@ -67,7 +67,7 @@
                 <span style="display:inline-block; width:32px; height:32px; line-height:32px; border-radius:50%; background:#00d97e; color:#0a0a0a; font-weight:800; font-family:monospace; font-size:16px;">1</span>
                 <h2 style="margin-top:12px; font-size:16px; color:#e8e8e8;">Escaneie o QR Code</h2>
                 <p style="color:#8a8a8a; font-size:13px; margin-top:6px;">
-                    Abra o app do banco → PIX → Ler QR Code
+                    Abra o app do banco â†’ PIX â†’ Ler QR Code
                 </p>
             </div>
             <div style="text-align:center; margin-top:20px; padding:16px; background:#fff; border-radius:12px; display:inline-block; width:100%; max-width:320px; margin-left:auto; margin-right:auto; display:block;">
@@ -78,21 +78,21 @@
         <div class="bloco bloco-crm" style="background:#111725; border-left:4px solid #a855f7; margin-bottom:16px;">
             <div style="text-align:center; padding:8px 0;">
                 <span style="display:inline-block; width:32px; height:32px; line-height:32px; border-radius:50%; background:#a855f7; color:#fff; font-weight:800; font-family:monospace; font-size:16px;">2</span>
-                <h2 style="margin-top:12px; font-size:16px; color:#e8e8e8;">Ou copie o código PIX</h2>
+                <h2 style="margin-top:12px; font-size:16px; color:#e8e8e8;">Ou copie o cÃ³digo PIX</h2>
                 <p style="color:#8a8a8a; font-size:13px; margin-top:6px;">
-                    Cole no seu banco na opção "PIX Copia e Cola"
+                    Cole no seu banco na opÃ§Ã£o "PIX Copia e Cola"
                 </p>
             </div>
             <pre id="pix" style="white-space:pre-wrap; word-break:break-all; font-size:11px; margin-top:16px; padding:14px; background:#0a0a0a; border:1px solid #2a2a2a; border-radius:8px; color:#8a8a8a; max-height:120px; overflow-y:auto; font-family:monospace; line-height:1.5;">{{ qr_code.payload }}</pre>
-            <button onclick="copiar('pix', this)" class="btn-gerar" style="margin-top:12px;">📋 COPIAR CÓDIGO PIX</button>
+            <button onclick="copiar('pix', this)" class="btn-gerar" style="margin-top:12px;">ðŸ“‹ COPIAR CÃ“DIGO PIX</button>
         </div>
 
         <div class="bloco bloco-acao" style="background:#1f1a0a; border-left:4px solid #f59e0b; margin-bottom:16px;">
             <div style="text-align:center; padding:8px 0;">
                 <span style="display:inline-block; width:32px; height:32px; line-height:32px; border-radius:50%; background:#f59e0b; color:#0a0a0a; font-weight:800; font-family:monospace; font-size:16px;">3</span>
-                <h2 style="margin-top:12px; font-size:16px; color:#e8e8e8;">Após pagar</h2>
+                <h2 style="margin-top:12px; font-size:16px; color:#e8e8e8;">ApÃ³s pagar</h2>
                 <p style="color:#8a8a8a; font-size:13px; margin-top:6px; line-height:1.6;">
-                    Esta página atualiza sozinha a cada 10 segundos. Assim que o pagamento for confirmado, o plano é liberado na hora.
+                    Esta pÃ¡gina atualiza sozinha a cada 10 segundos. Assim que o pagamento for confirmado, o plano Ã© liberado na hora.
                 </p>
             </div>
         </div>
@@ -100,32 +100,32 @@
         <div style="text-align:center; margin-top:8px;">
             <div class="loading" style="padding:20px;">
                 <div class="spinner" style="width:28px; height:28px; margin-bottom:12px;"></div>
-                <p style="color:#8a8a8a; font-size:13px;">Aguardando confirmação do PIX...</p>
+                <p style="color:#8a8a8a; font-size:13px;">Aguardando confirmaÃ§Ã£o do PIX...</p>
             </div>
         </div>
 
         <a href="/verificar_pagamento/{{ payment_id }}" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-top:16px; background:transparent; color:#00d97e; border:1px solid #00d97e; box-shadow:none;">
-            JÁ PAGUEI — VERIFICAR AGORA
+            JÃ PAGUEI â€” VERIFICAR AGORA
         </a>
 
         {% else %}
 
         <div class="bloco bloco-acao" style="background:#1f0a0a; border-left:4px solid #ff3b3b;">
             <div class="bloco-topo">
-                <h2>⚠️ ERRO</h2>
+                <h2>âš ï¸ ERRO</h2>
             </div>
             <p style="color:#ff3b3b; margin-top:8px; font-size:14px;">
-                Não foi possível gerar o QR Code. Tente novamente ou fale com o suporte.
+                NÃ£o foi possÃ­vel gerar o QR Code. Tente novamente ou fale com o suporte.
             </p>
             <a href="/planos" class="btn-gerar" style="display:block; text-align:center; text-decoration:none; margin-top:16px;">
-                ← Voltar aos planos
+                â† Voltar aos planos
             </a>
         </div>
 
         {% endif %}
 
     </div>
-    <script src="/static/app.min.js?v=310930"></script>
+    <script src="/static/app.min.js?v=999999"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
     <script src="/static/app-badge-plano.js"></script>

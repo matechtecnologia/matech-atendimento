@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -79,47 +79,47 @@
 <body>
     <div class="container-atendimento">
         <div class="topo">
-            <h1>M.A Tech — Admin</h1>
-            <button class="menu-hamburguer" onclick="abrirMenuMobile()">☰</button>
+            <h1>M.A Tech â€” Admin</h1>
+            <button class="menu-hamburguer" onclick="abrirMenuMobile()">â˜°</button>
             <div class="usuario-info">
                 <span>{{ usuario_nome }}</span>
-                <a href="/admin/dashboard" data-rota="/admin/dashboard">📊 Dashboard</a>
-                <a href="/admin/leads" data-rota="/admin/leads">📥 Leads</a>
-                <a href="/admin" data-rota="/admin">👥 Vendedores</a>
-                <a href="/plano" data-rota="/plano">🧭 Plano M.A Tech</a>
+                <a href="/admin/dashboard" data-rota="/admin/dashboard">ðŸ“Š Dashboard</a>
+                <a href="/admin/leads" data-rota="/admin/leads">ðŸ“¥ Leads</a>
+                <a href="/admin" data-rota="/admin">ðŸ‘¥ Vendedores</a>
+                <a href="/plano" data-rota="/plano">ðŸ§­ Plano M.A Tech</a>
                 <a href="/logout">Sair</a>
             </div>
         </div>
 
         <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:24px;">
             <div class="bloco-topo">
-                <h2>📊 EVOLUÇÃO DA PLATAFORMA</h2>
-                <span class="badge-status status-em-atendimento">ÚLTIMOS 6 MESES</span>
+                <h2>ðŸ“Š EVOLUÃ‡ÃƒO DA PLATAFORMA</h2>
+                <span class="badge-status status-em-atendimento">ÃšLTIMOS 6 MESES</span>
             </div>
             <p style="color:#8a8a8a; font-size:14px; margin-top:10px; line-height:1.5;">
-                Acompanhe o crescimento do negócio mês a mês.
+                Acompanhe o crescimento do negÃ³cio mÃªs a mÃªs.
             </p>
         </div>
 
         <div class="linha-numeros">
             <div class="numero-card vend">
-                <div class="titulo">👥 Vendedores</div>
+                <div class="titulo">ðŸ‘¥ Vendedores</div>
                 <div class="num">{{ total_vend }}</div>
                 <div class="info">
                     {% if crescimento > 0 %}
-                        <span class="variacao positiva">↑ {{ crescimento }}%</span>
-                        <span>neste mês</span>
+                        <span class="variacao positiva">â†‘ {{ crescimento }}%</span>
+                        <span>neste mÃªs</span>
                     {% elif crescimento < 0 %}
-                        <span class="variacao negativa">↓ {{ crescimento|abs }}%</span>
-                        <span>neste mês</span>
+                        <span class="variacao negativa">â†“ {{ crescimento|abs }}%</span>
+                        <span>neste mÃªs</span>
                     {% else %}
-                        <span class="variacao neutra">—</span>
-                        <span>sem mudança</span>
+                        <span class="variacao neutra">â€”</span>
+                        <span>sem mudanÃ§a</span>
                     {% endif %}
                 </div>
             </div>
             <div class="numero-card leads">
-                <div class="titulo">📥 Leads capturados</div>
+                <div class="titulo">ðŸ“¥ Leads capturados</div>
                 <div class="num">{{ total_leads }}</div>
                 <div class="info">
                     {% if total_leads > 0 %}
@@ -131,7 +131,7 @@
                 </div>
             </div>
             <div class="numero-card clientes">
-                <div class="titulo">🎯 Clientes ativos</div>
+                <div class="titulo">ðŸŽ¯ Clientes ativos</div>
                 <div class="num">{{ total_clientes }}</div>
                 <div class="info">
                     {% if total_vend > 0 %}
@@ -145,8 +145,8 @@
         </div>
 
         <div class="card-grafico">
-            <h3>📈 Vendedores por mês</h3>
-            <p class="sub">Quantos novos vendedores entraram em cada mês</p>
+            <h3>ðŸ“ˆ Vendedores por mÃªs</h3>
+            <p class="sub">Quantos novos vendedores entraram em cada mÃªs</p>
             <div class="grafico">
                 {% for m in meses %}
                 <div class="col-mes {% if loop.last %}atual{% endif %}">
@@ -169,17 +169,17 @@
         </div>
 
         <div class="card-planos">
-            <h3>💳 Distribuição por plano</h3>
-            <p class="sub">Como estão divididos os {{ total_vend }} vendedores</p>
+            <h3>ðŸ’³ DistribuiÃ§Ã£o por plano</h3>
+            <p class="sub">Como estÃ£o divididos os {{ total_vend }} vendedores</p>
             {% set max_plano = [por_plano.get('gratis', 0), por_plano.get('basico', 0), por_plano.get('pro', 0), por_plano.get('empresarial', 0), 1]|max %}
             <div class="planos-linha">
                 <div class="plano-item">
-                    <span class="nome">Grátis</span>
+                    <span class="nome">GrÃ¡tis</span>
                     <div class="barra-wrap"><div class="barra-plan" style="width: {{ (por_plano.get('gratis', 0) / max_plano * 100) }}%; background: #5a5a5a;"></div></div>
                     <span class="qtd" style="color: #8a8a8a;">{{ por_plano.get('gratis', 0) }}</span>
                 </div>
                 <div class="plano-item">
-                    <span class="nome">Básico</span>
+                    <span class="nome">BÃ¡sico</span>
                     <div class="barra-wrap"><div class="barra-plan" style="width: {{ (por_plano.get('basico', 0) / max_plano * 100) }}%; background: #00d97e;"></div></div>
                     <span class="qtd" style="color: #00d97e;">{{ por_plano.get('basico', 0) }}</span>
                 </div>
@@ -197,18 +197,18 @@
         </div>
 
         <p style="margin-top:24px; text-align:center;">
-            <a href="/admin" style="color:#00d97e; text-decoration:none;">← Voltar pros vendedores</a>
+            <a href="/admin" style="color:#00d97e; text-decoration:none;">â† Voltar pros vendedores</a>
         </p>
     </div>
 
     <div class="menu-overlay" id="menuOverlay" onclick="fecharMenuMobile()"></div>
     <div class="menu-mobile-painel" id="menuMobile">
-        <button class="fechar" onclick="fecharMenuMobile()">✕</button>
-        <a href="/admin/dashboard">📊 Dashboard</a>
-        <a href="/admin/leads">📥 Leads</a>
-        <a href="/admin">👥 Vendedores</a>
-        <a href="/plano">🧭 Plano M.A Tech</a>
-        <a href="/logout">🚪 Sair</a>
+        <button class="fechar" onclick="fecharMenuMobile()">âœ•</button>
+        <a href="/admin/dashboard">ðŸ“Š Dashboard</a>
+        <a href="/admin/leads">ðŸ“¥ Leads</a>
+        <a href="/admin">ðŸ‘¥ Vendedores</a>
+        <a href="/plano">ðŸ§­ Plano M.A Tech</a>
+        <a href="/logout">ðŸšª Sair</a>
     </div>
 
     <script>
@@ -221,7 +221,7 @@
             document.getElementById('menuOverlay').classList.remove('aberto');
         }
     </script>
-    <script src="/static/app.min.js?v=310930"></script>
+    <script src="/static/app.min.js?v=999999"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
     <script src="/static/app-badge-plano.js"></script>
