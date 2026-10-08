@@ -28,6 +28,13 @@
         print(f"Plano rotas comerciais erro: {e}")
 
     try:
+        import plano_ui4
+        plano_ui4.registrar_rotas_plano_ui4(app, get_conn, close_conn, Cookie, Request)
+        print("Plano: rotas pendencias/proximos registradas")
+    except Exception as e:
+        print(f"Plano rotas pendencias/proximos erro: {e}")
+
+    try:
         import plano_roi
         plano_roi.registrar_rotas_roi(app, get_conn, close_conn, Cookie, Request)
         print("Plano: rotas ROI registradas")
