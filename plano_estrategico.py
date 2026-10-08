@@ -259,7 +259,7 @@ def inicializar_plano_estrategico(get_conn, close_conn):
             ))
 
         cur.execute("SELECT COUNT(*) FROM roadmap_phases")
-        if cur.fetchone()[0] == 0:
+        if False:  # desativado: ja tem fases populadas
             fases = [
                 (1, 'M.A Tech Atendimento com IA', 'Produto 01 construído e em produção', 'concluido', 100),
                 (2, 'Validação comercial', 'Conseguir os primeiros 5 clientes pagantes', 'em_execucao', 0),
