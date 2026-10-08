@@ -701,7 +701,15 @@ async function enviarMensagem() {
             body: JSON.stringify({ mensagem: texto })
         });
         removerTyping();
-        const j = await r.json();
+        
+        let j = null;
+        try {
+            j = await r.json();
+        } catch (ejson) {
+            mostrarErro('Erro ao ler resposta do servidor.');
+            adicionarMensagem('[Erro ao gerar resposta. Tenta de novo.]', 'consultor');
+            return;
+        }
 
         if (j.ok) {
             adicionarMensagem(j.resposta, 'consultor');
@@ -721,6 +729,7 @@ async function enviarMensagem() {
         removerTyping();
         mostrarErro('Erro de rede: ' + e.message);
     } finally {
+        enviando = false;
         btnEnviar.disabled = false;
         inputMsg.disabled = false;
         inputMsg.focus();
