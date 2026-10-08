@@ -12,7 +12,7 @@ def inicializar_plano(get_conn, close_conn):
     # ============================================================
     # LIMPEZA (apaga versao antiga se existir)
     # ============================================================
-    # NAO apaga tabelas. Usa CREATE TABLE IF NOT EXISTS.
+    # NAO apaga tabelas. Usa CREATE TABLE IF NOT EXISTS IF NOT EXISTS.
     # Se quiser resetar, descomente o bloco abaixo manualmente.
     # for t in ["tasks", "goals", "roadmap_phases", "strategic_plans",
     #           "products", "projects", "metrics", "decisions", "blockers",
@@ -26,7 +26,7 @@ def inicializar_plano(get_conn, close_conn):
     # ============================================================
     # 1. PLANO ESTRATEGICO (missao, visao, fase atual)
     # ============================================================
-    cur.execute("""CREATE TABLE strategic_plans (
+    cur.execute("""CREATE TABLE IF NOT EXISTS strategic_plans (
         id SERIAL PRIMARY KEY,
         versao INTEGER NOT NULL DEFAULT 1,
         missao TEXT,
@@ -41,7 +41,7 @@ def inicializar_plano(get_conn, close_conn):
     # ============================================================
     # 2. ROADMAP — as 9 fases
     # ============================================================
-    cur.execute("""CREATE TABLE roadmap_phases (
+    cur.execute("""CREATE TABLE IF NOT EXISTS roadmap_phases (
         id SERIAL PRIMARY KEY,
         numero INTEGER NOT NULL UNIQUE,
         nome TEXT NOT NULL,
@@ -59,7 +59,7 @@ def inicializar_plano(get_conn, close_conn):
     # ============================================================
     # 3. METAS
     # ============================================================
-    cur.execute("""CREATE TABLE goals (
+    cur.execute("""CREATE TABLE IF NOT EXISTS goals (
         id SERIAL PRIMARY KEY,
         titulo TEXT NOT NULL,
         descricao TEXT,
@@ -80,7 +80,7 @@ def inicializar_plano(get_conn, close_conn):
     # ============================================================
     # 4. TAREFAS
     # ============================================================
-    cur.execute("""CREATE TABLE tasks (
+    cur.execute("""CREATE TABLE IF NOT EXISTS tasks (
         id SERIAL PRIMARY KEY,
         titulo TEXT NOT NULL,
         descricao TEXT,
@@ -102,7 +102,7 @@ def inicializar_plano(get_conn, close_conn):
     # ============================================================
     # 5. PROJETOS
     # ============================================================
-    cur.execute("""CREATE TABLE projects (
+    cur.execute("""CREATE TABLE IF NOT EXISTS projects (
         id SERIAL PRIMARY KEY,
         nome TEXT NOT NULL,
         descricao TEXT,
@@ -122,7 +122,7 @@ def inicializar_plano(get_conn, close_conn):
     # ============================================================
     # 6. PRODUTOS
     # ============================================================
-    cur.execute("""CREATE TABLE products (
+    cur.execute("""CREATE TABLE IF NOT EXISTS products (
         id SERIAL PRIMARY KEY,
         nome TEXT NOT NULL,
         descricao TEXT,
@@ -144,7 +144,7 @@ def inicializar_plano(get_conn, close_conn):
     # ============================================================
     # 7. METRICAS (snapshot diario)
     # ============================================================
-    cur.execute("""CREATE TABLE metrics (
+    cur.execute("""CREATE TABLE IF NOT EXISTS metrics (
         id SERIAL PRIMARY KEY,
         nome TEXT NOT NULL,
         categoria TEXT,
@@ -159,7 +159,7 @@ def inicializar_plano(get_conn, close_conn):
     # ============================================================
     # 8. DECISOES
     # ============================================================
-    cur.execute("""CREATE TABLE decisions (
+    cur.execute("""CREATE TABLE IF NOT EXISTS decisions (
         id SERIAL PRIMARY KEY,
         data_decisao DATE DEFAULT CURRENT_DATE,
         titulo TEXT NOT NULL,
@@ -175,7 +175,7 @@ def inicializar_plano(get_conn, close_conn):
     # ============================================================
     # 9. BLOQUEIOS
     # ============================================================
-    cur.execute("""CREATE TABLE blockers (
+    cur.execute("""CREATE TABLE IF NOT EXISTS blockers (
         id SERIAL PRIMARY KEY,
         titulo TEXT NOT NULL,
         problema TEXT,
@@ -192,7 +192,7 @@ def inicializar_plano(get_conn, close_conn):
     # ============================================================
     # 10. DIARIO
     # ============================================================
-    cur.execute("""CREATE TABLE journal_entries (
+    cur.execute("""CREATE TABLE IF NOT EXISTS journal_entries (
         id SERIAL PRIMARY KEY,
         data DATE DEFAULT CURRENT_DATE,
         titulo TEXT NOT NULL,
@@ -206,7 +206,7 @@ def inicializar_plano(get_conn, close_conn):
     # ============================================================
     # 11/12. RELATORIOS
     # ============================================================
-    cur.execute("""CREATE TABLE weekly_reports (
+    cur.execute("""CREATE TABLE IF NOT EXISTS weekly_reports (
         id SERIAL PRIMARY KEY,
         semana_inicio DATE NOT NULL,
         semana_fim DATE NOT NULL,
@@ -222,7 +222,7 @@ def inicializar_plano(get_conn, close_conn):
         criado_em TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     )""")
 
-    cur.execute("""CREATE TABLE monthly_reports (
+    cur.execute("""CREATE TABLE IF NOT EXISTS monthly_reports (
         id SERIAL PRIMARY KEY,
         mes INTEGER NOT NULL,
         ano INTEGER NOT NULL,
@@ -243,7 +243,7 @@ def inicializar_plano(get_conn, close_conn):
     # ============================================================
     # 13. RECEITAS
     # ============================================================
-    cur.execute("""CREATE TABLE revenue_records (
+    cur.execute("""CREATE TABLE IF NOT EXISTS revenue_records (
         id SERIAL PRIMARY KEY,
         data DATE DEFAULT CURRENT_DATE,
         tipo TEXT,
@@ -258,7 +258,7 @@ def inicializar_plano(get_conn, close_conn):
     # ============================================================
     # 14. MODULOS DE PROJETO
     # ============================================================
-    cur.execute("""CREATE TABLE plan_modules (
+    cur.execute("""CREATE TABLE IF NOT EXISTS plan_modules (
         id SERIAL PRIMARY KEY,
         projeto_id INTEGER REFERENCES projects(id) ON DELETE CASCADE,
         modulo TEXT NOT NULL,
