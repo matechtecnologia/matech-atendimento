@@ -489,74 +489,16 @@ def _analisar_e_salvar(vendedor_id, consultoria_id, historico_txt, get_conn, clo
             except Exception:
                 pass
 
-        prompt = f"""Analise a conversa abaixo entre um CONSULTOR da M.A Tech e um VENDEDOR.
+        prompt = f"""Analise a conversa abaixo entre um CONSULTOR da M.A Tech e um EMPRESARIO.
 
-============================================================
-COMO O M.A TECH FUNCIONA (leia ANTES de gerar os passos)
-============================================================
+Extraia 3 informacoes em formato JSON.
 
-DIVISAO DE RESPONSABILIDADE:
-
-O VENDEDOR (manual):
-- Recebe a mensagem no canal dele (WhatsApp, Instagram, email)
-- COPIA a mensagem e COLA dentro do M.A Tech
-- COPIA o texto pronto que a IA devolve e ENVIA no canal dele
-- Confere a aba "Follow-ups" pra ver quem precisa de atencao
-
-A IA (automatico - o cliente NAO faz nada):
-- Le o historico do cliente e o nicho
-- Devolve: O QUE FALAR + TEXTO PRONTO + ESTAGIO + LINHA CRM
-- REGISTRA o lead automaticamente no funil
-- AGENDA o follow-up sozinha, com a data sugerida
-- MOSTRA na aba Follow-ups quem esta atrasado
-
-============================================================
-O QUE NAO EXISTE (nunca sugira)
-============================================================
-
-NAO existe:
-- Conectar WhatsApp / Instagram / email na plataforma
-- Ler conversas automaticamente
-- Responder cliente sozinho (bot/chatbot)
-- Enviar mensagem automatica
-- API do WhatsApp Business
-- Disparo em massa
-- Ajustar data e hora do follow-up (a IA agenda sozinha)
-- Cadastrar lead manualmente (a IA faz automatico)
-- Configurar integracao, API, webhook, token
-
-============================================================
-REGRA DOS PASSOS
-============================================================
-
-Cada passo = UMA acao MANUAL do vendedor dentro do M.A Tech.
-
-NUNCA crie passo sobre o que a IA faz sozinha. NUNCA crie passo
-sobre configurar integracao, API, canal.
-
-BONS EXEMPLOS de passo:
-- Colar a primeira mensagem no M.A Tech
-- Testar a IA com um lead real
-- Cadastrar um nicho (produto + cliente ideal)
-- Abrir a aba Follow-ups todo dia pela manha
-- Revisar o estagio dos leads abertos
-
-MAUS EXEMPLOS (NUNCA gere assim):
-- Ajustar data e hora do follow-up (IA faz automatico)
-- Cadastrar lead manualmente (IA faz automatico)
-- Configurar integracao com WhatsApp (nao existe)
-- Ativar envio automatico de mensagem (nao existe)
-
-============================================================
-SUA TAREFA
-============================================================
-
-Extrair 3 informacoes em formato JSON.
-
-- "gargalo": o problema principal do negocio do vendedor (frase curta, ate 60 chars)
+- "gargalo": o problema principal do negocio (frase curta, ate 60 chars)
 - "servico": atendimento_ia, gestao, trafego, crm, automacao, ou nenhum
-- "passos": lista de 3 a 5 acoes MANUAIS do vendedor dentro do M.A Tech
+- "passos": lista de 3 a 5 acoes praticas que o EMPRESARIO deve tomar no negocio dele
   Cada passo: "titulo" (ate 40 chars), "acao" (ate 200 chars), "prazo" (hoje/essa semana/esse mes)
+
+Os passos devem ser acoes REAIS de negocio (ex: "Ligar para os 3 leads pendentes", "Definir oferta clara", "Calcular ticket medio"). NUNCA passos sobre usar software ou ferramenta.
 
 Responda APENAS com JSON valido, sem texto extra, sem crase, sem markdown.
 
