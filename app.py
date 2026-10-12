@@ -107,8 +107,31 @@ pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 LIMITES = {"gratis": 1, "basico": 3, "pro": 10, "empresarial": 25}
 PLANOS_PRECO = {"basico": 97.0, "pro": 297.0, "empresarial": 597.0}
-LIMITES_RESPOSTAS = {"gratis": 300, "basico": 3000, "pro": 10000, "empresarial": 30000}
-EXCEDENTE_PRECO = {"gratis": 0.0, "basico": 0.05, "pro": 0.04, "empresarial": 0.03}
+PLANOS_PRECO_1MES = {"basico": 47.0, "pro": 147.0, "empresarial": 297.0}
+LIMITES_RESPOSTAS = {"gratis": 150, "basico": 1500, "pro": 4500, "empresarial": 9000}
+EXCEDENTE_PRECO = {"gratis": 0.0, "basico": 0.10, "pro": 0.10, "empresarial": 0.10}
+
+
+def _e_primeiro_mes(vendedor_id):
+    """Verifica se o vendedor nunca foi cobrado."""
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("SELECT 1 FROM primeira_cobranca WHERE vendedor_id = %s", (vendedor_id,))
+        r = cur.fetchone()
+        cur.close()
+        close_conn(conn)
+        return r is None
+    except Exception as e:
+        print(f"erro _e_primeiro_mes: {e}")
+        return False
+
+
+def _preco_para(vendedor_id, plano):
+    """Retorna o preco do plano. Se for 1o mes, aplica desconto."""
+    if _e_primeiro_mes(vendedor_id):
+        return PLANOS_PRECO_1MES.get(plano, PLANOS_PRECO[plano])
+    return PLANOS_PRECO[plano]
 from psycopg2 import pool as pg_pool
 
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -997,12 +1020,13 @@ INSTRUCAO A EXECUTAR:
     cur.close()
     close_conn(conn)
 
-    # Verifica limite mensal de respostas
+    # Verifica limite mensal de respostas (aviso 100%, bloqueio 120%)
     try:
         usadas = contar_respostas_mes(vid_real)
-        limite = LIMITES_RESPOSTAS.get(vendedor_atual["plano"], 300)
-        if usadas >= limite:
-            return RedirectResponse(url="/planos?erro=Limite+de+respostas+atingido.+Faca+upgrade", status_code=303)
+        limite = LIMITES_RESPOSTAS.get(vendedor_atual["plano"], 150)
+        # Bloqueia so em 120% (da margem pro cliente continuar)
+        if usadas >= int(limite * 1.2):
+            return RedirectResponse(url="/planos?erro=Limite+de+respostas+atingido.+Faca+upgrade+ou+compre+extras", status_code=303)
     except Exception as _e:
         print("Erro verificar limite:", _e)
 
@@ -1141,12 +1165,12 @@ def assinar(request: Request, plano: str = Form(...), valor: str = Form(...), us
     plano = (plano or "").lower().strip()
     if plano not in PLANOS_PRECO:
         return RedirectResponse(url="/planos", status_code=303)
-    valor = f"{PLANOS_PRECO[plano]:.2f}"
     if not usuario_id:
         return RedirectResponse(url="/login")
     v = buscar_vendedor(usuario_id)
     if not v:
         return RedirectResponse(url="/onboarding")
+    valor = f"{_preco_para(v['id'], plano):.2f}"
     return templates.TemplateResponse(request=request, name="assinar.html", context={"usuario_nome": usuario_nome, "plano": plano, "valor": valor, "erro": None})
 
 
@@ -1155,7 +1179,10 @@ def gerar_pix(request: Request, plano: str = Form(...), valor: str = Form(...), 
     plano = (plano or "").lower().strip()
     if plano not in PLANOS_PRECO:
         return RedirectResponse(url="/planos", status_code=303)
-    valor = f"{PLANOS_PRECO[plano]:.2f}"
+    v_tmp = buscar_vendedor(usuario_id) if usuario_id else None
+    if not v_tmp:
+        return RedirectResponse(url="/login")
+    valor = f"{_preco_para(v_tmp['id'], plano):.2f}"
     if not usuario_id:
         return RedirectResponse(url="/login")
     v = buscar_vendedor(usuario_id)
@@ -1186,6 +1213,24 @@ def gerar_pix(request: Request, plano: str = Form(...), valor: str = Form(...), 
     return RedirectResponse(url=f"/pagamento/{pid}", status_code=303)
 
 
+
+
+def _marcar_primeira_cobranca(vendedor_id, plano, valor):
+    """Registra que o vendedor foi cobrado pela 1a vez (pra aplicar desconto so no 1o mes)."""
+    try:
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO primeira_cobranca (vendedor_id, plano, valor_cobrado)
+            VALUES (%s, %s, %s)
+            ON CONFLICT (vendedor_id) DO NOTHING
+        """, (vendedor_id, plano, valor))
+        conn.commit()
+        cur.close()
+        close_conn(conn)
+    except Exception as e:
+        print(f"Erro _marcar_primeira_cobranca: {e}")
+
 @app.get("/pagamento/{payment_id}", response_class=HTMLResponse)
 def tela_pagamento(request: Request, payment_id: str, usuario_id: str = Cookie(None), usuario_nome: str = Cookie(None)):
     if not usuario_id:
@@ -1212,6 +1257,7 @@ def tela_pagamento(request: Request, payment_id: str, usuario_id: str = Cookie(N
                 cur.execute("UPDATE vendedores SET plano=%s, plano_expira_em=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s", (p["plano"], exp, row[0]))
                 cur.execute("UPDATE pagamentos SET status='pago' WHERE payment_id=%s", (payment_id,))
                 conn.commit()
+                _marcar_primeira_cobranca(row[0], p["plano"], p.get("valor", 0))
             cur.close()
             close_conn(conn)
             pago = True
@@ -1237,6 +1283,7 @@ def verificar_pagamento(payment_id: str, usuario_id: str = Cookie(None)):
             cur.execute("UPDATE vendedores SET plano=%s, plano_expira_em=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s", (row[1], exp, row[0]))
             cur.execute("UPDATE pagamentos SET status='pago' WHERE payment_id=%s", (payment_id,))
             conn.commit()
+            _marcar_primeira_cobranca(row[0], row[1], 0)
             # Recompensa quem indicou
             try:
                 recompensar_indicador(row[0])
@@ -1267,6 +1314,7 @@ async def webhook_asaas(request: Request):
                 cur.execute("UPDATE vendedores SET plano=%s, plano_expira_em=%s, atualizado_em=CURRENT_TIMESTAMP WHERE id=%s", (row[1], exp, row[0]))
                 cur.execute("UPDATE pagamentos SET status='pago' WHERE payment_id=%s", (pid,))
                 conn.commit()
+                _marcar_primeira_cobranca(row[0], row[1], 0)
             cur.close()
             close_conn(conn)
         return {"status": "ok"}
