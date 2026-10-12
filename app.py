@@ -644,7 +644,7 @@ def fazer_signup(request: Request, nome: str = Form(...), email: str = Form(...)
         except Exception as e:
             print(f"Erro registrar indicacao: {e}")
 
-    return RedirectResponse(url="/login?criado=1", status_code=303)
+    return RedirectResponse(url="/login?criado=1&lead=1", status_code=303)
 
 
 @app.get("/login", response_class=HTMLResponse)
