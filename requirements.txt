@@ -1,9 +1,10 @@
-fastapi
+﻿fastapi
 uvicorn
 jinja2
 python-multipart
 passlib[bcrypt]
 python-dotenv
 groq
+google-genai
 requests
 psycopg2-binary
