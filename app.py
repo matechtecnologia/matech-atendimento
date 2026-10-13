@@ -3415,3 +3415,14 @@ async def pagina_obrigado(request: Request):
 @app.get("/gestao", response_class=HTMLResponse)
 async def pagina_gestao(request: Request):
     return templates.TemplateResponse(request=request, name="gestao.html", context={})
+
+
+# ===== GESTAO PESSOAL E PROFISSIONAL =====
+@app.get("/gestao/pessoal", response_class=HTMLResponse)
+async def pagina_gestao_pessoal(request: Request):
+    return templates.TemplateResponse(request=request, name="gestao_pessoal.html", context={})
+
+
+@app.get("/gestao/profissional", response_class=HTMLResponse)
+async def pagina_gestao_profissional(request: Request):
+    return templates.TemplateResponse(request=request, name="gestao_profissional.html", context={})
