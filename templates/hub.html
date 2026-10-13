@@ -10,8 +10,8 @@
     <style>
         body { background:#0a0a0a; color:#e8e8e8; font-family:-apple-system,BlinkMacSystemFont,sans-serif; margin:0; }
         .topo { background:#0f1a15; padding:14px 24px; border-bottom:1px solid #00d97e33; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
-        .topo h1 { color:#00d97e; font-size:18px; margin:0; }
-        .topo h1 span { color:#fff; }
+        .topo h1 { color:#fff; font-size:18px; margin:0; }
+        
         .topo .usuario-info { display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
         .topo .usuario-info a { color:#8a8a8a; text-decoration:none; font-size:13px; }
         .topo .usuario-info a:hover { color:#00d97e; }
@@ -45,7 +45,7 @@
 </head>
 <body>
     <div class="topo">
-        <h1>M.A <span>Tech</span></h1>
+        <h1>M.A <span style="color:#10b981">Tech</span></h1>
         <div class="usuario-info">
             <span style="color:#8a8a8a;font-size:13px;">{{ usuario_nome }}</span>
             {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}

@@ -727,7 +727,7 @@ def fazer_signup(request: Request, nome: str = Form(...), email: str = Form(...)
         except Exception as e:
             print(f"Erro registrar indicacao: {e}")
 
-    return RedirectResponse(url="/login?criado=1&lead=1", status_code=303)
+    return RedirectResponse(url="/obrigado", status_code=303)
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -3403,3 +3403,9 @@ async def termos(request: Request):
 @app.get("/privacidade", response_class=HTMLResponse)
 async def privacidade(request: Request):
     return templates.TemplateResponse(request=request, name="privacidade.html", context={})
+
+
+# ===== PAGINA DE OBRIGADO (pos-cadastro) =====
+@app.get("/obrigado", response_class=HTMLResponse)
+async def pagina_obrigado(request: Request):
+    return templates.TemplateResponse(request=request, name="obrigado.html", context={})
