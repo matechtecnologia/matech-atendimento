@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Extrato - M.A Tech</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#0a0a0a; color:#e5e5e5; min-height:100vh; padding:24px 16px; }
+.container { max-width:700px; margin:0 auto; }
+.voltar { display:inline-block; margin-bottom:20px; color:#10b981; font-size:.9rem; text-decoration:none; }
+h1 { font-size:1.5rem; color:#fff; margin-bottom:6px; }
+.sub { color:#888; font-size:.85rem; margin-bottom:20px; }
+.filtros { background:#111; border:1px solid #1e1e1e; border-radius:12px; padding:14px; margin-bottom:20px; display:flex; gap:10px; flex-wrap:wrap; }
+.filtros select, .filtros button { background:#0d0d0d; border:1px solid #222; color:#e5e5e5; padding:10px 14px; border-radius:8px; font-size:.85rem; font-family:inherit; }
+.filtros button { background:#10b981; color:#000; font-weight:700; cursor:pointer; border:none; }
+.filtros button:hover { background:#0ea371; }
+.card { background:#111; border:1px solid #1e1e1e; border-radius:14px; padding:20px; }
+ul.lista { list-style:none; }
+ul.lista li { display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid #1a1a1a; }
+ul.lista li:last-child { border-bottom:none; }
+.li-esq { flex:1; }
+.li-esq .cat { color:#fff; font-weight:600; font-size:.95rem; }
+.li-esq .desc { color:#888; font-size:.8rem; margin-top:2px; }
+.li-esq .meta { color:#5a5a5a; font-size:.75rem; margin-top:3px; }
+.li-dir { text-align:right; }
+.li-dir .val { font-weight:800; font-size:1rem; }
+.val-entrada { color:#10b981; }
+.val-saida { color:#ff3b3b; }
+.vazio { color:#666; font-size:.9rem; text-align:center; padding:24px 0; }
+.badge-ess { display:inline-block; background:#1a1a1a; color:#888; font-size:.65rem; padding:2px 6px; border-radius:4px; margin-left:6px; letter-spacing:.05em; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="/gestao/pessoal/financeira" class="voltar">&larr; Voltar</a>
+<h1>Extrato</h1>
+<p class="sub">Todos os seus lançamentos (últimos 100).</p>
+
+<form method="GET" action="/gestao/pessoal/financeira/extrato" class="filtros">
+  <select name="tipo">
+    <option value="">Todos os tipos</option>
+    <option value="entrada" {% if tipo_atual == 'entrada' %}selected{% endif %}>Só entradas</option>
+    <option value="saida" {% if tipo_atual == 'saida' %}selected{% endif %}>Só saídas</option>
+  </select>
+  <select name="categoria">
+    <option value="">Todas as categorias</option>
+    {% for c in todas_categorias %}
+      <option value="{{ c }}" {% if categoria_atual == c %}selected{% endif %}>{{ c }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit">Filtrar</button>
+</form>
+
+<div class="card">
+  {% if lancamentos %}
+    <ul class="lista">
+      {% for l in lancamentos %}
+      <li>
+        <div class="li-esq">
+          <div class="cat">
+            {{ l.categoria }}
+            {% if l.essencial %}<span class="badge-ess">ESSENCIAL</span>{% endif %}
+          </div>
+          {% if l.descricao %}<div class="desc">{{ l.descricao }}</div>{% endif %}
+          <div class="meta">{{ l.data.strftime('%d/%m/%Y') if l.data else '' }}</div>
+        </div>
+        <div class="li-dir">
+          <div class="val {% if l.tipo == 'entrada' %}val-entrada{% else %}val-saida{% endif %}">
+            {% if l.tipo == 'entrada' %}+{% else %}-{% endif %} R$ {{ "%.2f"|format(l.valor)|replace(".", ",") }}
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="vazio">Nenhum lançamento encontrado com esses filtros.</p>
+  {% endif %}
+</div>
+
+</div>
+</body>
+</html>

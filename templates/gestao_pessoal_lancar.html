@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Novo lançamento - M.A Tech</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#0a0a0a; color:#e5e5e5; min-height:100vh; padding:24px 16px; }
+.container { max-width:600px; margin:0 auto; }
+.voltar { display:inline-block; margin-bottom:20px; color:#10b981; font-size:.9rem; text-decoration:none; }
+h1 { font-size:1.5rem; color:#fff; margin-bottom:6px; }
+.sub { color:#888; font-size:.85rem; margin-bottom:24px; }
+.card { background:#111; border:1px solid #1e1e1e; border-radius:14px; padding:22px; }
+.campo { margin-bottom:18px; }
+.campo label { display:block; font-size:.8rem; color:#aaa; margin-bottom:6px; font-weight:600; }
+.campo input, .campo select, .campo textarea { width:100%; background:#0d0d0d; border:1px solid #222; border-radius:8px; padding:12px; color:#e5e5e5; font-size:.95rem; font-family:inherit; }
+.campo input:focus, .campo select:focus, .campo textarea:focus { border-color:#10b981; outline:none; }
+.tipo-btn { display:flex; gap:10px; margin-bottom:18px; }
+.tipo-btn label { flex:1; text-align:center; padding:14px; border:2px solid #222; border-radius:10px; cursor:pointer; font-weight:700; font-size:.9rem; transition:.2s; }
+.tipo-btn input { display:none; }
+.tipo-btn input:checked + span.entrada { color:#10b981; }
+.tipo-btn input:checked + span.saida { color:#ff3b3b; }
+.tipo-btn label:has(input:checked) { border-color:#10b981; background:rgba(16,185,129,.08); }
+.tipo-btn label:has(input[value="saida"]:checked) { border-color:#ff3b3b; background:rgba(255,59,59,.08); }
+.btn-salvar { width:100%; background:#10b981; color:#000; border:none; padding:16px; border-radius:10px; font-weight:800; font-size:1rem; cursor:pointer; }
+.btn-salvar:hover { background:#0ea371; }
+.campo-oculto { display:none; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="/gestao/pessoal/financeira" class="voltar">&larr; Voltar</a>
+<h1>Novo lançamento</h1>
+<p class="sub">Registre uma entrada ou saída.</p>
+
+<form method="POST" action="/gestao/pessoal/financeira/lancar" class="card">
+
+  <div class="tipo-btn">
+    <label><input type="radio" name="tipo" value="entrada" checked onclick="mudarTipo()"><span class="entrada">📥 Entrada</span></label>
+    <label><input type="radio" name="tipo" value="saida" onclick="mudarTipo()"><span class="saida">📤 Saída</span></label>
+  </div>
+
+  <div class="campo">
+    <label>Valor (R$)</label>
+    <input type="number" name="valor" step="0.01" min="0.01" required placeholder="0,00">
+  </div>
+
+  <div class="campo">
+    <label>Categoria</label>
+    <select name="categoria" id="select-categoria" required>
+      <optgroup label="Entradas">
+        {% for c in categorias_entrada %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+      </optgroup>
+      <optgroup label="Saídas essenciais">
+        {% for c in categorias_essencial %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+      </optgroup>
+      <optgroup label="Saídas não-essenciais">
+        {% for c in categorias_nao_essencial %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+      </optgroup>
+    </select>
+  </div>
+
+  <div class="campo campo-oculto" id="campo-essencial">
+    <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+      <input type="checkbox" name="essencial" value="1" style="width:auto; accent-color:#10b981;">
+      <span style="color:#ccc; font-weight:500;">É um gasto essencial?</span>
+    </label>
+  </div>
+
+  <div class="campo">
+    <label>Data</label>
+    <input type="date" name="data_lanc" value="{{ hoje }}" required>
+  </div>
+
+  <div class="campo">
+    <label>Descrição (opcional)</label>
+    <input type="text" name="descricao" placeholder="Ex: Mercado do mês">
+  </div>
+
+  <button type="submit" class="btn-salvar">Salvar lançamento</button>
+</form>
+
+<script>
+function mudarTipo() {
+  var tipo = document.querySelector('input[name="tipo"]:checked').value;
+  document.getElementById('campo-essencial').style.display = (tipo === 'saida') ? 'block' : 'none';
+}
+mudarTipo();
+</script>
+</div>
+</body>
+</html>

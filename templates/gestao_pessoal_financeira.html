@@ -1,0 +1,102 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financeira Pessoal - M.A Tech</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#0a0a0a; color:#e5e5e5; min-height:100vh; padding:24px 16px; }
+.container { max-width:700px; margin:0 auto; }
+.voltar { display:inline-block; margin-bottom:20px; color:#10b981; font-size:.9rem; text-decoration:none; }
+h1 { font-size:1.5rem; color:#fff; margin-bottom:6px; }
+.sub { color:#888; font-size:.85rem; margin-bottom:24px; }
+.card { background:#111; border:1px solid #1e1e1e; border-radius:14px; padding:22px; margin-bottom:16px; }
+.saldo-label { font-size:.75rem; color:#888; text-transform:uppercase; letter-spacing:.08em; font-weight:700; margin-bottom:6px; }
+.saldo { font-size:2.2rem; font-weight:800; margin-bottom:16px; }
+.saldo.positivo { color:#10b981; }
+.saldo.negativo { color:#ff3b3b; }
+.linha-dupla { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:8px; }
+.linha-dupla .mini { background:#0d0d0d; border-radius:10px; padding:14px; }
+.linha-dupla .mini .lbl { font-size:.7rem; color:#888; text-transform:uppercase; letter-spacing:.05em; font-weight:700; margin-bottom:4px; }
+.linha-dupla .mini .val { font-size:1.1rem; font-weight:700; }
+.mini.entrada .val { color:#10b981; }
+.mini.saida .val { color:#ff3b3b; }
+h2 { font-size:1rem; color:#fff; margin-bottom:12px; }
+.btn-principal { display:block; background:#10b981; color:#000; text-align:center; padding:14px; border-radius:10px; text-decoration:none; font-weight:700; font-size:.95rem; margin-bottom:16px; }
+.btn-principal:hover { background:#0ea371; }
+ul.lista { list-style:none; }
+ul.lista li { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #1a1a1a; font-size:.9rem; }
+ul.lista li:last-child { border-bottom:none; }
+ul.lista li .cat { color:#ccc; }
+ul.lista li .val-entrada { color:#10b981; font-weight:700; }
+ul.lista li .val-saida { color:#ff3b3b; font-weight:700; }
+.links { display:flex; gap:10px; margin-top:8px; }
+.links a { flex:1; text-align:center; padding:12px; border-radius:10px; text-decoration:none; font-weight:600; font-size:.85rem; background:#161616; color:#10b981; border:1px solid #1e1e1e; }
+.links a:hover { border-color:#10b981; }
+.vazio { color:#666; font-size:.85rem; text-align:center; padding:16px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+<a href="/gestao/pessoal" class="voltar">&larr; Voltar</a>
+<h1>💰 Financeira Pessoal</h1>
+<p class="sub">Controle de gastos, metas e reserva.</p>
+
+<div class="card">
+  <div class="saldo-label">Saldo do mês</div>
+  <div class="saldo {% if saldo >= 0 %}positivo{% else %}negativo{% endif %}">
+    R$ {{ "%.2f"|format(saldo)|replace(".", ",") }}
+  </div>
+  <div class="linha-dupla">
+    <div class="mini entrada">
+      <div class="lbl">Entradas</div>
+      <div class="val">R$ {{ "%.2f"|format(total_entrada)|replace(".", ",") }}</div>
+    </div>
+    <div class="mini saida">
+      <div class="lbl">Saídas</div>
+      <div class="val">R$ {{ "%.2f"|format(total_saida)|replace(".", ",") }}</div>
+    </div>
+  </div>
+</div>
+
+<a href="/gestao/pessoal/financeira/lancar" class="btn-principal">+ Novo lançamento</a>
+
+<div class="card">
+  <h2>Últimos lançamentos</h2>
+  {% if ultimos %}
+    <ul class="lista">
+      {% for l in ultimos %}
+      <li>
+        <span class="cat">{{ l.categoria }}{% if l.descricao %} · {{ l.descricao }}{% endif %}</span>
+        <span class="{% if l.tipo == 'entrada' %}val-entrada{% else %}val-saida{% endif %}">
+          {% if l.tipo == 'entrada' %}+{% else %}-{% endif %} R$ {{ "%.2f"|format(l.valor)|replace(".", ",") }}
+        </span>
+      </li>
+      {% endfor %}
+    </ul>
+    <div class="links">
+      <a href="/gestao/pessoal/financeira/extrato">Ver extrato completo</a>
+    </div>
+  {% else %}
+    <p class="vazio">Nenhum lançamento ainda. Comece adicionando um.</p>
+  {% endif %}
+</div>
+
+{% if metas %}
+<div class="card">
+  <h2>Metas</h2>
+  <ul class="lista">
+    {% for m in metas %}
+    <li>
+      <span class="cat">{{ m.titulo }}</span>
+      <span>R$ {{ "%.2f"|format(m.valor_atual)|replace(".", ",") }} / R$ {{ "%.2f"|format(m.valor_meta)|replace(".", ",") }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+</div>
+</body>
+</html>

@@ -14,6 +14,8 @@ from plano_install import instalar_plano
 from consultor_install import instalar_consultor
 from asaas import criar_cliente, criar_cobranca_pix, obter_qr_code, consultar_pagamento
 from plano_estrategico import inicializar_plano_estrategico
+from gestao_pessoal_db import init_gestao_pessoal
+from gestao_pessoal_rotas import instalar_gestao_pessoal
 
 load_dotenv()
 
@@ -364,8 +366,20 @@ except Exception as e:
 
 try:
     instalar_consultor(app, get_conn, close_conn, Cookie, Request)
+
 except Exception as e:
     print(f'Erro ao instalar consultor: {e}')
+
+# Gestao Pessoal Financeira (usa CREATE TABLE IF NOT EXISTS, nao apaga nada)
+try:
+    init_gestao_pessoal()
+except Exception as e:
+    print(f"Erro init gestao pessoal: {e}")
+
+try:
+    instalar_gestao_pessoal(app, templates, ler_sessao)
+except Exception as e:
+    print(f"Erro ao instalar gestao pessoal rotas: {e}")
 
 
 # inicializar_plano_estrategico DESATIVADO (apagava as tabelas a cada restart)
