@@ -1,4 +1,4 @@
-// ============================================
+﻿// ============================================
 // M.A Tech — App Mobile (header + 2 drawers + swipes)
 // ============================================
 
@@ -263,6 +263,7 @@
             { href: '/planos', rota: '/planos', icone: 'planos', texto: 'Planos' },
             { href: '/indicar', rota: '/indicar', icone: 'indicar', texto: 'Indique e ganhe' },
             { href: '/configuracoes', rota: '/configuracoes', icone: 'configuracoes', texto: 'Configurações' },
+            { href: 'https://wa.me/5512997291583?text=Oi%2C%20preciso%20de%20ajuda%20com%20o%20M.A%20Tech', rota: '#suporte', icone: 'whatsapp', texto: 'Suporte', externo: true },
         ];
         if (admin) {
             links.push({ href: '/plano', rota: '/plano', icone: 'dashboard', texto: '🧭 Plano M.A Tech' });
@@ -276,7 +277,7 @@
             const ativo = (l.rota === ativa) ? 'menu-ativo' : '';
             const badge = l.badge > 0 ? `<span class="badge-menu">${l.badge > 99 ? '99+' : l.badge}</span>` : '';
             const svgIcon = window.ICONE ? window.ICONE(l.icone, { tamanho: 20 }) : '';
-            linksHTML += `<a href="${l.href}" class="${ativo}">
+            linksHTML += `<a href="${l.href}" class="${ativo}"${l.externo ? ` target="_blank" rel="noopener"` : ``}>
                 <span class="icone">${svgIcon}</span>
                 <span class="texto">${l.texto}${badge}</span>
             </a>`;
