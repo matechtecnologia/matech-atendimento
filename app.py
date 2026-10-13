@@ -3409,3 +3409,9 @@ async def privacidade(request: Request):
 @app.get("/obrigado", response_class=HTMLResponse)
 async def pagina_obrigado(request: Request):
     return templates.TemplateResponse(request=request, name="obrigado.html", context={})
+
+
+# ===== GESTAO EMPRESARIAL (em breve) =====
+@app.get("/gestao", response_class=HTMLResponse)
+async def pagina_gestao(request: Request):
+    return templates.TemplateResponse(request=request, name="gestao.html", context={})

@@ -109,13 +109,13 @@
         const nav = document.createElement('nav');
         nav.className = 'app-bottom-nav';
         nav.innerHTML = `
+            <a href="/gestao" class="nav-item">
+                <span class="icone-nav">${icone('dashboard')}</span>
+                <span class="txt-nav">Gestão</span>
+            </a>
             <a href="/consultoria/loading" class="nav-item ${ativa === 'consultoria' ? 'ativo' : ''}">
                 <span class="icone-nav">${icone('briefcase')}</span>
                 <span class="txt-nav">Consultoria</span>
-            </a>
-            <a href="/relatorios" class="nav-item ${ativa === 'relatorios' ? 'ativo' : ''}">
-                <span class="icone-nav">${icone('relatorios')}</span>
-                <span class="txt-nav">Relatorios</span>
             </a>
             <a href="/clientes" class="nav-item destaque" title="Atendimento">
                 <span class="icone-nav">${icone('raio', 26)}</span>
@@ -124,9 +124,9 @@
                 <span class="icone-nav">${icone('followups')}${badge}</span>
                 <span class="txt-nav">Follow-ups</span>
             </a>
-            <a href="/meus_nichos" class="nav-item ${ativa === 'nichos' ? 'ativo' : ''}">
-                <span class="icone-nav">${icone('nichos')}</span>
-                <span class="txt-nav">Nichos</span>
+            <a href="/relatorios" class="nav-item ${ativa === 'relatorios' ? 'ativo' : ''}">
+                <span class="icone-nav">${icone('relatorios')}</span>
+                <span class="txt-nav">Relatorios</span>
             </a>
         `;
 

@@ -260,6 +260,7 @@
         const primeiraLetra = nome.charAt(0).toUpperCase();
 
         const links = [
+            { href: '/meus_nichos', rota: '/meus_nichos', icone: 'nichos', texto: 'Nichos' },
             { href: '/planos', rota: '/planos', icone: 'planos', texto: 'Planos' },
             { href: '/indicar', rota: '/indicar', icone: 'indicar', texto: 'Indique e ganhe' },
             { href: '/configuracoes', rota: '/configuracoes', icone: 'configuracoes', texto: 'Configurações' },
