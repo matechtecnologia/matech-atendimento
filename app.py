@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI, Request, Form, Cookie
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from passlib.context import CryptContext
@@ -583,6 +583,21 @@ def incrementar_resposta(vendedor_id):
 
 def processar_atendimento(aid, linha_crm, mensagem, prompt, hist, whatsapp, uid, cid=None, nicho_dict=None):
     try:
+        # Carrega campos extras do nicho ANTES de gerar a resposta
+        if nicho_dict and nicho_dict.get("id"):
+            try:
+                _c = get_conn()
+                _cu = _c.cursor(cursor_factory=RealDictCursor)
+                _cu.execute("SELECT campo, valor FROM nicho_campos_extras WHERE nicho_id = %s", (nicho_dict["id"],))
+                _extras = {}
+                for _row in _cu.fetchall():
+                    _extras[_row["campo"]] = _row["valor"]
+                nicho_dict["campos_extras"] = _extras
+                _cu.close()
+                close_conn(_c)
+            except Exception as _e:
+                print(f"Erro carregar campos extras: {_e}")
+
         r = gerar_resposta(linha_crm, mensagem, prompt, hist, nicho_dict=nicho_dict)
         salvar_historico(whatsapp, uid, "ia", r.get("o_que_falar", ""))
         try:
@@ -597,6 +612,15 @@ def processar_atendimento(aid, linha_crm, mensagem, prompt, hist, whatsapp, uid,
         conn.commit()
         cur.close()
         close_conn(conn)
+
+        # ============================================================
+        # IA QUE APRENDE — auditoria automatica
+        # ============================================================
+        try:
+            _rodar_auditoria(aid, uid, r, nicho_dict)
+        except Exception as _e:
+            print(f"Auditoria erro: {_e}")
+
     except Exception as e:
         conn = get_conn()
         cur = conn.cursor()
@@ -604,6 +628,65 @@ def processar_atendimento(aid, linha_crm, mensagem, prompt, hist, whatsapp, uid,
         conn.commit()
         cur.close()
         close_conn(conn)
+
+
+def _rodar_auditoria(aid, uid, r, nicho_dict):
+    """Roda auditoria na resposta. So se o cliente tem IA que Aprende ligado."""
+    if not nicho_dict:
+        return
+
+    # Verifica se o vendedor tem o modo ligado
+    conn = get_conn()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("SELECT ia_aprende_ativo, analises_acumuladas FROM vendedores WHERE usuario_id = %s", (uid,))
+    v = cur.fetchone()
+    if not v or not v.get("ia_aprende_ativo"):
+        cur.close()
+        close_conn(conn)
+        return
+
+    cur.close()
+    close_conn(conn)
+
+    # Roda o auditor
+    import auditor_ia
+    analise = auditor_ia.auditar_resposta(r.get("o_que_falar", ""), nicho_dict)
+
+    # Salva a analise no banco
+    conn = get_conn()
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO analises_ia (atendimento_id, vendedor_id, resposta_analisada, inventou, campo_faltante, o_que_a_ia_disse, pergunta_pro_vendedor)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """, (aid, uid, r.get("o_que_falar", ""), analise["inventou"], analise["campo"], analise["o_que_a_ia_disse"], analise["pergunta_pro_vendedor"]))
+
+    # Incrementa o contador de analises
+    cur.execute("""
+        UPDATE vendedores 
+        SET analises_acumuladas = COALESCE(analises_acumuladas, 0) + 1
+        WHERE usuario_id = %s
+        RETURNING analises_acumuladas
+    """, (uid,))
+    n = cur.fetchone()[0]
+
+    # Se chegou em 3 analises, cobra 1 interacao e zera
+    if n >= 3:
+        cur.execute("UPDATE vendedores SET analises_acumuladas = 0 WHERE usuario_id = %s", (uid,))
+        # Cobra 1 interacao
+        try:
+            cur.execute("""INSERT INTO respostas_ia (vendedor_id, mes_ano, total)
+                           VALUES ((SELECT id FROM vendedores WHERE usuario_id = %s), %s, 1)
+                           ON CONFLICT (vendedor_id, mes_ano)
+                           DO UPDATE SET total = respostas_ia.total + 1, atualizado_em = CURRENT_TIMESTAMP""",
+                        (uid, datetime.now().strftime("%Y-%m")))
+            print(f"IA que Aprende: cobrada 1 interacao (3 analises completas) - uid {uid}")
+        except Exception as _e:
+            print(f"Erro cobrar interacao: {_e}")
+
+    conn.commit()
+    cur.close()
+    close_conn(conn)
+    print(f"IA que Aprende: analise rodada (inventou={analise['inventou']}, campo={analise['campo']}) - {n}/3")
 
 
 # ============ ROTAS ============
@@ -1321,6 +1404,125 @@ async def webhook_asaas(request: Request):
     except Exception as e:
         print(f"Erro webhook: {e}")
         return {"status": "erro"}
+
+
+
+
+# ============================================================
+# IA QUE APRENDE — rotas
+# ============================================================
+
+@app.get("/api/ia-aprende/status")
+def ia_aprende_status(usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return JSONResponse({"ok": False}, status_code=401)
+    try:
+        conn = get_conn()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute("SELECT ia_aprende_ativo, analises_acumuladas FROM vendedores WHERE usuario_id = %s", (usuario_id,))
+        v = cur.fetchone()
+        cur.close()
+        close_conn(conn)
+        if not v:
+            return JSONResponse({"ok": False})
+        return JSONResponse({
+            "ok": True,
+            "ativo": bool(v.get("ia_aprende_ativo")),
+            "analises_acumuladas": int(v.get("analises_acumuladas") or 0),
+        })
+    except Exception as e:
+        return JSONResponse({"ok": False, "erro": str(e)})
+
+
+@app.post("/api/ia-aprende/toggle")
+async def ia_aprende_toggle(request: Request, usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return JSONResponse({"ok": False}, status_code=401)
+    try:
+        body = await request.json()
+        ativo = bool(body.get("ativo", False))
+        conn = get_conn()
+        cur = conn.cursor()
+        cur.execute("UPDATE vendedores SET ia_aprende_ativo = %s WHERE usuario_id = %s", (ativo, usuario_id))
+        conn.commit()
+        cur.close()
+        close_conn(conn)
+        return JSONResponse({"ok": True, "ativo": ativo})
+    except Exception as e:
+        return JSONResponse({"ok": False, "erro": str(e)})
+
+
+@app.get("/api/ia-aprende/analise/{atendimento_id}")
+def ia_aprende_analise(atendimento_id: int, usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return JSONResponse({"ok": False}, status_code=401)
+    try:
+        conn = get_conn()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute("""
+            SELECT * FROM analises_ia 
+            WHERE atendimento_id = %s AND vendedor_id = %s
+            ORDER BY id DESC LIMIT 1
+        """, (atendimento_id, usuario_id))
+        a = cur.fetchone()
+        
+        # Pega o total acumulado
+        cur.execute("SELECT analises_acumuladas FROM vendedores WHERE usuario_id = %s", (usuario_id,))
+        v = cur.fetchone()
+        total = int(v.get("analises_acumuladas") or 0) if v else 0
+        
+        cur.close()
+        close_conn(conn)
+        if not a:
+            return JSONResponse({"ok": True, "analise": None, "total_analises": total})
+        return JSONResponse({"ok": True, "analise": dict(a), "total_analises": total})
+    except Exception as e:
+        return JSONResponse({"ok": False, "erro": str(e)})
+
+
+@app.post("/api/ia-aprende/corrigir")
+async def ia_aprende_corrigir(request: Request, usuario_id: str = Cookie(None)):
+    if not usuario_id:
+        return JSONResponse({"ok": False}, status_code=401)
+    try:
+        body = await request.json()
+        atendimento_id = int(body.get("atendimento_id", 0))
+        campo = (body.get("campo") or "").strip().lower()
+        valor = (body.get("valor") or "").strip()
+        if not campo or not valor:
+            return JSONResponse({"ok": False, "erro": "campo e valor obrigatorios"})
+
+        conn = get_conn()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+
+        # Pega o atendimento e o nicho
+        cur.execute("SELECT nicho_id FROM atendimentos WHERE id = %s", (atendimento_id,))
+        a = cur.fetchone()
+        if not a:
+            cur.close()
+            close_conn(conn)
+            return JSONResponse({"ok": False, "erro": "atendimento nao encontrado"})
+
+        nicho_id = a["nicho_id"]
+
+        # Salva o campo extra no nicho
+        cur.execute("""
+            INSERT INTO nicho_campos_extras (nicho_id, campo, valor)
+            VALUES (%s, %s, %s)
+            ON CONFLICT (nicho_id, campo)
+            DO UPDATE SET valor = EXCLUDED.valor, atualizado_em = NOW()
+        """, (nicho_id, campo, valor))
+
+        # Marca a analise como corrigida
+        cur.execute("UPDATE analises_ia SET corrigido = TRUE WHERE atendimento_id = %s", (atendimento_id,))
+
+        conn.commit()
+        cur.close()
+        close_conn(conn)
+        return JSONResponse({"ok": True})
+    except Exception as e:
+        return JSONResponse({"ok": False, "erro": str(e)})
+
 
 
 @app.get("/logout")

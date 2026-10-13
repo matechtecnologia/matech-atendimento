@@ -130,14 +130,47 @@
             display: none;
         }
         .bloco-wrap.aberto { display: block; }
+
     </style>
+
+<style>
+</style>
+
+
+<style>
+@media (max-width: 768px) {
+    .container-atendimento > .topo,
+    body .topo,
+    .topo {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 48px !important;
+    }
+}
+</style>
+
+
+<style>
+/* BOTAO IA NO RESULTADO - VISIVEL NO MOBILE SEM QUEBRAR O RESTO */
+@media (max-width: 768px) {
+    /* O header mobile (.app-header) cuida do layout */
+    /* O .topo do PC deve ficar escondido em mobile */
+    .container-atendimento .topo {
+        display: none !important;
+    }
+}
+</style>
+
 </head>
 <body>
     <div class="container-atendimento">
         <div class="topo">
             <h1>M.A Tech</h1>
             <div class="usuario-info">
-                <span>{{ usuario_nome }}</span>
+                <span class="usuario-nome">{{ usuario_nome }}</span>
                 <a href="/clientes">Clientes</a>
                 {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
                 <a href="/logout">Sair</a>
@@ -188,6 +221,81 @@
                 <span id="estagio-badge" class="badge-status status-em-atendimento" style="font-size:14px; padding:8px 20px;"></span>
             </div>
         </div>
+
+        <!-- AVISO IA QUE APRENDE (aparece so quando a IA inventa) -->
+        <div class="ia-aviso" id="aviso-ia" style="display:none;">
+            <div class="ia-aviso-topo">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+                <span>A IA usou informação que não estava no cadastro</span>
+            </div>
+            <div class="ia-aviso-conteudo">
+                <div class="ia-aviso-linha">
+                    <span class="ia-aviso-chave">O que ela disse</span>
+                    <span class="ia-aviso-valor" id="aviso-o-que">—</span>
+                </div>
+                <div class="ia-aviso-linha">
+                    <span class="ia-aviso-chave">O que falta</span>
+                    <span class="ia-aviso-valor" id="aviso-pergunta">—</span>
+                </div>
+            </div>
+            <button class="ia-btn-corrigir" onclick="corrigirIA()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Corrigir agora
+            </button>
+        </div>
+
+        <style>
+        @media (max-width: 768px) {
+            .topo {
+                padding: 10px 12px !important;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+            .topo h1 {
+                font-size: 14px !important;
+                flex: 0 0 auto;
+            }
+            .usuario-info {
+                gap: 6px !important;
+                font-size: 11px !important;
+                flex-wrap: wrap;
+                flex: 1 1 auto;
+                justify-content: flex-end;
+            }
+            .usuario-nome {
+                display: none;
+            }
+            .btn-ia {
+                display: inline-flex !important;
+                padding: 5px 10px 5px 8px !important;
+                margin-right: 0 !important;
+                gap: 6px !important;
+                flex-shrink: 0;
+            }
+            .btn-ia-icone { font-size: 12px !important; }
+            .btn-ia-txt { font-size: 10px !important; }
+            .btn-ia-status {
+                font-size: 8px !important;
+                padding: 2px 6px !important;
+                gap: 3px !important;
+            }
+            .btn-ia-status .dot {
+                width: 4px !important;
+                height: 4px !important;
+            }
+        }
+        @media (max-width: 480px) {
+            .btn-ia-txt { display: none !important; }
+            .btn-ia { padding: 6px 10px !important; }
+        }
+        
+        </style>
 
         <!-- ERRO -->
         <div id="erro-box" style="display:none;" class="erro">⚠️ <span id="erro-texto"></span></div>
@@ -384,5 +492,135 @@
         consumirStream();
     });
     </script>
-<script src="/static/loading_global.js?v=4"></script></body>
+<script src="/static/loading_global.js?v=4"></script>
+<script>
+(function() {
+    const aid = {{ atendimento.id }};
+    
+    // Carrega status do toggle
+    async function carregarStatus() {
+        try {
+            const r = await fetch('/api/ia-aprende/status');
+            const j = await r.json();
+            if (j.ok) {
+                const tog = document.getElementById('toggle-ia-aprende');
+                const lbl = document.getElementById('toggle-label');
+                if (togHidden) {
+                    togHidden.checked = j.ativo;
+                    if (btn) {
+                        const estado = document.getElementById('ia-btn-estado');
+                        if (j.ativo) {
+                            btn.classList.add('on');
+                            if (estado) estado.textContent = 'ON';
+                        } else {
+                            btn.classList.remove('on');
+                            if (estado) estado.textContent = 'OFF';
+                        }
+                    }
+                }
+                atualizarDots(j.analises_acumuladas || 0);
+            }
+        } catch(e) {}
+    }
+    
+    function atualizarDots(n) {
+        // Sem barra de progresso visivel agora (fica escondido no botao)
+        // Mas atualiza o title do botao
+        const btn = document.getElementById('ia-btn-header');
+        if (btn) {
+            btn.title = 'IA Aprende: ' + n + '/3 analises';
+        }
+    }
+    
+    // Botao IA Aprende
+    const btn = document.getElementById('ia-btn-header');
+    const togHidden = document.getElementById('toggle-ia-aprende');
+    if (btn && togHidden) {
+        btn.addEventListener('click', async function() {
+            const novo = !togHidden.checked;
+            try {
+                const r = await fetch('/api/ia-aprende/toggle', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ativo: novo})
+                });
+                const j = await r.json();
+                if (j.ok) {
+                    togHidden.checked = novo;
+                    const estado = document.getElementById('ia-btn-estado');
+                    if (novo) {
+                        btn.classList.add('on');
+                        if (estado) estado.textContent = 'ON';
+                    } else {
+                        btn.classList.remove('on');
+                        if (estado) estado.textContent = 'OFF';
+                    }
+                }
+            } catch(e) {}
+        });
+    }
+    
+    // Carrega analise desse atendimento (se existir)
+    async function carregarAnalise() {
+        try {
+            const r = await fetch('/api/ia-aprende/analise/' + aid);
+            const j = await r.json();
+            if (j.ok && j.analise) {
+                // Sempre atualiza o progresso
+                const total = j.total_analises || 0;
+                atualizarDots(total);
+                
+                // Se inventou, mostra o aviso
+                if (j.analise.inventou) {
+                    const av = document.getElementById('aviso-ia');
+                    if (av) {
+                        document.getElementById('aviso-o-que').textContent = j.analise.o_que_a_ia_disse || '—';
+                        document.getElementById('aviso-pergunta').textContent = j.analise.pergunta_pro_vendedor || 'Corrigir?';
+                        av.style.display = 'block';
+                    }
+                }
+            } else if (j.ok) {
+                // Sem analise ainda - atualiza so o progresso
+                const st = await fetch('/api/ia-aprende/status');
+                const sj = await st.json();
+                if (sj.ok) atualizarDots(sj.analises_acumuladas || 0);
+            }
+        } catch(e) {}
+    }
+    
+    function corrigirIA() {
+        const campo = prompt('Qual o campo que está faltando?\n\nEx: endereco, telefone, horario');
+        if (!campo) return;
+        const valor = prompt('Qual o valor correto pra esse campo?');
+        if (!valor) return;
+        
+        fetch('/api/ia-aprende/corrigir', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({atendimento_id: aid, campo: campo, valor: valor})
+        }).then(r => r.json()).then(j => {
+            if (j.ok) {
+                alert('✓ IA melhorada! Próxima resposta será melhor.');
+                document.getElementById('aviso-ia').style.display = 'none';
+            } else {
+                alert('Erro: ' + (j.erro || 'falha'));
+            }
+        });
+    }
+    
+    window.corrigirIA = corrigirIA;
+    
+    carregarStatus();
+    
+    // Tenta carregar a analise a cada 2s, ate 30s
+    let _tentativas = 0;
+    const _pollAnalise = setInterval(() => {
+        _tentativas++;
+        carregarAnalise();
+        if (_tentativas >= 15) clearInterval(_pollAnalise);
+    }, 2000);
+})();
+</script>
+
+</body>
 </html>

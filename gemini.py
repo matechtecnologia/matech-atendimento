@@ -317,7 +317,7 @@ def separar_resposta(texto):
     return blocos
 
 
-def _montar_prompt(linha_crm, mensagem_cliente, prompt_vendedor, historico):
+def _montar_prompt(linha_crm, mensagem_cliente, prompt_vendedor, historico, campos_extras=None):
     bloco_saud = _bloco_saudacao(historico, mensagem_cliente)
     logica = LOGICA_UNIVERSAL.replace("{bloco_saudacao}", bloco_saud)
 
@@ -325,12 +325,21 @@ def _montar_prompt(linha_crm, mensagem_cliente, prompt_vendedor, historico):
     hist_txt = historico if tem_hist else "(primeira interacao)"
     crm_txt = linha_crm if linha_crm else "(cliente novo, sem dados)"
 
+    # Campos extras do nicho (endereco, telefone, horario, etc)
+    extras_txt = ""
+    if campos_extras:
+        extras_txt = "\n\n==================================================\n"
+        extras_txt += "INFORMACOES EXTRAS DO NEGOCIO\n"
+        extras_txt += "==================================================\n\n"
+        for k, v in campos_extras.items():
+            extras_txt += f"{k.upper()}: {v}\n"
+
     return (
         logica + "\n\n"
         "==================================================\n"
         "CONTEXTO DO NEGOCIO (o que voce vende)\n"
         "==================================================\n\n"
-        + (prompt_vendedor or "Produto ou servico generico.") + "\n\n"
+        + (prompt_vendedor or "Produto ou servico generico.") + extras_txt + "\n\n"
 
         "==================================================\n"
         "CRM DO CLIENTE (interno, invisivel)\n"
@@ -360,7 +369,10 @@ def gerar_resposta(linha_crm, mensagem_cliente, prompt_vendedor=None, historico=
     if not prompt_vendedor:
         prompt_vendedor = "Voce vende produtos e servicos em geral."
 
-    prompt = _montar_prompt(linha_crm, mensagem_cliente, prompt_vendedor, historico)
+    campos_extras = None
+    if nicho_dict:
+        campos_extras = nicho_dict.get("campos_extras")
+    prompt = _montar_prompt(linha_crm, mensagem_cliente, prompt_vendedor, historico, campos_extras=campos_extras)
 
     try:
         system_prompt = "Voce e um closer consultivo. Entende antes de recomendar. Nunca vende no primeiro contato. Nunca repete saudacao se ja conversou. Uma pergunta por vez. Nunca fica em interrogatorio. Se receber INSTRUCAO DIRETA DO VENDEDOR, executa direto sem responder 'claro'. Nunca usa frases genericas. Responda SEMPRE com os 4 blocos exatos."
@@ -381,7 +393,10 @@ def gerar_resposta_stream(linha_crm, mensagem_cliente, prompt_vendedor=None, his
     if not prompt_vendedor:
         prompt_vendedor = "Voce vende produtos e servicos em geral."
 
-    prompt = _montar_prompt(linha_crm, mensagem_cliente, prompt_vendedor, historico)
+    campos_extras = None
+    if nicho_dict:
+        campos_extras = nicho_dict.get("campos_extras")
+    prompt = _montar_prompt(linha_crm, mensagem_cliente, prompt_vendedor, historico, campos_extras=campos_extras)
 
     try:
         system_prompt = "Voce e um closer consultivo. Entende antes de recomendar. Nunca vende no primeiro contato. Nunca repete saudacao se ja conversou. Uma pergunta por vez. Nunca fica em interrogatorio. Nunca usa frases genericas. Responda SEMPRE com os 4 blocos exatos."

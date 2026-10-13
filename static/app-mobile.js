@@ -86,6 +86,14 @@
             .app-header .app-help-btn:active {
                 transform: scale(0.92) !important;
             }
+            
+            
+            
+            
+            
+            
+            
+            }
             .app-header .app-menu-btn svg,
             .app-header .app-help-btn svg {
                 width: 20px !important;
@@ -230,6 +238,7 @@
                 }
             });
         }
+
     }
 
     // ===== OVERLAY (um só pros 2 drawers) =====
