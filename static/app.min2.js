@@ -1,0 +1,1541 @@
+/* M.A Tech */
+
+
+/* ===== app.js ===== */
+// ============================================
+// M.A TECH — Funções globais de UX
+// ============================================
+
+// Toast — notificação bonita que aparece no canto
+function toast(mensagem, tipo = 'sucesso') {
+    const cores = {
+        sucesso: { bg: '#0a1f15', border: '#00d97e', cor: '#00d97e', icone: '✓' },
+        erro:    { bg: '#1f0a0a', border: '#ff3b3b', cor: '#ff3b3b', icone: '⚠' },
+        aviso:   { bg: '#1f1a0a', border: '#f59e0b', cor: '#f59e0b', icone: 'ℹ' },
+        info:    { bg: '#0a1a1f', border: '#00d97e', cor: '#00d97e', icone: 'ℹ' }
+    };
+    const c = cores[tipo] || cores.sucesso;
+
+    let container = document.getElementById('toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.style.background = c.bg;
+    t.style.borderColor = c.border;
+    t.style.color = c.cor;
+    t.innerHTML = `<span class="toast-icone">${c.icone}</span><span>${mensagem}</span>`;
+
+    container.appendChild(t);
+
+    requestAnimationFrame(() => t.classList.add('toast-show'));
+
+    setTimeout(() => {
+        t.classList.remove('toast-show');
+        setTimeout(() => t.remove(), 300);
+    }, 3000);
+}
+
+// Copiar texto pro clipboard com toast de feedback
+function copiarTexto(id, botao) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const texto = el.innerText || el.textContent;
+    navigator.clipboard.writeText(texto).then(() => {
+        if (botao) {
+            const original = botao.innerText;
+            botao.innerText = '✓ COPIADO!';
+            botao.style.color = '#00d97e';
+            botao.style.borderColor = '#00d97e';
+            setTimeout(() => {
+                botao.innerText = original;
+                botao.style.color = '';
+                botao.style.borderColor = '';
+            }, 1500);
+        }
+        toast('Copiado pra área de transferência', 'sucesso');
+    }).catch(() => toast('Não foi possível copiar', 'erro'));
+}
+
+// Botão com loading interno (evita duplo clique)
+function ligarLoadingEmForms() {
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', () => {
+            const btn = form.querySelector('button[type="submit"]');
+            if (btn && !btn.disabled) {
+                btn.disabled = true;
+                btn.dataset.originalText = btn.innerText;
+                btn.innerHTML = '<span class="btn-spinner"></span> Processando...';
+                btn.style.opacity = '0.7';
+                btn.style.cursor = 'wait';
+            }
+        });
+    });
+}
+
+// Confirmação antes de sair de páginas importantes
+function confirmarSaida(mensagem) {
+    document.querySelectorAll('a[href="/logout"]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            if (!confirm(mensagem || 'Tem certeza que quer sair?')) {
+                e.preventDefault();
+            }
+        });
+    });
+}
+
+// Confirmação em botões com atributo data-confirmar
+function ligarConfirmacoes() {
+    document.querySelectorAll('[data-confirmar]').forEach(el => {
+        el.addEventListener('click', (e) => {
+            if (!confirm(el.dataset.confirmar)) e.preventDefault();
+        });
+    });
+}
+
+// Inicializa tudo quando a página carregar
+document.addEventListener('DOMContentLoaded', () => {
+    ligarLoadingEmForms();
+    ligarConfirmacoes();
+});
+
+// Alias pra manter compatibilidade com templates antigos
+function copiar(id, botao) { copiarTexto(id, botao); }
+
+;
+
+/* ===== icons.js ===== */
+﻿// ============================================
+// M.A TECH — Biblioteca de ícones SVG
+// ============================================
+
+window.ICONE = function(nome, opts) {
+    opts = opts || {};
+    const tamanho = opts.tamanho || 22;
+    const stroke = opts.stroke || 2;
+
+    const svgs = {
+        clientes: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+
+        followups: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+
+        relatorios: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
+
+        raio: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`,
+
+        menu: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`,
+
+        nichos: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
+
+        configuracoes: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`,
+
+        planos: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>`,
+
+        indicar: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>`,
+
+        sair: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
+
+        dashboard: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>`,
+
+        leads: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>`,
+
+        admin: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"/></svg>`,
+
+        novo: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+
+        atender: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+
+        grafico: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+
+        criarnicho: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
+
+        voltar: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>`,
+
+        ajuda: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+
+
+        busca: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`,
+
+        filtro: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>`,
+
+        lapis: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+
+        telefone: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>`,
+
+        envelope: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>`,
+
+        enviar: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>`,
+
+        relogio: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`,
+
+        xis: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+
+        calendario: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+
+        filtros: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>`,
+
+        trofeu: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>`,
+
+        funil: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>`,
+
+        briefcase: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>`,
+
+        whatsapp: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`,
+        user: `<svg xmlns="http://www.w3.org/2000/svg" width="${tamanho}" height="${tamanho}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`
+    };
+
+    return svgs[nome] || '';
+};
+;
+
+/* ===== app-mobile.js ===== */
+﻿// ============================================
+// M.A Tech — App Mobile (header + 2 drawers + swipes)
+// ============================================
+
+(function() {
+    'use strict';
+
+    function isMobile() {
+        return window.matchMedia('(max-width: 768px)').matches;
+    }
+
+    function getUsuario() {
+        const span = document.querySelector('.usuario-info span');
+        return span ? span.textContent.trim() : 'Usuário';
+    }
+
+    function isAdmin() {
+        return !!document.querySelector('.usuario-info a[href="/admin"]');
+    }
+
+    function getFollowups() {
+        return window.__followups_total_cache || 0;
+    }
+
+    function rotaAtiva() {
+        const path = window.location.pathname;
+        if (path === '/clientes' || path === '/bem_vindo' || path.startsWith('/cliente/')) return '/clientes';
+        if (path === '/relatorios') return '/relatorios';
+        if (path === '/followups') return '/followups';
+        if (path === '/meus_nichos' || path === '/novo_nicho') return '/meus_nichos';
+        if (path === '/planos' || path === '/assinar' || path.startsWith('/pagamento/')) return '/planos';
+        if (path === '/configuracoes') return '/configuracoes';
+        if (path === '/indicar') return '/indicar';
+        if (path === '/plano' || path.startsWith('/plano/')) return '/plano';
+        if (path === '/admin' || path.startsWith('/admin/')) return '/admin';
+        return null;
+    }
+
+    // ===== CSS INLINE ? HEADER PREMIUM =====
+    function injetarCSSHeader() {
+        if (document.getElementById('app-header-premium')) return;
+        const st = document.createElement('style');
+        st.id = 'app-header-premium';
+        st.textContent = `
+            .app-header {
+                display: grid !important;
+                grid-template-columns: 44px 1fr 44px !important;
+                align-items: center !important;
+                gap: 10px !important;
+                padding: 12px 16px !important;
+                padding-top: calc(12px + env(safe-area-inset-top, 0px)) !important;
+                background: linear-gradient(180deg, rgba(15,15,15,0.98) 0%, rgba(15,15,15,0.88) 100%) !important;
+                backdrop-filter: blur(20px) saturate(180%) !important;
+                -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+                border-bottom: 1px solid rgba(0,217,126,0.12) !important;
+                position: sticky !important;
+                top: 0 !important;
+                z-index: 9900 !important;
+                box-shadow: 0 2px 20px rgba(0,0,0,0.5) !important;
+            }
+            html[data-tema="claro"] .app-header {
+                background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.88) 100%) !important;
+                border-bottom-color: rgba(0,217,126,0.2) !important;
+            }
+            .app-header .app-menu-btn,
+            .app-header .app-help-btn {
+                width: 42px !important;
+                height: 42px !important;
+                padding: 0 !important;
+                border-radius: 12px !important;
+                background: rgba(0,217,126,0.08) !important;
+                border: 1px solid rgba(0,217,126,0.25) !important;
+                color: #00d97e !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                cursor: pointer !important;
+                transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            }
+            .app-header .app-menu-btn:hover,
+            .app-header .app-help-btn:hover {
+                border-color: rgba(0,217,126,0.6) !important;
+                box-shadow: 0 0 20px rgba(0,217,126,0.2) !important;
+            }
+            .app-header .app-menu-btn:active,
+            .app-header .app-help-btn:active {
+                transform: scale(0.92) !important;
+            }
+            
+            
+            
+            
+            
+            
+            
+            }
+            .app-header .app-menu-btn svg,
+            .app-header .app-help-btn svg {
+                width: 20px !important;
+                height: 20px !important;
+            }
+            .app-header .logo-app {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 9px !important;
+                font-size: 18px !important;
+                font-weight: 800 !important;
+                color: #ffffff !important;
+                text-decoration: none !important;
+                letter-spacing: -0.02em !important;
+                white-space: nowrap !important;
+                margin: 0 auto !important;
+            }
+            .app-header .logo-app em {
+                font-style: normal !important;
+                color: #00d97e !important;
+                text-shadow: 0 0 20px rgba(0,217,126,0.35) !important;
+            }
+            .app-header .logo-app .dot {
+                display: inline-block !important;
+                width: 8px !important;
+                height: 8px !important;
+                background: #00d97e !important;
+                border-radius: 50% !important;
+                box-shadow: 0 0 10px #00d97e, 0 0 20px rgba(0,217,126,0.5) !important;
+                animation: pulso-logo 2s ease-in-out infinite !important;
+            }
+            @keyframes pulso-logo {
+                0%, 100% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.7; transform: scale(0.85); }
+            }
+            html[data-tema="claro"] .app-header .logo-app { color: #0a0a0a !important; }
+        `;
+        document.head.appendChild(st);
+
+        // CSS do logo + slogan
+        if (!document.getElementById('app-logo-style')) {
+            const st2 = document.createElement('style');
+            st2.id = 'app-logo-style';
+            st2.textContent = `
+                .app-header .logo-app {
+                    display: inline-flex !important;
+                    flex-direction: column !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    gap: 2px !important;
+                    text-decoration: none !important;
+                    margin: 0 auto !important;
+                    padding: 0 4px !important;
+                    max-width: 100% !important;
+                }
+                .app-header .logo-img {
+                    height: 38px !important;
+                    width: auto !important;
+                    display: block !important;
+                    filter: drop-shadow(0 0 12px rgba(0,217,126,0.35)) !important;
+                }
+                .app-header .logo-slogan {
+                    font-size: 8px !important;
+                    font-weight: 700 !important;
+                    color: #8a8a8a !important;
+                    letter-spacing: 0.12em !important;
+                    text-transform: uppercase !important;
+                    white-space: nowrap !important;
+                    line-height: 1 !important;
+                }
+                html[data-tema="claro"] .app-header .logo-slogan {
+                    color: #4a4a4a !important;
+                }
+            `;
+            document.head.appendChild(st2);
+        }
+
+        // CSS adicional: forca container a descer (vence qualquer coisa)
+        if (!document.getElementById('app-container-pad')) {
+            const st2 = document.createElement('style');
+            st2.id = 'app-container-pad';
+            st2.textContent = `
+                @media (max-width: 768px) {
+                    html body .container-atendimento,
+                    html body div.container-atendimento,
+                    body > .container-atendimento {
+                        padding-top: 90px !important;
+                    }
+                }
+            `;
+            document.head.appendChild(st2);
+        }
+    }
+
+    // ===== HEADER =====
+    function criarHeader() {
+        injetarCSSHeader();
+        injetarCSSHeader();
+        if (document.querySelector('.app-header')) return;
+        const header = document.createElement('header');
+        header.className = 'app-header';
+        header.innerHTML = `
+            <button class="app-menu-btn" id="app-menu-btn" aria-label="Menu" title="Menu">
+                ${window.ICONE ? window.ICONE('menu', { tamanho: 22 }) : '?'}
+            </button>
+            <a href="/clientes" class="logo-app">
+                <img src="/static/logo.png" alt="M.A Tech" class="logo-img">
+                <span class="logo-slogan">Tecnologia e Solu&ccedil;&atilde;o</span>
+            </a>
+            <button class="app-help-btn" id="app-help-btn" aria-label="Ajuda" title="Ajuda">
+                ${window.ICONE ? window.ICONE('ajuda', { tamanho: 22 }) : '?'}
+            </button>
+        `;
+        // INSERIR ANTES do container-atendimento (nao no final do body)
+        const containerAtual = document.querySelector('.container-atendimento');
+        if (containerAtual && containerAtual.parentNode) {
+            containerAtual.parentNode.insertBefore(header, containerAtual);
+        } else {
+            document.body.insertBefore(header, document.body.firstChild);
+        }
+
+        // FORCA o container a descer pra nao ficar embaixo do header
+        const container = document.querySelector('.container-atendimento');
+        if (container) {
+        }
+
+                const btn = document.getElementById('app-help-btn');
+    if (btn) {
+        btn.addEventListener('click', () => {
+            if (typeof window.abrirPainelAjuda === 'function') {
+                window.abrirPainelAjuda();
+            }
+        });
+    }
+
+        const menuBtn = document.getElementById('app-menu-btn');
+        if (menuBtn) {
+            menuBtn.addEventListener('click', () => {
+                if (typeof window.abrirDrawerApp === 'function') {
+                    window.abrirDrawerApp();
+                }
+            });
+        }
+
+    }
+
+    // ===== OVERLAY (um só pros 2 drawers) =====
+    function criarOverlay() {
+        if (document.querySelector('.app-overlay')) return;
+        const overlay = document.createElement('div');
+        overlay.className = 'app-overlay';
+        overlay.id = 'app-overlay';
+        document.body.appendChild(overlay);
+    }
+
+    // ===== DRAWER ESQUERDO (menu) =====
+    function criarDrawer() {
+        if (document.querySelector('.app-drawer')) return;
+        const nome = getUsuario();
+        const admin = isAdmin();
+        const ativa = rotaAtiva();
+        const total = getFollowups();
+        const primeiraLetra = nome.charAt(0).toUpperCase();
+
+        const links = [
+            { href: '/planos', rota: '/planos', icone: 'planos', texto: 'Planos' },
+            { href: '/indicar', rota: '/indicar', icone: 'indicar', texto: 'Indique e ganhe' },
+            { href: '/configuracoes', rota: '/configuracoes', icone: 'configuracoes', texto: 'Configurações' },
+            { href: 'https://wa.me/5512997291583?text=Oi%2C%20preciso%20de%20ajuda%20com%20o%20M.A%20Tech', rota: '#suporte', icone: 'whatsapp', texto: 'Suporte', externo: true },
+        ];
+        if (admin) {
+            links.push({ href: '/plano', rota: '/plano', icone: 'dashboard', texto: '🧭 Plano M.A Tech' });
+            links.push({ href: '/admin/dashboard', rota: '/admin/dashboard', icone: 'dashboard', texto: 'Dashboard' });
+            links.push({ href: '/admin/leads', rota: '/admin/leads', icone: 'leads', texto: 'Leads' });
+            links.push({ href: '/admin', rota: '/admin', icone: 'admin', texto: 'Admin' });
+        }
+
+        let linksHTML = '';
+        for (const l of links) {
+            const ativo = (l.rota === ativa) ? 'menu-ativo' : '';
+            const badge = l.badge > 0 ? `<span class="badge-menu">${l.badge > 99 ? '99+' : l.badge}</span>` : '';
+            const svgIcon = window.ICONE ? window.ICONE(l.icone, { tamanho: 20 }) : '';
+            linksHTML += `<a href="${l.href}" class="${ativo}"${l.externo ? ` target="_blank" rel="noopener"` : ``}>
+                <span class="icone">${svgIcon}</span>
+                <span class="texto">${l.texto}${badge}</span>
+            </a>`;
+        }
+
+        const drawer = document.createElement('aside');
+        drawer.className = 'app-drawer';
+        drawer.id = 'app-drawer';
+        drawer.innerHTML = `
+            <div class="app-drawer-header">
+                <div class="avatar">${primeiraLetra}</div>
+                <div class="nome">${nome}</div>
+                <div class="papel">${admin ? 'Administrador' : 'Vendedor'}</div>
+            </div>
+            <nav class="app-drawer-lista">${linksHTML}</nav>
+            <div class="app-drawer-footer">
+                <a href="/logout">
+                    <span class="icone">${window.ICONE ? window.ICONE('sair', { tamanho: 20 }) : ''}</span>
+                    Sair da conta
+                </a>
+            </div>
+        `;
+        document.body.appendChild(drawer);
+    }
+
+    // ===== DRAWER DIREITO (follow-ups rápidos) =====
+    function criarDrawerRight() {
+        if (document.querySelector('.app-drawer-right')) return;
+
+        const drawer = document.createElement('aside');
+        drawer.className = 'app-drawer-right';
+        drawer.id = 'app-drawer-right';
+        drawer.innerHTML = `
+            <div class="app-drawer-header">
+                <div class="avatar">⚡</div>
+                <div class="nome">Follow-ups rápidos</div>
+                <div class="papel">quem falar hoje</div>
+            </div>
+            <div style="flex:1;overflow-y:auto;padding:12px 14px;" id="fr-lista">
+                <div class="fr-vazio"><div class="ok">...</div>Carregando...</div>
+            </div>
+            <div class="app-drawer-footer">
+                <a href="/followups" style="color:#f59e0b;">
+                    <span class="icone">${window.ICONE ? window.ICONE('followups', { tamanho: 20 }) : ''}</span>
+                    Ver todos os follow-ups
+                </a>
+            </div>
+        `;
+        document.body.appendChild(drawer);
+
+        // Carrega follow-ups via API
+        carregarFollowupsDrawer();
+    }
+
+    function carregarFollowupsDrawer() {
+        const lista = document.getElementById('fr-lista');
+        if (!lista) return;
+
+        fetch('/api/total-followups').then(r => r.json()).then(d => {
+            const total = d.total || 0;
+            if (total === 0) {
+                lista.innerHTML = '<div class="fr-vazio"><div class="ok">✓</div>Tudo em dia!<br><span style="color:#5a5a5a;font-size:12px;">Ninguém precisa de atenção agora</span></div>';
+                return;
+            }
+            // Busca os follow-ups reais
+            return fetch('/api/followups-rapidos').then(r => r.json()).then(f => {
+                const itens = f.itens || [];
+                if (itens.length === 0) {
+                    lista.innerHTML = '<div class="fr-vazio"><div class="ok">✓</div>Tudo em dia!</div>';
+                    return;
+                }
+                let html = '';
+                itens.forEach(i => {
+                    const cls = i.urgencia || 'atencao';
+                    const letra = (i.nome || 'S').charAt(0).toUpperCase();
+                    html += `<a href="/cliente/${i.id}/atender" class="fr-card ${cls}">
+                        <div class="avatar-mini">${letra}</div>
+                        <div class="fr-info">
+                            <div class="fr-nome">${i.nome || 'Sem nome'}</div>
+                            <div class="fr-dias">${i.dias_sem_contato}d sem contato</div>
+                        </div>
+                        <span class="fr-seta">›</span>
+                    </a>`;
+                });
+                lista.innerHTML = html;
+            });
+        }).catch(() => {
+            lista.innerHTML = '<div class="fr-vazio">Erro ao carregar</div>';
+        });
+    }
+
+    // ===== ABRIR / FECHAR =====
+    function abrirDrawer() {
+        const drawer = document.getElementById('app-drawer');
+        const right = document.getElementById('app-drawer-right');
+        const overlay = document.getElementById('app-overlay');
+        if (right) right.classList.remove('aberto');
+        if (drawer) drawer.classList.add('aberto');
+        if (overlay) overlay.classList.add('aberto');
+        document.body.classList.add('drawer-aberto');
+    }
+
+    function abrirDrawerRight() {
+        // Redireciona direto pra página de follow-ups
+        window.location.href = '/followups';
+    }
+
+    function fecharDrawer() {
+        const drawer = document.getElementById('app-drawer');
+        const right = document.getElementById('app-drawer-right');
+        const overlay = document.getElementById('app-overlay');
+        if (drawer) drawer.classList.remove('aberto');
+        if (right) right.classList.remove('aberto');
+        if (overlay) overlay.classList.remove('aberto');
+        document.body.classList.remove('drawer-aberto');
+    }
+
+    // ===== EVENTOS =====
+    function ligarEventos() {
+        const overlay = document.getElementById('app-overlay');
+        if (overlay) overlay.addEventListener('click', fecharDrawer);
+
+        document.querySelectorAll('.app-drawer a').forEach(link => {
+            link.addEventListener('click', () => {
+                fecharDrawer();
+                document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+            });
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') fecharDrawer();
+        });
+
+        }
+
+    // Expõe
+    window.abrirDrawerApp = abrirDrawer;
+    window.abrirDrawerRightApp = abrirDrawerRight;
+    window.fecharDrawerApp = fecharDrawer;
+
+    function init() {
+        const path = window.location.pathname;
+        if (path === '/' || path === '/login' || path === '/signup' || path === '/ver-landing') return;
+        if (!document.querySelector('.usuario-info')) return;
+        if (!isMobile()) return;
+
+        criarHeader();
+        criarOverlay();
+        criarDrawer();
+        // criarDrawerRight();
+        ligarEventos();
+
+        window.addEventListener('resize', () => {
+            if (!isMobile()) {
+                fecharDrawer();
+                const header = document.querySelector('.app-header');
+                if (header) header.style.display = 'none';
+            }
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+
+;
+
+/* ===== app-bottom-nav.js ===== */
+﻿// ============================================
+// M.A TECH â€” Bottom Nav
+// ============================================
+
+(function() {
+    'use strict';
+
+    if (window.__matech_bottom_nav_ativo) return;
+    window.__matech_bottom_nav_ativo = true;
+
+    function isMobile() {
+        return window.matchMedia('(max-width: 768px)').matches;
+    }
+
+    function icone(nome, tam) {
+        return window.ICONE ? window.ICONE(nome, { tamanho: tam || 22 }) : '';
+    }
+
+    function rotaAtiva() {
+        const path = window.location.pathname;
+        if (path === '/clientes' || path === '/bem_vindo' || path.startsWith('/cliente/')) return 'clientes';
+        if (path === '/followups') return 'followups';
+        if (path === '/relatorios') return 'relatorios';
+        if (path === '/meus_nichos' || path === '/novo_nicho') return 'nichos';
+        if (path === '/configuracoes' || path === '/planos' || path === '/indicar') return 'menu';
+        if (path === '/consultoria') return 'consultoria';
+        return null;
+    }
+
+    function getFollowups() {
+        return window.__followups_total_cache || 0;
+    }
+
+    // Busca o total de follow-ups e atualiza o badge
+    function carregarTotal() {
+        fetch('/api/total-followups')
+            .then(r => r.json())
+            .then(d => {
+                const total = d.total || 0;
+                window.__followups_total_cache = total;
+
+                const nav = document.querySelector('.app-bottom-nav');
+                if (!nav) return;
+
+                const link = nav.querySelector('a[href="/followups"]');
+                if (!link) return;
+
+                let badge = link.querySelector('.badge-nav');
+                const iconeEl = link.querySelector('.icone-nav');
+
+                if (total > 0) {
+                    if (!badge && iconeEl) {
+                        badge = document.createElement('span');
+                        badge.className = 'badge-nav';
+                        iconeEl.appendChild(badge);
+                    }
+                    if (badge) {
+                        badge.textContent = total > 99 ? '99+' : total;
+                    }
+                } else if (badge) {
+                    badge.remove();
+                }
+            })
+            .catch(() => {});
+    }
+
+    // Busca o total de Consultorias pendentes e atualiza o badge
+    function carregarConsultoria() {
+        fetch('/api/consultoria-pendente')
+            .then(r => r.json())
+            .then(d => {
+                const total = d.pendente || 0;
+                window.__consultoria_pendente_cache = total;
+
+                const nav = document.querySelector('.app-bottom-nav');
+                if (!nav) return;
+
+                const link = nav.querySelector('a[href="/consultoria"]');
+                if (!link) return;
+
+                let badge = link.querySelector('.badge-nav');
+                const iconeEl = link.querySelector('.icone-nav');
+
+                if (total > 0) {
+                    if (!badge && iconeEl) {
+                        badge = document.createElement('span');
+                        badge.className = 'badge-nav';
+                        iconeEl.appendChild(badge);
+                    }
+                    if (badge) {
+                        badge.textContent = total > 9 ? '9+' : total;
+                    }
+                } else if (badge) {
+                    badge.remove();
+                }
+            })
+            .catch(() => {});
+    }
+
+    function criarBottomNav() {
+        document.querySelectorAll('.app-bottom-nav').forEach(n => n.remove());
+        if (!isMobile()) return;
+        if (!document.querySelector('.usuario-info')) return;
+
+        const ativa = rotaAtiva();
+        const total = getFollowups();
+        const badge = total > 0 ? `<span class="badge-nav">${total > 99 ? '99+' : total}</span>` : '';
+
+        const nav = document.createElement('nav');
+        nav.className = 'app-bottom-nav';
+        nav.innerHTML = `
+            <a href="/consultoria/loading" class="nav-item ${ativa === 'consultoria' ? 'ativo' : ''}">
+                <span class="icone-nav">${icone('briefcase')}</span>
+                <span class="txt-nav">Consultoria</span>
+            </a>
+            <a href="/relatorios" class="nav-item ${ativa === 'relatorios' ? 'ativo' : ''}">
+                <span class="icone-nav">${icone('relatorios')}</span>
+                <span class="txt-nav">Relatorios</span>
+            </a>
+            <a href="/clientes" class="nav-item destaque" title="Atendimento">
+                <span class="icone-nav">${icone('raio', 26)}</span>
+            </a>
+            <a href="/followups" class="nav-item ${ativa === 'followups' ? 'ativo' : ''}" id="nav-followups-btn">
+                <span class="icone-nav">${icone('followups')}${badge}</span>
+                <span class="txt-nav">Follow-ups</span>
+            </a>
+            <a href="/meus_nichos" class="nav-item ${ativa === 'nichos' ? 'ativo' : ''}">
+                <span class="icone-nav">${icone('nichos')}</span>
+                <span class="txt-nav">Nichos</span>
+            </a>
+        `;
+
+        document.body.appendChild(nav);
+
+        const menuBtn = document.getElementById('nav-menu-btn');
+        if (menuBtn) {
+            menuBtn.addEventListener('click', () => {
+                if (window.abrirDrawerApp) {
+                    window.abrirDrawerApp();
+                } else {
+                    const drawer = document.getElementById('app-drawer');
+                    const overlay = document.getElementById('app-overlay');
+                    if (drawer) drawer.classList.add('aberto');
+                    if (overlay) overlay.classList.add('aberto');
+                    document.body.classList.add('drawer-aberto');
+                }
+            });
+        }
+
+        // Busca os totais e atualiza os badges
+        setTimeout(carregarTotal, 150);
+        setTimeout(carregarConsultoria, 300);
+    }
+
+    function init() {
+        const path = window.location.pathname;
+        if (path === '/' || path === '/login' || path === '/signup' || path === '/ver-landing') return;
+        criarBottomNav();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+
+;
+
+/* ===== help.js ===== */
+﻿// ============================================
+// M.A Tech — Ajuda contextual
+// ============================================
+
+const AJUDA = {
+
+    '/hub': {
+        titulo: 'Areas M.A Tech',
+        descricao: 'Esse e o ponto de partida. Aqui voce acessa tudo: atendimento com IA, consultoria empresarial e as ferramentas do seu negocio. Cada card leva pra uma area diferente do sistema.',
+        dicas: [
+            'Comece cadastrando seus clientes na area de atendimento.',
+            'A IA so funciona bem depois que voce configura seu nicho (produto, publico, preco).',
+            'Se for sua primeira vez, faca o onboarding completo antes de usar.'
+        ]
+    },
+
+    '/clientes': {
+        titulo: 'Meus Clientes',
+        descricao: 'Aqui ficam todos os seus leads e clientes. Cada um tem status, origem e historico de conversa. Voce pode cadastrar manualmente ou deixar a IA registrar automaticamente quando voce colar uma mensagem.',
+        dicas: [
+            'Use filtros pra encontrar clientes por status (novo lead, negociacao, cliente).',
+            'Clique no cliente pra ver o historico completo de conversas.',
+            'Clique em "Atender" pra gerar uma resposta da IA pra esse cliente especifico.',
+            'Quanto mais rapido voce responde um lead novo, maior a chance de fechar.'
+        ]
+    },
+
+    '/cliente_detalhe': {
+        titulo: 'Detalhes do Cliente',
+        descricao: 'Tela com o historico completo desse cliente. Mostra todas as conversas, o status atual e as ultimas mensagens que a IA gerou pra ele.',
+        dicas: [
+            'O historico fica salvo pra sempre, entao voce nunca perde contexto.',
+            'Use o botao "Atender" pra continuar a conversa de onde parou.',
+            'Atualize o status do cliente quando ele avancar no funil.'
+        ]
+    },
+
+    '/atendimento_cliente': {
+        titulo: 'Atender Cliente',
+        descricao: 'Aqui voce cola a mensagem que o cliente te mandou no WhatsApp. A IA vai analisar o historico e devolver 3 blocos prontos: O QUE FALAR (audio), TEXTO PARA ENVIAR e o ESTAGIO do lead.',
+        dicas: [
+            'Cole a mensagem EXATA do cliente. Nao resuma.',
+            'A IA leva de 2 a 7 segundos pra gerar a resposta.',
+            'Depois que a IA responder, voce copia o texto e envia no WhatsApp normalmente.',
+            'Se for uma INSTRUCAO sua pra IA (nao uma mensagem do cliente), marque a opcao "Isso e instrucao".'
+        ]
+    },
+
+    '/resultado': {
+        titulo: 'Resposta da IA',
+        descricao: 'A IA devolve 3 blocos: O QUE FALAR (pra voce gravar audio), TEXTO PARA ENVIAR (pra copiar direto) e o ESTAGIO do cliente (pra atualizar o funil). E so copiar, colar no WhatsApp e seguir a venda.',
+        dicas: [
+            'Grave audio com o texto de "O QUE FALAR" - passa mais confianca que texto.',
+            'Se o bloco "TEXTO PARA ENVIAR" estiver com "NENHUM", significa que e melhor gravar audio.',
+            'O ESTAGIO atualiza o funil automaticamente - nao precisa mexer manualmente.',
+            'Se a resposta nao ficou boa, tente colar mais contexto ou reescreva a mensagem do cliente.'
+        ]
+    },
+
+    '/followups': {
+        titulo: 'Follow-ups',
+        descricao: 'Lista de clientes que voce precisa dar atencao. Cada lead tem um prazo sugerido baseado no estagio dele. O sistema te avisa quem esta atrasado pra voce nao esquecer ninguem.',
+        dicas: [
+            'Abra essa tela toda manha. E a coisa mais importante do dia.',
+            'Cliente novo lead: responder em ate 1 dia.',
+            'Cliente em atendimento ou negociacao: contato a cada 2 dias.',
+            'Nao deixe ninguem passar de 3 dias sem resposta.'
+        ]
+    },
+
+    '/meus_nichos': {
+        titulo: 'Meus Nichos',
+        descricao: 'Cada nicho e um produto ou servico diferente que voce vende. A IA usa essas informacoes pra gerar respostas especificas pro seu negocio. Sem nicho bem configurado, a IA responde generico.',
+        dicas: [
+            'Configure quantos nichos seu plano permitir.',
+            'Nicho bem preenchido = IA que fala do SEU produto, com SEU tom.',
+            'Se voce vende pra publicos diferentes, crie nichos separados.',
+            'Voce pode pausar um nicho sem apagar (util pra testar).'
+        ]
+    },
+
+    '/novo_nicho': {
+        titulo: 'Novo Nicho',
+        descricao: 'Formulario de 7 perguntas que ensina a IA sobre o que voce vende. Quanto mais detalhado, melhor a resposta.',
+        dicas: [
+            'Produto: o que exatamente voce vende.',
+            'Publico: seja especifico ("donos de pet shop", nao "empresarios").',
+            'Preco: coloque o valor real. A IA usa isso pra tratar objecao.',
+            'Dor: qual problema real seu cliente tem.',
+            'Objecao: o que as pessoas falam pra nao comprar.',
+            'Diferencial: por que comprar de voce e nao do concorrente.',
+            'Tom: como voce fala no WhatsApp (direto, amigavel, formal).'
+        ]
+    },
+
+    '/planos': {
+        titulo: 'Planos',
+        descricao: 'Veja seu consumo, faca upgrade ou veja todos os planos disponiveis. Cada plano tem limite de interacoes por mes, e o primeiro mes tem desconto de 50%.',
+        dicas: [
+            'O contador mostra quanto voce ja usou do limite mensal.',
+            'Quando passa de 100%, aparece um aviso. So bloqueia em 120%.',
+            'O excedente e cobrado a R$ 0,10 por interacao extra.',
+            'Se esta usando muito, considere upgrade de plano.'
+        ]
+    },
+
+    '/indicar': {
+        titulo: 'Indique e Ganhe',
+        descricao: 'Programa de indicacao: voce ganha desconto quando um amigo assina a M.A Tech. Compartilhe seu link unico e receba creditos a cada pessoa que entrar.',
+        dicas: [
+            'Cada indicacao que virar cliente pago te da 1 mes gratis.',
+            'O link e unico e rastreia todas as suas indicacoes.',
+            'Compartilhe com outros vendedores que tambem atendem no WhatsApp.',
+            'Quanto mais indicacoes, mais tempo voce fica sem pagar.'
+        ]
+    },
+
+    '/configuracoes': {
+        titulo: 'Configuracoes',
+        descricao: 'Ajustes da sua conta: nome, WhatsApp, senha, e-mail e preferencias de notificacao.',
+        dicas: [
+            'Mantenha o WhatsApp atualizado pra receber avisos.',
+            'Troque a senha se desconfiar de acesso indevido.',
+            'Se quiser cancelar, faca em Planos > Cancelar assinatura.'
+        ]
+    },
+
+    '/obrigado': {
+        titulo: 'Obrigado!',
+        descricao: 'Sua conta foi criada com sucesso. Agora e hora de configurar seu negocio pra IA comecar a trabalhar pra voce.',
+        dicas: [
+            'Proximo passo: responder as 7 perguntas do onboarding.',
+            'Depois, cadastre seus primeiros clientes.',
+            'Cole a mensagem do WhatsApp e veja a IA trabalhar.'
+        ]
+    },
+
+    '/bem_vindo': {
+        titulo: 'Bem-vindo a M.A Tech',
+        descricao: 'Sua IA foi configurada com sucesso. Agora ela ja sabe o que voce vende, pra quem vende e como falar. Esta pronta pra te ajudar a atender e fechar mais vendas.',
+        dicas: [
+            'Proximo passo: cadastre seu primeiro cliente.',
+            'Cole a mensagem que ele te mandou no WhatsApp.',
+            'A IA devolve a resposta pronta em segundos.',
+            'Use o botao "?" a qualquer momento pra ver dicas dessa tela.'
+        ]
+    },
+
+    '/termos': {
+        titulo: 'Termos de Uso',
+        descricao: 'Regras pra usar a M.A Tech. Descreve o que voce pode e nao pode fazer no sistema, seus direitos e nossas responsabilidades.',
+        dicas: [
+            'Leia com atencao antes de usar.',
+            'Se discordar, nao use a plataforma.',
+            'Duvidas: matechtecnologia01@gmail.com'
+        ]
+    },
+
+    '/privacidade': {
+        titulo: 'Politica de Privacidade',
+        descricao: 'Como a M.A Tech cuida dos seus dados. Explica o que coletamos, como usamos e seus direitos (LGPD).',
+        dicas: [
+            'Seus dados nao sao vendidos pra ninguem.',
+            'Voce pode pedir exclusao quando quiser.',
+            'Conversas dos clientes ficam criptografadas e so voce acessa.'
+        ]
+    },
+
+    '/consultoria': {
+        titulo: 'Consultoria Empresarial',
+        descricao: 'Area com IA consultora que diagnostica seu negocio. Ela analisa seus dados reais, identifica o gargalo e sugere um plano de acao. Esta em desenvolvimento - em breve liberada pra todos.',
+        dicas: [
+            'Enquanto esta em dev, o cliente ve uma tela "Em breve".',
+            'Quando for liberada, ela vai acessar todos os seus dados pra diagnosticar.',
+            'A consultoria e o primeiro passo pra vender Gestao e CRM no futuro.'
+        ]
+    },
+
+    '/admin': {
+        titulo: 'Painel Admin',
+        descricao: 'Area exclusiva do administrador. Aqui voce ve todos os vendedores cadastrados, seus planos, status e dados de contato. Use pra dar suporte e acompanhar crescimento.',
+        dicas: [
+            'Clique num vendedor pra ver os detalhes e o historico dele.',
+            'Voce pode editar plano manualmente (util pra testes ou cortesias).',
+            'Crie vendedor manualmente se precisar cadastrar alguem sem passar pelo signup.',
+            'Acompanhe os leads da landing page na aba "Leads".'
+        ]
+    },
+
+    '/admin/dashboard': {
+        titulo: 'Dashboard Admin',
+        descricao: 'Visao geral da plataforma: evolucao dos ultimos 6 meses, vendedores ativos, leads recebidos, clientes pagantes e receita. Tudo que voce precisa pra tomar decisao.',
+        dicas: [
+            'O grafico mostra a evolucao mes a mes de vendedores e leads.',
+            'Use pra ver se a landing e os anuncios estao convertendo.',
+            'Compare o crescimento de leads com o de clientes pagantes.',
+            'Se os leads sobem mas pagantes nao, o problema esta na conversao.'
+        ]
+    },
+
+    '/admin/leads': {
+        titulo: 'Leads da Landing',
+        descricao: 'Lista de visitantes que deixaram o WhatsApp na landing page querendo conhecer o sistema. Sao oportunidades quentes - entre em contato rapido.',
+        dicas: [
+            'Clique no lead pra abrir o WhatsApp dele direto.',
+            'Contate em ate 1 hora. Lead frio esfria rapido.',
+            'Se nao responder no primeiro dia, tente no segundo.',
+            'Quem deixa WhatsApp na landing tem interesse real - nao perca.'
+        ]
+    }
+
+};
+
+function detectarRota() {
+    const path = window.location.pathname;
+    if (path.match(/^\/cliente\/\d+$/)) return '/cliente_detalhe';
+    if (path.match(/^\/cliente\/\d+\/atender$/)) return '/atendimento_cliente';
+    if (path.match(/^\/resultado\/\d+$/)) return '/resultado';
+    if (path === '/admin/dashboard') return '/admin/dashboard';
+    if (path === '/admin/leads') return '/admin/leads';
+    if (path.match(/^\/admin\/vendedor\/\d+/)) return '/admin';
+    if (path === '/') return null;
+    return path;
+}
+
+function abrirPainelAjuda() {
+    const painel = document.getElementById('ajuda-painel');
+    const btn = document.querySelector('.ajuda-header-btn');
+    if (!painel) return;
+    if (painel.style.display === 'block') {
+        painel.style.display = 'none';
+        if (btn) btn.classList.remove('ativo');
+        return;
+    }
+    painel.style.display = 'block';
+    if (btn) btn.classList.add('ativo');
+}
+
+window.abrirPainelAjuda = abrirPainelAjuda;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const path = window.location.pathname;
+    if (path === '/' || path === '/login' || path === '/signup' || path === '/ver-landing') return;
+
+    const rota = detectarRota();
+    const info = AJUDA[rota];
+    if (!info) return;
+
+    const usuarioInfo = document.querySelector('.usuario-info');
+    if (!usuarioInfo) return;
+
+    // Botão Ajuda (sem borda)
+    if (!usuarioInfo.querySelector('.ajuda-header-btn')) {
+        const btn = document.createElement('a');
+        btn.className = 'ajuda-header-btn';
+        btn.href = 'javascript:void(0)';
+        btn.innerHTML = '<span class="ajuda-icone">?</span> Ajuda';
+        btn.title = 'Como usar esta tela';
+        btn.onclick = abrirPainelAjuda;
+        btn.style.color = '#8a8a8a';
+        btn.style.textDecoration = 'none';
+        btn.style.fontWeight = '500';
+        btn.style.fontSize = '14px';
+        btn.style.display = 'inline-flex';
+        btn.style.alignItems = 'center';
+        btn.style.gap = '6px';
+        btn.style.cursor = 'pointer';
+        btn.style.lineHeight = '1';
+
+        const icone = btn.querySelector('.ajuda-icone');
+        icone.style.display = 'inline-flex';
+        icone.style.alignItems = 'center';
+        icone.style.justifyContent = 'center';
+        icone.style.width = '18px';
+        icone.style.height = '18px';
+        icone.style.borderRadius = '50%';
+        icone.style.background = '#1f1f1f';
+        icone.style.color = '#8a8a8a';
+        icone.style.fontWeight = '800';
+        icone.style.fontSize = '12px';
+        icone.style.fontFamily = 'monospace';
+
+        const sair = Array.from(usuarioInfo.querySelectorAll('a')).find(a => (a.getAttribute('href') || '') === '/logout');
+        if (sair) usuarioInfo.insertBefore(btn, sair);
+        else usuarioInfo.appendChild(btn);
+    }
+
+    // Destaca a aba atual
+    let rotaAtiva = null;
+    if (path === '/clientes' || path === '/bem_vindo' || path.startsWith('/cliente/')) rotaAtiva = '/clientes';
+    else if (path === '/relatorios') rotaAtiva = '/relatorios';
+    else if (path === '/followups') rotaAtiva = '/followups';
+    else if (path === '/meus_nichos' || path === '/novo_nicho') rotaAtiva = '/meus_nichos';
+    else if (path === '/planos' || path === '/assinar' || path.startsWith('/pagamento/')) rotaAtiva = '/planos';
+    else if (path === '/admin' || path.startsWith('/admin/')) rotaAtiva = '/admin';
+
+    if (rotaAtiva) {
+        usuarioInfo.querySelectorAll('a[data-rota]').forEach(a => {
+            if (a.getAttribute('data-rota') === rotaAtiva) {
+                a.style.color = '#0a0a0a';
+                a.style.background = '#00d97e';
+                a.style.fontWeight = '800';
+                a.style.padding = '6px 14px';
+                a.style.borderRadius = '6px';
+                a.style.boxShadow = '0 4px 16px rgba(0,217,126,0.4)';
+                a.style.textDecoration = 'none';
+            }
+        });
+    }
+
+    // Painel de ajuda
+    if (!document.getElementById('ajuda-painel')) {
+        const topo = document.querySelector('.topo');
+        if (!topo) return;
+        const painel = document.createElement('div');
+        painel.id = 'ajuda-painel';
+        painel.style.display = 'none';
+        painel.style.marginTop = '0';
+        painel.style.marginBottom = '24px';
+        painel.style.background = 'linear-gradient(135deg, #0f1a15 0%, #141414 100%)';
+        painel.style.border = '1px solid #222222';
+        painel.style.borderLeft = '4px solid #00d97e';
+        painel.style.borderRadius = '12px';
+        painel.style.boxShadow = '0 12px 40px rgba(0,217,126,0.08)';
+        painel.innerHTML = `
+            <div style="padding: 22px 24px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:10px;">
+                    <h3 style="margin:0; font-size:17px; color:#fff; font-weight:700;">${info.titulo}</h3>
+                    <button onclick="abrirPainelAjuda()" title="Fechar" style="background:#1a1a1a; color:#8a8a8a; border:1px solid #2a2a2a; width:28px; height:28px; border-radius:6px; cursor:pointer; font-size:12px; padding:0; line-height:1; display:flex; align-items:center; justify-content:center; font-family:inherit;">×</button>
+                </div>
+                <p style="color:#8a8a8a; font-size:14px; line-height:1.6; margin:0 0 16px 0; padding-bottom:14px; border-bottom:1px solid #222222;">${info.descricao}</p>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    ${info.dicas.map(d => `<div style="padding:8px 8px 8px 26px; color:#e8e8e8; font-size:13.5px; line-height:1.6; position:relative; background:rgba(0,0,0,0.2); border-radius:6px;"><span style="position:absolute; left:8px; top:8px; color:#00d97e; font-weight:800;">✓</span>${d}</div>`).join('')}
+                </div>
+            </div>
+        `;
+        topo.parentNode.insertBefore(painel, topo.nextSibling);
+    }
+});
+;
+
+/* ===== app-ux.js ===== */
+// ============================================
+// M.A TECH — UX: Haptic + Transições
+// ============================================
+
+(function() {
+
+    'use strict';
+
+    const PREF_HAPTIC = () => localStorage.getItem('matech_haptic') !== 'off';
+    const PREF_ANIMACOES = () => localStorage.getItem('matech_animacoes') !== 'off';
+
+    // ===== RESET de segurança (caso algo trave) =====
+    window.addEventListener('pageshow', () => {
+        document.body.style = '1';
+        // document.body.style = 'translateX(0)'; // DESATIVADO: quebra position:fixed
+        document.body.classList.remove('drawer-aberto');
+    });
+
+    // ===== HAPTIC FEEDBACK =====
+    function vibrar(ms) {
+        if (!PREF_HAPTIC()) return;
+        if (!('vibrate' in navigator)) return;
+        try { navigator.vibrate(ms || 10); } catch (e) {}
+    }
+
+    function ligarHaptic() {
+        document.addEventListener('click', (e) => {
+            const alvo = e.target.closest('button, .btn-gerar, .btn-mini, .btn-copiar, .btn-acao, .app-hamburger, .toggle, .segmented button');
+            if (alvo) vibrar(12);
+        }, { passive: true });
+    }
+
+    // ===== TRANSIÇÕES ENTRE TELAS =====
+    function ligarTransicoes() {
+        if (!window.matchMedia('(max-width: 768px)').matches) return;
+        if (!PREF_ANIMACOES()) return;
+
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (!link) return;
+
+            const href = link.getAttribute('href');
+            if (!href) return;
+            if (href.startsWith('#') || href.startsWith('javascript:')) return;
+            if (href.startsWith('/logout')) return;
+            if (link.target === '_blank') return;
+            if (href.startsWith('http') && !href.startsWith(location.origin)) return;
+            if (href === location.pathname) return;
+
+            e.preventDefault();
+
+            // Fecha drawer se estiver aberto
+            const drawer = document.getElementById('app-drawer');
+            const overlay = document.getElementById('app-overlay');
+            if (drawer) drawer.classList.remove('aberto');
+            if (overlay) overlay.classList.remove('aberto');
+            document.body.classList.remove('drawer-aberto');
+
+            // Animação leve (não trava a tela)
+            document.body.style = 'opacity 0.15s ease';
+            document.body.style = '0.7';
+
+            setTimeout(() => {
+                window.location.href = href;
+            }, 150);
+        });
+
+        // Entrada suave
+        document.body.style = '0';
+        document.body.style = 'opacity 0.2s ease';
+        requestAnimationFrame(() => {
+            document.body.style = '1';
+        });
+    }
+
+    // ===== PULL TO REFRESH =====
+    function ligarPullToRefresh() {
+        if (!window.matchMedia('(max-width: 768px)').matches) return;
+
+        let startY = 0;
+        let puxando = false;
+        let indicador = null;
+        let pronto = false;
+
+        function criarIndicador() {
+            if (indicador) return indicador;
+            indicador = document.createElement('div');
+            indicador.id = 'ptr-indicador';
+            indicador.style.cssText = `
+                position: fixed;
+                top: 70px;
+                left: 50%;
+                transform: translateX(-50%) translateY(-40px);
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                background: #141414;
+                border: 1px solid #222;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9997;
+                opacity: 0;
+                transition: all 0.25s ease;
+                pointer-events: none;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            `;
+            const spinner = document.createElement('div');
+            spinner.style.cssText = `
+                width: 16px;
+                height: 16px;
+                border: 2px solid #1a1a1a;
+                border-top-color: #00d97e;
+                border-radius: 50%;
+                animation: spin 0.8s linear infinite;
+            `;
+            indicador.appendChild(spinner);
+            document.body.appendChild(indicador);
+            return indicador;
+        }
+
+        document.addEventListener('touchstart', (e) => {
+            if (window.scrollY > 10) return;
+            startY = e.touches[0].clientY;
+            puxando = true;
+            pronto = false;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!puxando) return;
+            const dy = e.touches[0].clientY - startY;
+            if (dy > 60) {
+                const ind = criarIndicador();
+                ind.style.opacity = '1';
+                ind.style.transform = 'translateX(-50%) translateY(0)';
+                if (dy > 120) pronto = true;
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', () => {
+            if (!puxando) return;
+            puxando = false;
+            if (indicador) {
+                indicador.style.opacity = '0';
+                indicador.style.transform = 'translateX(-50%) translateY(-40px)';
+            }
+            if (pronto) {
+                setTimeout(() => window.location.reload(), 150);
+            }
+        }, { passive: true });
+    }
+
+    // ===== INIT =====
+    function init() {
+        const path = window.location.pathname;
+        if (path === '/' || path === '/login' || path === '/signup') return;
+
+        ligarHaptic();
+        ligarTransicoes();
+        ligarPullToRefresh();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+;
+
+/* ===== app-roleta.js ===== */
+// ============================================
+// M.A Tech — Roleta das abas do rodapé
+// Ordem: Menu → Relatórios → Clientes → Nichos → Follow-ups
+// ============================================
+
+(function() {
+    'use strict';
+
+    var ABAS = [
+        { nome: 'Menu',       tipo: 'drawer', url: null },            // 0
+        { nome: 'Relatórios', tipo: 'link', url: '/relatorios' },     // 1
+        { nome: 'Clientes',   tipo: 'link', url: '/clientes' },       // 2
+        { nome: 'Nichos',     tipo: 'link', url: '/meus_nichos' },    // 3
+        { nome: 'Follow-ups', tipo: 'link', url: '/followups' }       // 4
+    ];
+
+    function isMobile() { return matchMedia('(max-width: 768px)').matches; }
+    function ehPublica() {
+        var p = location.pathname;
+        return p === '/' || p === '/login' || p === '/signup' || p === '/ver-landing';
+    }
+    function acharAbaAtual() {
+        var p = location.pathname;
+        if (p === '/relatorios') return 1;
+        if (p === '/clientes' || p === '/bem_vindo' || p.startsWith('/cliente/')) return 2;
+        if (p === '/meus_nichos' || p === '/novo_nicho') return 3;
+        if (p === '/followups') return 4;
+        return -1;
+    }
+
+    var atual = -1;
+    var x0 = 0, y0 = 0;
+    var tracking = false;
+    var disparou = false;
+    var indo = false;
+
+    function mostrarCard(nome, dir) {
+        var antigo = document.getElementById('roleta-card');
+        if (antigo) antigo.remove();
+
+        var card = document.createElement('div');
+        card.id = 'roleta-card';
+        var css = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(0.85);';
+        css += 'background:rgba(20,20,20,0.96);border:1px solid rgba(0,217,126,0.4);';
+        css += 'border-radius:18px;padding:16px 22px;z-index:999999;opacity:0;';
+        css += 'transition:opacity 0.25s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1);';
+        css += 'pointer-events:none;display:flex;align-items:center;gap:14px;';
+        css += 'box-shadow:0 24px 60px rgba(0,0,0,0.8);';
+        css += 'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;';
+        css += 'min-width:220px;';
+        card.style.cssText = css;
+
+        var seta = dir === 'next' ? '→' : '←';
+        var label = dir === 'next' ? 'Próxima' : 'Anterior';
+        card.innerHTML =
+            '<div style="width:40px;height:40px;border-radius:11px;' +
+            'background:linear-gradient(135deg,#00d97e,#008a4f);' +
+            'display:flex;align-items:center;justify-content:center;' +
+            'color:#0a0a0a;font-weight:800;font-size:20px;flex-shrink:0;">' + seta + '</div>' +
+            '<div><div style="font-size:10px;color:#5a5a5a;text-transform:uppercase;' +
+            'letter-spacing:0.12em;font-weight:800;margin-bottom:3px;">' + label + '</div>' +
+            '<div style="font-size:17px;color:#fff;font-weight:800;white-space:nowrap;">' + nome + '</div></div>';
+
+        document.body.appendChild(card);
+        requestAnimationFrame(function() {
+            card.style.opacity = '1';
+            card.style.transform = 'translate(-50%,-50%) scale(1)';
+        });
+        setTimeout(function() {
+            card.style.opacity = '0';
+            setTimeout(function() { card.remove(); }, 250);
+        }, 450);
+    }
+
+    function mostrarLimite() {
+        var c = document.createElement('div');
+        c.style.position = 'fixed';
+        c.style.top = '50%';
+        c.style.left = '50%';
+        c.style.transform = 'translate(-50%,-50%) scale(0.85)';
+        c.style.background = 'rgba(20,20,20,0.96)';
+        c.style.border = '1px solid rgba(255,59,59,0.45)';
+        c.style.borderRadius = '14px';
+        c.style.padding = '14px 22px';
+        c.style.zIndex = '999999';
+        c.style.opacity = '0';
+        c.style.transition = 'all 0.25s cubic-bezier(0.16,1,0.3,1)';
+        c.style.pointerEvents = 'none';
+        c.style.boxShadow = '0 20px 50px rgba(0,0,0,0.7)';
+        c.style.fontFamily = '-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif';
+        c.innerHTML = '<div style="font-size:14px;color:#ff3b3b;font-weight:800;">Limite da roleta</div>';
+        document.body.appendChild(c);
+        requestAnimationFrame(function() {
+            c.style.opacity = '1';
+            c.style.transform = 'translate(-50%,-50%) scale(1)';
+        });
+        setTimeout(function() {
+            c.style.opacity = '0';
+            setTimeout(function() { c.remove(); }, 250);
+        }, 700);
+    }
+
+    function navegar(prox) {
+        if (indo) return;
+        indo = true;
+
+        if (prox === 0) {
+            // Menu — abre o drawer
+            mostrarCard('Menu', 'prev');
+            if (navigator.vibrate) navigator.vibrate(15);
+            setTimeout(function() {
+                if (window.abrirDrawerApp) window.abrirDrawerApp();
+                indo = false;
+            }, 200);
+            return;
+        }
+
+        var destino = ABAS[prox];
+        var dir = prox > atual ? 'next' : 'prev';
+        mostrarCard(destino.nome, dir);
+        if (navigator.vibrate) navigator.vibrate(15);
+
+        var wrap = document.querySelector('.container-atendimento');
+        if (wrap) {
+            wrap.style.transition = 'opacity 0.22s ease, transform 0.28s cubic-bezier(0.16,1,0.3,1)';
+            wrap.style.transform = dir === 'next' ? 'translateX(-6%)' : 'translateX(6%)';
+            wrap.style.opacity = '0';
+        }
+
+        setTimeout(function() {
+            location.href = destino.url;
+        }, 200);
+    }
+
+    function init() {
+        if (!isMobile()) return;
+        if (ehPublica()) return;
+        if (!document.querySelector('.usuario-info')) return;
+
+        atual = acharAbaAtual();
+        if (atual === -1) return;
+
+        document.addEventListener('touchstart', function(e) {
+            var t = e.target;
+            if (t.closest('input, textarea, select, button, a, label')) return;
+            if (document.body.classList.contains('drawer-aberto')) return;
+            if (document.querySelector('.hist-modal.aberto')) return;
+            if (document.querySelector('#acoes-overlay.aberto')) return;
+            if (indo) return;
+
+            x0 = e.touches[0].clientX;
+            y0 = e.touches[0].clientY;
+            tracking = true;
+            disparou = false;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!tracking || disparou) return;
+            var dx = e.touches[0].clientX - x0;
+            var dy = Math.abs(e.touches[0].clientY - y0);
+
+            if (dy > 45) { tracking = false; return; }
+
+            var LIM = 70;
+
+            if (dx < -LIM) {
+                // ← ESQUERDA → próxima
+                disparou = true;
+                tracking = false;
+                if (atual < ABAS.length - 1) {
+                    navegar(atual + 1);
+                } else {
+                    if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
+                    mostrarLimite();
+                }
+            } else if (dx > LIM) {
+                // → DIREITA → anterior
+                disparou = true;
+                tracking = false;
+                if (atual > 0) {
+                    navegar(atual - 1);
+                } else {
+                    if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
+                    mostrarLimite();
+                }
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', function() {
+            tracking = false;
+        }, { passive: true });
+    }
+
+    window.addEventListener('pageshow', function() {
+        indo = false;
+        var wrap = document.querySelector('.container-atendimento');
+        if (wrap) {
+            wrap.style.transition = '';
+            wrap.style.transform = '';
+            wrap.style.opacity = '';
+        }
+    });
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+;
