@@ -16,7 +16,7 @@ if IA_ATUAL == "gemini":
     from google import genai
     from google.genai import types
     client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-    MODELO = "gemini-3.5-flash-lite"
+    MODELO = "gemini-3.5-flash"
 elif IA_ATUAL == "groq":
     from groq import Groq
     client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -27,21 +27,6 @@ else:
 
 def _chamar_ia(system_prompt, user_prompt, temperature=0.7, max_tokens=3000):
     """Funcao universal: funciona com Groq ou Gemini."""
-    import time as _t
-    _ultimo_erro = None
-    for _tent in range(3):
-        try:
-            return _chamar_ia_interno(system_prompt, user_prompt, temperature, max_tokens)
-        except Exception as _e:
-            _ultimo_erro = _e
-            print(f"[IA] Tentativa {_tent+1}/3 falhou: {str(_e)[:200]}")
-            if _tent < 2:
-                _t.sleep(2)
-    raise Exception(f"IA indisponivel apos 3 tentativas: {str(_ultimo_erro)[:200]}")
-
-
-def _chamar_ia_interno(system_prompt, user_prompt, temperature=0.7, max_tokens=3000):
-    """Chamada direta (sem retry)."""
     if IA_ATUAL == "gemini":
         resp = client.models.generate_content(
             model=MODELO,
@@ -258,7 +243,7 @@ def _normalizar_estagio(txt):
     if "novo" in txt or "lead" in txt:
         return "Novo Lead"
     if "negocia" in txt or "propos" in txt or "interessad" in txt:
-        return "Negociação"
+        return "Negocia├º├úo"
     if "fech" in txt or "cliente" in txt or "onboard" in txt or "vend" in txt or "compr" in txt:
         return "Cliente"
     if "perdid" in txt or "desist" in txt:
