@@ -3392,3 +3392,14 @@ def gerar_stream(atendimento_id: int, usuario_id: str = Cookie(None)):
     })
 
 
+
+
+# ===== TERMOS E PRIVACIDADE =====
+@app.get("/termos", response_class=HTMLResponse)
+async def termos(request: Request):
+    return templates.TemplateResponse(request=request, name="termos.html", context={})
+
+
+@app.get("/privacidade", response_class=HTMLResponse)
+async def privacidade(request: Request):
+    return templates.TemplateResponse(request=request, name="privacidade.html", context={})
