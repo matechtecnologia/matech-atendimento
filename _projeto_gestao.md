@@ -1,155 +1,155 @@
-﻿# MODULO GESTAO M.A TECH - PROJETO OFICIAL
+﻿# PROJETO GESTAO EMPRESARIAL M.A TECH
 
-**Status:** Planejamento
-**Versao:** 0.1 (conceito)
-**Data inicio:** 12/10/2026
+**Status:** EM IMPLEMENTACAO (13/10/2026)
+**Prioridade:** ALTA (Allan decidiu fazer agora)
+**Versao:** 0.1
 
 ---
 
 ## VISAO
 
-A M.A Tech vai revolucionar a area da gestao com tecnologia.
+A Gestao e o segundo produto da M.A Tech.
+Onde o Atendimento IA ajuda a VENDER, a Gestao ajuda a ADMINISTRAR.
 
-O modulo Gestao e a terceira perna da plataforma:
-- Atendimento IA -> ajuda a VENDER
-- Consultoria IA -> ajuda a DIAGNOSTICAR
-- Gestao IA -> ajuda a ADMINISTRAR
+O cliente que vende precisa saber:
+- Quanto entrou
+- Quanto saiu
+- Quanto sobrou
+- Quanto tem a receber
+- Quanto tem a pagar
+- Se esta lucrando ou so girando
 
----
-
-## PRIMEIRA PECA - GESTAO FINANCEIRA PESSOAL (Prompt 5)
-
-### O que faz
-Acompanha a vida financeira pessoal do cliente:
-- Registra entradas e saidas (por evento, nao por periodo fixo)
-- Controla dividas (com motor de quitacao)
-- Acompanha reserva de emergencia
-- Acompanha investimentos
-- Define metas financeiras
-- Alerta sobre gastos (essencial > 50%, nao essencial > 30%)
-- Conduz o cliente rumo a liberdade financeira
-
-### Logica
-REGISTRAR -> ANALISAR -> ALERTAR -> CORRIGIR -> MELHORAR -> CRESCER
-
-### Diferencial
-- Registro por EVENTO (nao por mes)
-- IA ativa (alerta, cobra, conduz)
-- Nao julga, nao humilha
-- Motor de dividas com priorizacao automatica
-- Integra com os outros prompts (0 e 2)
-
-### Estrutura de dados (linha interna)
-DATA; CLIENTE; TIPO MOVIMENTACAO; CATEGORIA; DESCRICAO; VALOR; 
-FORMA PAGAMENTO; ORIGEM; DESTINO; SALDO APOS; DIVIDA RELACIONADA; 
-META RELACIONADA; IMPACTO ORCAMENTO; ESSENCIAL OU NAO; STATUS; OBS
-
-### Painel interno
-SALDO; ENTRADAS; SAIDAS; COMPROMETIMENTO; DIVIDAS; RESERVA; 
-INVESTIMENTOS; PATRIMONIO LIQUIDO; METAS; PROXIMO PASSO
+A Gestao resolve isso com telas simples + IA de analise.
 
 ---
 
-## SEGUNDA PECA - GESTAO FINANCEIRA EMPRESARIAL (futuro)
+## TELAS DO MODULO
 
-Versao do Prompt 5 adaptada para empresas:
-- DRE simplificado
-- Fluxo de caixa
-- Contas a pagar / receber
-- Margem por produto
-- CAC / LTV / ROI
-- Ponto de equilibrio
-- Projecao de faturamento
+1. Dashboard        - visao geral (receita, custo, lucro)
+2. Receitas         - o que entrou
+3. Despesas         - o que saiu
+4. Contas a Pagar   - o que tem que pagar
+5. Contas a Receber - o que tem que receber
+6. DRE Simplificado - demonstrativo de resultado
+7. Fluxo de Caixa   - entrada x saida no tempo
+8. Metas            - objetivo do mes
+9. Indicadores      - margem, ticket medio, ponto de equilibrio
+10. Configuracoes   - categorias, contas, preferencias
 
 ---
 
-## TERCEIRA PECA - GESTAO COMPLETA (futuro)
+## DADOS QUE MANIPULA
 
-Alem do financeiro:
-- Comercial (vendas, pipeline, metas)
-- Operacao (processos, produtividade)
-- Equipe (funcoes, metas, performance)
-- Indicadores (KPIs por area)
-- Relatorios gerenciais
+- Receitas (descricao, valor, categoria, data, cliente)
+- Despesas (descricao, valor, categoria, data, fornecedor)
+- Contas a pagar (valor, vencimento, status)
+- Contas a receber (valor, vencimento, status)
+- Categorias (receita e despesa)
+- Contas bancarias
+- Metas mensais
+- KPIs calculados (margem, lucro, ROI, ponto de equilibrio)
+
+---
+
+## TABELAS EXISTENTES
+
+Ja criadas no banco:
+- gestao_empresas
+- gestao_modulos
+- custos_mensais
+
+A DEFINIR:
+- gestao_receitas
+- gestao_despesas
+- gestao_contas_pagar
+- gestao_contas_receber
+- gestao_categorias
+- gestao_metas
+- gestao_indicadores
+
+---
+
+## CONEXAO COM O ATENDIMENTO IA
+
+
+
+
+
+
+
+
+
+A Consultoria e a porta de entrada pra Gestao.
+
+---
+
+## MODELO DE NEGOCIO
+
+### Preco sugerido
+
+- Add-on Gestao: R$ 47/mes
+- OU incluso no plano Pro+ (R$ 297+)
+- OU incluso no plano Empresarial (R$ 597)
+
+### Meta
+
+- Fase 1: cliente no Atendimento ve que precisa
+- Fase 2: ativa Gestao por R$ 47/mes
+- Fase 3: upsell de CRM, Trafego, Automacao
 
 ---
 
 ## ROADMAP
 
-### Fase 1 - Agora (conceito)
-- [x] Prompt 5 - Gestao Financeira Pessoal (conceito)
-- [ ] Prompt 5 - versao empresarial (conceito)
-- [ ] Definir preco
-- [ ] Definir publico
+### Fase 1 — Estrutura (1-2 dias)
+- [ ] Criar tabelas de receita, despesa, contas, categorias, metas
+- [ ] Criar dashboard com metricas basicas
+- [ ] Criar tela de lancamento de receita
+- [ ] Criar tela de lancamento de despesa
 
-### Fase 2 - Apos primeiros clientes
-- [ ] Implementar tabelas no banco
-- [ ] Implementar IA Gestora
-- [ ] Implementar painel
-- [ ] Testar com admin
+### Fase 2 — DRE + Fluxo (3-4 dias)
+- [ ] DRE simplificado
+- [ ] Fluxo de caixa
+- [ ] Contas a pagar/receber
+- [ ] Categorias personalizadas
 
-### Fase 3 - Beta
-- [ ] Liberar pra clientes selecionados
-- [ ] Coletar feedback
-- [ ] Ajustar
+### Fase 3 — IA de Analise (5-7 dias)
+- [ ] IA analisa dados e sugere acoes
+- [ ] Deteccao de anomalias
+- [ ] Relatorio automatico mensal
+- [ ] Indicadores calculados
 
-### Fase 4 - Producao
-- [ ] Liberar pra todos
-- [ ] Cobrar (add-on ou plano separado)
-
----
-
-## MODELO DE NEGOCIO (provisorio)
-
-### Gestao Financeira Pessoal
-- Publico: pessoa fisica (dono de negocio, autonomo, assalariado)
-- Preco: R$ 47/mes (add-on)
-- Ou: incluso no plano Pro (R$ 297)
-
-### Gestao Financeira Empresarial
-- Publico: PME (dono de negocio)
-- Preco: R$ 197/mes (add-on)
-- Ou: incluso no plano Empresarial (R$ 597)
-
-### Gestao Completa
-- Publico: PME em crescimento
-- Preco: R$ 397/mes (add-on)
-- Ou: plano Empresarial+
+### Fase 4 — Integracao (futuro)
+- [ ] Conexao automatica com Atendimento IA
+- [ ] Venda fechada vira receita
+- [ ] Consultoria IA sugere Gestao
+- [ ] Dashboard unificado (Atendimento + Gestao)
 
 ---
 
-## INTEGRACAO COM O ECOSSISTEMA
+## PRIORIDADE
 
+**DECISAO ALLAN (13/10):** Fazer agora.
 
+Ordem:
+1. Gestao primeiro (proximo)
+2. Depois anúncios
 
-
-
----
-
-## PRINCIPIO
-
-Nao fazer gestao fraca.
-Nao fazer planilha glorificada.
-Nao fazer dashboard bonito sem acao.
-
-Fazer GESTAO REAL com IA ativa que:
-- Registra por evento
-- Alerta quando necessario
-- Cobra meta
-- Conduz o cliente
-- Transforma renda em patrimonio
+Motivo: Allan quer o modulo pronto pra oferecer quando o cliente pedir.
 
 ---
 
-## PROMPTS RELACIONADOS
+## REGRAS TECNICAS
 
-- Prompt 0: Registro global (a ser recebido)
-- Prompt 2: Consultoria Empresarial (feito)
-- Prompt 5: Gestao Financeira Pessoal (conceito recebido)
-- Prompt ?: Gestao Financeira Empresarial (a receber)
-- Prompt ?: Gestao Completa (a receber)
+- Novo arquivo: gestao_rotas.py
+- Novo arquivo: gestao_db.py
+- Novo arquivo: gestao_core.py
+- Novos templates: gestao_*.html
+- Registrar em app.py
+- Menu no hub: adicionar card Gestao
+- Testar local antes de subir
 
 ---
 
-**Registrado em:** 12/10/2026
+**Registrado em:** 13/10/2026
 **Local:** _projeto_gestao.md
