@@ -1,170 +1,169 @@
-﻿# DIARIO DE PRODUCAO - 08/10/2026
+﻿# DIARIO DE PRODUCAO - 12 e 13/10/2026
 
-## O QUE FOI FEITO HOJE
+## O QUE FOI FEITO
 
-### 1. CONSULTORIA EMPRESARIAL - IA v3 (Prompt Profissional)
-- [x] Prompt 2 profissional (80 partes) implementado em consultor.py
-- [x] Dossie expandido: nichos detalhados + clientes concretos
-- [x] Multiplos nichos suportados (nao so 1)
-- [x] Prompt enxuto para caber no limite Groq (8000 tokens/min)
-- [x] Regras agressivas: 1 pergunta por resposta, fechamento rapido
-- [x] Regra de "nao sei": assume diagnostico apos 2 respostas vagas
-- [x] Regra de nicho: sempre citar nicho do cliente
-- [x] Regra de nao indicar ferramenta antes do diagnostico
+### 1. IA DE ATENDIMENTO MIGROU PRO GEMINI
+- [x] Gemini 3.5 Flash-Lite rodando
+- [x] SDK novo (google-genai)
+- [x] Funcao universal (_chamar_ia) - troca IA mudando 1 linha
+- [x] Prompt grande funcionando (1M tokens de contexto)
+- [x] Testado em producao - IA respondendo MUITO bem
 
-### 2. CONSULTORIA - Painel do Admin
-- [x] Tela "EM DESENVOLVIMENTO" (cliente ve isso) - consultor_em_breve.py
-- [x] Guard: /consultoria so admin acessa (cliente vai pra /consultoria-premium)
-- [x] Rota /api/eh-admin para detectar admin
-- [x] Hub aponta pra /consultoria-premium
-- [x] Contador admin (99999) funcionando
-- [x] Bug do botao enviar (multiplas mensagens) - CORRIGIDO
-- [x] Contador de tempo no typing (Xs)
+### 2. LIMITES E PLANOS ATUALIZADOS
+- [x] Gratis: 150 interacoes/mes
+- [x] Basico: 1.500 interacoes (R$ 97)
+- [x] Pro: 4.500 interacoes (R$ 297)
+- [x] Empresarial: 9.000 interacoes (R$ 597)
+- [x] Desconto 1o mes: R$ 47, R$ 147, R$ 297
+- [x] Excedente: R$ 0,10 por interacao
+- [x] Bloqueio so em 120% (da margem)
+- [x] Tabela primeira_cobranca criada
 
-### 3. BANCO DE DADOS
-- [x] Tabelas criadas: consultoria_passos, consultorias.vista_em
-- [x] 3 passos salvos automaticamente pela IA
-- [x] Gargalo detectado: "Respostas lentas e follow-up desorganizado"
-- [x] Servico indicado: "atendimento_ia"
-- [x] Erro cosmetico "strategic_plans already exists" - CORRIGIDO
+### 3. NICHO ATUALIZADO
+- [x] Nicho 14 atualizado com dados reais
+- [x] Precos corretos
+- [x] Prompt regenerado
 
-### 4. VISUAL / UX
-- [x] Loading global (aparece em todas as telas do cliente)
-- [x] Menu lateral reorganizado em 4 grupos (PAINEL, PRODUTO, OPERACAO, SISTEMA)
-- [x] Consultor_painel.js bump v4
+### 4. PIXEL META ADS INSTALADO
+- [x] Pixel ID: 1797761131556226
+- [x] PageView na landing
+- [x] PageView no login
+- [x] Evento Lead quando alguem se cadastra
+- [x] Testado com Meta Pixel Helper
 
-### 5. DOCUMENTACAO
-- [x] _projeto_consultoria.md (visao completa do produto)
-- [x] Registro de integrações futuras (WhatsApp, Meta Ads, etc)
+### 5. LANDING PAGE ATUALIZADA
+- [x] Hero ajustado ("A IA te ajuda a atender...")
+- [x] Valores dos planos corretos
+- [x] Desconto 1o mes visivel
+- [x] FAQ atualizado (excedente R$ 0,10)
+- [x] Botao Empresarial "Assinar" (nao mais "falar com vendas")
+
+### 6. IA QUE APRENDE (EM DESENVOLVIMENTO)
+- [x] Codigo do auditor criado (auditor_ia.py)
+- [x] Tabelas: analises_ia, nicho_campos_extras
+- [x] Colunas: vendedores.ia_aprende_ativo, analises_acumuladas
+- [x] Rotas API: /api/ia-aprende/status, /toggle, /analise/{id}, /corrigir
+- [x] Auditoria automatica funcionando (testado)
+- [x] Modelo de cobranca: 1/3 de interacao por analise
+- [x] Cobranca automatica: 3 analises = 1 interacao
+- [x] REVERTIDO o botao no header mobile (fica pra depois)
+
+### 7. OUTRAS CORRECOES
+- [x] Hub: "Bem-vindo de volta" -> "Bem-vindo"
+- [x] Consultoria: tela "Em Desenvolvimento" pra cliente
+- [x] Consultoria: guard admin (so admin acessa chat)
+- [x] Plano M.A Tech (17 telas) populado
+- [x] Menu do Plano reorganizado em 4 grupos
+- [x] Erro cosmetico "strategic_plans" corrigido
+- [x] plano_rotas.py removido (codigo morto)
 
 ---
 
 ## O QUE ESTA FUNCIONANDO
 
-- Chat da Consultoria (admin) - IA responde com dados reais
-- Painel da Consultoria (gargalo, servico, passos)
-- Consultoria em desenvolvimento (cliente ve tela premium)
-- Plano M.A Tech (17 telas) - populado e funcional
-- Atendimento IA - funcionando
-- PIX Asaas - sandbox funcionando
-- Login + admin - OK
+- IA de Atendimento respondendo com Gemini (MUITO bom)
+- Landing com Pixel Meta pronto pra anunciar
+- Cadastro + Onboarding + Hub
+- Planos com PIX funcionando em producao
+- Consultoria (admin only)
+- Plano M.A Tech (17 telas)
 
 ---
 
-## O QUE AINDA FALTA (PROXIMA SESSAO)
+## O QUE ESTA PENDENTE
 
-### PRIORIDADE ALTA (proximas horas)
+### IMPORTANTE (proximo)
+- [ ] Rodar anuncio Meta Ads (R$ 10/dia)
+- [ ] Acompanhar metricas (CTR, CPC, CPL)
+- [ ] Conseguir primeiros 10 clientes gratis
+- [ ] Coletar feedback
 
-1. **Testar o prompt reescrito** - confirmar que:
-   - IA faz 1 pergunta (nao 3)
-   - Depois de 2 "nao sei", assume diagnostico
-   - Cita o nicho especifico
-   - NAO entra em loop
+### MEDIO PRAZO
+- [ ] Corrigir botao IA que Aprende no header mobile
+- [ ] Terminar visual do bloco IA que Aprende
+- [ ] Configurar billing pago no Gemini (quando tiver 20+ clientes)
 
-2. **Se o teste passar** - subir pro Render
-   - `git add .; git commit -m "Prompt hard"; git push`
-
-3. **Se o teste falhar** - mais ajustes no prompt
-   - Reduzir ainda mais (15 partes)
-   - Mudar temperatura do Groq
-
-### PRIORIDADE MEDIA (proximos dias)
-
-4. **Acesso do consultor aos dados completos**
-   - Historico de conversas (cliente final)
-   - Atendimentos IA (mensagem + resposta)
-   - Follow-ups detalhados
-   - Financeiro (receitas, custos)
-
-5. **Calculos automaticos** no dossie
-   - Faturamento, margem, conversao, ticket
-   - A IA recebe os numeros ja calculados
-
-6. **Memoria de longo prazo**
-   - Consultor lembra de consultorias anteriores
-   - Comparar semana a semana
-
-### PRIORIDADE BAIXA (futuro)
-
-7. **Integracoes do cliente** (a porta pra Gestao)
-   - Google Calendar
-   - WhatsApp Business
-   - Meta Ads / Google Ads
-   - Gmail/Outlook
-
-8. **Permissao LGPD** (checkbox)
-9. **Email resumo executivo**
-10. **Notificacao proativa**
+### FUTURO
+- [ ] Integracoes (Google Calendar, WhatsApp API)
+- [ ] Modulo Gestao
+- [ ] Modulo CRM
+- [ ] Modulo Trafego
+- [ ] Modulo Automacao
 
 ---
 
-## ESTADO DO BANCO
+## ARQUIVOS IMPORTANTES
 
-- vendedor_id=3 e o admin (matechtecnologia01@gmail.com)
-- 20 consultorias criadas (13, 14, 15, 16, 17, 18, 19, 20)
-- Gargalo/servico/passos: ainda sendo testados
-- Consultorias #13-19: teste antigo (com bugs)
-- Consultoria #20: teste mais recente
+### Modificados
+- gemini.py - migrado pra Gemini
+- app.py - limites, desconto, auditoria
+- consultor_rotas.py - limites mensais
+- consultor_em_breve.py - tela em desenvolvimento
+- templates/landing.html - atualizada + Pixel
+- templates/signup.html - Pixel
+- templates/login.html - Pixel + Lead tracking
+- templates/resultado.html - (botao IA revertido)
 
----
+### Criados
+- auditor_ia.py - IA que audita respostas
+- limites_mensais.py - logica de planos
+- consultor_em_breve.py - tela em dev
+- consultor_loading.py - loading da consultoria
 
-## PROBLEMAS CONHECIDOS
-
-1. **IA pergunta em loop** (o bug principal)
-   - Causa: prompt com 80 partes tem regras conflitantes
-   - Solucao: prompt reescrito hoje (teste pendente)
-
-2. **Painel mostra "0/5 gratis" ao abrir nova consultoria**
-   - Causa: cache do consultor_painel.js
-   - Solucao: bump v4 (feito, mas pode voltar)
-
-3. **Groq free tier limite 8000 tokens/min**
-   - Solucao: prompt enxuto (feito) ou pagar Dev Tier
+### Removidos
+- plano_rotas.py (codigo morto)
 
 ---
 
-## COMANDOS UTEIS
+## CREDENCIAIS / ACESSOS
 
-Testar local:
-  python -m uvicorn app:app --reload
+### Render
+- Projeto: matech-novo
+- URL: matech-novo.onrender.com
+- Branch: main
+- Auto-deploy: sim
 
-Ver consultorias do admin:
-  python _ver_consult.py
+### Supabase
+- Region: Sao Paulo
+- Plano: Free
 
-Ver vendedor do admin:
-  python _ver_vend.py
+### Gemini (Google AI Studio)
+- Chave: no .env local + Render Environment
+- Plano: FREE (1.500 req/dia)
+- Billing: pendente (Google bloqueou upgrade com OR_BACR2_59)
 
-Testar _get_plano:
-  python _test_plano.py
+### Asaas
+- Modo: PRODUCAO
+- PIX: cai na conta real
 
----
-
-## ARQUIVOS PRINCIPAIS
-
-- consultor.py - IA consultora (prompt + funcao Groq)
-- consultor_rotas.py - Rotas da Consultoria
-- consultor_core.py - Dossie do vendedor
-- consultor_db.py - Tabelas da Consultoria
-- consultor_install.py - Amarra no app.py
-- consultor_em_breve.py - Tela "em desenvolvimento"
-- consultor_loading.py - Tela de loading
-- _projeto_consultoria.md - Visao completa do produto
+### Meta Ads
+- Pixel ID: 1797761131556226
+- Conta de anuncios: 28214431881510391
 
 ---
 
 ## PROXIMA SESSAO - COMECAR POR AQUI
 
 1. Allan abre o chat
-2. Cola o resultado de: python -m uvicorn app:app --reload
-3. Testa /consultoria (admin) com "oi" + "nao sei" + "nao sei"
-4. Ve se a IA:
-   - Faz 1 pergunta so
-   - Assume diagnostico apos 2 "nao sei"
-   - Cita o nicho
-5. Reporta o que aconteceu
-6. Continua o ajuste OU sobe pro Render
+2. Cola:
+   "Le o _mestre.md e _diario_producao.md e continua"
+3. Chat 7 le, sabe o contexto
+4. Decide proximo passo:
+   - Se o foco for vender: criar campanha Meta Ads
+   - Se o foco for produto: terminar IA que Aprende
 
 ---
 
-**REGISTRADO EM:** 08/10/2026
-**PROXIMA REVISAO:** quando Allan voltar
+## LICOES APRENDIDAS
+
+1. Gemini grátis funciona pra comecar (1.500 req/dia)
+2. Google bloqueia upgrade em contas novas (OR_BACR2_59)
+3. Groq grátis nao aguenta prompt grande (8k tokens)
+4. CSS forcado quebra layout mobile - cuidado
+5. Sempre testar em modo anonimo antes de achar que e cache
+6. Git checkout salva a vida quando quebra
+
+---
+
+**Registrado em:** 13/10/2026
+**Local:** _diario_producao.md
