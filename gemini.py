@@ -1,4 +1,4 @@
-import os
+﻿import os
 import re
 from dotenv import load_dotenv
 
@@ -27,6 +27,21 @@ else:
 
 def _chamar_ia(system_prompt, user_prompt, temperature=0.7, max_tokens=3000):
     """Funcao universal: funciona com Groq ou Gemini."""
+    import time as _t
+    _ultimo_erro = None
+    for _tent in range(3):
+        try:
+            return _chamar_ia_interno(system_prompt, user_prompt, temperature, max_tokens)
+        except Exception as _e:
+            _ultimo_erro = _e
+            print(f"[IA] Tentativa {_tent+1}/3 falhou: {str(_e)[:200]}")
+            if _tent < 2:
+                _t.sleep(2)
+    raise Exception(f"IA indisponivel apos 3 tentativas: {str(_ultimo_erro)[:200]}")
+
+
+def _chamar_ia_interno(system_prompt, user_prompt, temperature=0.7, max_tokens=3000):
+    """Chamada direta (sem retry)."""
     if IA_ATUAL == "gemini":
         resp = client.models.generate_content(
             model=MODELO,
