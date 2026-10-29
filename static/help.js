@@ -6,7 +6,7 @@ const AJUDA = {
 
     '/hub': {
         titulo: 'Areas M.A Tech',
-        descricao: 'Esse e o ponto de partida. Aqui voce acessa tudo: atendimento com IA, consultoria empresarial e as ferramentas do seu negocio. Cada card leva pra uma area diferente do sistema.',
+        descricao: 'Esse e o ponto de partida. Aqui voce acessa tudo: atendimento comercial com IA, consultoria empresarial, gestao pessoal e profissional. Cada card leva pra uma area diferente do sistema.',
         dicas: [
             'Comece cadastrando seus clientes na area de atendimento.',
             'A IA so funciona bem depois que voce configura seu nicho (produto, publico, preco).',
@@ -16,7 +16,7 @@ const AJUDA = {
 
     '/clientes': {
         titulo: 'Meus Clientes',
-        descricao: 'Aqui ficam todos os seus leads e clientes. Cada um tem status, origem e historico de conversa. Voce pode cadastrar manualmente ou deixar a IA registrar automaticamente quando voce colar uma mensagem.',
+        descricao: 'Aqui ficam todos os seus clientes e leads. Voce cadastra o contato, gera a primeira resposta com a IA e o historico comeca a ser salvo. A cada nova mensagem, a IA continua a conversa de onde parou - sem voce precisar reexplicar nada.',
         dicas: [
             'Use filtros pra encontrar clientes por status (novo lead, negociacao, cliente).',
             'Clique no cliente pra ver o historico completo de conversas.',
@@ -37,7 +37,7 @@ const AJUDA = {
 
     '/atendimento_cliente': {
         titulo: 'Atender Cliente',
-        descricao: 'Aqui voce cola a mensagem que o cliente te mandou no WhatsApp. A IA vai analisar o historico e devolver 3 blocos prontos: O QUE FALAR (audio), TEXTO PARA ENVIAR e o ESTAGIO do lead.',
+        descricao: 'Aqui voce cola a mensagem que seu cliente te enviou. A IA gera a resposta ideal pra voce vender profissionalmente qualquer produto ou servico - do primeiro contato ao fechamento. Ela te entrega a mensagem pronta pra mandar em audio, salva o contato, guarda o historico, separa os clientes por estagio e te avisa o dia certo de falar com cada um.',
         dicas: [
             'Cole a mensagem EXATA do cliente. Nao resuma.',
             'A IA leva de 2 a 7 segundos pra gerar a resposta.',
@@ -48,7 +48,7 @@ const AJUDA = {
 
     '/resultado': {
         titulo: 'Resposta da IA',
-        descricao: 'A IA devolve 3 blocos: O QUE FALAR (pra voce gravar audio), TEXTO PARA ENVIAR (pra copiar direto) e o ESTAGIO do cliente (pra atualizar o funil). E so copiar, colar no WhatsApp e seguir a venda.',
+        descricao: 'A IA devolve a resposta pronta pra voce vender: O QUE FALAR (audio natural), TEXTO PARA ENVIAR e o ESTAGIO do cliente atualizado. E so copiar, mandar pro cliente e seguir a venda. A M.A Tech ainda salva tudo no historico e te avisa quando falar de novo.',
         dicas: [
             'Grave audio com o texto de "O QUE FALAR" - passa mais confianca que texto.',
             'Se o bloco "TEXTO PARA ENVIAR" estiver com "NENHUM", significa que e melhor gravar audio.',

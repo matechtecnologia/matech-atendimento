@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#00d97e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="M.A Tech">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="/static/favicon-32.png">
+    <title>M.A Tech - Atender {{ cliente.nome }}</title>
+    <link rel="stylesheet" href="/static/app.min.css?v=310930">
+</head>
+<script>
+    (function() {
+        var t = localStorage.getItem('matech_tema') || 'escuro';
+        document.documentElement.setAttribute('data-tema', t);
+    })();
+    </script>
+<body>
+    <div class="container-atendimento">
+        <div class="topo">
+            <h1>M.A <span style="color:#10b981">Tech</span></h1>
+            <div class="usuario-info">
+                <span>{{ usuario_nome }}</span>
+                <a href="/planos" data-rota="/planos">Planos</a>
+                {% if usuario_tipo == 'admin' %}<a href="/admin" data-rota="/admin">Admin</a>{% endif %}
+                <a href="https://wa.me/5512997291583?text=Oi%2C%20preciso%20de%20ajuda%20com%20o%20M.A%20Tech" target="_blank" rel="noopener">Suporte</a>
+                <a href="/logout">Sair</a>
+            </div>
+        </div>
+
+        {% set s = (cliente.status or 'novo lead')|lower %}
+        {% if s in ['novo lead', 'lead'] %}
+            {% set badge_class = 'status-novo-lead' %}
+            {% set badge_text = 'Novo Lead' %}
+        {% elif s in ['em atendimento', 'negociando'] %}
+            {% set badge_class = 'status-em-atendimento' %}
+            {% set badge_text = 'Em Atendimento' %}
+        {% elif s in ['negociação', 'negociacao'] %}
+            {% set badge_class = 'status-negociacao' %}
+            {% set badge_text = 'Negociação' %}
+        {% elif s == 'cliente' %}
+            {% set badge_class = 'status-cliente' %}
+            {% set badge_text = 'Cliente' %}
+        {% elif s == 'perdido' %}
+            {% set badge_class = 'status-perdido' %}
+            {% set badge_text = 'Perdido' %}
+        {% else %}
+            {% set badge_class = 'status-novo-lead' %}
+            {% set badge_text = cliente.status|upper %}
+        {% endif %}
+
+        <div class="bloco bloco-fala" style="background:linear-gradient(135deg,#141414 0%,#0f1a15 100%); margin-bottom:20px;">
+            <div class="bloco-topo">
+                <h2>⚡ ATENDENDO AGORA</h2>
+                <span class="badge-status {{ badge_class }}">{{ badge_text }}</span>
+            </div>
+            <p style="color:#e8e8e8; font-size:16px; font-weight:700; margin-top:10px;">{{ cliente.nome or "Cliente" }}</p>
+            <p style="color:#8a8a8a; font-size:13px; margin-top:4px;" class="mono">📱 {{ cliente.whatsapp }}</p>
+            <p style="color:#00d97e; font-size:13px; margin-top:8px; font-weight:700;">🎯 Nicho: {{ nicho.nome }}</p>
+        </div>
+
+        {% if request.query_params.get('erro') %}
+        <div class="erro" style="margin-bottom:16px; padding:16px; background:#1f0a0a; border:1px solid #ff3b3b; border-left:4px solid #ff3b3b; border-radius:10px;">
+            <div style="color:#ff3b3b; font-weight:800; font-size:13px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">⚠️ Erro</div>
+            <div style="color:#e8e8e8; font-size:14px; line-height:1.5;">{{ request.query_params.get('erro') }}</div>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/gerar_resposta">
+            <input type="hidden" name="whatsapp" value="{{ cliente.whatsapp }}">
+            <input type="hidden" name="cliente_id" value="{{ cliente.id }}">
+
+            <input type="hidden" name="nicho_id" value="{{ nicho.id }}">
+
+            <div class="campo">
+                <label>💬 O que o cliente falou agora (ou instrução)</label>
+                <textarea name="mensagem_cliente" rows="5" placeholder="Cole aqui a mensagem que o cliente enviou no WhatsApp..." required autofocus style="min-height:120px; font-size:15px;"></textarea>
+                <p style="color:#5a5a5a; font-size:12px; margin-top:6px;">
+                    💡 Dica: cole exatamente como ele escreveu, com erros e tudo. A IA entende.
+                </p>
+            </div>
+
+            <div class="bloco bloco-crm" style="background:#0f1a1f; border-left:4px solid #00d97e; padding:16px; margin-bottom:20px;">
+                <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; margin:0;">
+                    <input type="checkbox" name="modo_instrucao" value="1" style="width:auto; margin:4px 0 0 0; accent-color:#00d97e; cursor:pointer;">
+                    <div>
+                        <strong style="color:#e8e8e8; font-size:14px; display:block; margin-bottom:4px;">🎛️ Modo instrução</strong>
+                        <span style="color:#8a8a8a; font-size:13px; line-height:1.5; display:block;">
+                            Marque se em vez de responder ao cliente, você quer <strong style="color:#00d97e;">dar uma ordem pra IA</strong>. Ex: "cria uma proposta de desconto de 10%".
+                        </span>
+                    </div>
+                </label>
+            </div>
+
+            <button type="submit" class="btn-gerar">🤖 GERAR RESPOSTA COM IA</button>
+<p style="color:#e8e8e8; font-size:14px; line-height:1.6; margin:0 0 10px 0;">
+                    Estamos gerando sua resposta. Em horários de pico pode levar <strong>até 30 segundos</strong> — muita gente usando a versão grátis ao mesmo tempo.
+                </p>
+                <p style="color:#f59e0b; font-size:13px; line-height:1.6; margin:0; padding-top:10px; border-top:1px solid #f59e0b22;">
+                    💡 <strong>Quem está no plano pago não entra na fila</strong> — a resposta sai em 2-3 segundos, sempre. <a href="/planos" style="color:#00d97e; text-decoration:underline;">Conhecer planos →</a>
+                </p>
+            </div>
+
+            <p style="color:#5a5a5a; font-size:12px; text-align:center; margin-top:12px;">
+                ⚡ A IA leva de 2 a 4 segundos. Você pode continuar navegando.
+            </p>
+        </form>
+    </div>
+    <script src="/static/app.min2.js?v=1"></script>
+    <script src="/static/splash.js"></script>
+    <script src="/static/sw-register.js"></script>
+    <script src="/static/app-badge-plano.js"></script>
+<script src="/static/loading_global.js?v=4"></script>
+</body>
+</html>
