@@ -15,3 +15,8 @@ backups/
 # Backups locais
 *.bak
 *.bak.*
+
+# Scripts temporarios
+_*.py
+_add_*.py
+_ver_*.py
