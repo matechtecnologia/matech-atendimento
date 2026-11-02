@@ -167,6 +167,17 @@
             font-family: monospace; margin-bottom: 4px;
             text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;
         }
+
+        /* Botões de ação da tela do Raio */
+        .btn-acao-raio {
+            display: block; width: 100%; padding: 14px; margin-bottom: 14px;
+            border: none; border-radius: 12px; font-size: 15px; font-weight: 800;
+            cursor: pointer; font-family: inherit; text-align: center;
+            text-decoration: none; box-sizing: border-box;
+        }
+        .btn-acao-raio.relatorios { background: rgba(168,85,247,0.12); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+        .btn-acao-raio.followup   { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+        .btn-acao-raio.novo       { background: #00d97e; color: #0a0a0a; }
     </style>
 </head>
 <body>
@@ -191,9 +202,9 @@
             </select>
         </div>
 
-        <a href="/cliente/novo?nicho_id={{ nicho_atual }}" style="display:block;width:100%;padding:14px;margin-bottom:14px;background:#00d97e;color:#0a0a0a;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;text-align:center;text-decoration:none;box-sizing:border-box;">
-            + Novo Cliente
-        </a>
+        <a href="/relatorios" class="btn-acao-raio relatorios">Relatórios</a>
+        <a href="/followups" class="btn-acao-raio followup">Follow-up</a>
+        <a href="/cliente/novo?nicho_id={{ nicho_atual }}" class="btn-acao-raio novo">+ Novo Cliente</a>
 
         <div class="busca-wrap">
             <input type="text" id="busca" class="busca-input" placeholder="Buscar cliente..." oninput="filtrar()">
@@ -464,3 +475,4 @@
 <script src="/static/loading_global.js?v=4"></script>
 </body>
 </html>
+
