@@ -758,24 +758,24 @@ window.ICONE = function(nome, opts) {
         const nav = document.createElement('nav');
         nav.className = 'app-bottom-nav';
         nav.innerHTML = `
-            <a href="/gestao" class="nav-item">
+            <a href="/gestao" class="nav-item ${ativa === 'clientes' || ativa === 'followups' || ativa === 'relatorios' ? '' : ''}">
                 <span class="icone-nav">${icone('dashboard')}</span>
-                <span class="txt-nav">Gestão</span>
+                <span class="txt-nav">Gestor</span>
             </a>
             <a href="/consultoria/loading" class="nav-item ${ativa === 'consultoria' ? 'ativo' : ''}">
                 <span class="icone-nav">${icone('briefcase')}</span>
-                <span class="txt-nav">Consultoria</span>
+                <span class="txt-nav">Consultor</span>
             </a>
-            <a href="/clientes" class="nav-item destaque" title="Atendimento">
+            <a href="/clientes" class="nav-item destaque ${ativa === 'clientes' ? 'ativo' : ''}" title="Raio">
                 <span class="icone-nav">${icone('raio', 26)}</span>
             </a>
-            <a href="/followups" class="nav-item ${ativa === 'followups' ? 'ativo' : ''}" id="nav-followups-btn">
-                <span class="icone-nav">${icone('followups')}${badge}</span>
-                <span class="txt-nav">Follow-ups</span>
+            <a href="/socio" class="nav-item">
+                <span class="icone-nav">${icone('briefcase')}</span>
+                <span class="txt-nav">Socio</span>
             </a>
-            <a href="/relatorios" class="nav-item ${ativa === 'relatorios' ? 'ativo' : ''}">
+            <a href="/notas" class="nav-item">
                 <span class="icone-nav">${icone('relatorios')}</span>
-                <span class="txt-nav">Relatorios</span>
+                <span class="txt-nav">Notas</span>
             </a>
         `;
 
@@ -813,6 +813,8 @@ window.ICONE = function(nome, opts) {
         init();
     }
 })();
+
+
 
 ;
 

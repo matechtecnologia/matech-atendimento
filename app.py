@@ -3440,3 +3440,40 @@ async def pagina_gestao_pessoal(request: Request):
 @app.get("/gestao/profissional", response_class=HTMLResponse)
 async def pagina_gestao_profissional(request: Request):
     return templates.TemplateResponse(request=request, name="gestao_profissional.html", context={})
+
+
+# ===== Rotas em desenvolvimento (Socio IA / Notas) - CHAT 1 =====
+@app.get("/socio", response_class=HTMLResponse)
+async def pagina_socio(request: Request):
+    return HTMLResponse("""
+    <!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M.A Tech - Socio IA</title>
+    <style>body{background:#0a0a0a;color:#fff;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;padding:20px}
+    .box{max-width:400px}h1{color:#00d97e;font-size:22px;margin-bottom:10px}p{color:#8a8a8a;font-size:14px;line-height:1.6}
+    a{color:#00d97e;text-decoration:none;font-weight:700;display:inline-block;margin-top:20px}</style></head>
+    <body><div class="box"><h1>Socio IA</h1><p>Em desenvolvimento. Em breve voce tera um socio inteligente analisando seu negocio.</p><a href="/clientes">&larr; Voltar</a></div></body></html>
+    """)
+
+@app.get("/notas", response_class=HTMLResponse)
+async def pagina_notas(request: Request):
+    return HTMLResponse("""
+    <!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M.A Tech - Notas</title>
+    <style>body{background:#0a0a0a;color:#fff;font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;text-align:center;padding:20px}
+    .box{max-width:400px}h1{color:#00d97e;font-size:22px;margin-bottom:10px}p{color:#8a8a8a;font-size:14px;line-height:1.6}
+    a{color:#00d97e;text-decoration:none;font-weight:700;display:inline-block;margin-top:20px}</style></head>
+    <body><div class="box"><h1>Notas</h1><p>Em desenvolvimento. Em breve voce podera anotar tudo aqui.</p><a href="/clientes">&larr; Voltar</a></div></body></html>
+    """)
+
+
+# ===== Rotas em desenvolvimento (Socio IA / Notas) - CHAT 1 =====
+@app.get("/socio", response_class=HTMLResponse)
+async def pagina_socio(request: Request):
+    return HTMLResponse('<h1>Socio IA</h1><p>Em desenvolvimento.</p><a href="/clientes">Voltar</a>')
+
+@app.get("/notas", response_class=HTMLResponse)
+async def pagina_notas(request: Request):
+    return HTMLResponse('<h1>Notas</h1><p>Em desenvolvimento.</p><a href="/clientes">Voltar</a>')
+
