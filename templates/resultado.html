@@ -298,14 +298,23 @@
         
         </style>
 
+        <div id="continuar-bloco" style="display:none; margin-top:24px;">
+            <div style="background:#141414; border:1px solid #222; border-left:4px solid #00d97e; border-radius:12px; padding:16px;">
+                <h3 style="font-size:13px; color:#00d97e; text-transform:uppercase; letter-spacing:0.08em; font-weight:800; margin:0 0 10px 0;">Qual foi a resposta do cliente?</h3>
+                <form method="POST" action="/gerar_resposta">
+                    <input type="hidden" name="whatsapp" value="{{ atendimento.whatsapp }}">
+                    <input type="hidden" name="nicho_id" value="{{ atendimento.nicho_id }}">
+                    {% if atendimento.cliente_id %}<input type="hidden" name="cliente_id" value="{{ atendimento.cliente_id }}">{% endif %}
+                    <textarea name="mensagem_cliente" required minlength="3" placeholder="Cole aqui o que o cliente respondeu..." style="width:100%; background:#0a0a0a; color:#fff; border:1px solid #2a2a2a; padding:12px; border-radius:8px; font-size:14px; font-family:inherit; box-sizing:border-box; resize:vertical; min-height:80px; margin-bottom:10px;"></textarea>
+                    <button type="submit" style="width:100%; padding:14px; background:#00d97e; color:#0a0a0a; border:none; border-radius:10px; font-size:15px; font-weight:800; cursor:pointer; font-family:inherit;">Gerar nova resposta</button>
+                </form>
+            </div>
+        </div>
         <!-- ERRO -->
         <div id="erro-box" style="display:none;" class="erro">⚠️ <span id="erro-texto"></span></div>
 
         <!-- VOLTAR -->
-        <div id="voltar-wrap" style="display:none; margin-top:24px; text-align:center;">
-            <a href="/clientes" style="color:#00d97e; text-decoration:none; font-weight:700;">← Voltar para clientes</a>
-        </div>
-    </div>
+        
 
     <script src="/static/app.min2.js"></script>
     <script>
@@ -436,7 +445,7 @@
             document.getElementById('bloco-fala').classList.add('aberto');
             document.getElementById('bloco-texto').classList.add('aberto');
             document.getElementById('bloco-estagio').classList.add('aberto');
-            document.getElementById('voltar-wrap').style.display = 'block';
+            document.getElementById('continuar-bloco').style.display = 'block';
         }, 350);
     }
 
@@ -445,7 +454,7 @@
         document.getElementById('loading').style.display = 'none';
         document.getElementById('erro-box').style.display = 'block';
         document.getElementById('erro-texto').innerText = msg;
-        document.getElementById('voltar-wrap').style.display = 'block';
+        document.getElementById('continuar-bloco').style.display = 'block';
     }
 
     function escapeHtml(texto) {
@@ -484,7 +493,7 @@
             document.getElementById('bloco-fala').classList.add('aberto');
             document.getElementById('bloco-texto').classList.add('aberto');
             document.getElementById('bloco-estagio').classList.add('aberto');
-            document.getElementById('voltar-wrap').style.display = 'block';
+            document.getElementById('continuar-bloco').style.display = 'block';
             return;
         }
 
@@ -624,3 +633,5 @@
 </script>
 </body>
 </html>
+
+

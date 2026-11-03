@@ -76,12 +76,10 @@
 
             <input type="hidden" name="nicho_id" value="{{ nicho.id }}">
 
-            <div class="campo">
-                <label>💬 O que o cliente falou agora (ou instrução)</label>
-                <textarea name="mensagem_cliente" rows="5" placeholder="Cole aqui a mensagem que o cliente enviou no WhatsApp..." required autofocus style="min-height:120px; font-size:15px;"></textarea>
-                <p style="color:#5a5a5a; font-size:12px; margin-top:6px;">
-                    💡 Dica: cole exatamente como ele escreveu, com erros e tudo. A IA entende.
-                </p>
+            <div style="background:#141414; border:1px solid #222; border-left:4px solid #00d97e; border-radius:12px; padding:16px; margin-bottom:16px;">
+                <h3 style="font-size:13px; color:#00d97e; text-transform:uppercase; letter-spacing:0.08em; font-weight:800; margin:0 0 10px 0;">O que o cliente falou agora?</h3>
+                <textarea name="mensagem_cliente" required autofocus placeholder="Cole aqui a mensagem que o cliente enviou no WhatsApp..." style="width:100%; background:#0a0a0a; color:#fff; border:1px solid #2a2a2a; padding:12px; border-radius:8px; font-size:14px; font-family:inherit; box-sizing:border-box; resize:vertical; min-height:100px;"></textarea>
+                <p style="color:#5a5a5a; font-size:12px; margin:8px 0 0 0;">Dica: cole exatamente como ele escreveu, com erros e tudo. A IA entende.</p>
             </div>
 
             <div class="bloco bloco-crm" style="background:#0f1a1f; border-left:4px solid #00d97e; padding:16px; margin-bottom:20px;">
@@ -97,18 +95,9 @@
             </div>
 
             <button type="submit" class="btn-gerar">🤖 GERAR RESPOSTA COM IA</button>
-<p style="color:#e8e8e8; font-size:14px; line-height:1.6; margin:0 0 10px 0;">
-                    Estamos gerando sua resposta. Em horários de pico pode levar <strong>até 30 segundos</strong> — muita gente usando a versão grátis ao mesmo tempo.
-                </p>
-                <p style="color:#f59e0b; font-size:13px; line-height:1.6; margin:0; padding-top:10px; border-top:1px solid #f59e0b22;">
-                    💡 <strong>Quem está no plano pago não entra na fila</strong> — a resposta sai em 2-3 segundos, sempre. <a href="/planos" style="color:#00d97e; text-decoration:underline;">Conhecer planos →</a>
-                </p>
-            </div>
+</div>
 
-            <p style="color:#5a5a5a; font-size:12px; text-align:center; margin-top:12px;">
-                ⚡ A IA leva de 2 a 4 segundos. Você pode continuar navegando.
-            </p>
-        </form>
+            </form>
     </div>
     <script src="/static/app.min2.js?v=1"></script>
     <script src="/static/splash.js"></script>
@@ -117,3 +106,4 @@
 <script src="/static/loading_global.js?v=4"></script>
 </body>
 </html>
+
