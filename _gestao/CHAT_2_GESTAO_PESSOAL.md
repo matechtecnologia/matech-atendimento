@@ -92,3 +92,26 @@ Opções prováveis:
 - Gestão Pessoal e Profissional são IGUAIS em peso
 - Áreas "em breve" devem aparecer na lista (cria expectativa)
 - IA só na FASE 3
+
+## Sessão 03/11/2026 — 5 abas + CRUD
+
+**Feito:**
+- 5 abas: Planejado, Caixinha, Financeiro, Sócio (placeholder), Dash
+- Financeiro: 5 blocos (Projeção mensal, Saldo, fantasma emergência, fantasma investimento, combo)
+- Fantasmas: editar % (persiste em gestao_pessoal_preferencias) + aplicar (data + banco obrigatórios)
+- Extrato: editar (modal) + deletar (confirmação)
+- Planejado: concluir + deletar
+- Caixinha: 4 cofres + aplicar/resgatar
+- Dash: gráficos categoria + movimentação por dia, filtro de data
+- Bottom nav específico da Gestão via app.min2.js (patch dentro do criarBottomNav)
+- Rotas: deletar/editar lançamento, editar-banco caixinha
+
+**Pendente:**
+- Tela de Metas (rotas prontas, template falta)
+- Sócio IA real (depende do Chat 1/7)
+- Dash: mais gráficos
+
+**Decisões críticas:**
+- NÃO reescrever app.min2.js inteiro (quebra header+nav). Só patch pequeno dentro do criarBottomNav
+- Templates seguem padrão clientes.html: app.min.css + .topo + app.min2.js + loading_global.js
+- Não duplicar nav: o bottom nav da Gestão vem do app.min2.js, NÃO criar chips no template
