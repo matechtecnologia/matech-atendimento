@@ -1,5 +1,5 @@
 ﻿// ============================================
-// M.A TECH â€” Bottom Nav
+// M.A TECH — Bottom Nav
 // ============================================
 
 (function() {
@@ -16,6 +16,10 @@
         return window.ICONE ? window.ICONE(nome, { tamanho: tam || 22 }) : '';
     }
 
+    function ehGestaoPessoalFinanceira() {
+        return window.location.pathname.indexOf('/gestao/pessoal/financeira') === 0;
+    }
+
     function rotaAtiva() {
         const path = window.location.pathname;
         if (path === '/clientes' || path === '/bem_vindo' || path.startsWith('/cliente/')) return 'clientes';
@@ -27,36 +31,39 @@
         return null;
     }
 
+    function rotaAtivaGestao() {
+        const path = window.location.pathname;
+        if (path === '/gestao/pessoal/financeira/planejado') return 'planejado';
+        if (path === '/gestao/pessoal/financeira/caixinha') return 'caixinha';
+        if (path === '/gestao/pessoal/financeira/socio') return 'socio';
+        if (path === '/gestao/pessoal/financeira/dashboarding') return 'dashboarding';
+        if (path === '/gestao/pessoal/financeira' || path === '/gestao/pessoal/financeira/lancar' || path === '/gestao/pessoal/financeira/extrato') return 'financeiro';
+        return null;
+    }
+
     function getFollowups() {
         return window.__followups_total_cache || 0;
     }
 
-    // Busca o total de follow-ups e atualiza o badge
     function carregarTotal() {
         fetch('/api/total-followups')
             .then(r => r.json())
             .then(d => {
                 const total = d.total || 0;
                 window.__followups_total_cache = total;
-
                 const nav = document.querySelector('.app-bottom-nav');
                 if (!nav) return;
-
                 const link = nav.querySelector('a[href="/followups"]');
                 if (!link) return;
-
                 let badge = link.querySelector('.badge-nav');
                 const iconeEl = link.querySelector('.icone-nav');
-
                 if (total > 0) {
                     if (!badge && iconeEl) {
                         badge = document.createElement('span');
                         badge.className = 'badge-nav';
                         iconeEl.appendChild(badge);
                     }
-                    if (badge) {
-                        badge.textContent = total > 99 ? '99+' : total;
-                    }
+                    if (badge) badge.textContent = total > 99 ? '99+' : total;
                 } else if (badge) {
                     badge.remove();
                 }
@@ -64,32 +71,25 @@
             .catch(() => {});
     }
 
-    // Busca o total de Consultorias pendentes e atualiza o badge
     function carregarConsultoria() {
         fetch('/api/consultoria-pendente')
             .then(r => r.json())
             .then(d => {
                 const total = d.pendente || 0;
                 window.__consultoria_pendente_cache = total;
-
                 const nav = document.querySelector('.app-bottom-nav');
                 if (!nav) return;
-
                 const link = nav.querySelector('a[href="/consultoria"]');
                 if (!link) return;
-
                 let badge = link.querySelector('.badge-nav');
                 const iconeEl = link.querySelector('.icone-nav');
-
                 if (total > 0) {
                     if (!badge && iconeEl) {
                         badge = document.createElement('span');
                         badge.className = 'badge-nav';
                         iconeEl.appendChild(badge);
                     }
-                    if (badge) {
-                        badge.textContent = total > 9 ? '9+' : total;
-                    }
+                    if (badge) badge.textContent = total > 9 ? '9+' : total;
                 } else if (badge) {
                     badge.remove();
                 }
@@ -97,10 +97,43 @@
             .catch(() => {});
     }
 
+    function criarNavGestao() {
+        const ativa = rotaAtivaGestao();
+        const nav = document.createElement('nav');
+        nav.className = 'app-bottom-nav';
+        nav.innerHTML = `
+            <a href="/gestao/pessoal/financeira/planejado" class="nav-item ${ativa === 'planejado' ? 'ativo' : ''}">
+                <span class="icone-nav">${icone('relatorios')}</span>
+                <span class="txt-nav">Planejado</span>
+            </a>
+            <a href="/gestao/pessoal/financeira/caixinha" class="nav-item ${ativa === 'caixinha' ? 'ativo' : ''}">
+                <span class="icone-nav">${icone('briefcase')}</span>
+                <span class="txt-nav">Caixinha</span>
+            </a>
+            <a href="/gestao/pessoal/financeira" class="nav-item destaque ${ativa === 'financeiro' ? 'ativo' : ''}" title="Financeiro">
+                <span class="icone-nav">${icone('raio', 26)}</span>
+            </a>
+            <a href="/gestao/pessoal/financeira/socio" class="nav-item ${ativa === 'socio' ? 'ativo' : ''}">
+                <span class="icone-nav">${icone('briefcase')}</span>
+                <span class="txt-nav">Sócio</span>
+            </a>
+            <a href="/gestao/pessoal/financeira/dashboarding" class="nav-item ${ativa === 'dashboarding' ? 'ativo' : ''}">
+                <span class="icone-nav">${icone('dashboard')}</span>
+                <span class="txt-nav">Dash</span>
+            </a>
+        `;
+        document.body.appendChild(nav);
+    }
+
     function criarBottomNav() {
         document.querySelectorAll('.app-bottom-nav').forEach(n => n.remove());
         if (!isMobile()) return;
         if (!document.querySelector('.usuario-info')) return;
+
+        if (ehGestaoPessoalFinanceira()) {
+            criarNavGestao();
+            return;
+        }
 
         const ativa = rotaAtiva();
         const total = getFollowups();
@@ -109,7 +142,7 @@
         const nav = document.createElement('nav');
         nav.className = 'app-bottom-nav';
         nav.innerHTML = `
-            <a href="/gestao" class="nav-item ${ativa === 'clientes' || ativa === 'followups' || ativa === 'relatorios' ? '' : ''}">
+            <a href="/gestao" class="nav-item">
                 <span class="icone-nav">${icone('dashboard')}</span>
                 <span class="txt-nav">Gestor</span>
             </a>
@@ -122,7 +155,7 @@
             </a>
             <a href="/socio" class="nav-item">
                 <span class="icone-nav">${icone('briefcase')}</span>
-                <span class="txt-nav">Socio</span>
+                <span class="txt-nav">Sócio</span>
             </a>
             <a href="/notas" class="nav-item">
                 <span class="icone-nav">${icone('relatorios')}</span>
@@ -147,7 +180,6 @@
             });
         }
 
-        // Busca os totais e atualiza os badges
         setTimeout(carregarTotal, 150);
         setTimeout(carregarConsultoria, 300);
     }
@@ -164,5 +196,3 @@
         init();
     }
 })();
-
-

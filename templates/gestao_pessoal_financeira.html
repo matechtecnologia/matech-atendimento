@@ -3,100 +3,148 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Financeira Pessoal - M.A Tech</title>
+<title>M.A Tech - Financeiro</title>
+<link rel="stylesheet" href="/static/app.min.css?v=310930">
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#0a0a0a; color:#e5e5e5; min-height:100vh; padding:24px 16px; }
-.container { max-width:700px; margin:0 auto; }
-.voltar { display:inline-block; margin-bottom:20px; color:#10b981; font-size:.9rem; text-decoration:none; }
-h1 { font-size:1.5rem; color:#fff; margin-bottom:6px; }
-.sub { color:#888; font-size:.85rem; margin-bottom:24px; }
-.card { background:#111; border:1px solid #1e1e1e; border-radius:14px; padding:22px; margin-bottom:16px; }
-.saldo-label { font-size:.75rem; color:#888; text-transform:uppercase; letter-spacing:.08em; font-weight:700; margin-bottom:6px; }
-.saldo { font-size:2.2rem; font-weight:800; margin-bottom:16px; }
-.saldo.positivo { color:#10b981; }
-.saldo.negativo { color:#ff3b3b; }
-.linha-dupla { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:8px; }
-.linha-dupla .mini { background:#0d0d0d; border-radius:10px; padding:14px; }
-.linha-dupla .mini .lbl { font-size:.7rem; color:#888; text-transform:uppercase; letter-spacing:.05em; font-weight:700; margin-bottom:4px; }
-.linha-dupla .mini .val { font-size:1.1rem; font-weight:700; }
-.mini.entrada .val { color:#10b981; }
-.mini.saida .val { color:#ff3b3b; }
-h2 { font-size:1rem; color:#fff; margin-bottom:12px; }
-.btn-principal { display:block; background:#10b981; color:#000; text-align:center; padding:14px; border-radius:10px; text-decoration:none; font-weight:700; font-size:.95rem; margin-bottom:16px; }
-.btn-principal:hover { background:#0ea371; }
-ul.lista { list-style:none; }
-ul.lista li { display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #1a1a1a; font-size:.9rem; }
-ul.lista li:last-child { border-bottom:none; }
-ul.lista li .cat { color:#ccc; }
-ul.lista li .val-entrada { color:#10b981; font-weight:700; }
-ul.lista li .val-saida { color:#ff3b3b; font-weight:700; }
-.links { display:flex; gap:10px; margin-top:8px; }
-.links a { flex:1; text-align:center; padding:12px; border-radius:10px; text-decoration:none; font-weight:600; font-size:.85rem; background:#161616; color:#10b981; border:1px solid #1e1e1e; }
-.links a:hover { border-color:#10b981; }
-.vazio { color:#666; font-size:.85rem; text-align:center; padding:16px 0; }
+.chips-nav { display:flex; gap:8px; padding:0 0 16px; margin-bottom:16px; overflow-x:auto; scrollbar-width:none; }
+.chips-nav::-webkit-scrollbar { display:none; }
+.chip-nav { flex-shrink:0; padding:10px 16px; border-radius:100px; font-size:13px; font-weight:600; background:#141414; border:1px solid #222; color:#8a8a8a; text-decoration:none; white-space:nowrap; font-family:inherit; }
+.chip-nav.ativo { background:#00d97e; color:#0a0a0a; border-color:#00d97e; box-shadow:0 4px 12px rgba(0,217,126,0.3); }
+.card-fin { background:#141414; border:1px solid #222; border-radius:12px; padding:20px; margin-bottom:14px; }
+.card-fin .lbl { font-size:11px; color:#8a8a8a; text-transform:uppercase; letter-spacing:0.08em; font-weight:800; margin-bottom:8px; }
+.card-fin .big { font-size:28px; font-weight:800; margin-bottom:6px; letter-spacing:-0.02em; }
+.big.pos { color:#00d97e; }
+.big.neg { color:#ff5555; }
+.card-fin .hint { font-size:12px; color:#5a5a5a; margin-bottom:12px; }
+.card-fin .ultima { font-size:11px; color:#5a5a5a; margin-bottom:10px; font-family:monospace; }
+.card-fin .acoes { display:flex; gap:10px; margin-top:12px; }
+.card-fin .acoes a, .card-fin .acoes button { flex:1; text-align:center; padding:12px; border-radius:8px; border:none; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit; text-decoration:none; }
+.btn-p { background:#00d97e; color:#0a0a0a; }
+.btn-s { background:#161616; color:#00d97e; border:1px solid #222 !important; }
+.card-fant { background:#141414; border:1px solid #222; border-radius:12px; padding:20px; margin-bottom:14px; }
+.card-fant .lbl { color:#8a8a8a; }
+.card-fant .big { color:#5a5a5a; }
+.card-fant .pct { font-size:13px; color:#5a5a5a; margin-left:6px; }
+.card-fant .hint { color:#5a5a5a; }
+.card-proj { cursor:pointer; transition:border-color 0.2s; }
+.card-proj:hover { border-color:#00d97e; }
+.mbg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.8); z-index:999999; align-items:center; justify-content:center; padding:16px; }
+.mbg.ativo { display:flex; }
+.m { background:#141414; border:1px solid #2a2a2a; border-radius:14px; padding:20px; max-width:400px; width:100%; }
+.m h3 { font-size:16px; color:#fff; margin-bottom:14px; }
+.m label { display:block; font-size:11px; color:#8a8a8a; text-transform:uppercase; font-weight:800; margin:10px 0 4px; }
+.m input { width:100%; padding:10px; border-radius:8px; border:1px solid #2a2a2a; background:#0a0a0a; color:#e8e8e8; font-family:inherit; font-size:14px; box-sizing:border-box; }
+.m .regua { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:8px; }
+.m .regua button { padding:10px 4px; border-radius:8px; border:1px solid #2a2a2a; background:#0a0a0a; color:#8a8a8a; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit; }
+.m .regua button.sel { background:#00d97e; color:#0a0a0a; border-color:#00d97e; }
+.m .acoes { display:flex; gap:8px; margin-top:16px; }
+.m .acoes button { flex:1; padding:12px; border-radius:8px; border:none; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; }
+.m .cancelar { background:#161616; color:#8a8a8a; border:1px solid #2a2a2a !important; }
+.m .confirmar { background:#00d97e; color:#0a0a0a; }
+.m .alerta { background:#2a1010; border:1px solid #3a1818; color:#ff5555; padding:10px; border-radius:8px; font-size:12px; margin-top:10px; display:none; }
+.m .alerta.ativo { display:block; }
 </style>
 </head>
 <body>
-<div class="container">
-<a href="/gestao/pessoal" class="voltar">&larr; Voltar</a>
-<h1>💰 Financeira Pessoal</h1>
-<p class="sub">Controle de gastos, metas e reserva.</p>
-
-<div class="card">
-  <div class="saldo-label">Saldo do mês</div>
-  <div class="saldo {% if saldo >= 0 %}positivo{% else %}negativo{% endif %}">
-    R$ {{ "%.2f"|format(saldo)|replace(".", ",") }}
-  </div>
-  <div class="linha-dupla">
-    <div class="mini entrada">
-      <div class="lbl">Entradas</div>
-      <div class="val">R$ {{ "%.2f"|format(total_entrada)|replace(".", ",") }}</div>
-    </div>
-    <div class="mini saida">
-      <div class="lbl">Saídas</div>
-      <div class="val">R$ {{ "%.2f"|format(total_saida)|replace(".", ",") }}</div>
+<div class="container-atendimento">
+  <div class="topo">
+    <h1>M.A <span style="color:#10b981">Tech</span></h1>
+    <div class="usuario-info">
+      <span>{{ usuario_nome or '' }}</span>
+      <a href="/planos">Planos</a>
+      {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
+      <a href="https://wa.me/5512997291583" target="_blank" rel="noopener">Suporte</a>
+      <a href="/logout">Sair</a>
     </div>
   </div>
-</div>
-
-<a href="/gestao/pessoal/financeira/lancar" class="btn-principal">+ Novo lançamento</a>
-
-<div class="card">
-  <h2>Últimos lançamentos</h2>
-  {% if ultimos %}
-    <ul class="lista">
-      {% for l in ultimos %}
-      <li>
-        <span class="cat">{{ l.categoria }}{% if l.descricao %} · {{ l.descricao }}{% endif %}</span>
-        <span class="{% if l.tipo == 'entrada' %}val-entrada{% else %}val-saida{% endif %}">
-          {% if l.tipo == 'entrada' %}+{% else %}-{% endif %} R$ {{ "%.2f"|format(l.valor)|replace(".", ",") }}
-        </span>
-      </li>
-      {% endfor %}
-    </ul>
-    <div class="links">
-      <a href="/gestao/pessoal/financeira/extrato">Ver extrato completo</a>
+  <h2 style="color:#fff;margin-bottom:16px;">💰 Financeiro</h2>
+  <nav class="chips-nav">
+    <a href="/gestao/pessoal/financeira/planejado" class="chip-nav {% if aba_ativa == 'planejado' %}ativo{% endif %}">Planejado</a>
+    <a href="/gestao/pessoal/financeira/caixinha" class="chip-nav {% if aba_ativa == 'caixinha' %}ativo{% endif %}">Caixinha</a>
+    <a href="/gestao/pessoal/financeira" class="chip-nav {% if aba_ativa == 'financeiro' %}ativo{% endif %}">💰 Financeiro</a>
+    <a href="/gestao/pessoal/financeira/extrato" class="chip-nav">📋 Extrato</a>
+    <a href="/gestao/pessoal/financeira/dashboarding" class="chip-nav {% if aba_ativa == 'dashboarding' %}ativo{% endif %}">📊 Dash</a>
+  </nav>
+  <div class="card-fin card-proj" onclick="location.href='/gestao/pessoal/financeira/planejado'">
+    <div class="lbl">📅 Projeção</div>
+    <div class="big {% if (saldo_total + planejado_total) < 0 %}neg{% else %}pos{% endif %}">R$ {{ "%.2f"|format(saldo_total + planejado_total)|replace(".", ",") }}</div>
+    <div class="hint">{{ planejado_qtd }} item(ns) planejado(s) · clique para ver</div>
+  </div>
+  <div class="card-fin">
+    <div class="lbl">Saldo atual</div>
+    <div class="big {% if saldo_total < 0 %}neg{% else %}pos{% endif %}">R$ {{ "%.2f"|format(saldo_total)|replace(".", ",") }}</div>
+    <div class="hint">Entradas R$ {{ "%.2f"|format(total_entrada)|replace(".", ",") }} · Saídas R$ {{ "%.2f"|format(total_saida)|replace(".", ",") }}</div>
+    <div class="acoes">
+      <a href="/gestao/pessoal/financeira/lancar" class="btn-p">+ Lançar</a>
+      <a href="/gestao/pessoal/financeira/extrato" class="btn-s">Extrato</a>
     </div>
-  {% else %}
-    <p class="vazio">Nenhum lançamento ainda. Comece adicionando um.</p>
-  {% endif %}
+  </div>
+  <div class="card-fant">
+    <div class="lbl">Com fundo de emergência</div>
+    <div class="big">R$ {{ "%.2f"|format(saldo_total - val_em)|replace(".", ",") }}<span class="pct">({{ "%.0f"|format(pct_em) }}%)</span></div>
+    <div class="hint">Se guardar {{ "%.0f"|format(pct_em) }}% agora</div>
+    {% if ultima_aplic.get("emergencia") %}<div class="ultima">Última: R$ {{ "%.2f"|format(ultima_aplic["emergencia"].valor)|replace(".", ",") }}{% if ultima_aplic["emergencia"].porcentagem_aplicada %} ({{ "%.0f"|format(ultima_aplic["emergencia"].porcentagem_aplicada) }}%){% endif %}</div>{% endif %}
+    <div class="acoes">
+      <button class="btn-p" onclick="abrirAplicar('emergencia', {{ pct_em }})">Aplicar</button>
+      <button class="btn-s" onclick="abrirEditar('emergencia', {{ pct_em }})">Editar %</button>
+    </div>
+  </div>
+  <div class="card-fant">
+    <div class="lbl">Com investimento</div>
+    <div class="big">R$ {{ "%.2f"|format(saldo_total - val_inv)|replace(".", ",") }}<span class="pct">({{ "%.0f"|format(pct_inv) }}%)</span></div>
+    <div class="hint">Se investir {{ "%.0f"|format(pct_inv) }}% agora</div>
+    {% if ultima_aplic.get("investimento") %}<div class="ultima">Última: R$ {{ "%.2f"|format(ultima_aplic["investimento"].valor)|replace(".", ",") }}{% if ultima_aplic["investimento"].porcentagem_aplicada %} ({{ "%.0f"|format(ultima_aplic["investimento"].porcentagem_aplicada) }}%){% endif %}</div>{% endif %}
+    <div class="acoes">
+      <button class="btn-p" onclick="abrirAplicar('investimento', {{ pct_inv }})">Aplicar</button>
+      <button class="btn-s" onclick="abrirEditar('investimento', {{ pct_inv }})">Editar %</button>
+    </div>
+  </div>
+  <div class="card-fant">
+    <div class="lbl">Combo emergência + investimento</div>
+    <div class="big">R$ {{ "%.2f"|format(saldo_total - val_combo)|replace(".", ",") }}<span class="pct">({{ "%.0f"|format(pct_em + pct_inv) }}%)</span></div>
+    <div class="hint">Se guardar nos 2 agora</div>
+    <div class="acoes"><button class="btn-p" onclick="abrirAplicar('combo', {{ pct_em + pct_inv }})">Aplicar</button></div>
+  </div>
 </div>
-
-{% if metas %}
-<div class="card">
-  <h2>Metas</h2>
-  <ul class="lista">
-    {% for m in metas %}
-    <li>
-      <span class="cat">{{ m.titulo }}</span>
-      <span>R$ {{ "%.2f"|format(m.valor_atual)|replace(".", ",") }} / R$ {{ "%.2f"|format(m.valor_meta)|replace(".", ",") }}</span>
-    </li>
-    {% endfor %}
-  </ul>
+<div class="mbg" id="mbg-editar">
+  <div class="m">
+    <h3>Editar % — <span id="editar-tipo"></span></h3>
+    <label>Régua</label>
+    <div class="regua">
+      <button type="button" onclick="setPct(1,this)">1%</button>
+      <button type="button" onclick="setPct(3,this)">3%</button>
+      <button type="button" onclick="setPct(5,this)">5%</button>
+      <button type="button" onclick="focarCustom(this)">Outro</button>
+    </div>
+    <label>Personalizado (%)</label>
+    <input type="number" id="editar-pct" step="0.1" min="0" max="100">
+    <div class="alerta" id="editar-erro"></div>
+    <div class="acoes"><button class="cancelar" onclick="fechar('editar')">Cancelar</button><button class="confirmar" onclick="salvarPct()">Salvar</button></div>
+  </div>
 </div>
-{% endif %}
-
+<div class="mbg" id="mbg-aplicar">
+  <div class="m">
+    <h3>Aplicar — <span id="aplicar-tipo"></span></h3>
+    <label>Data (obrigatória)</label>
+    <input type="date" id="aplicar-data" value="{{ hoje }}">
+    <label>Banco destino (obrigatório)</label>
+    <input type="text" id="aplicar-banco" placeholder="Ex: Nubank, XP, Itaú...">
+    <div class="alerta" id="aplicar-erro"></div>
+    <div class="acoes"><button class="cancelar" onclick="fechar('aplicar')">Cancelar</button><button class="confirmar" onclick="confirmarAplicar()">Confirmar</button></div>
+  </div>
 </div>
+<script>
+let tipoEditar = null;
+function abrirEditar(t, p){ tipoEditar=t; document.getElementById('editar-tipo').innerText=t; document.getElementById('editar-pct').value=p; document.getElementById('editar-erro').classList.remove('ativo'); document.getElementById('mbg-editar').classList.add('ativo'); }
+function setPct(v,b){ document.getElementById('editar-pct').value=v; document.querySelectorAll('#mbg-editar .regua button').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); }
+function focarCustom(b){ document.getElementById('editar-pct').focus(); document.querySelectorAll('#mbg-editar .regua button').forEach(x=>x.classList.remove('sel')); b.classList.add('sel'); }
+async function salvarPct(){ const p=parseFloat(document.getElementById('editar-pct').value); const e=document.getElementById('editar-erro'); e.classList.remove('ativo'); if(isNaN(p)||p<0||p>100){e.innerText='0 a 100.';e.classList.add('ativo');return;} const fd=new FormData(); fd.append('tipo',tipoEditar); fd.append('percentual',p); const r=await fetch('/gestao/pessoal/financeira/editar-percentual',{method:'POST',body:fd,credentials:'same-origin'}); const j=await r.json(); if(j.ok)location.reload(); else{e.innerText='Erro: '+(j.erro||'?');e.classList.add('ativo');} }
+let tipoAplicar=null,pctAplicar=0;
+function abrirAplicar(t,p){ tipoAplicar=t; pctAplicar=p; document.getElementById('aplicar-tipo').innerText=t; document.getElementById('aplicar-erro').classList.remove('ativo'); document.getElementById('aplicar-banco').value=''; document.getElementById('aplicar-data').value='{{ hoje }}'; document.getElementById('mbg-aplicar').classList.add('ativo'); }
+async function confirmarAplicar(){ const d=document.getElementById('aplicar-data').value; const b=document.getElementById('aplicar-banco').value.trim(); const e=document.getElementById('aplicar-erro'); e.classList.remove('ativo'); if(!d){e.innerText='Data obrigatória.';e.classList.add('ativo');return;} if(!b){e.innerText='Banco obrigatório.';e.classList.add('ativo');return;} const fd=new FormData(); fd.append('tipo',tipoAplicar); fd.append('percentual',pctAplicar); fd.append('data_ap',d); fd.append('banco',b); const r=await fetch('/gestao/pessoal/financeira/aplicar',{method:'POST',body:fd,credentials:'same-origin'}); const j=await r.json(); if(j.ok)location.reload(); else{e.innerText='Erro: '+(j.erro||'?');e.classList.add('ativo');} }
+function fechar(q){ document.getElementById('mbg-'+q).classList.remove('ativo'); }
+</script>
+<script src="/static/app.min2.js?v=2"></script>
+<script src="/static/loading_global.js?v=4"></script>
 </body>
 </html>
