@@ -58,15 +58,8 @@
     </div>
   </div>
   <h2 style="color:#fff;margin-bottom:16px;">💰 Financeiro</h2>
-  <nav class="chips-nav">
-    <a href="/gestao/pessoal/financeira/planejado" class="chip-nav {% if aba_ativa == 'planejado' %}ativo{% endif %}">Planejado</a>
-    <a href="/gestao/pessoal/financeira/caixinha" class="chip-nav {% if aba_ativa == 'caixinha' %}ativo{% endif %}">Caixinha</a>
-    <a href="/gestao/pessoal/financeira" class="chip-nav {% if aba_ativa == 'financeiro' %}ativo{% endif %}">💰 Financeiro</a>
-    <a href="/gestao/pessoal/financeira/extrato" class="chip-nav">📋 Extrato</a>
-    <a href="/gestao/pessoal/financeira/dashboarding" class="chip-nav {% if aba_ativa == 'dashboarding' %}ativo{% endif %}">📊 Dash</a>
-  </nav>
   <div class="card-fin card-proj" onclick="location.href='/gestao/pessoal/financeira/planejado'">
-    <div class="lbl">📅 Projeção</div>
+    <div class="lbl">Projeção mensal</div>
     <div class="big {% if (saldo_total + planejado_total) < 0 %}neg{% else %}pos{% endif %}">R$ {{ "%.2f"|format(saldo_total + planejado_total)|replace(".", ",") }}</div>
     <div class="hint">{{ planejado_qtd }} item(ns) planejado(s) · clique para ver</div>
   </div>
