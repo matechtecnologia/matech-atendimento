@@ -78,7 +78,12 @@ h1 { font-size:1.5rem; color:#fff; margin-bottom:6px; }
     <input type="text" name="descricao" placeholder="Ex: Mercado do mês">
   </div>
 
-  <button type="submit" class="btn-salvar">Salvar lançamento</button>
+  <label style="display:block;color:#a8a8a8;font-size:12px;font-weight:600;margin-bottom:5px;margin-top:12px;">Quando?</label>
+<select name="status_lanc" style="width:100%;background:#0a0a0a;color:#fff;border:1px solid #2a2a2a;padding:12px;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;margin-bottom:12px;">
+  <option value="concluido" {% if request.query_params.get('status') != 'planejado' %}selected{% endif %}>Já aconteceu (concluído)</option>
+  <option value="planejado" {% if request.query_params.get('status') == 'planejado' %}selected{% endif %}>Vai acontecer (planejado)</option>
+</select>
+<button type="submit" class="btn-salvar">Salvar lançamento</button>
 </form>
 
 <script>

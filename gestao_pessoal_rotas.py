@@ -46,7 +46,7 @@ def instalar_gestao_pessoal(app, templates, ler_sessao_func):
                 cur.execute("SELECT COALESCE(SUM(CASE WHEN tipo='entrada' THEN valor ELSE 0 END),0) AS te, COALESCE(SUM(CASE WHEN tipo='saida' THEN valor ELSE 0 END),0) AS ts FROM gestao_pessoal_lancamentos WHERE usuario_id=%s AND status='concluido' AND DATE_TRUNC('month',data)=DATE_TRUNC('month',CURRENT_DATE)", (uid,))
                 r = cur.fetchone()
                 saldo_total = _saldo(cur, uid)
-                cur.execute("SELECT COUNT(*) AS q, COALESCE(SUM(valor),0) AS t FROM gestao_pessoal_lancamentos WHERE usuario_id=%s AND status='planejado'", (uid,))
+                cur.execute("SELECT COUNT(*) AS q, COALESCE(SUM(CASE WHEN tipo='entrada' THEN valor ELSE -valor END),0) AS t FROM gestao_pessoal_lancamentos WHERE usuario_id=%s AND status='planejado'", (uid,))
                 pl = cur.fetchone()
                 cur.execute("SELECT * FROM gestao_caixinhas WHERE usuario_id=%s ORDER BY tipo", (uid,))
                 cx = {x["tipo"]: dict(x) for x in cur.fetchall()}
