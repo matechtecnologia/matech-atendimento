@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M.A Tech - Tempo - Planejado</title>
+<link rel="stylesheet" href="/static/app.min.css?v=310930">
+<style>
+body { padding-bottom: 90px; }
+.card-fin { background:#141414; border:1px solid #222; border-radius:12px; padding:20px; margin-bottom:14px; }
+.card-fin .lbl { font-size:11px; color:#8a8a8a; text-transform:uppercase; letter-spacing:0.08em; font-weight:800; margin-bottom:8px; }
+.card-fin .hint { font-size:12px; color:#5a5a5a; margin-bottom:12px; }
+.comp-item { display:flex; align-items:center; gap:12px; padding:14px 0; border-bottom:1px solid #1e1e1e; }
+.comp-item:last-child { border-bottom:none; }
+.comp-item .data-hora { flex-shrink:0; width:82px; font-size:11px; font-weight:800; color:#00d97e; font-family:monospace; line-height:1.5; }
+.comp-item .info { flex:1; min-width:0; }
+.comp-item .info h3 { font-size:15px; color:#fff; font-weight:700; margin-bottom:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.comp-item .info p { font-size:12px; color:#8a8a8a; margin:0; }
+.comp-item .prior { display:inline-block; padding:2px 8px; border-radius:6px; font-size:10px; font-weight:800; margin-left:6px; text-transform:uppercase; letter-spacing:0.05em; }
+.prior.alta { background:rgba(255,85,85,.15); color:#ff5555; }
+.prior.media { background:rgba(245,158,11,.15); color:#f59e0b; }
+.prior.baixa { background:rgba(59,130,246,.15); color:#3b82f6; }
+.acoes-icon { display:flex; gap:6px; flex-shrink:0; }
+.btn-icon { background:#161616; border:1px solid #222; color:#8a8a8a; width:36px; height:36px; border-radius:8px; font-size:14px; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; }
+.btn-icon:hover { border-color:#00d97e; color:#00d97e; }
+.vazio { color:#5a5a5a; font-size:13px; padding:16px 0; text-align:center; }
+.acoes { display:flex; gap:10px; margin-top:12px; }
+.acoes a { flex:1; text-align:center; padding:12px; border-radius:8px; font-weight:700; font-size:14px; text-decoration:none; }
+.btn-p { background:#00d97e; color:#0a0a0a; }
+</style>
+</head>
+<body>
+<div class="container-atendimento">
+  <div class="topo">
+    <h1>M.A <span style="color:#10b981">Tech</span></h1>
+    <div class="usuario-info">
+      <span>{{ usuario_nome or '' }}</span>
+      <a href="/planos">Planos</a>
+      {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
+      <a href="https://wa.me/5512997291583" target="_blank" rel="noopener">Suporte</a>
+      <a href="/logout">Sair</a>
+    </div>
+  </div>
+  <h2 style="color:#fff;margin-bottom:16px;">&#9200; Tempo</h2>
+
+  <div class="card-fin">
+    <div class="lbl">Planejado</div>
+    <div class="hint">Compromissos futuros (a partir de hoje)</div>
+
+    {% if compromissos %}
+      {% for c in compromissos %}
+      <div class="comp-item">
+        <div class="data-hora">{{ c.data }}<br>{{ c.hora_inicio or '--:--' }}</div>
+        <div class="info">
+          <h3>{{ c.titulo }}<span class="prior {{ c.prioridade }}">{{ c.prioridade }}</span></h3>
+          {% if c.local %}<p>{{ c.local }}</p>{% elif c.descricao %}<p>{{ c.descricao }}</p>{% endif %}
+        </div>
+        <div class="acoes-icon">
+          <form method="POST" action="/gestao/pessoal/tempo/compromisso/{{ c.id }}/concluir" style="display:inline;margin:0;">
+            <button type="submit" class="btn-icon" title="Concluir">&#10003;</button>
+          </form>
+          <a href="/gestao/pessoal/tempo/compromisso/{{ c.id }}" class="btn-icon" title="Editar">&#9998;</a>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="vazio">Nenhum compromisso futuro.</div>
+    {% endif %}
+
+    <div class="acoes">
+      <a href="/gestao/pessoal/tempo/novo" class="btn-p">+ NOVO COMPROMISSO</a>
+    </div>
+  </div>
+</div>
+<script src="/static/app.min.js?v=2"></script>
+<script src="/static/loading_global.js?v=4"></script>
+</body>
+</html>

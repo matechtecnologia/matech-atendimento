@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M.A Tech - Tempo</title>
+<link rel="stylesheet" href="/static/app.min.css?v=310930">
+<style>
+body { padding-bottom: 90px; }
+.card-fin { background:#141414; border:1px solid #222; border-radius:12px; padding:20px; margin-bottom:14px; }
+.card-fin .lbl { font-size:11px; color:#8a8a8a; text-transform:uppercase; letter-spacing:0.08em; font-weight:800; margin-bottom:8px; }
+.card-fin .big { font-size:28px; font-weight:800; margin-bottom:6px; letter-spacing:-0.02em; }
+.big.pos { color:#00d97e; }
+.big.neg { color:#ff5555; }
+.card-fin .hint { font-size:12px; color:#5a5a5a; margin-bottom:12px; }
+.card-fin .acoes { display:flex; gap:10px; margin-top:12px; }
+.card-fin .acoes a, .card-fin .acoes button { flex:1; text-align:center; padding:12px; border-radius:8px; border:none; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit; text-decoration:none; }
+.btn-p { background:#00d97e; color:#0a0a0a; }
+.btn-s { background:#161616; color:#00d97e; border:1px solid #222 !important; }
+
+.lista-comp { margin-top:4px; }
+.comp-item { display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid #1e1e1e; }
+.comp-item:last-child { border-bottom:none; }
+.comp-item .hora { flex-shrink:0; width:52px; font-size:14px; font-weight:800; color:#00d97e; font-family:monospace; }
+.comp-item .info { flex:1; min-width:0; }
+.comp-item .info h3 { font-size:15px; color:#fff; font-weight:700; margin-bottom:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.comp-item .info p { font-size:12px; color:#8a8a8a; margin:0; }
+.comp-item .prior { display:inline-block; padding:2px 8px; border-radius:6px; font-size:10px; font-weight:800; margin-left:6px; text-transform:uppercase; letter-spacing:0.05em; }
+.prior.alta { background:rgba(255,85,85,.15); color:#ff5555; }
+.prior.media { background:rgba(245,158,11,.15); color:#f59e0b; }
+.prior.baixa { background:rgba(59,130,246,.15); color:#3b82f6; }
+.comp-item.concluido .info h3 { text-decoration:line-through; color:#5a5a5a; }
+.comp-item .acoes-icon { display:flex; gap:6px; flex-shrink:0; }
+.btn-icon { background:#161616; border:1px solid #222; color:#8a8a8a; width:36px; height:36px; border-radius:8px; font-size:14px; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; }
+.btn-icon:hover { border-color:#00d97e; color:#00d97e; }
+.vazio { color:#5a5a5a; font-size:13px; padding:16px 0; text-align:center; }
+</style>
+</head>
+<body>
+<div class="container-atendimento">
+  <div class="topo">
+    <h1>M.A <span style="color:#10b981">Tech</span></h1>
+    <div class="usuario-info">
+      <span>{{ usuario_nome or '' }}</span>
+      <a href="/planos">Planos</a>
+      {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
+      <a href="https://wa.me/5512997291583" target="_blank" rel="noopener">Suporte</a>
+      <a href="/logout">Sair</a>
+    </div>
+  </div>
+  <h2 style="color:#fff;margin-bottom:16px;">&#9200; Tempo</h2>
+
+  <!-- SUGESTOES_IA -->
+{% if sugestoes %}
+<div class="card-fin" style="border-color:#00d97e44;background:linear-gradient(135deg,#141414,#0f1a14);">
+  <div class="lbl" style="color:#00d97e;">&#129504; Sugestoes da IA</div>
+  <div style="margin-top:4px;">
+    {% for s in sugestoes %}
+    <div style="padding:12px 0;border-bottom:1px solid #1e1e1e;{% if loop.last %}border-bottom:none;{% endif %}">
+      <div style="font-size:13px;color:#e8e8e8;line-height:1.5;margin-bottom:8px;">{{ s.mensagem }}</div>
+      <div style="display:flex;gap:8px;">
+        {% if s.tipo == 'padrao' %}
+        <form method="POST" action="/gestao/pessoal/tempo/rotinas/nova" style="display:inline;margin:0;">
+          <input type="hidden" name="titulo" value="{{ s.titulo }}">
+          <input type="hidden" name="dia_semana" value="{{ s.dia_semana }}">
+          <input type="hidden" name="hora_inicio" value="{{ s.hora_inicio }}">
+          <button type="submit" style="background:#00d97e;color:#0a0a0a;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Criar rotina</button>
+        </form>
+        {% elif s.tipo == 'foco' %}
+        <form method="POST" action="/gestao/pessoal/tempo/foco/novo" style="display:inline;margin:0;">
+          <input type="hidden" name="titulo" value="Foco IA">
+          <input type="hidden" name="data" value="{{ s.data }}">
+          <input type="hidden" name="hora_inicio" value="{{ s.hora_inicio }}">
+          <input type="hidden" name="hora_fim" value="{{ s.hora_fim }}">
+          <button type="submit" style="background:#00d97e;color:#0a0a0a;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">Bloquear foco</button>
+        </form>
+        {% elif s.tipo == 'horario_livre' %}
+        <a href="/gestao/pessoal/tempo/novo?data={{ s.data }}&hora_inicio={{ s.hora_inicio }}&hora_fim={{ s.hora_fim }}" style="background:#00d97e;color:#0a0a0a;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;text-decoration:none;">Agendar</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+<!-- /SUGESTOES_IA -->
+
+<div class="card-fin">
+    <div class="lbl">Compromissos de hoje</div>
+    <div class="big pos">{{ compromissos|length }}</div>
+    <div class="hint">{{ data_hoje }}</div>
+    {% if compromissos %}
+    <div class="lista-comp">
+      {% for c in compromissos %}
+      <div class="comp-item {% if c.concluido %}concluido{% endif %}">
+        <div class="hora">{{ c.hora_inicio or '--:--' }}</div>
+        <div class="info">
+          <h3>{{ c.titulo }}<span class="prior {{ c.prioridade }}">{{ c.prioridade }}</span></h3>
+          {% if c.local %}<p>{{ c.local }}</p>{% elif c.descricao %}<p>{{ c.descricao }}</p>{% endif %}
+        </div>
+        <div class="acoes-icon">
+          {% if not c.concluido %}
+          <form method="POST" action="/gestao/pessoal/tempo/compromisso/{{ c.id }}/concluir" style="display:inline;margin:0;">
+            <button type="submit" class="btn-icon" title="Concluir">&#10003;</button>
+          </form>
+          {% endif %}
+          <a href="/gestao/pessoal/tempo/compromisso/{{ c.id }}" class="btn-icon" title="Editar">&#9998;</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="vazio">Nenhum compromisso hoje.</div>
+    {% endif %}
+    <div class="acoes">
+      <a href="/gestao/pessoal/tempo/novo" class="btn-p">+ NOVO COMPROMISSO</a>
+    </div>
+  </div>
+
+  <div class="card-fin">
+    <div class="lbl">Rotinas ativas</div>
+    <div class="big pos">{{ rotinas|length }}</div>
+    <div class="hint">compromissos recorrentes</div>
+    {% if rotinas %}
+    <div class="lista-comp">
+      {% for r in rotinas %}
+      <div class="comp-item">
+        <div class="hora">{{ r.hora_inicio or '--:--' }}</div>
+        <div class="info">
+          <h3>{{ r.titulo }}</h3>
+          <p>{{ ['Dom','Seg','Ter','Qua','Qui','Sex','Sab'][r.dia_semana] if r.dia_semana is not none else 'Todo dia' }}{% if r.categoria %} &middot; {{ r.categoria }}{% endif %}</p>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="vazio">Nenhuma rotina ativa.</div>
+    {% endif %}
+  </div>
+
+  <div class="card-fin">
+    <div class="lbl">Bloqueios de foco hoje</div>
+    <div class="big {% if bloqueios %}pos{% else %}neg{% endif %}">{{ bloqueios|length }}</div>
+    <div class="hint">periodos de foco reservados</div>
+    {% if bloqueios %}
+    <div class="lista-comp">
+      {% for b in bloqueios %}
+      <div class="comp-item">
+        <div class="hora">{{ b.hora_inicio }}</div>
+        <div class="info">
+          <h3>{{ b.titulo or 'Foco' }}</h3>
+          <p>ate {{ b.hora_fim }}</p>
+        </div>
+        <form method="POST" action="/gestao/pessoal/tempo/foco/{{ b.id }}/deletar" style="display:inline;margin:0;" onsubmit="return confirm('Remover bloqueio?')">
+          <button type="submit" class="btn-icon" title="Remover">&#10005;</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="vazio">Nenhum bloqueio hoje.</div>
+    {% endif %}
+  </div>
+</div>
+<script src="/static/app.min.js?v=2"></script>
+<script src="/static/loading_global.js?v=4"></script>
+
+<!-- NAV_TEMPO -->
+<nav class="chips-bottom" style="position:fixed;bottom:0;left:0;right:0;background:#0f0f0f;border-top:1px solid #222;display:flex;justify-content:space-around;align-items:center;padding:8px 4px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:9900;gap:2px;">
+  <a href="/gestao/pessoal/tempo/planejado" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;color:#8a8a8a;text-decoration:none;font-size:11px;font-weight:600;flex:1;">
+    <span style="font-size:18px;line-height:1;">&#128203;</span>
+    <span style="font-size:10px;">Planejado</span>
+  </a>
+  <a href="/gestao/pessoal/tempo/rotinas" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;color:#8a8a8a;text-decoration:none;font-size:11px;font-weight:600;flex:1;">
+    <span style="font-size:18px;line-height:1;">&#128260;</span>
+    <span style="font-size:10px;">Rotinas</span>
+  </a>
+  <a href="/gestao/pessoal/tempo" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;color:#00d97e;text-decoration:none;font-size:11px;font-weight:700;flex:1;background:rgba(0,217,126,0.1);border-radius:8px;">
+    <span style="font-size:20px;line-height:1;">&#9889;</span>
+    <span style="font-size:10px;">Hoje</span>
+  </a>
+  <a href="/socio" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;color:#8a8a8a;text-decoration:none;font-size:11px;font-weight:600;flex:1;">
+    <span style="font-size:18px;line-height:1;">&#129504;</span>
+    <span style="font-size:10px;">Socio</span>
+  </a>
+  <a href="/gestao/pessoal/tempo/config" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;color:#8a8a8a;text-decoration:none;font-size:11px;font-weight:600;flex:1;">
+    <span style="font-size:18px;line-height:1;">&#9881;</span>
+    <span style="font-size:10px;">Config</span>
+  </a>
+</nav>
+<!-- /NAV_TEMPO -->
+</body>
+</html>

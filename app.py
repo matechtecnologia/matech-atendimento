@@ -1,4 +1,4 @@
-﻿import os
+import os
 import threading
 from datetime import datetime, timedelta
 import psycopg2
@@ -16,6 +16,7 @@ from asaas import criar_cliente, criar_cobranca_pix, obter_qr_code, consultar_pa
 from plano_estrategico import inicializar_plano_estrategico
 from gestao_pessoal_db import init_gestao_pessoal
 from gestao_pessoal_rotas import instalar_gestao_pessoal
+from gestao_tempo_rotas import instalar_gestao_tempo
 
 load_dotenv()
 
@@ -380,6 +381,11 @@ try:
     instalar_gestao_pessoal(app, templates, ler_sessao)
 except Exception as e:
     print(f"Erro ao instalar gestao pessoal rotas: {e}")
+
+try:
+    instalar_gestao_tempo(app, templates, ler_sessao)
+except Exception as e:
+    print(f"Erro ao instalar gestao tempo rotas: {e}")
 
 
 # inicializar_plano_estrategico DESATIVADO (apagava as tabelas a cada restart)

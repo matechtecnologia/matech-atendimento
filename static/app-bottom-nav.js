@@ -1,5 +1,5 @@
-﻿// ============================================
-// M.A TECH — Bottom Nav
+// ============================================
+// M.A TECH - Bottom Nav
 // ============================================
 
 (function() {
@@ -20,6 +20,10 @@
         return window.location.pathname.indexOf('/gestao/pessoal/financeira') === 0;
     }
 
+    function ehGestaoTempo() {
+        return window.location.pathname.indexOf('/gestao/pessoal/tempo') === 0;
+    }
+
     function rotaAtiva() {
         const path = window.location.pathname;
         if (path === '/clientes' || path === '/bem_vindo' || path.startsWith('/cliente/')) return 'clientes';
@@ -38,6 +42,14 @@
         if (path === '/gestao/pessoal/financeira/socio') return 'socio';
         if (path === '/gestao/pessoal/financeira/dashboarding') return 'dashboarding';
         if (path === '/gestao/pessoal/financeira' || path === '/gestao/pessoal/financeira/lancar' || path === '/gestao/pessoal/financeira/extrato') return 'financeiro';
+        return null;
+    }
+
+    function rotaAtivaTempo() {
+        const path = window.location.pathname;
+        if (path === '/gestao/pessoal/tempo/planejado') return 'planejado';
+        if (path === '/gestao/pessoal/tempo/rotinas') return 'rotinas';
+        if (path === '/gestao/pessoal/tempo/config') return 'config';
         return null;
     }
 
@@ -115,11 +127,39 @@
             </a>
             <a href="/gestao/pessoal/financeira/socio" class="nav-item ${ativa === 'socio' ? 'ativo' : ''}">
                 <span class="icone-nav">${icone('briefcase')}</span>
-                <span class="txt-nav">Sócio</span>
+                <span class="txt-nav">Socio</span>
             </a>
             <a href="/gestao/pessoal/financeira/dashboarding" class="nav-item ${ativa === 'dashboarding' ? 'ativo' : ''}">
                 <span class="icone-nav">${icone('dashboard')}</span>
                 <span class="txt-nav">Dash</span>
+            </a>
+        `;
+        document.body.appendChild(nav);
+    }
+
+    function criarNavTempo() {
+        const ativa = rotaAtivaTempo();
+        const nav = document.createElement('nav');
+        nav.className = 'app-bottom-nav';
+        nav.innerHTML = `
+            <a href="/gestao/pessoal/tempo/planejado" class="nav-item ${ativa === 'planejado' ? 'ativo' : ''}">
+                <span class="icone-nav">${icone('planos')}</span>
+                <span class="txt-nav">Planejado</span>
+            </a>
+            <a href="/gestao/pessoal/tempo/rotinas" class="nav-item ${ativa === 'rotinas' ? 'ativo' : ''}">
+                <span class="icone-nav">${icone('relatorios')}</span>
+                <span class="txt-nav">Rotinas</span>
+            </a>
+            <a href="/gestao/pessoal/tempo" class="nav-item destaque" title="Hoje">
+                <span class="icone-nav">${icone('raio', 26)}</span>
+            </a>
+            <a href="/socio" class="nav-item">
+                <span class="icone-nav">${icone('dashboard')}</span>
+                <span class="txt-nav">Socio</span>
+            </a>
+            <a href="/gestao/pessoal/tempo/config" class="nav-item ${ativa === 'config' ? 'ativo' : ''}">
+                <span class="icone-nav">${icone('configuracoes')}</span>
+                <span class="txt-nav">Config</span>
             </a>
         `;
         document.body.appendChild(nav);
@@ -132,6 +172,11 @@
 
         if (ehGestaoPessoalFinanceira()) {
             criarNavGestao();
+            return;
+        }
+
+        if (ehGestaoTempo()) {
+            criarNavTempo();
             return;
         }
 
@@ -155,7 +200,7 @@
             </a>
             <a href="/socio" class="nav-item">
                 <span class="icone-nav">${icone('briefcase')}</span>
-                <span class="txt-nav">Sócio</span>
+                <span class="txt-nav">Socio</span>
             </a>
             <a href="/notas" class="nav-item">
                 <span class="icone-nav">${icone('relatorios')}</span>

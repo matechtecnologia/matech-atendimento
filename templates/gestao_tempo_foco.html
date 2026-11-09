@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M.A Tech - Tempo - Foco</title>
+<link rel="stylesheet" href="/static/app.min.css?v=310930">
+<style>
+body { padding-bottom: 90px; }
+.card-fin { background:#141414; border:1px solid #222; border-radius:12px; padding:20px; margin-bottom:14px; }
+.card-fin .lbl { font-size:11px; color:#8a8a8a; text-transform:uppercase; letter-spacing:0.08em; font-weight:800; margin-bottom:8px; }
+.card-fin .hint { font-size:12px; color:#5a5a5a; margin-bottom:12px; }
+.card-fin label { display:block; font-size:11px; color:#8a8a8a; text-transform:uppercase; font-weight:800; margin:10px 0 4px; }
+.card-fin input { width:100%; padding:10px; border-radius:8px; border:1px solid #2a2a2a; background:#0a0a0a; color:#e8e8e8; font-family:inherit; font-size:14px; box-sizing:border-box; }
+.btn-p { background:#00d97e; color:#0a0a0a; padding:12px 20px; border-radius:8px; border:none; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit; }
+.comp-item { display:flex; align-items:center; gap:12px; padding:14px 0; border-bottom:1px solid #1e1e1e; }
+.comp-item:last-child { border-bottom:none; }
+.comp-item .hora { flex-shrink:0; width:80px; font-size:12px; font-weight:800; color:#00d97e; font-family:monospace; line-height:1.4; }
+.comp-item .info { flex:1; min-width:0; }
+.comp-item .info h3 { font-size:15px; color:#fff; font-weight:700; margin-bottom:2px; }
+.comp-item .info p { font-size:11px; color:#8a8a8a; margin:0; }
+.btn-icon { background:#161616; border:1px solid #222; color:#8a8a8a; width:36px; height:36px; border-radius:8px; font-size:13px; cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; justify-content:center; text-decoration:none; }
+.btn-icon.del:hover { border-color:#ff5555; color:#ff5555; }
+.vazio { color:#5a5a5a; font-size:13px; padding:16px 0; text-align:center; }
+</style>
+</head>
+<body>
+<div class="container-atendimento">
+  <div class="topo">
+    <h1>M.A <span style="color:#10b981">Tech</span></h1>
+    <div class="usuario-info">
+      <span>{{ usuario_nome or '' }}</span>
+      <a href="/planos">Planos</a>
+      {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
+      <a href="https://wa.me/5512997291583" target="_blank" rel="noopener">Suporte</a>
+      <a href="/logout">Sair</a>
+    </div>
+  </div>
+  <h2 style="color:#fff;margin-bottom:16px;">&#9200; Tempo</h2>
+
+  <div class="card-fin">
+    <div class="lbl">Novo bloqueio de foco</div>
+    <div class="hint">Silencia notificacoes no periodo escolhido.</div>
+    <form method="POST" action="/gestao/pessoal/tempo/foco/novo">
+      <label>Titulo</label>
+      <input type="text" name="titulo" value="Foco" maxlength="40">
+      <label>Data</label>
+      <input type="date" name="data" required value="{{ data_hoje }}">
+      <label>Hora inicio</label>
+      <input type="time" name="hora_inicio" required>
+      <label>Hora fim</label>
+      <input type="time" name="hora_fim" required>
+      <div style="margin-top:14px;">
+        <button type="submit" class="btn-p">BLOQUEAR</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card-fin">
+    <div class="lbl">Bloqueios de hoje</div>
+    {% if bloqueios %}
+      {% for b in bloqueios %}
+      <div class="comp-item">
+        <div class="hora">{{ b.hora_inicio }}<br>&darr;<br>{{ b.hora_fim }}</div>
+        <div class="info">
+          <h3>{{ b.titulo or 'Foco' }}</h3>
+          <p>Nao perturbe neste periodo</p>
+        </div>
+        <form method="POST" action="/gestao/pessoal/tempo/foco/{{ b.id }}/deletar" style="display:inline;margin:0;" onsubmit="return confirm('Remover bloqueio?')">
+          <button type="submit" class="btn-icon del">X</button>
+        </form>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="vazio">Nenhum bloqueio hoje.</div>
+    {% endif %}
+  </div>
+</div>
+<script src="/static/app.min.js?v=2"></script>
+<script src="/static/loading_global.js?v=4"></script>
+</body>
+</html>

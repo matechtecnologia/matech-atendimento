@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>M.A Tech - Tempo - Config</title>
+<link rel="stylesheet" href="/static/app.min.css?v=310930">
+<style>
+body { padding-bottom: 90px; }
+.card-fin { background:#141414; border:1px solid #222; border-radius:12px; padding:20px; margin-bottom:14px; }
+.card-fin .lbl { font-size:11px; color:#8a8a8a; text-transform:uppercase; letter-spacing:0.08em; font-weight:800; margin-bottom:8px; }
+.card-fin .hint { font-size:12px; color:#5a5a5a; margin-bottom:12px; }
+.linha-toggle { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid #1e1e1e; }
+.linha-toggle:last-child { border-bottom:none; }
+.linha-toggle .nome { color:#e8e8e8; font-size:14px; font-weight:600; }
+.linha-toggle .desc { color:#5a5a5a; font-size:11px; margin-top:2px; }
+.switch { position:relative; width:46px; height:26px; flex-shrink:0; }
+.switch input { opacity:0; width:0; height:0; }
+.switch .slider { position:absolute; inset:0; background:#222; border-radius:26px; transition:.2s; cursor:pointer; }
+.switch .slider:before { content:""; position:absolute; height:20px; width:20px; left:3px; bottom:3px; background:#8a8a8a; border-radius:50%; transition:.2s; }
+.switch input:checked + .slider { background:#00d97e; }
+.switch input:checked + .slider:before { transform:translateX(20px); background:#0a0a0a; }
+.card-fin label { display:block; font-size:11px; color:#8a8a8a; text-transform:uppercase; font-weight:800; margin:10px 0 4px; }
+.card-fin select { width:100%; padding:10px; border-radius:8px; border:1px solid #2a2a2a; background:#0a0a0a; color:#e8e8e8; font-family:inherit; font-size:14px; box-sizing:border-box; }
+.btn-p { background:#00d97e; color:#0a0a0a; padding:14px; border-radius:8px; border:none; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit; width:100%; }
+</style>
+</head>
+<body>
+<div class="container-atendimento">
+  <div class="topo">
+    <h1>M.A <span style="color:#10b981">Tech</span></h1>
+    <div class="usuario-info">
+      <span>{{ usuario_nome or '' }}</span>
+      <a href="/planos">Planos</a>
+      {% if usuario_tipo == 'admin' %}<a href="/admin">Admin</a>{% endif %}
+      <a href="https://wa.me/5512997291583" target="_blank" rel="noopener">Suporte</a>
+      <a href="/logout">Sair</a>
+    </div>
+  </div>
+  <h2 style="color:#fff;margin-bottom:16px;">&#9200; Tempo</h2>
+
+  <form method="POST" action="/gestao/pessoal/tempo/config">
+    <div class="card-fin">
+      <div class="lbl">Tipos de notificacao</div>
+
+      <div class="linha-toggle">
+        <div>
+          <div class="nome">Compromissos</div>
+          <div class="desc">Lembrete antes de cada compromisso</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" name="notif_compromissos" {% if cfg.notif_compromissos %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="linha-toggle">
+        <div>
+          <div class="nome">Rotinas</div>
+          <div class="desc">Aviso quando rotina comeca</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" name="notif_rotinas" {% if cfg.notif_rotinas %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="linha-toggle">
+        <div>
+          <div class="nome">Bloqueio de foco</div>
+          <div class="desc">Entrando/saindo de modo foco</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" name="notif_foco" {% if cfg.notif_foco %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="linha-toggle">
+        <div>
+          <div class="nome">Sugestoes da IA</div>
+          <div class="desc">Ideias de agenda e horarios livres</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" name="notif_sugestoes" {% if cfg.notif_sugestoes %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card-fin">
+      <div class="lbl">Quando avisar</div>
+      <label>Antecedencia padrao</label>
+      <select name="minutos_antes">
+        <option value="5" {% if cfg.minutos_antes==5 %}selected{% endif %}>5 min antes</option>
+        <option value="15" {% if cfg.minutos_antes==15 %}selected{% endif %}>15 min antes</option>
+        <option value="30" {% if cfg.minutos_antes==30 %}selected{% endif %}>30 min antes</option>
+        <option value="60" {% if cfg.minutos_antes==60 %}selected{% endif %}>1 hora antes</option>
+      </select>
+    </div>
+
+    <div class="card-fin">
+      <div class="lbl">Canais</div>
+
+      <div class="linha-toggle">
+        <div>
+          <div class="nome">Push (app)</div>
+          <div class="desc">Notificacao no proprio app</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" name="canal_push" {% if cfg.canal_push %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="linha-toggle">
+        <div>
+          <div class="nome">WhatsApp</div>
+          <div class="desc">Lembrete por WhatsApp</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" name="canal_whatsapp" {% if cfg.canal_whatsapp %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="linha-toggle">
+        <div>
+          <div class="nome">Email</div>
+          <div class="desc">Lembrete por email</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" name="canal_email" {% if cfg.canal_email %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <div class="linha-toggle">
+        <div>
+          <div class="nome">Ligacao</div>
+          <div class="desc">Para compromissos criticos (autorizo)</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" name="canal_ligacao" {% if cfg.canal_ligacao %}checked{% endif %}>
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-p">SALVAR CONFIGURACOES</button>
+  </form>
+</div>
+<script src="/static/app.min.js?v=2"></script>
+<script src="/static/loading_global.js?v=4"></script>
+</body>
+</html>
