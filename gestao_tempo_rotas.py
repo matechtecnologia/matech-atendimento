@@ -25,13 +25,6 @@ def instalar_gestao_tempo(app, templates, ler_sessao_func):
         d.update(extra)
         return d
 
-    # ---------------- CRON ----------------
-    @app.get("/gestao/pessoal/tempo/_cron")
-    def gt_cron():
-        try:
-            return JSONResponse(notif.verificar_e_enviar())
-        except Exception as e:
-            return JSONResponse({"ok": False, "erro": str(e)}, status_code=500)
 
     # ---------------- PAINEL (HOJE) ----------------
     @app.get("/gestao/pessoal/tempo", response_class=HTMLResponse)
@@ -257,3 +250,19 @@ def instalar_gestao_tempo(app, templates, ler_sessao_func):
         if not uid: return RedirectResponse("/login", status_code=303)
         return templates.TemplateResponse(request=request, name="gestao_tempo_historico.html",
             context=_ctx(usuario_nome, usuario_tipo, notificacoes=db.listar_notificacoes(uid, limite=100)))
+
+    # ---------------- CRON (agendador externo) ----------------
+    @app.get("/gestao/pessoal/tempo/cron")
+    def gt_cron(token: str = ""):
+        import os as _os
+        esperado = _os.getenv("TEMPO_CRON_TOKEN", "")
+        if not esperado or token != esperado:
+            return JSONResponse({"erro": "token invalido"}, status_code=403)
+        try:
+            r = notif.verificar_e_enviar()
+            return {"status": "ok", "enviadas": r.get("criadas", 0), "momento": r.get("momento")}
+        except Exception as e:
+            return JSONResponse({"status": "erro", "msg": str(e)}, status_code=500)
+
+        return templates.TemplateResponse(request=request, name="gestao_tempo_sugestoes.html",
+            context=_ctx(usuario_nome, usuario_tipo, sugestoes=sugestoes, erro=erro))
