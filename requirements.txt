@@ -8,3 +8,4 @@ groq
 google-genai
 requests
 psycopg2-binary
+supabase

@@ -17,6 +17,7 @@ from plano_estrategico import inicializar_plano_estrategico
 from gestao_pessoal_db import init_gestao_pessoal
 from gestao_pessoal_rotas import instalar_gestao_pessoal
 from gestao_tempo_rotas import instalar_gestao_tempo
+from foto_rotas import instalar_foto_rotas
 
 load_dotenv()
 
@@ -386,6 +387,11 @@ try:
     instalar_gestao_tempo(app, templates, ler_sessao)
 except Exception as e:
     print(f"Erro ao instalar gestao tempo rotas: {e}")
+
+try:
+    instalar_foto_rotas(app, templates, ler_sessao, get_conn, close_conn)
+except Exception as e:
+    print(f"Erro ao instalar foto rotas: {e}")
 
 
 # inicializar_plano_estrategico DESATIVADO (apagava as tabelas a cada restart)

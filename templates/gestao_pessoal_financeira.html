@@ -137,7 +137,8 @@ function abrirAplicar(t,p){ tipoAplicar=t; pctAplicar=p; document.getElementById
 async function confirmarAplicar(){ const d=document.getElementById('aplicar-data').value; const b=document.getElementById('aplicar-banco').value.trim(); const e=document.getElementById('aplicar-erro'); e.classList.remove('ativo'); if(!d){e.innerText='Data obrigatória.';e.classList.add('ativo');return;} if(!b){e.innerText='Banco obrigatório.';e.classList.add('ativo');return;} const fd=new FormData(); fd.append('tipo',tipoAplicar); fd.append('percentual',pctAplicar); fd.append('data_ap',d); fd.append('banco',b); const r=await fetch('/gestao/pessoal/financeira/aplicar',{method:'POST',body:fd,credentials:'same-origin'}); const j=await r.json(); if(j.ok)location.reload(); else{e.innerText='Erro: '+(j.erro||'?');e.classList.add('ativo');} }
 function fechar(q){ document.getElementById('mbg-'+q).classList.remove('ativo'); }
 </script>
-<script src="/static/app.min2.js?v=2"></script>
+<script src="/static/app.min.js?v=2"></script>
 <script src="/static/loading_global.js?v=4"></script>
 </body>
 </html>
+

@@ -28,18 +28,69 @@
                     Ajuste a aparência e o comportamento do app.
                 </p>
             </div>
-		
-		<!-- INDICAR -->
+
+            <!-- FOTO DE PERFIL -->
             <div class="config-secao" style="border-left:4px solid #00d97e;">
-                <h3>🎁 INDIQUE E GANHE</h3>
+                <h3>📸 FOTO DE PERFIL</h3>
+                <div style="display:flex; align-items:center; gap:16px; padding:12px 0;">
+                    <div id="foto-preview-wrap" style="width:80px; height:80px; border-radius:50%; background:rgba(0,217,126,0.15); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+                        <img id="foto-preview" src="" alt="" style="width:100%; height:100%; object-fit:cover; display:none;">
+                        <span id="foto-letra" style="color:#00d97e; font-size:32px; font-weight:800;">{{ usuario_nome[0]|upper }}</span>
+                    </div>
+                    <div style="flex:1;">
+                        <input type="file" id="foto-input" accept="image/jpeg,image/png,image/webp" style="display:none;">
+                        <button type="button" class="btn-config" onclick="document.getElementById('foto-input').click()" style="background:#00d97e; color:#0a0a0a; border-color:#00d97e; margin-bottom:8px;">Escolher foto</button>
+                        <button type="button" class="btn-config" id="foto-salvar" onclick="salvarFoto()" style="display:none; background:#0a0a0a; color:#00d97e; border-color:#00d97e;">Salvar foto</button>
+                        <div style="color:#5a5a5a; font-size:11px; margin-top:6px;">JPG, PNG ou WEBP · máx 2 MB</div>
+                    </div>
+                </div>
+                <div id="foto-status" style="font-size:12px; margin-top:8px; color:#8a8a8a;"></div>
+            </div>
+
+            <!-- RECURSOS -->
+            <div class="config-secao">
+                <h3>🧰 RECURSOS</h3>
+
+                <div class="config-item">
+                    <div class="info-config">
+                        <div class="titulo-config">📂 Nichos</div>
+                        <div class="desc-config">Gerencie seus nichos de atendimento</div>
+                    </div>
+                    <a href="/meus_nichos" class="btn-config">Abrir →</a>
+                </div>
+
+                <div class="config-item">
+                    <div class="info-config">
+                        <div class="titulo-config">💳 Planos</div>
+                        <div class="desc-config">Veja e gerencie seu plano</div>
+                    </div>
+                    <a href="/planos" class="btn-config">Abrir →</a>
+                </div>
+
+                <div class="config-item">
+                    <div class="info-config">
+                        <div class="titulo-config">🎁 Indique e ganhe</div>
+                        <div class="desc-config">Ganhe 1 mês grátis por indicação</div>
+                    </div>
+                    <a href="/indicar" class="btn-config">Abrir →</a>
+                </div>
+
+                <div class="config-item">
+                    <div class="info-config">
+                        <div class="titulo-config">💬 Suporte</div>
+                        <div class="desc-config">Fale com a gente no WhatsApp</div>
+                    </div>
+                    <a href="https://wa.me/5512997291583?text=Oi%2C%20preciso%20de%20ajuda%20com%20o%20M.A%20Tech" target="_blank" rel="noopener" class="btn-config">Abrir →</a>
+                </div>
+
                 <div class="config-item" style="border-bottom:none;">
                     <div class="info-config">
-                        <div class="titulo-config">Ganhe 1 mês grátis por indicação</div>
-                        <div class="desc-config">Compartilhe seu link. Cada amigo que assinar te dá +30 dias grátis.</div>
+                        <div class="titulo-config">🚪 Sair</div>
+                        <div class="desc-config">Encerrar sessão</div>
                     </div>
-                    <a href="/indicar" class="btn-config" style="background:#00d97e; color:#0a0a0a; border-color:#00d97e;">Ver meu link →</a>
+                    <a href="/logout" class="btn-config vermelho">Sair →</a>
                 </div>
-            </div>		
+            </div>
 
             <!-- APARÊNCIA -->
             <div class="config-secao">
@@ -170,7 +221,6 @@
     function setTema(t) {
         localStorage.setItem('matech_tema', t);
         document.documentElement.setAttribute('data-tema', t);
-        // Atualiza botões
         document.querySelectorAll('#seg-tema button').forEach(b => {
             b.classList.toggle('ativo', b.dataset.tema === t);
         });
@@ -206,13 +256,78 @@
         if (anim) anim.classList.toggle('ativo', getAnimacoes());
     }
 
-    // Inicializa
+    // ===== FOTO DE PERFIL =====
+    let _arquivoSelecionado = null;
+
+    function carregarFotoAtual() {
+        fetch('/api/usuario/foto').then(r => r.json()).then(d => {
+            if (d.foto_url) {
+                const img = document.getElementById('foto-preview');
+                const letra = document.getElementById('foto-letra');
+                img.src = d.foto_url;
+                img.style.display = 'block';
+                if (letra) letra.style.display = 'none';
+            }
+        }).catch(() => {});
+    }
+
+    document.getElementById('foto-input').addEventListener('change', (e) => {
+        const f = e.target.files[0];
+        if (!f) return;
+        if (f.size > 2 * 1024 * 1024) {
+            document.getElementById('foto-status').textContent = 'Arquivo maior que 2 MB';
+            document.getElementById('foto-status').style.color = '#ef4444';
+            return;
+        }
+        _arquivoSelecionado = f;
+        const img = document.getElementById('foto-preview');
+        const letra = document.getElementById('foto-letra');
+        img.src = URL.createObjectURL(f);
+        img.style.display = 'block';
+        if (letra) letra.style.display = 'none';
+        document.getElementById('foto-salvar').style.display = 'inline-block';
+        document.getElementById('foto-status').textContent = 'Pronto pra salvar';
+        document.getElementById('foto-status').style.color = '#f59e0b';
+    });
+
+    function salvarFoto() {
+        if (!_arquivoSelecionado) return;
+        const fd = new FormData();
+        fd.append('arquivo', _arquivoSelecionado);
+        const status = document.getElementById('foto-status');
+        status.textContent = 'Enviando...';
+        status.style.color = '#8a8a8a';
+        document.getElementById('foto-salvar').style.display = 'none';
+
+        fetch('/upload-avatar', { method: 'POST', body: fd })
+            .then(r => r.json())
+            .then(d => {
+                if (d.ok) {
+                    status.textContent = '✓ Foto salva';
+                    status.style.color = '#00d97e';
+                    const img = document.getElementById('foto-preview');
+                    img.src = d.foto_url;
+                    _arquivoSelecionado = null;
+                } else {
+                    status.textContent = 'Erro: ' + (d.erro || 'desconhecido');
+                    status.style.color = '#ef4444';
+                    document.getElementById('foto-salvar').style.display = 'inline-block';
+                }
+            })
+            .catch(() => {
+                status.textContent = 'Erro de rede';
+                status.style.color = '#ef4444';
+                document.getElementById('foto-salvar').style.display = 'inline-block';
+            });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         setTema(getTema());
         atualizarToggles();
+        carregarFotoAtual();
     });
     </script>
-    <script src="/static/app.min2.js?v=1"></script>
+    <script src="/static/app.min.js?v=1"></script>
     <script src="/static/splash.js"></script>
     <script src="/static/sw-register.js"></script>
     <script src="/static/app-badge-plano.js"></script>

@@ -54,7 +54,8 @@ const sai = ls.map(l => { const r = d2.find(x => x.data === l && x.tipo === 'sai
 new Chart(document.getElementById('g2'), { type:'line', data:{labels:ls, datasets:[{label:'Entradas',data:ent,borderColor:'#00d97e',tension:.3},{label:'Saídas',data:sai,borderColor:'#ff5555',tension:.3}]}, options:{plugins:{legend:{labels:{color:'#888'}}}, scales:{y:{ticks:{color:'#888'}}, x:{ticks:{color:'#888'}}}} });
 </script>
 {% endif %}
-<script src="/static/app.min2.js?v=2"></script>
+<script src="/static/app.min.js?v=2"></script>
 <script src="/static/loading_global.js?v=4"></script>
 </body>
 </html>
+
