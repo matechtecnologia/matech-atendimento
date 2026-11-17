@@ -44,12 +44,14 @@ body { padding-bottom: 90px; }
       appId: "0298704b-d568-4dd4-9313-efc0cc266914",
       notifyButton: { enable: false },
     });
+    await OneSignal.Notifications.requestPermission();
     // Loga o usuario com o uid do M.A Tech (cookie)
     const uid = "{{ usuario_id if usuario_id else '' }}";
     if (uid) {
       await OneSignal.login(uid);
     }
   });
+    await OneSignal.Notifications.requestPermission();
 </script>
 </head>
 <body>
