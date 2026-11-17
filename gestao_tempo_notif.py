@@ -12,8 +12,9 @@ def _conn():
 
 
 def _agora():
-    from zoneinfo import ZoneInfo
-    return datetime.now(ZoneInfo("America/Sao_Paulo")).replace(tzinfo=None)
+    # BRT = UTC-3 (hardcoded, sem dependencia de tzdata)
+    from datetime import timedelta, timezone
+    return datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=3)
 
 
 def _pode_notificar(cur, uid, tipo):
