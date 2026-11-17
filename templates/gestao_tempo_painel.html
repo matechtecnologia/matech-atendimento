@@ -42,7 +42,6 @@ body { padding-bottom: 90px; }
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "0298704b-d568-4dd4-9313-efc0cc266914",
-      serviceWorkerPath: "/OneSignalSDKWorker.js",
       notifyButton: { enable: false },
     });
     // Loga o usuario com o uid do M.A Tech (cookie)

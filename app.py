@@ -3489,12 +3489,4 @@ async def pagina_socio(request: Request):
 async def pagina_notas(request: Request):
     return HTMLResponse('<h1>Notas</h1><p>Em desenvolvimento.</p><a href="/clientes">Voltar</a>')
 
-@app.get("/OneSignalSDKWorker.js")
-def serve_onesignal_worker():
-    from fastapi.responses import FileResponse
-    return FileResponse("OneSignalSDKWorker.js", media_type="application/javascript")
 
-@app.get("/OneSignalSDKWorker.js")
-def serve_onesignal_worker():
-    from fastapi.responses import FileResponse
-    return FileResponse("OneSignalSDKWorker.js", media_type="application/javascript")
