@@ -70,12 +70,33 @@ def _canais_ativos(cfg):
 
 def _enviar_externo(canal, uid, titulo, mensagem):
     """
-    Stub de envio externo. Por enquanto, so registra.
-    Quando tiver credenciais, integra aqui (Twilio, SMTP, etc).
+    Envia push via OneSignal. canal='push' apenas.
+    Usa external_id (uid do M.A Tech) para mirar no usuario certo.
     """
-    # TODO: integrar WhatsApp/Email quando tiver credenciais
-    return True
-
+    if canal != "push":
+        return False
+    import os as _os
+    import requests
+    app_id = _os.getenv("ONESIGNAL_APP_ID", "")
+    api_key = _os.getenv("ONESIGNAL_REST_API_KEY", "")
+    if not app_id or not api_key:
+        return False
+    headers = {
+        "Authorization": f"Key {api_key}",
+        "Content-Type": "application/json; charset=utf-8",
+    }
+    payload = {
+        "app_id": app_id,
+        "target_channel": "push",
+        "headings": {"en": titulo, "pt": titulo},
+        "contents": {"en": mensagem, "pt": mensagem},
+        "include_aliases": {"external_id": [str(uid)]},
+    }
+    try:
+        r = requests.post("https://api.onesignal.com/notifications", json=payload, headers=headers, timeout=10)
+        return r.status_code == 200
+    except Exception:
+        return False
 
 def verificar_e_enviar():
     """

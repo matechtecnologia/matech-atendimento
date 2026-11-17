@@ -34,7 +34,7 @@ def instalar_gestao_tempo(app, templates, ler_sessao_func):
         if not uid: return RedirectResponse("/login", status_code=303)
         hoje = date.today()
         return templates.TemplateResponse(request=request, name="gestao_tempo_painel.html",
-            context=_ctx(usuario_nome, usuario_tipo,
+            context=_ctx(usuario_nome, usuario_tipo, usuario_id=usuario_id,
                 compromissos=db.listar_compromissos_dia(uid, hoje),
                 rotinas=db.listar_rotinas(uid, apenas_ativas=True),
                 bloqueios=db.listar_bloqueios_dia(uid, hoje),

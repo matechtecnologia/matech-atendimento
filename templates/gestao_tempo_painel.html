@@ -35,6 +35,23 @@ body { padding-bottom: 90px; }
 .btn-icon:hover { border-color:#00d97e; color:#00d97e; }
 .vazio { color:#5a5a5a; font-size:13px; padding:16px 0; text-align:center; }
 </style>
+<!-- OneSignal SDK -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "0298704b-d568-4dd4-9313-efc0cc266914",
+      serviceWorkerPath: "/OneSignalSDKWorker.js",
+      notifyButton: { enable: false },
+    });
+    // Loga o usuario com o uid do M.A Tech (cookie)
+    const uid = "{{ usuario_id if usuario_id else '' }}";
+    if (uid) {
+      await OneSignal.login(uid);
+    }
+  });
+</script>
 </head>
 <body>
 <div class="container-atendimento">
