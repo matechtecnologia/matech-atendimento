@@ -3493,3 +3493,8 @@ async def pagina_notas(request: Request):
 def serve_onesignal_worker():
     from fastapi.responses import FileResponse
     return FileResponse("OneSignalSDKWorker.js", media_type="application/javascript")
+
+@app.get("/OneSignalSDKWorker.js")
+def serve_onesignal_worker():
+    from fastapi.responses import FileResponse
+    return FileResponse("OneSignalSDKWorker.js", media_type="application/javascript")
