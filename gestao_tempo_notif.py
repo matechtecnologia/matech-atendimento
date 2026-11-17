@@ -12,7 +12,8 @@ def _conn():
 
 
 def _agora():
-    return datetime.now()
+    from zoneinfo import ZoneInfo
+    return datetime.now(ZoneInfo("America/Sao_Paulo")).replace(tzinfo=None)
 
 
 def _pode_notificar(cur, uid, tipo):
