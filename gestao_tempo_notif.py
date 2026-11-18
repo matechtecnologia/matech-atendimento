@@ -99,6 +99,17 @@ def _enviar_externo(canal, uid, titulo, mensagem):
     except Exception:
         return False
 
+def _montar_msg_compromisso(c, min_antes):
+    partes = [f"Em {min_antes} min: {c['titulo']}"]
+    if c.get("hora_inicio"):
+        partes.append(f"às {c['hora_inicio']}")
+    if c.get("hora_fim"):
+        partes.append(f"até {c['hora_fim']}")
+    if c.get("local"):
+        partes.append(f"em {c['local']}")
+    if c.get("descricao"):
+        partes.append(f"— {c['descricao']}")
+    return " ".join(partes)
 def verificar_e_enviar():
     """
     Roda a cada minuto (via cron). Olha compromissos e rotinas proximos,
@@ -141,7 +152,7 @@ def verificar_e_enviar():
                 cur.execute("SELECT * FROM gestao_tempo_config_notif WHERE usuario_id=%s", (uid,))
                 cfg = cur.fetchone()
                 canais = _canais_ativos(cfg)
-                msg = f"Em {min_antes} min: {c['titulo']} as {c['hora_inicio']}. {chave}"
+                msg = _montar_msg_compromisso(c, min_antes)
                 cur.execute("""
                     INSERT INTO gestao_tempo_notificacoes (usuario_id, tipo, titulo, mensagem, enviado)
                     VALUES (%s, %s, %s, %s, FALSE)
